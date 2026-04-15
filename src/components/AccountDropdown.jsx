@@ -9,7 +9,7 @@ import SignInModal from './SignInModal'
 import CategoryProgressModal from './CategoryProgressModal'
 import SocialShare from './SocialShare'
 
-function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome: _onGoToHome, onGoToPractice, triggerRef }) {
+function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome: _onGoToHome, onGoToPractice, onSettings, triggerRef }) {
   const { isDark, colors } = useTheme()
   const [userInfo, setUserInfo] = useState(null)
   const [stats, setStats] = useState(null)
@@ -416,12 +416,22 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome: _onGoT
               padding: '0.75rem 1rem',
               borderRadius: '8px'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                marginBottom: '0.75rem'
-              }}>
+              <div
+                onClick={() => { if (onSettings) { onSettings(); onClose(); } }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  marginBottom: '0.75rem',
+                  cursor: onSettings ? 'pointer' : 'default',
+                  borderRadius: '6px',
+                  padding: '0.25rem 0.5rem',
+                  margin: '-0.25rem -0.5rem 0.75rem -0.5rem',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => { if (onSettings) e.currentTarget.style.backgroundColor = colors.bgTertiary }}
+                onMouseLeave={(e) => { if (onSettings) e.currentTarget.style.backgroundColor = 'transparent' }}
+              >
                 <span style={{ fontSize: '1.25rem' }}>⚙️</span>
                 <span style={{
                   fontSize: '0.95rem',
@@ -591,12 +601,22 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome: _onGoT
               padding: '0.75rem 1rem',
               borderRadius: '8px'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                marginBottom: '0.75rem'
-              }}>
+              <div
+                onClick={() => { if (onSettings) { onSettings(); onClose(); } }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  marginBottom: '0.75rem',
+                  cursor: onSettings ? 'pointer' : 'default',
+                  borderRadius: '6px',
+                  padding: '0.25rem 0.5rem',
+                  margin: '-0.25rem -0.5rem 0.75rem -0.5rem',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => { if (onSettings) e.currentTarget.style.backgroundColor = '#f3f4f6' }}
+                onMouseLeave={(e) => { if (onSettings) e.currentTarget.style.backgroundColor = 'transparent' }}
+              >
                 <span style={{ fontSize: '1.25rem' }}>⚙️</span>
                 <span style={{
                   fontSize: '0.95rem',

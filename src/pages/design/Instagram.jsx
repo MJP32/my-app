@@ -4,6 +4,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -1486,6 +1487,8 @@ public class ExploreService {
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 

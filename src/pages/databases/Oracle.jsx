@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -221,6 +222,57 @@ const DBAOperationsDiagram = () => (
   </svg>
 )
 
+const SyntaxHighlighter = ({ code }) => {
+  const highlightCode = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(--.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|CROSS|ON|AND|OR|NOT|IN|EXISTS|BETWEEN|LIKE|IS|NULL|AS|ORDER|BY|GROUP|HAVING|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|ALTER|DROP|INDEX|PRIMARY|KEY|FOREIGN|REFERENCES|UNIQUE|CONSTRAINT|DEFAULT|CHECK|CASCADE|DISTINCT|UNION|ALL|CASE|WHEN|THEN|ELSE|END|WITH|OVER|PARTITION|ROW_NUMBER|RANK|DENSE_RANK|CONNECT|START|PRIOR|LEVEL|ROWNUM|ROWID|SYSDATE|DUAL|DECODE|NVL|NVL2|TO_CHAR|TO_DATE|TO_NUMBER|TRUNC|ROUND|SUBSTR|INSTR|REPLACE|TRIM|UPPER|LOWER|INITCAP|CONCAT|LENGTH|COUNT|SUM|AVG|MIN|MAX|GRANT|REVOKE|COMMIT|ROLLBACK|SAVEPOINT|BEGIN|END|DECLARE|EXCEPTION|RAISE|LOOP|EXIT|CURSOR|OPEN|CLOSE|FETCH|FOR|IF|ELSIF|PROCEDURE|FUNCTION|PACKAGE|BODY|RETURN|TYPE|RECORD|BULK|COLLECT|FORALL|EXECUTE|IMMEDIATE|MERGE|USING|MATCHED|TABLESPACE|SEQUENCE|SYNONYM|VIEW|TRIGGER|BEFORE|AFTER|EACH|ROW|INSTEAD|OF|PRAGMA|AUTONOMOUS_TRANSACTION|DBMS_OUTPUT|PUT_LINE)\b/gi, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(NUMBER|VARCHAR2|CHAR|DATE|TIMESTAMP|CLOB|BLOB|NVARCHAR2|NCLOB|RAW|LONG|BINARY_FLOAT|BINARY_DOUBLE|BOOLEAN|PLS_INTEGER|BINARY_INTEGER|SYS_REFCURSOR|EXCEPTION|XMLTYPE|SDO_GEOMETRY)\b/gi, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
+    </pre>
+  )
+}
+
 function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -236,19 +288,91 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'Stored Procedures & Functions',
-          explanation: 'PL/SQL procedures for business logic encapsulation. Functions return single values. Packages group related procedures and functions. Public and private declarations. Package state persistence within session. Overloading for polymorphism.'
+          explanation: 'PL/SQL procedures for business logic encapsulation. Functions return single values. Packages group related procedures and functions. Public and private declarations. Package state persistence within session. Overloading for polymorphism.',
+          codeExample: `-- Procedure with IN/OUT parameters
+CREATE OR REPLACE PROCEDURE transfer_funds(
+  p_from_acct IN NUMBER,
+  p_to_acct   IN NUMBER,
+  p_amount    IN NUMBER,
+  p_status    OUT VARCHAR2
+) AS
+BEGIN
+  UPDATE accounts SET balance = balance - p_amount
+    WHERE account_id = p_from_acct;
+  UPDATE accounts SET balance = balance + p_amount
+    WHERE account_id = p_to_acct;
+  p_status := 'SUCCESS';
+  COMMIT;
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    p_status := 'ERROR: ' || SQLERRM;
+END transfer_funds;`
         },
         {
           name: 'Triggers',
-          explanation: 'Before/after triggers on DML operations. Statement-level and row-level triggers. Instead-of triggers for views. Compound triggers for performance. Mutating table challenges and solutions. Audit and logging use cases.'
+          explanation: 'Before/after triggers on DML operations. Statement-level and row-level triggers. Instead-of triggers for views. Compound triggers for performance. Mutating table challenges and solutions. Audit and logging use cases.',
+          codeExample: `-- Audit trigger: log all changes to employees
+CREATE OR REPLACE TRIGGER trg_emp_audit
+BEFORE UPDATE OR DELETE ON employees
+FOR EACH ROW
+BEGIN
+  INSERT INTO emp_audit_log (
+    action, emp_id, old_salary, new_salary,
+    changed_by, changed_at
+  ) VALUES (
+    CASE WHEN UPDATING THEN 'UPDATE' ELSE 'DELETE' END,
+    :OLD.employee_id,
+    :OLD.salary,
+    NVL(:NEW.salary, :OLD.salary),
+    USER,
+    SYSDATE
+  );
+END;`
         },
         {
           name: 'Cursors & Bulk Processing',
-          explanation: 'Explicit cursors for row-by-row processing. Cursor FOR loops for simplicity. REF cursors for dynamic result sets. BULK COLLECT for array fetching. FORALL for bulk DML. Optimize PL/SQL with bulk operations.'
+          explanation: 'Explicit cursors for row-by-row processing. Cursor FOR loops for simplicity. REF cursors for dynamic result sets. BULK COLLECT for array fetching. FORALL for bulk DML. Optimize PL/SQL with bulk operations.',
+          codeExample: `-- BULK COLLECT + FORALL for efficient processing
+DECLARE
+  TYPE t_emp_ids IS TABLE OF employees.employee_id%TYPE;
+  l_ids t_emp_ids;
+BEGIN
+  SELECT employee_id BULK COLLECT INTO l_ids
+    FROM employees
+    WHERE department_id = 50;
+
+  FORALL i IN l_ids.FIRST .. l_ids.LAST
+    UPDATE employees
+      SET salary = salary * 1.10
+      WHERE employee_id = l_ids(i);
+
+  DBMS_OUTPUT.PUT_LINE(l_ids.COUNT || ' rows updated');
+  COMMIT;
+END;`
         },
         {
           name: 'Exception Handling',
-          explanation: 'Predefined exceptions like NO_DATA_FOUND, TOO_MANY_ROWS. User-defined exceptions with RAISE. EXCEPTION_INIT pragma for error mapping. SQLCODE and SQLERRM for error details. Propagation and handling hierarchy.'
+          explanation: 'Predefined exceptions like NO_DATA_FOUND, TOO_MANY_ROWS. User-defined exceptions with RAISE. EXCEPTION_INIT pragma for error mapping. SQLCODE and SQLERRM for error details. Propagation and handling hierarchy.',
+          codeExample: `-- Custom exception with PRAGMA EXCEPTION_INIT
+DECLARE
+  e_salary_too_high EXCEPTION;
+  PRAGMA EXCEPTION_INIT(e_salary_too_high, -20001);
+  l_salary NUMBER;
+BEGIN
+  SELECT salary INTO l_salary
+    FROM employees WHERE employee_id = 100;
+
+  IF l_salary > 50000 THEN
+    RAISE_APPLICATION_ERROR(-20001,
+      'Salary exceeds limit: ' || TO_CHAR(l_salary));
+  END IF;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Employee not found');
+  WHEN e_salary_too_high THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;`
         },
         {
           name: 'Collections & Records',
@@ -270,19 +394,88 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'Execution Plans & AWR',
-          explanation: 'EXPLAIN PLAN shows query execution strategy. Automatic Workload Repository (AWR) for historical analysis. ADDM for automated diagnostics. SQL Tuning Advisor for recommendations. Trace files with TKPROF for deep analysis.'
+          explanation: 'EXPLAIN PLAN shows query execution strategy. Automatic Workload Repository (AWR) for historical analysis. ADDM for automated diagnostics. SQL Tuning Advisor for recommendations. Trace files with TKPROF for deep analysis.',
+          codeExample: `-- View execution plan for a query
+EXPLAIN PLAN FOR
+SELECT e.last_name, d.department_name
+  FROM employees e
+  JOIN departments d ON e.department_id = d.department_id
+  WHERE e.salary > 10000;
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY(
+  format => 'ALL +PREDICATE +COST'));
+
+-- Generate AWR report between two snapshots
+SELECT * FROM TABLE(
+  DBMS_WORKLOAD_REPOSITORY.AWR_REPORT_TEXT(
+    l_dbid     => (SELECT dbid FROM v$database),
+    l_inst_num => 1,
+    l_bid      => 100,  -- begin snapshot
+    l_eid      => 110   -- end snapshot
+));`
         },
         {
           name: 'Optimizer & Hints',
-          explanation: 'Cost-based optimizer (CBO) uses statistics. Hints guide optimizer decisions (INDEX, FULL, PARALLEL). Cardinality feedback for iterative tuning. Adaptive query optimization. SQL Plan Management for stability.'
+          explanation: 'Cost-based optimizer (CBO) uses statistics. Hints guide optimizer decisions (INDEX, FULL, PARALLEL). Cardinality feedback for iterative tuning. Adaptive query optimization. SQL Plan Management for stability.',
+          codeExample: `-- Use hints to guide the optimizer
+SELECT /*+ INDEX(e idx_emp_dept) PARALLEL(e, 4) */
+       e.employee_id, e.last_name, e.salary
+  FROM employees e
+  WHERE e.department_id = 50
+  ORDER BY e.salary DESC;
+
+-- Gather fresh optimizer statistics
+BEGIN
+  DBMS_STATS.GATHER_TABLE_STATS(
+    ownname    => 'HR',
+    tabname    => 'EMPLOYEES',
+    method_opt => 'FOR ALL COLUMNS SIZE AUTO',
+    degree     => 4,
+    cascade    => TRUE
+  );
+END;`
         },
         {
           name: 'Indexing Strategies',
-          explanation: 'B-tree indexes for range queries. Bitmap indexes for low-cardinality columns. Function-based indexes for expressions. Invisible indexes for testing. Index compression and partitioned indexes. Monitor index usage with V$OBJECT_USAGE.'
+          explanation: 'B-tree indexes for range queries. Bitmap indexes for low-cardinality columns. Function-based indexes for expressions. Invisible indexes for testing. Index compression and partitioned indexes. Monitor index usage with V$OBJECT_USAGE.',
+          codeExample: `-- Function-based index for case-insensitive search
+CREATE INDEX idx_emp_upper_name
+  ON employees (UPPER(last_name));
+
+SELECT * FROM employees
+  WHERE UPPER(last_name) = 'SMITH';
+
+-- Bitmap index for low-cardinality column
+CREATE BITMAP INDEX idx_emp_status
+  ON employees (employment_status);
+
+-- Invisible index: test without affecting plans
+CREATE INDEX idx_emp_hire INVISIBLE
+  ON employees (hire_date);
+ALTER INDEX idx_emp_hire VISIBLE;`
         },
         {
           name: 'Partitioning',
-          explanation: 'Range, list, hash, and composite partitioning. Partition pruning for query optimization. Local and global indexes. Partition exchange for data loading. Interval partitioning for automatic management. Reference partitioning for child tables.'
+          explanation: 'Range, list, hash, and composite partitioning. Partition pruning for query optimization. Local and global indexes. Partition exchange for data loading. Interval partitioning for automatic management. Reference partitioning for child tables.',
+          codeExample: `-- Range partitioning by date with interval
+CREATE TABLE orders (
+  order_id   NUMBER PRIMARY KEY,
+  order_date DATE,
+  amount     NUMBER(10,2),
+  status     VARCHAR2(20)
+)
+PARTITION BY RANGE (order_date)
+INTERVAL (NUMTOYMINTERVAL(1, 'MONTH'))
+(
+  PARTITION p_2024_jan VALUES LESS THAN
+    (TO_DATE('2024-02-01','YYYY-MM-DD')),
+  PARTITION p_2024_feb VALUES LESS THAN
+    (TO_DATE('2024-03-01','YYYY-MM-DD'))
+);
+
+-- Query uses partition pruning automatically
+SELECT * FROM orders
+  WHERE order_date >= TO_DATE('2024-03-01','YYYY-MM-DD');`
         },
         {
           name: 'SQL Tuning Techniques',
@@ -304,19 +497,93 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'Real Application Clusters',
-          explanation: 'Multiple instances accessing single database. Cache Fusion for inter-instance communication. Transparent Application Failover (TAF). Services for load balancing. Fast Application Notification (FAN) for connection failover.'
+          explanation: 'Multiple instances accessing single database. Cache Fusion for inter-instance communication. Transparent Application Failover (TAF). Services for load balancing. Fast Application Notification (FAN) for connection failover.',
+          codeExample: `-- Check RAC instance status
+SELECT inst_id, instance_name, status,
+       host_name, startup_time
+  FROM gv$instance ORDER BY inst_id;
+
+-- Monitor Cache Fusion (global cache) performance
+SELECT inst_id,
+  SUM(DECODE(name,'gc cr blocks received',value,0)) cr_recv,
+  SUM(DECODE(name,'gc current blocks received',value,0)) cur_recv
+  FROM gv$sysstat
+  WHERE name LIKE 'gc%blocks received'
+  GROUP BY inst_id;
+
+-- Create a RAC service for load balancing
+BEGIN
+  DBMS_SERVICE.CREATE_SERVICE(
+    service_name => 'APP_SVC',
+    aq_ha_notifications => TRUE,
+    failover_method => 'BASIC',
+    failover_type => 'SELECT'
+  );
+END;`
         },
         {
           name: 'Data Guard',
-          explanation: 'Physical standby for exact replica. Logical standby for read-write reporting. Active Data Guard for read-only queries. Fast-Start Failover for automatic failover. Observer process monitors primary and standby.'
+          explanation: 'Physical standby for exact replica. Logical standby for read-write reporting. Active Data Guard for read-only queries. Fast-Start Failover for automatic failover. Observer process monitors primary and standby.',
+          codeExample: `-- Check Data Guard status from primary
+SELECT dest_id, status, error,
+       DECODE(protection_mode,
+         'MAXIMUM PERFORMANCE','MaxPerf',
+         'MAXIMUM AVAILABILITY','MaxAvail') mode
+  FROM v$archive_dest_status
+  WHERE type = 'PHYSICAL';
+
+-- Verify sync between primary and standby
+SELECT sequence#, applied, archived
+  FROM v$archived_log
+  WHERE dest_id = 2
+  ORDER BY sequence# DESC
+  FETCH FIRST 5 ROWS ONLY;
+
+-- Switchover to standby (run on primary)
+ALTER DATABASE COMMIT TO SWITCHOVER
+  TO PHYSICAL STANDBY WITH SESSION SHUTDOWN;`
         },
         {
           name: 'RMAN Backup & Recovery',
-          explanation: 'Recovery Manager for backups. Full, incremental, and cumulative backups. Block change tracking for efficiency. Backup compression and encryption. Point-in-time recovery (PITR). Flashback technology for data recovery.'
+          explanation: 'Recovery Manager for backups. Full, incremental, and cumulative backups. Block change tracking for efficiency. Backup compression and encryption. Point-in-time recovery (PITR). Flashback technology for data recovery.',
+          codeExample: `-- RMAN incremental backup with compression
+-- Run from RMAN command line
+CONFIGURE COMPRESSION ALGORITHM 'ZSTD';
+
+BACKUP INCREMENTAL LEVEL 0
+  DATABASE PLUS ARCHIVELOG
+  TAG 'WEEKLY_FULL';
+
+BACKUP INCREMENTAL LEVEL 1
+  DATABASE PLUS ARCHIVELOG
+  TAG 'DAILY_INCR';
+
+-- Point-in-time recovery
+RUN {
+  SET UNTIL TIME "TO_DATE('2024-06-15 14:00','YYYY-MM-DD HH24:MI')";
+  RESTORE DATABASE;
+  RECOVER DATABASE;
+}
+ALTER DATABASE OPEN RESETLOGS;`
         },
         {
           name: 'ASM & Storage',
-          explanation: 'Automatic Storage Management for database files. Disk groups with redundancy. ASM rebalancing for load distribution. ACFS for cluster file systems. Intelligent data placement.'
+          explanation: 'Automatic Storage Management for database files. Disk groups with redundancy. ASM rebalancing for load distribution. ACFS for cluster file systems. Intelligent data placement.',
+          codeExample: `-- Create ASM disk group with normal redundancy
+CREATE DISKGROUP data_dg
+  NORMAL REDUNDANCY
+  FAILGROUP fg1 DISK '/dev/sdb1', '/dev/sdc1'
+  FAILGROUP fg2 DISK '/dev/sdd1', '/dev/sde1'
+  ATTRIBUTE 'compatible.asm' = '19.0';
+
+-- Check ASM disk group usage
+SELECT name, total_mb, free_mb,
+  ROUND((1 - free_mb/total_mb) * 100, 1) pct_used
+  FROM v$asm_diskgroup;
+
+-- Add disk and rebalance
+ALTER DISKGROUP data_dg ADD DISK '/dev/sdf1'
+  REBALANCE POWER 8;`
         },
         {
           name: 'Grid Infrastructure',
@@ -338,19 +605,99 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'Fine-Grained Access',
-          explanation: 'Virtual Private Database (VPD) for row-level security. DBMS_RLS policies. Application contexts for session attributes. Secure application roles. Label security for classified data.'
+          explanation: 'Virtual Private Database (VPD) for row-level security. DBMS_RLS policies. Application contexts for session attributes. Secure application roles. Label security for classified data.',
+          codeExample: `-- VPD policy: users only see their department
+CREATE OR REPLACE FUNCTION dept_security_policy(
+  p_schema IN VARCHAR2, p_table IN VARCHAR2
+) RETURN VARCHAR2 AS
+BEGIN
+  RETURN 'department_id = SYS_CONTEXT(''APP_CTX'',''DEPT_ID'')';
+END;
+/
+
+-- Attach policy to employees table
+BEGIN
+  DBMS_RLS.ADD_POLICY(
+    object_schema   => 'HR',
+    object_name     => 'EMPLOYEES',
+    policy_name     => 'DEPT_FILTER',
+    function_schema => 'HR',
+    policy_function => 'DEPT_SECURITY_POLICY',
+    statement_types => 'SELECT,UPDATE,DELETE'
+  );
+END;`
         },
         {
           name: 'Encryption',
-          explanation: 'Transparent Data Encryption (TDE) for tablespaces and columns. Network encryption with SSL/TLS. Encrypted backup sets. Wallet management for keys. Advanced Encryption Standard (AES).'
+          explanation: 'Transparent Data Encryption (TDE) for tablespaces and columns. Network encryption with SSL/TLS. Encrypted backup sets. Wallet management for keys. Advanced Encryption Standard (AES).',
+          codeExample: `-- Create encrypted tablespace with TDE
+ALTER SYSTEM SET ENCRYPTION KEY
+  IDENTIFIED BY "wallet_password";
+
+CREATE TABLESPACE secure_ts
+  DATAFILE '/oradata/secure01.dbf' SIZE 500M
+  ENCRYPTION USING 'AES256'
+  DEFAULT STORAGE(ENCRYPT);
+
+-- Encrypt individual column
+ALTER TABLE customers MODIFY (
+  credit_card_num ENCRYPT USING 'AES256'
+);
+
+-- Verify encryption status
+SELECT tablespace_name, encrypted
+  FROM dba_tablespaces
+  WHERE encrypted = 'YES';`
         },
         {
           name: 'Auditing',
-          explanation: 'Unified Audit Trail for comprehensive logging. Fine-grained audit (FGA) for specific access patterns. Mandatory auditing for privileged users. AUDIT_ADMIN role for audit management. Audit policies and conditions.'
+          explanation: 'Unified Audit Trail for comprehensive logging. Fine-grained audit (FGA) for specific access patterns. Mandatory auditing for privileged users. AUDIT_ADMIN role for audit management. Audit policies and conditions.',
+          codeExample: `-- Create unified audit policy for salary access
+CREATE AUDIT POLICY salary_audit_pol
+  ACTIONS SELECT ON hr.employees
+  WHEN 'SYS_CONTEXT(''USERENV'',''SESSION_USER'') != ''HR'''
+  EVALUATE PER SESSION;
+
+AUDIT POLICY salary_audit_pol;
+
+-- Fine-grained auditing on sensitive columns
+BEGIN
+  DBMS_FGA.ADD_POLICY(
+    object_schema => 'HR',
+    object_name   => 'EMPLOYEES',
+    policy_name   => 'FGA_SALARY',
+    audit_column  => 'SALARY,COMMISSION_PCT',
+    audit_condition => 'SALARY > 15000'
+  );
+END;
+
+-- Query audit trail
+SELECT event_timestamp, dbusername, action_name,
+       object_name, sql_text
+  FROM unified_audit_trail
+  WHERE unified_audit_policies = 'SALARY_AUDIT_POL';`
         },
         {
           name: 'User Management',
-          explanation: 'Database users and schemas. Password policies and profiles. Account locking and expiration. External authentication with LDAP/Kerberos. Proxy authentication for application users.'
+          explanation: 'Database users and schemas. Password policies and profiles. Account locking and expiration. External authentication with LDAP/Kerberos. Proxy authentication for application users.',
+          codeExample: `-- Create user with password profile
+CREATE PROFILE app_user_profile LIMIT
+  FAILED_LOGIN_ATTEMPTS 5
+  PASSWORD_LIFE_TIME 90
+  PASSWORD_REUSE_MAX 10
+  PASSWORD_LOCK_TIME 1;
+
+CREATE USER app_user
+  IDENTIFIED BY "SecureP@ss123"
+  DEFAULT TABLESPACE users
+  QUOTA 500M ON users
+  PROFILE app_user_profile;
+
+GRANT CREATE SESSION, CREATE TABLE TO app_user;
+
+-- Proxy authentication for app connections
+ALTER USER app_user
+  GRANT CONNECT THROUGH proxy_user;`
         },
         {
           name: 'Privilege Management',
@@ -372,19 +719,108 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'Materialized Views',
-          explanation: 'Pre-computed query results for performance. Fast refresh with materialized view logs. Complete and incremental refresh. Query rewrite for transparent use. Refresh on commit or on demand. Partition change tracking (PCT).'
+          explanation: 'Pre-computed query results for performance. Fast refresh with materialized view logs. Complete and incremental refresh. Query rewrite for transparent use. Refresh on commit or on demand. Partition change tracking (PCT).',
+          codeExample: `-- Create MV log for fast refresh
+CREATE MATERIALIZED VIEW LOG ON sales
+  WITH ROWID, PRIMARY KEY (product_id, sale_date, amount)
+  INCLUDING NEW VALUES;
+
+-- Materialized view with fast refresh
+CREATE MATERIALIZED VIEW mv_daily_sales
+  REFRESH FAST ON DEMAND
+  ENABLE QUERY REWRITE
+AS
+SELECT product_id,
+       TRUNC(sale_date) sale_day,
+       SUM(amount) total_amount,
+       COUNT(*) sale_count
+  FROM sales
+  GROUP BY product_id, TRUNC(sale_date);
+
+-- Manual refresh
+BEGIN
+  DBMS_MVIEW.REFRESH('MV_DAILY_SALES', 'F');
+END;`
         },
         {
           name: 'Star Schema Design',
-          explanation: 'Fact tables with measures and foreign keys. Dimension tables with attributes. Star queries with bitmap indexes. Bitmap join indexes for optimization. Dimension hierarchies and aggregations.'
+          explanation: 'Fact tables with measures and foreign keys. Dimension tables with attributes. Star queries with bitmap indexes. Bitmap join indexes for optimization. Dimension hierarchies and aggregations.',
+          codeExample: `-- Fact table with dimension foreign keys
+CREATE TABLE fact_sales (
+  sale_id      NUMBER PRIMARY KEY,
+  product_key  NUMBER REFERENCES dim_product(product_key),
+  time_key     NUMBER REFERENCES dim_time(time_key),
+  store_key    NUMBER REFERENCES dim_store(store_key),
+  quantity     NUMBER,
+  revenue      NUMBER(12,2)
+);
+
+-- Bitmap index on dimension FK (low cardinality)
+CREATE BITMAP INDEX bm_sales_store
+  ON fact_sales (store_key);
+
+-- Star transformation query
+SELECT /*+ STAR_TRANSFORMATION */
+  p.category, t.quarter, SUM(f.revenue)
+  FROM fact_sales f, dim_product p, dim_time t
+  WHERE f.product_key = p.product_key
+    AND f.time_key = t.time_key
+    AND p.category = 'Electronics'
+  GROUP BY p.category, t.quarter;`
         },
         {
           name: 'Parallel Processing',
-          explanation: 'Parallel query execution across CPUs. Parallel DML for bulk operations. Parallel DDL for index creation. Degree of parallelism (DOP) tuning. Parallel execution servers and queuing.'
+          explanation: 'Parallel query execution across CPUs. Parallel DML for bulk operations. Parallel DDL for index creation. Degree of parallelism (DOP) tuning. Parallel execution servers and queuing.',
+          codeExample: `-- Enable parallel DML for bulk operations
+ALTER SESSION ENABLE PARALLEL DML;
+
+-- Parallel insert from staging
+INSERT /*+ APPEND PARALLEL(t, 8) */
+  INTO fact_sales t
+  SELECT /*+ PARALLEL(s, 8) */ *
+    FROM staging_sales s
+    WHERE s.load_date = TRUNC(SYSDATE);
+
+COMMIT;
+
+-- Parallel index rebuild
+ALTER INDEX idx_sales_date REBUILD
+  PARALLEL 8 NOLOGGING;
+ALTER INDEX idx_sales_date NOPARALLEL;
+
+-- Check parallel execution stats
+SELECT px_servers_requested, px_servers_allocated
+  FROM v$sql_monitor
+  WHERE sql_id = 'abc123def';`
         },
         {
           name: 'Data Loading',
-          explanation: 'SQL*Loader for external file loading. External tables for direct access. Direct-path insert for bulk loading. Parallel loading for performance. Error handling and bad file logging.'
+          explanation: 'SQL*Loader for external file loading. External tables for direct access. Direct-path insert for bulk loading. Parallel loading for performance. Error handling and bad file logging.',
+          codeExample: `-- External table for CSV file access
+CREATE TABLE ext_sales_data (
+  product_id NUMBER,
+  sale_date  DATE,
+  amount     NUMBER(10,2),
+  region     VARCHAR2(50)
+)
+ORGANIZATION EXTERNAL (
+  TYPE ORACLE_LOADER
+  DEFAULT DIRECTORY data_dir
+  ACCESS PARAMETERS (
+    RECORDS DELIMITED BY NEWLINE
+    FIELDS TERMINATED BY ','
+    OPTIONALLY ENCLOSED BY '"'
+    MISSING FIELD VALUES ARE NULL
+    (product_id, sale_date DATE 'YYYY-MM-DD',
+     amount, region)
+  )
+  LOCATION ('sales_2024.csv')
+)
+REJECT LIMIT UNLIMITED;
+
+-- Direct-path load from external table
+INSERT /*+ APPEND */ INTO sales
+  SELECT * FROM ext_sales_data;`
         },
         {
           name: 'Analytical Functions',
@@ -406,19 +842,98 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'In-Memory Column Store',
-          explanation: 'Dual-format architecture (row and column). In-memory aggregation and analytics. Automatic DML synchronization. In-memory expressions for computed columns. Population strategies (on demand, priority). Dramatic query speedup.'
+          explanation: 'Dual-format architecture (row and column). In-memory aggregation and analytics. Automatic DML synchronization. In-memory expressions for computed columns. Population strategies (on demand, priority). Dramatic query speedup.',
+          codeExample: `-- Enable In-Memory on a table
+ALTER TABLE sales INMEMORY
+  PRIORITY CRITICAL
+  MEMCOMPRESS FOR QUERY HIGH;
+
+-- Check In-Memory population status
+SELECT segment_name, inmemory_size,
+       bytes_not_populated, populate_status
+  FROM v$im_segments;
+
+-- Query benefits from columnar scan automatically
+SELECT region, TRUNC(sale_date,'Q') quarter,
+       SUM(amount) total, COUNT(*) cnt
+  FROM sales
+  WHERE sale_date >= TO_DATE('2024-01-01','YYYY-MM-DD')
+  GROUP BY region, TRUNC(sale_date,'Q')
+  ORDER BY total DESC;`
         },
         {
           name: 'Edition-Based Redefinition',
-          explanation: 'Online application upgrades without downtime. Multiple code versions (editions). Cross-edition triggers for data transformation. Edition retirement after deployment. Backward compatibility during transition.'
+          explanation: 'Online application upgrades without downtime. Multiple code versions (editions). Cross-edition triggers for data transformation. Edition retirement after deployment. Backward compatibility during transition.',
+          codeExample: `-- Create a new edition for v2 deployment
+CREATE EDITION v2_release;
+
+-- Switch session to the new edition
+ALTER SESSION SET EDITION = v2_release;
+
+-- Modify procedure in new edition only
+CREATE OR REPLACE PROCEDURE calc_bonus(
+  p_emp_id NUMBER
+) AS
+  l_salary NUMBER;
+BEGIN
+  SELECT salary INTO l_salary
+    FROM employees WHERE employee_id = p_emp_id;
+  -- New logic in v2: tiered bonus
+  UPDATE employees SET commission_pct =
+    CASE WHEN l_salary > 10000 THEN 0.15
+         WHEN l_salary > 5000  THEN 0.10
+         ELSE 0.05 END
+    WHERE employee_id = p_emp_id;
+END;`
         },
         {
           name: 'JSON & XML Support',
-          explanation: 'Native JSON data type. JSON_TABLE for relational projection. JSON path expressions. XML storage with XMLType. XQuery for XML querying. JSON and XML indexing.'
+          explanation: 'Native JSON data type. JSON_TABLE for relational projection. JSON path expressions. XML storage with XMLType. XQuery for XML querying. JSON and XML indexing.',
+          codeExample: `-- Table with JSON column
+CREATE TABLE products (
+  id   NUMBER PRIMARY KEY,
+  data JSON
+);
+
+INSERT INTO products VALUES (1,
+  '{"name":"Laptop","specs":{"ram":16,"storage":512},"tags":["electronics","portable"]}');
+
+-- Query JSON with dot notation and JSON_TABLE
+SELECT p.data.name,
+       p.data.specs.ram AS ram_gb,
+       jt.tag
+  FROM products p,
+  JSON_TABLE(p.data, '$.tags[*]'
+    COLUMNS (tag VARCHAR2(50) PATH '$')
+  ) jt;
+
+-- JSON search index for full-text queries
+CREATE SEARCH INDEX idx_prod_json
+  ON products (data) FOR JSON;`
         },
         {
           name: 'Multitenant Architecture',
-          explanation: 'Container database (CDB) with pluggable databases (PDBs). Resource isolation and management. Rapid provisioning with cloning. Easier patching and upgrades. Consolidation benefits.'
+          explanation: 'Container database (CDB) with pluggable databases (PDBs). Resource isolation and management. Rapid provisioning with cloning. Easier patching and upgrades. Consolidation benefits.',
+          codeExample: `-- Create a pluggable database from seed
+CREATE PLUGGABLE DATABASE sales_pdb
+  ADMIN USER pdb_admin IDENTIFIED BY "P@ss123"
+  FILE_NAME_CONVERT = (
+    '/oradata/pdbseed/', '/oradata/sales_pdb/'
+  )
+  STORAGE (MAXSIZE 50G);
+
+ALTER PLUGGABLE DATABASE sales_pdb OPEN;
+
+-- Clone an existing PDB for dev/test
+CREATE PLUGGABLE DATABASE sales_dev
+  FROM sales_pdb
+  FILE_NAME_CONVERT = (
+    '/oradata/sales_pdb/', '/oradata/sales_dev/'
+  );
+
+-- List all PDBs in the CDB
+SELECT pdb_id, pdb_name, status, open_mode
+  FROM dba_pdbs ORDER BY pdb_id;`
         },
         {
           name: 'Advanced Queueing',
@@ -440,19 +955,96 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'Autonomous Database',
-          explanation: 'Self-driving database with machine learning. Self-securing against threats. Self-repairing for high availability. Automated patching and tuning. Workload types: OLTP, data warehouse, JSON, APEX.'
+          explanation: 'Self-driving database with machine learning. Self-securing against threats. Self-repairing for high availability. Automated patching and tuning. Workload types: OLTP, data warehouse, JSON, APEX.',
+          codeExample: `-- Connect and query Autonomous Database
+-- Uses wallet-based authentication
+SELECT instance_name, version, status
+  FROM v$instance;
+
+-- Auto-scaling is managed, but check resource usage
+SELECT cpu_count, max_cpu_count,
+       pga_target, sga_target
+  FROM v$parameter
+  WHERE name IN ('cpu_count','pga_aggregate_target',
+                 'sga_target');
+
+-- Schedule automatic maintenance window
+BEGIN
+  DBMS_CLOUD_ADMIN.SET_MAINTENANCE_WINDOW(
+    window_start => '02:00',
+    window_end   => '06:00',
+    day_of_week  => 'SUNDAY'
+  );
+END;`
         },
         {
           name: 'Exadata Architecture',
-          explanation: 'Engineered system for Oracle Database. Smart Scan offloads processing to storage. Hybrid Columnar Compression. InfiniBand interconnect for low latency. Flash cache for frequently accessed data.'
+          explanation: 'Engineered system for Oracle Database. Smart Scan offloads processing to storage. Hybrid Columnar Compression. InfiniBand interconnect for low latency. Flash cache for frequently accessed data.',
+          codeExample: `-- Check Smart Scan offload statistics
+SELECT name, value FROM v$mystat m
+  JOIN v$statname s ON m.statistic# = s.statistic#
+  WHERE s.name LIKE 'cell%smart%';
+
+-- Enable Hybrid Columnar Compression (HCC)
+ALTER TABLE historical_orders COMPRESS
+  FOR QUERY HIGH;
+
+-- Monitor flash cache hit ratio
+SELECT cell_name,
+  ROUND(fc_io_bytes_saved /
+    NULLIF(fc_io_bytes_saved + fc_io_bytes_eligible, 0)
+    * 100, 1) flash_hit_pct
+  FROM v$cell_state
+  WHERE statistics_type = 'FLASHCACHE';
+
+-- Check Exadata cell server status
+SELECT cell_name, status FROM v$cell;`
         },
         {
           name: 'Cloud Services',
-          explanation: 'Oracle Database Cloud Service (DBCS). Bare metal and virtual machines. Automated backups and patching. Scaling compute and storage independently. Data Guard integration for DR.'
+          explanation: 'Oracle Database Cloud Service (DBCS). Bare metal and virtual machines. Automated backups and patching. Scaling compute and storage independently. Data Guard integration for DR.',
+          codeExample: `-- OCI CLI: create DB system (command line)
+-- oci db system launch --compartment-id <ocid>
+--   --shape VM.Standard2.4
+--   --db-version 19.0.0.0
+--   --display-name "ProdDB"
+
+-- Scale OCPU count dynamically
+BEGIN
+  DBMS_CLOUD_ADMIN.SCALE_RESOURCE(
+    resource_name => 'COMPUTE',
+    resource_value => 8  -- scale to 8 OCPUs
+  );
+END;
+
+-- Verify automated backup schedule
+SELECT backup_type, start_time, status,
+       output_bytes_display
+  FROM v$rman_backup_job_details
+  WHERE start_time > SYSDATE - 7
+  ORDER BY start_time DESC;`
         },
         {
           name: 'Database Migration',
-          explanation: 'Data Pump for logical migration. GoldenGate for real-time replication. Zero Downtime Migration (ZDM) tools. Cloud migration utilities. Assessment and planning tools.'
+          explanation: 'Data Pump for logical migration. GoldenGate for real-time replication. Zero Downtime Migration (ZDM) tools. Cloud migration utilities. Assessment and planning tools.',
+          codeExample: `-- Data Pump export for migration
+-- Run from OS command line:
+-- expdp system/password@source_db
+--   FULL=Y DIRECTORY=dp_dir
+--   DUMPFILE=full_export_%U.dmp
+--   PARALLEL=4 COMPRESSION=ALL
+
+-- Data Pump import into target
+-- impdp system/password@target_db
+--   FULL=Y DIRECTORY=dp_dir
+--   DUMPFILE=full_export_%U.dmp
+--   PARALLEL=4 TRANSFORM=SEGMENT_ATTRIBUTES:N
+
+-- Check Data Pump job status
+SELECT owner_name, job_name, state,
+       attached_sessions
+  FROM dba_datapump_jobs
+  WHERE state = 'EXECUTING';`
         },
         {
           name: 'Container Databases',
@@ -474,23 +1066,112 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       details: [
         {
           name: 'Database Creation',
-          explanation: 'DBCA for graphical creation. Manual database creation with scripts. Database configuration parameters. Character set selection. Undo and redo sizing. Control file multiplexing.'
+          explanation: 'DBCA for graphical creation. Manual database creation with scripts. Database configuration parameters. Character set selection. Undo and redo sizing. Control file multiplexing.',
+          codeExample: `-- Key init parameters for new database
+ALTER SYSTEM SET db_name = 'PRODDB' SCOPE=SPFILE;
+ALTER SYSTEM SET memory_target = 4G SCOPE=SPFILE;
+ALTER SYSTEM SET processes = 500 SCOPE=SPFILE;
+ALTER SYSTEM SET open_cursors = 300 SCOPE=SPFILE;
+ALTER SYSTEM SET db_recovery_file_dest_size = 50G
+  SCOPE=SPFILE;
+
+-- Create tablespaces after DB creation
+CREATE TABLESPACE app_data
+  DATAFILE '/oradata/PRODDB/app_data01.dbf'
+  SIZE 1G AUTOEXTEND ON NEXT 500M MAXSIZE 10G
+  SEGMENT SPACE MANAGEMENT AUTO;
+
+CREATE TEMPORARY TABLESPACE app_temp
+  TEMPFILE '/oradata/PRODDB/app_temp01.dbf'
+  SIZE 500M AUTOEXTEND ON;`
         },
         {
           name: 'Space Management',
-          explanation: 'Tablespace administration (permanent, temporary, undo). Segment space management (auto vs manual). Resumable space allocation. Shrinking segments to reclaim space. Monitoring space usage and growth.'
+          explanation: 'Tablespace administration (permanent, temporary, undo). Segment space management (auto vs manual). Resumable space allocation. Shrinking segments to reclaim space. Monitoring space usage and growth.',
+          codeExample: `-- Monitor tablespace usage
+SELECT tablespace_name,
+  ROUND(used_space * 8192 / 1024 / 1024) used_mb,
+  ROUND(tablespace_size * 8192 / 1024 / 1024) total_mb,
+  ROUND(used_percent, 1) pct_used
+  FROM dba_tablespace_usage_metrics
+  ORDER BY used_percent DESC;
+
+-- Find large segments consuming space
+SELECT segment_name, segment_type,
+  ROUND(bytes / 1024 / 1024) size_mb
+  FROM dba_segments
+  WHERE tablespace_name = 'APP_DATA'
+  ORDER BY bytes DESC
+  FETCH FIRST 10 ROWS ONLY;
+
+-- Shrink a fragmented table
+ALTER TABLE orders ENABLE ROW MOVEMENT;
+ALTER TABLE orders SHRINK SPACE CASCADE;`
         },
         {
           name: 'Maintenance Tasks',
-          explanation: 'Statistics gathering with DBMS_STATS. Optimizer statistics management. Segment advisor for fragmentation. SQL Tuning Advisor. ADDM for performance recommendations. Health checks.'
+          explanation: 'Statistics gathering with DBMS_STATS. Optimizer statistics management. Segment advisor for fragmentation. SQL Tuning Advisor. ADDM for performance recommendations. Health checks.',
+          codeExample: `-- Gather schema statistics with auto-sampling
+BEGIN
+  DBMS_STATS.GATHER_SCHEMA_STATS(
+    ownname    => 'HR',
+    options    => 'GATHER AUTO',
+    degree     => DBMS_STATS.AUTO_DEGREE,
+    cascade    => TRUE,
+    no_invalidate => FALSE
+  );
+END;
+
+-- Run SQL Tuning Advisor on a slow query
+DECLARE
+  l_task VARCHAR2(64);
+BEGIN
+  l_task := DBMS_SQLTUNE.CREATE_TUNING_TASK(
+    sql_id => 'abc123def456',
+    scope  => 'COMPREHENSIVE',
+    time_limit => 300
+  );
+  DBMS_SQLTUNE.EXECUTE_TUNING_TASK(l_task);
+END;
+
+-- View tuning recommendations
+SELECT DBMS_SQLTUNE.REPORT_TUNING_TASK('task_name')
+  FROM DUAL;`
         },
         {
           name: 'Monitoring & Diagnostics',
-          explanation: 'Enterprise Manager Cloud Control. AWR reports for performance analysis. ASH (Active Session History). Wait event analysis. Alert log monitoring. V$ and DBA_ views for system state.'
+          explanation: 'Enterprise Manager Cloud Control. AWR reports for performance analysis. ASH (Active Session History). Wait event analysis. Alert log monitoring. V$ and DBA_ views for system state.',
+          codeExample: `-- Top wait events in the last hour (ASH)
+SELECT event, COUNT(*) samples,
+  ROUND(COUNT(*) * 100 /
+    SUM(COUNT(*)) OVER(), 1) pct
+  FROM v$active_session_history
+  WHERE sample_time > SYSDATE - 1/24
+    AND event IS NOT NULL
+  GROUP BY event
+  ORDER BY samples DESC
+  FETCH FIRST 10 ROWS ONLY;
+
+-- Find long-running SQL statements
+SELECT sql_id, elapsed_time / 1e6 elapsed_sec,
+  executions, buffer_gets,
+  SUBSTR(sql_text, 1, 80) sql_preview
+  FROM v$sql
+  WHERE elapsed_time > 10 * 1e6
+  ORDER BY elapsed_time DESC
+  FETCH FIRST 10 ROWS ONLY;
+
+-- Check alert log for recent errors
+SELECT originating_timestamp, message_text
+  FROM v$diag_alert_ext
+  WHERE originating_timestamp > SYSDATE - 1
+    AND message_text LIKE '%ORA-%';`
         }
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
@@ -790,6 +1471,18 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      borderLeft: `4px solid ${selectedConcept.color}`,
+                      overflow: 'auto',
+                      marginTop: '1rem'
+                    }}>
+                      <SyntaxHighlighter code={detail.codeExample} />
+                    </div>
+                  )}
                 </div>
               )
             })()}

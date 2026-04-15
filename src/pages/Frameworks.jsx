@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 import Breadcrumb from '../components/Breadcrumb'
 import CollapsibleSidebar from '../components/CollapsibleSidebar'
@@ -13,9 +14,26 @@ const FRAMEWORK_COLORS = {
   topicBg: 'rgba(16, 185, 129, 0.2)'
 }
 
-function Frameworks({ onBack, onSelectItem, breadcrumb }) {
+const categories = {
+  all: { label: 'All', ids: null },
+  spring: { label: 'Spring Ecosystem', ids: ['Spring', 'Spring Boot', 'Hibernate', 'Dependency Injection', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Security', 'Ehcache'] },
+  api: { label: 'API Development', ids: ['REST API', 'gRPC', 'SOAP', 'GraphQL'] },
+  frontend: { label: 'Frontend', ids: ['React', 'Angular'] }
+}
+
+function Frameworks({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
   const { colors, isDark } = useTheme()
+  const [activeCategory, setActiveCategory] = useState(initialCategory || 'all')
+
+  useEffect(() => {
+    if (initialCategory) {
+      setActiveCategory(initialCategory)
+      onInitialCategoryUsed?.()
+    }
+  }, [initialCategory])
+
   const frameworkItems = [
+    // Spring Ecosystem
     {
       id: 'Spring',
       name: 'Spring Framework',
@@ -38,6 +56,49 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
       description: 'Object-Relational Mapping framework for Java, covering entity mappings, caching, and JPA implementation.'
     },
     {
+      id: 'Dependency Injection',
+      name: 'Dependency Injection',
+      icon: '💉',
+      color: '#ec4899',
+      description: 'Dependency Injection patterns and IoC containers for loosely coupled, testable applications.'
+    },
+    {
+      id: 'Actuator',
+      name: 'Spring Boot Actuator',
+      icon: '📊',
+      color: '#14b8a6',
+      description: 'Production-ready monitoring and management endpoints for Spring Boot applications.'
+    },
+    {
+      id: 'Zipkin',
+      name: 'Zipkin',
+      icon: '🔍',
+      color: '#8b5cf6',
+      description: 'Distributed tracing system for monitoring and troubleshooting microservices architectures.'
+    },
+    {
+      id: 'Spring Batch',
+      name: 'Spring Batch',
+      icon: '⚙️',
+      color: '#f59e0b',
+      description: 'Robust batch processing framework for enterprise jobs, chunk-oriented processing, readers, processors, and writers.'
+    },
+    {
+      id: 'Spring Security',
+      name: 'Spring Security',
+      icon: '🛡️',
+      color: '#ef4444',
+      description: 'Comprehensive authentication and authorization framework for securing Spring applications with JWT, OAuth2, CSRF protection, and method-level security.'
+    },
+    {
+      id: 'Ehcache',
+      name: 'Ehcache',
+      icon: '💾',
+      color: '#f97316',
+      description: 'Java-based caching library with tiered storage, Spring Cache integration, Hibernate L2 cache support, and distributed clustering.'
+    },
+    // API Development
+    {
       id: 'REST API',
       name: 'REST API Design',
       icon: '🔌',
@@ -59,6 +120,14 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
       description: 'SOAP protocol, WSDL, XML messaging, and enterprise web services integration.'
     },
     {
+      id: 'GraphQL',
+      name: 'GraphQL',
+      icon: '◈',
+      color: '#e535ab',
+      description: 'Query language for APIs that lets clients request exactly the data they need, with strong typing, introspection, and real-time subscriptions.'
+    },
+    // Frontend
+    {
       id: 'React',
       name: 'React',
       icon: '⚛️',
@@ -66,30 +135,20 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
       description: 'Modern JavaScript library for building user interfaces with components, hooks, and state management.'
     },
     {
-      id: 'Dependency Injection',
-      name: 'Dependency Injection',
-      icon: '💉',
-      color: '#ec4899',
-      description: 'Dependency Injection patterns and IoC containers for loosely coupled, testable applications.'
-    },
-    {
-      id: 'Zipkin',
-      name: 'Zipkin',
-      icon: '🔍',
-      color: '#8b5cf6',
-      description: 'Distributed tracing system for monitoring and troubleshooting microservices architectures.'
-    },
-    {
-      id: 'Actuator',
-      name: 'Spring Boot Actuator',
-      icon: '📊',
-      color: '#14b8a6',
-      description: 'Production-ready monitoring and management endpoints for Spring Boot applications.'
+      id: 'Angular',
+      name: 'Angular',
+      icon: '🅰️',
+      color: '#dd0031',
+      description: 'Full-featured TypeScript framework for building scalable single-page applications with components, services, and dependency injection.'
     }
   ]
 
+  const filteredItems = activeCategory === 'all'
+    ? frameworkItems
+    : frameworkItems.filter(item => categories[activeCategory].ids.includes(item.id))
+
   const { focusedIndex, itemRefs } = useKeyboardNavigation({
-    items: frameworkItems,
+    items: filteredItems,
     onSelect: (item) => onSelectItem(item.id),
     onBack,
     enabled: true,
@@ -118,9 +177,9 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
 
         {/* Collapsible Sidebar for quick topic navigation */}
         <CollapsibleSidebar
-          items={frameworkItems}
+          items={filteredItems}
           selectedIndex={-1}
-          onSelect={(index) => onSelectItem(frameworkItems[index].id)}
+          onSelect={(index) => onSelectItem(filteredItems[index].id)}
           title="Frameworks"
           getItemLabel={(item) => item.name}
           getItemIcon={(item) => item.icon}
@@ -131,18 +190,60 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
           fontSize: '1.2rem',
           color: '#d1d5db',
           textAlign: 'center',
-          marginBottom: '3rem',
+          marginBottom: '2rem',
           lineHeight: '1.8'
         }}>
           Master enterprise Java frameworks for building robust, scalable applications with Spring ecosystem.
         </p>
+
+        {/* Category Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '2px solid #374151',
+          overflowX: 'auto'
+        }}>
+          {Object.entries(categories).map(([key, cat]) => (
+            <button
+              key={key}
+              onClick={() => setActiveCategory(key)}
+              style={{
+                padding: '1rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeCategory === key ? '#10b981' : 'transparent',
+                color: activeCategory === key ? 'white' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = '#374151'
+                  e.target.style.color = '#d1d5db'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = 'transparent'
+                  e.target.style.color = '#9ca3af'
+                }
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
 
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           gap: '1.5rem'
         }}>
-          {frameworkItems.map((item, index) => (
+          {filteredItems.map((item, index) => (
             <button
               key={item.id}
               ref={(el) => itemRefs.current[index] = el}

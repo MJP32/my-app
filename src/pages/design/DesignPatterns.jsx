@@ -836,6 +836,35 @@ System.out.println(ConfigManager.INSTANCE.getConfig());
 // JDK Examples:
 Runtime runtime = Runtime.getRuntime();  // Singleton
 Desktop desktop = Desktop.getDesktop();  // Singleton`
+        },
+        {
+          name: 'JDK Examples',
+          explanation: 'The JDK uses Singleton extensively. Runtime provides JVM-level operations. Desktop provides OS integration. System provides standard I/O and properties. LogManager controls the logging framework.',
+          codeExample: `// java.lang.Runtime — one JVM, one Runtime
+Runtime rt = Runtime.getRuntime();
+rt.availableProcessors();   // CPU core count
+rt.maxMemory();             // max heap size
+rt.gc();                    // suggest garbage collection
+rt.addShutdownHook(new Thread(() ->
+    System.out.println("JVM shutting down")));
+
+// java.awt.Desktop — one OS desktop
+Desktop desktop = Desktop.getDesktop();
+desktop.browse(new URI("https://example.com"));
+desktop.open(new File("document.pdf"));
+
+// java.lang.System — static singleton (no getInstance)
+System.currentTimeMillis();
+System.getProperty("java.version");
+System.getenv("PATH");
+
+// java.util.logging.LogManager
+LogManager manager = LogManager.getLogManager();
+
+// Spring: ApplicationContext is a singleton container
+// that manages singleton-scoped beans by default
+@Bean  // singleton scope by default
+public DataSource dataSource() { /* ... */ }`
         }
       ]
     },
@@ -904,6 +933,42 @@ wordApp.newDocument();  // Opening Word
 Calendar calendar = Calendar.getInstance();
 NumberFormat formatter = NumberFormat.getInstance();
 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();`
+        },
+        {
+          name: 'JDK Examples',
+          explanation: 'The JDK uses Factory Method everywhere. Calendar.getInstance() returns GregorianCalendar or locale-specific subclass. NumberFormat returns DecimalFormat. Collection.iterator() is a factory method on every collection.',
+          codeExample: `// java.util.Calendar.getInstance()
+// Returns GregorianCalendar, JapaneseImperialCalendar, etc.
+Calendar cal = Calendar.getInstance();        // default
+Calendar jp = Calendar.getInstance(
+    Locale.JAPAN);                            // locale-specific
+
+// java.text.NumberFormat.getInstance()
+// Returns DecimalFormat or CompactNumberFormat
+NumberFormat nf = NumberFormat.getInstance();
+NumberFormat currency = NumberFormat
+    .getCurrencyInstance(Locale.US);
+System.out.println(currency.format(1234.56));
+// $1,234.56
+
+// javax.xml.parsers.DocumentBuilderFactory
+DocumentBuilderFactory dbf = DocumentBuilderFactory
+    .newInstance();  // returns platform-specific impl
+DocumentBuilder builder = dbf.newDocumentBuilder();
+
+// java.util.Collection.iterator()
+// Each collection returns its own Iterator subclass
+List<String> list = List.of("a", "b", "c");
+Iterator<String> it = list.iterator();  // ListIterator
+
+Set<String> set = Set.of("x", "y");
+Iterator<String> setIt = set.iterator();  // SetIterator
+
+// java.net.URLStreamHandlerFactory
+// URL.openConnection() returns HttpURLConnection,
+// FtpURLConnection, JarURLConnection, etc.
+URL url = new URL("https://example.com");
+URLConnection conn = url.openConnection();`
         }
       ]
     },
@@ -982,6 +1047,46 @@ StringBuilder sb = new StringBuilder()
 Stream<String> stream = Stream.<String>builder()
     .add("one").add("two").add("three")
     .build();`
+        },
+        {
+          name: 'JDK Examples',
+          explanation: 'Builder is one of the most common JDK patterns. StringBuilder for strings, Stream.builder() for streams, and Java 11+ HttpClient.newBuilder() for HTTP requests. All use fluent method chaining.',
+          codeExample: `// java.lang.StringBuilder — classic builder
+String result = new StringBuilder()
+    .append("SELECT * FROM orders")
+    .append(" WHERE status = 'ACTIVE'")
+    .append(" ORDER BY created_at DESC")
+    .toString();
+
+// java.util.stream.Stream.builder()
+Stream<String> stream = Stream.<String>builder()
+    .add("AAPL").add("GOOGL").add("MSFT")
+    .build();
+
+// java.net.http.HttpRequest.newBuilder() (Java 11+)
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/orders"))
+    .header("Authorization", "Bearer token123")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .timeout(Duration.ofSeconds(10))
+    .build();
+
+// java.util.Locale.Builder (Java 7+)
+Locale locale = new Locale.Builder()
+    .setLanguage("en")
+    .setRegion("US")
+    .build();
+
+// java.time (Java 8+) — immutable builders
+LocalDateTime dt = LocalDateTime.now()
+    .withHour(9).withMinute(30);  // market open
+
+// ProcessBuilder
+Process proc = new ProcessBuilder("java", "-version")
+    .directory(new File("/app"))
+    .redirectErrorStream(true)
+    .start();`
         }
       ]
     },
@@ -1089,81 +1194,312 @@ appleStock.setPrice(155.0);
       details: [
         {
           name: 'Strategy Interface',
-          explanation: 'Strategy interface declares method common to all algorithms. Each concrete strategy implements the algorithm differently. Context uses strategy via interface.',
-          codeExample: `interface PaymentStrategy {
-    void pay(double amount);
+          explanation: 'The strategy interface declares the algorithm contract. In trading, order execution algorithms (VWAP, TWAP, Iceberg) all share the same interface but differ in how they slice and route orders. Each concrete strategy encapsulates one execution algorithm.',
+          codeExample: `// Strategy interface - execution algorithm contract
+interface ExecutionStrategy {
+    List<ChildOrder> slice(Order parentOrder,
+            MarketData marketData);
+    boolean shouldPause(MarketConditions conditions);
+    String getName();
 }
 
-class CreditCardStrategy implements PaymentStrategy {
-    private String cardNumber;
+// VWAP: Volume-Weighted Average Price
+class VwapStrategy implements ExecutionStrategy {
+    private final double participationRate;
+    private final VolumeProfile historicalProfile;
 
-    public CreditCardStrategy(String cardNumber) {
-        this.cardNumber = cardNumber;
+    public VwapStrategy(double participationRate,
+            VolumeProfile profile) {
+        this.participationRate = participationRate;
+        this.historicalProfile = profile;
     }
 
     @Override
-    public void pay(double amount) {
-        System.out.println("Paid $" + amount + " via Credit Card " +
-            cardNumber.substring(cardNumber.length() - 4));
-    }
-}
+    public List<ChildOrder> slice(Order parent,
+            MarketData data) {
+        // Slice order proportional to historical volume
+        double expectedVolume = historicalProfile
+            .getExpectedVolume(LocalTime.now());
+        int sliceQty = (int) (expectedVolume
+            * participationRate);
+        sliceQty = Math.min(sliceQty,
+            parent.getRemainingQty());
 
-class PayPalStrategy implements PaymentStrategy {
-    private String email;
-
-    @Override
-    public void pay(double amount) {
-        System.out.println("Paid $" + amount + " via PayPal: " + email);
+        return List.of(new ChildOrder(
+            parent.getSymbol(),
+            parent.getSide(),
+            sliceQty,
+            data.getMidPrice(),
+            OrderType.LIMIT
+        ));
     }
 }`
         },
         {
-          name: 'Context Class',
-          explanation: 'Context holds reference to strategy and delegates work to it. Strategy can be changed at runtime. Context knows nothing about concrete strategies.',
-          codeExample: `class ShoppingCart {
-    private List<String> items = new ArrayList<>();
-    private double total = 0;
-    private PaymentStrategy paymentStrategy;
+          name: 'Concrete Strategies',
+          explanation: 'Each concrete strategy implements a different execution algorithm. TWAP slices evenly over time, Iceberg hides large order size, and POV (Percent of Volume) tracks real-time market volume. All interchangeable behind the same interface.',
+          codeExample: `// TWAP: Time-Weighted Average Price
+class TwapStrategy implements ExecutionStrategy {
+    private final Duration duration;
+    private final int numSlices;
 
-    public void addItem(String item, double price) {
-        items.add(item);
-        total += price;
+    @Override
+    public List<ChildOrder> slice(Order parent,
+            MarketData data) {
+        // Divide equally across time intervals
+        int sliceQty = parent.getRemainingQty()
+            / numSlices;
+        return List.of(new ChildOrder(
+            parent.getSymbol(), parent.getSide(),
+            sliceQty, data.getMidPrice(), OrderType.LIMIT
+        ));
+    }
+}
+
+// Iceberg: Hide true order size
+class IcebergStrategy implements ExecutionStrategy {
+    private final int visibleQty;
+
+    @Override
+    public List<ChildOrder> slice(Order parent,
+            MarketData data) {
+        // Only show a small clip to the market
+        int qty = Math.min(visibleQty,
+            parent.getRemainingQty());
+        double price = parent.getSide() == Side.BUY
+            ? data.getBestBid()    // join the bid
+            : data.getBestAsk();   // join the ask
+        return List.of(new ChildOrder(
+            parent.getSymbol(), parent.getSide(),
+            qty, price, OrderType.LIMIT
+        ));
+    }
+}
+
+// POV: Percent of Volume
+class PovStrategy implements ExecutionStrategy {
+    private final double targetRate; // e.g., 0.15 = 15%
+
+    @Override
+    public List<ChildOrder> slice(Order parent,
+            MarketData data) {
+        // Track real-time volume, not historical
+        long recentVolume = data.getVolumeSince(
+            Instant.now().minus(Duration.ofMinutes(1)));
+        int sliceQty = (int)(recentVolume * targetRate);
+        return List.of(new ChildOrder(
+            parent.getSymbol(), parent.getSide(),
+            sliceQty, data.getMidPrice(), OrderType.LIMIT
+        ));
+    }
+}`
+        },
+        {
+          name: 'Context: Algo Engine',
+          explanation: 'The context (AlgoEngine) holds a reference to the strategy and delegates slicing decisions to it. The engine handles the execution loop — timing, order management, fills — while the strategy decides what to send. Strategy can be changed at runtime.',
+          codeExample: `// Context - delegates execution decisions to strategy
+class AlgoEngine {
+    private final ExecutionVenue venue;
+    private ExecutionStrategy strategy;
+    private Order parentOrder;
+    private final List<Fill> fills = new ArrayList<>();
+
+    public AlgoEngine(ExecutionVenue venue) {
+        this.venue = venue;
     }
 
-    public void setPaymentStrategy(PaymentStrategy strategy) {
-        this.paymentStrategy = strategy;
+    public void setStrategy(ExecutionStrategy strategy) {
+        this.strategy = strategy;
     }
 
-    public void checkout() {
-        if (paymentStrategy == null) {
-            System.out.println("Please select a payment method");
-            return;
+    public void execute(Order order, MarketData data) {
+        this.parentOrder = order;
+
+        while (parentOrder.getRemainingQty() > 0) {
+            MarketConditions conditions =
+                assessConditions(data);
+
+            // Strategy decides whether to pause
+            if (strategy.shouldPause(conditions)) {
+                sleep(1000);
+                continue;
+            }
+
+            // Strategy decides how to slice
+            List<ChildOrder> children =
+                strategy.slice(parentOrder, data);
+
+            for (ChildOrder child : children) {
+                ExecutionReport report =
+                    venue.sendOrder(child);
+                if (report.isFilled()) {
+                    fills.add(report.getFill());
+                    parentOrder.reduce(
+                        report.getFilledQty());
+                }
+            }
+
+            sleep(strategy.getInterval());
         }
-        System.out.println("Items: " + items);
-        paymentStrategy.pay(total);
     }
 }`
         },
         {
-          name: 'Runtime Switching',
-          explanation: 'Strategies can be swapped at runtime. No need to modify context code to add new strategies. Open/Closed Principle in action.',
-          codeExample: `// Usage - switch strategies at runtime
-ShoppingCart cart = new ShoppingCart();
-cart.addItem("Laptop", 1200.0);
-cart.addItem("Mouse", 25.0);
+          name: 'Runtime Strategy Switching',
+          explanation: 'Strategies can be swapped at runtime based on market conditions. A trading desk might start with VWAP for a large order, then switch to Iceberg when the stock becomes volatile. The engine code never changes — Open/Closed Principle in action.',
+          codeExample: `// Switch strategies at runtime
+AlgoEngine engine = new AlgoEngine(nyseVenue);
 
-// Pay with credit card
-cart.setPaymentStrategy(new CreditCardStrategy("1234-5678-9012-3456"));
-cart.checkout();
-// Items: [Laptop, Mouse]
-// Paid $1225.0 via Credit Card 3456
+// Start with VWAP for 100K shares
+Order order = new Order("AAPL", Side.BUY, 100_000);
+engine.setStrategy(new VwapStrategy(0.10, appleProfile));
+engine.execute(order, marketData);
 
-// Change to PayPal
-cart.setPaymentStrategy(new PayPalStrategy("user@example.com"));
-cart.checkout();
-// Paid $1225.0 via PayPal: user@example.com
+// Market turns volatile — switch to Iceberg
+if (marketData.getVolatility() > 2.0) {
+    engine.setStrategy(new IcebergStrategy(500));
+}
 
-// Sorting example: Arrays.sort() with Comparator is Strategy pattern`
+// End of day — switch to aggressive TWAP
+if (LocalTime.now().isAfter(LocalTime.of(15, 30))) {
+    engine.setStrategy(new TwapStrategy(
+        Duration.ofMinutes(30), 10
+    ));
+}
+
+// Spring injection — configure via properties
+@Configuration
+class AlgoConfig {
+    @Bean
+    @ConditionalOnProperty(name = "algo.default",
+        havingValue = "vwap")
+    ExecutionStrategy vwap(VolumeProfileService profiles) {
+        return new VwapStrategy(0.10,
+            profiles.getDefault());
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "algo.default",
+        havingValue = "twap")
+    ExecutionStrategy twap() {
+        return new TwapStrategy(
+            Duration.ofHours(2), 20);
+    }
+}`
+        },
+        {
+          name: 'Pricing & Risk Strategies',
+          explanation: 'Strategy pattern appears throughout finance — pricing models (Black-Scholes vs Binomial vs Monte Carlo), risk calculations (VaR methods), and order routing. Each encapsulates a complex algorithm behind a clean interface.',
+          codeExample: `// Options pricing strategies
+interface PricingModel {
+    double price(Option option, MarketData data);
+    Greeks calculateGreeks(Option option, MarketData data);
+}
+
+class BlackScholesModel implements PricingModel {
+    @Override
+    public double price(Option opt, MarketData data) {
+        double S = data.getSpotPrice(opt.getUnderlying());
+        double K = opt.getStrike();
+        double T = opt.getTimeToExpiry();
+        double r = data.getRiskFreeRate();
+        double sigma = data.getImpliedVol(opt);
+
+        double d1 = (Math.log(S / K) +
+            (r + sigma * sigma / 2) * T)
+            / (sigma * Math.sqrt(T));
+        double d2 = d1 - sigma * Math.sqrt(T);
+
+        if (opt.getType() == OptionType.CALL) {
+            return S * N(d1) - K * Math.exp(-r * T) * N(d2);
+        } else {
+            return K * Math.exp(-r * T) * N(-d2) - S * N(-d1);
+        }
+    }
+}
+
+class MonteCarloModel implements PricingModel {
+    private final int simulations; // e.g., 100_000
+
+    @Override
+    public double price(Option opt, MarketData data) {
+        double sum = 0;
+        for (int i = 0; i < simulations; i++) {
+            double path = simulatePath(opt, data);
+            sum += opt.payoff(path);
+        }
+        double r = data.getRiskFreeRate();
+        double T = opt.getTimeToExpiry();
+        return Math.exp(-r * T) * (sum / simulations);
+    }
+}
+
+// Risk engine swaps pricing strategy per product
+class RiskEngine {
+    private final Map<String, PricingModel> models;
+
+    public double pricePosition(Position pos,
+            MarketData data) {
+        PricingModel model = models.get(
+            pos.getProductType()); // "vanilla","exotic"
+        return model.price(pos.getOption(), data);
+    }
+}`
+        },
+        {
+          name: 'Order Routing Strategy',
+          explanation: 'Smart Order Routers use Strategy pattern to decide where to send orders. Best-price routes to the venue with the tightest spread, liquidity-seeking checks dark pools first, and cost-minimized factors in exchange fees. Strategies compose with the Adapter pattern for venue connectivity.',
+          codeExample: `// Order routing strategy
+interface RoutingStrategy {
+    String selectVenue(Order order,
+        Map<String, MarketData> venueData);
+}
+
+class BestPriceRouting implements RoutingStrategy {
+    @Override
+    public String selectVenue(Order order,
+            Map<String, MarketData> venueData) {
+        return venueData.entrySet().stream()
+            .min(Comparator.comparingDouble(e ->
+                order.getSide() == Side.BUY
+                    ? e.getValue().getBestAsk()
+                    : -e.getValue().getBestBid()))
+            .map(Map.Entry::getKey)
+            .orElse("PRIMARY");
+    }
+}
+
+class LiquiditySeeking implements RoutingStrategy {
+    @Override
+    public String selectVenue(Order order,
+            Map<String, MarketData> venueData) {
+        // Check dark pools first for hidden liquidity
+        for (String venue : List.of("DARKPOOL_A",
+                "DARKPOOL_B", "SIGMA_X")) {
+            MarketData md = venueData.get(venue);
+            if (md != null && md.getIndicativeSize()
+                    >= order.getQuantity()) {
+                return venue;
+            }
+        }
+        // Fall back to lit venue with most volume
+        return venueData.entrySet().stream()
+            .filter(e -> !e.getKey().startsWith("DARK"))
+            .max(Comparator.comparingLong(e ->
+                e.getValue().getVolume()))
+            .map(Map.Entry::getKey)
+            .orElse("NYSE");
+    }
+}
+
+// PITFALLS & BEST PRACTICES:
+// ✗ Don't put venue-specific logic in the router
+// ✗ Avoid god-strategy with too many responsibilities
+// ✗ Don't hardcode strategy selection — use config
+// ✓ One strategy per algorithm / routing rule
+// ✓ Strategies should be stateless when possible
+// ✓ Combine with Factory to select strategy by name
+// ✓ Unit test each strategy independently`
         }
       ]
     },
@@ -1259,66 +1595,298 @@ BufferedReader reader = new BufferedReader(
       details: [
         {
           name: 'Target & Adaptee',
-          explanation: 'Target is the interface client expects. Adaptee has incompatible interface but useful functionality. Adapter bridges the gap between them.',
-          codeExample: `// Target interface - what client expects
-interface MediaPlayer {
-    void play(String audioType, String fileName);
+          explanation: 'Target is the interface your trading system expects. Adaptee is an exchange or vendor API with an incompatible interface. You cannot modify the exchange SDK, so an adapter wraps it to conform to your internal interface.',
+          codeExample: `// Target interface - your trading system's contract
+interface MarketDataFeed {
+    Quote getQuote(String symbol);
+    void subscribe(String symbol, QuoteListener listener);
+    void unsubscribe(String symbol);
 }
 
-// Adaptee - existing but incompatible interface
-class AdvancedMediaPlayer {
-    public void playMp4(String fileName) {
-        System.out.println("Playing mp4: " + fileName);
+// Adaptee - Bloomberg terminal SDK (incompatible)
+class BloombergTerminal {
+    public BbgSecurity resolve(String ticker,
+            String yellowKey) {
+        // Bloomberg-specific security resolution
+        return new BbgSecurity(ticker, yellowKey);
     }
 
-    public void playVlc(String fileName) {
-        System.out.println("Playing vlc: " + fileName);
+    public BbgTick requestSnap(BbgSecurity security,
+            List<String> fields) {
+        // Returns Bloomberg-specific tick data
+        return new BbgTick(/* ... */);
+    }
+
+    public void registerSubscription(BbgSecurity security,
+            BbgEventHandler handler) {
+        // Bloomberg's proprietary event model
     }
 }`
         },
         {
-          name: 'Adapter Implementation',
-          explanation: 'Adapter implements target interface and wraps adaptee. Translates calls from target interface to adaptee methods. Object adapter uses composition.',
-          codeExample: `class MediaAdapter implements MediaPlayer {
-    private AdvancedMediaPlayer advancedPlayer;
+          name: 'Object Adapter (Composition)',
+          explanation: 'Object adapter uses composition — holds a reference to the adaptee and delegates calls. Preferred approach because it can adapt multiple vendor feeds behind one interface, and can be swapped at runtime (e.g., switch from Bloomberg to Reuters).',
+          codeExample: `// Object Adapter - adapts Bloomberg to our feed
+class BloombergFeedAdapter implements MarketDataFeed {
+    private final BloombergTerminal bbg;
+    private final Map<String, BbgSecurity> cache
+        = new ConcurrentHashMap<>();
 
-    public MediaAdapter() {
-        advancedPlayer = new AdvancedMediaPlayer();
+    public BloombergFeedAdapter(BloombergTerminal bbg) {
+        this.bbg = bbg;
     }
 
     @Override
-    public void play(String audioType, String fileName) {
-        if (audioType.equalsIgnoreCase("mp4")) {
-            advancedPlayer.playMp4(fileName);
-        } else if (audioType.equalsIgnoreCase("vlc")) {
-            advancedPlayer.playVlc(fileName);
+    public Quote getQuote(String symbol) {
+        // Translate our symbol -> Bloomberg security
+        BbgSecurity sec = cache.computeIfAbsent(symbol,
+            s -> bbg.resolve(s, "Equity"));
+
+        // Call Bloomberg API
+        BbgTick tick = bbg.requestSnap(sec,
+            List.of("BID", "ASK", "LAST_PRICE", "VOLUME"));
+
+        // Translate Bloomberg response -> our domain
+        return new Quote(
+            symbol,
+            tick.getField("BID").asDouble(),
+            tick.getField("ASK").asDouble(),
+            tick.getField("LAST_PRICE").asDouble(),
+            tick.getField("VOLUME").asLong(),
+            Instant.now()
+        );
+    }
+
+    @Override
+    public void subscribe(String symbol,
+            QuoteListener listener) {
+        BbgSecurity sec = cache.computeIfAbsent(symbol,
+            s -> bbg.resolve(s, "Equity"));
+
+        bbg.registerSubscription(sec, event -> {
+            // Adapt Bloomberg event -> our QuoteListener
+            Quote q = translateTick(event);
+            listener.onQuote(q);
+        });
+    }
+}`
+        },
+        {
+          name: 'Class Adapter (Inheritance)',
+          explanation: 'Class adapter extends the adaptee and implements the target. Less common in trading systems since vendor SDKs are usually final classes. Useful for adapting internal legacy components like an old FIX engine.',
+          codeExample: `// Class Adapter - extends legacy FIX engine
+class LegacyFixEngine {
+    protected void sendRawMessage(String fixMsg) {
+        // Low-level FIX 4.2 message sending
+    }
+    protected String receiveRawMessage() {
+        return "8=FIX.4.2|35=D|49=SENDER|...";
+    }
+}
+
+// Modern order gateway interface
+interface OrderGateway {
+    String submitOrder(Order order);
+    OrderStatus getStatus(String orderId);
+}
+
+// Class adapter bridges legacy FIX -> modern interface
+class FixEngineAdapter extends LegacyFixEngine
+        implements OrderGateway {
+
+    @Override
+    public String submitOrder(Order order) {
+        // Build FIX NewOrderSingle (35=D) from domain
+        String fix = "8=FIX.4.2|35=D"
+            + "|55=" + order.getSymbol()
+            + "|54=" + (order.getSide() == Side.BUY
+                ? "1" : "2")
+            + "|38=" + order.getQuantity()
+            + "|44=" + order.getPrice()
+            + "|40=" + order.getType().fixValue()
+            + "|10=000|";
+
+        super.sendRawMessage(fix);  // inherited method
+        return order.getClOrdId();
+    }
+}
+
+// Comparison:
+// Object Adapter: HAS-A adaptee (composition)
+//   + Swap Bloomberg ↔ Reuters at runtime
+//   + Adapt multiple vendor feeds
+//
+// Class Adapter: IS-A adaptee (inheritance)
+//   + Direct access to internals
+//   - Coupled to one specific adaptee`
+        },
+        {
+          name: 'Multi-Venue Trading Adapter',
+          explanation: 'In electronic trading, you often connect to multiple exchanges (NYSE, NASDAQ, dark pools) each with different protocols. Adapters normalize them behind a single execution interface — this is the core of a Smart Order Router.',
+          codeExample: `// Unified execution port (hexagonal architecture)
+interface ExecutionVenue {
+    ExecutionReport sendOrder(Order order);
+    void cancelOrder(String orderId);
+    List<Fill> getFills(String orderId);
+}
+
+// NYSE adapter — FIX protocol
+@Component("nyse")
+class NyseAdapter implements ExecutionVenue {
+    private final FixSession nyseSession;
+
+    @Override
+    public ExecutionReport sendOrder(Order order) {
+        NewOrderSingle nos = new NewOrderSingle();
+        nos.set(new Symbol(order.getSymbol()));
+        nos.set(new Side(order.getSide().fixChar()));
+        nos.set(new OrderQty(order.getQuantity()));
+        nos.set(new Price(order.getLimitPrice()));
+        nos.set(new TimeInForce(TimeInForce.DAY));
+
+        nyseSession.send(nos);
+        return awaitAck(nos.getClOrdID().getValue());
+    }
+}
+
+// Dark Pool adapter — proprietary binary protocol
+@Component("darkpool")
+class DarkPoolAdapter implements ExecutionVenue {
+    private final DarkPoolClient client;
+
+    @Override
+    public ExecutionReport sendOrder(Order order) {
+        DPOrder dpOrder = DPOrder.builder()
+            .instrument(order.getSymbol())
+            .direction(order.getSide() == Side.BUY
+                ? DPDirection.PASSIVE_BUY
+                : DPDirection.PASSIVE_SELL)
+            .size(order.getQuantity())
+            .minFillSize(order.getMinQty())
+            .build();
+
+        DPResponse resp = client.submit(dpOrder);
+        return mapToExecutionReport(resp);
+    }
+}
+
+// Smart Order Router uses adapters uniformly
+@Service
+class SmartOrderRouter {
+    private final Map<String, ExecutionVenue> venues;
+
+    public void routeOrder(Order order) {
+        String venue = selectBestVenue(order);
+        venues.get(venue).sendOrder(order);
+    }
+}`
+        },
+        {
+          name: 'FIX Protocol Message Adapter',
+          explanation: 'FIX messages use tag=value pairs (e.g., 35=D for NewOrderSingle). An adapter translates between FIX wire format and domain objects, handling version differences (FIX 4.2 vs 4.4 vs 5.0) transparently.',
+          codeExample: `// Adapt FIX execution reports to domain events
+interface TradeEventListener {
+    void onFill(Fill fill);
+    void onPartialFill(Fill fill);
+    void onReject(Rejection rejection);
+}
+
+class FixMessageAdapter implements Application {
+    private final TradeEventListener listener;
+
+    // QuickFIX/J callback — raw FIX messages
+    @Override
+    public void fromApp(Message message, SessionID sid)
+            throws FieldNotFound {
+        String msgType = message.getHeader()
+            .getString(MsgType.FIELD);
+
+        if ("8".equals(msgType)) {  // ExecutionReport
+            adaptExecutionReport(message);
+        }
+    }
+
+    private void adaptExecutionReport(Message msg)
+            throws FieldNotFound {
+        char execType = msg.getChar(ExecType.FIELD);
+        char ordStatus = msg.getChar(OrdStatus.FIELD);
+
+        Fill fill = new Fill(
+            msg.getString(OrderID.FIELD),
+            msg.getString(Symbol.FIELD),
+            msg.getChar(Side.FIELD) == '1'
+                ? Side.BUY : Side.SELL,
+            msg.getDecimal(LastPx.FIELD),
+            msg.getInt(LastShares.FIELD),
+            msg.getString(ExecID.FIELD),
+            Instant.now()
+        );
+
+        // Translate FIX exec types -> domain events
+        switch (execType) {
+            case ExecType.FILL:
+                listener.onFill(fill);
+                break;
+            case ExecType.PARTIAL_FILL:
+                listener.onPartialFill(fill);
+                break;
+            case ExecType.REJECTED:
+                listener.onReject(new Rejection(
+                    msg.getString(OrderID.FIELD),
+                    msg.getString(Text.FIELD)
+                ));
+                break;
         }
     }
 }`
         },
         {
-          name: 'Usage & JDK Examples',
-          explanation: 'Client uses adapter through target interface. Adapter delegates to adaptee. JDK uses adapters extensively for compatibility.',
-          codeExample: `class AudioPlayer implements MediaPlayer {
-    private MediaAdapter adapter;
+          name: 'When to Use & Pitfalls',
+          explanation: 'Use Adapter when connecting to exchanges, vendor feeds, legacy systems, or implementing a Smart Order Router. Essential for multi-venue trading and FIX protocol integration. Keep adapters thin — translate only, no business logic.',
+          codeExample: `// WHEN TO USE IN TRADING:
+// 1. Multi-venue connectivity (NYSE, NASDAQ, LSE)
+// 2. Market data normalization (Bloomberg, Reuters)
+// 3. FIX version bridging (4.2 → 5.0)
+// 4. Legacy system migration
+// 5. Testing with exchange simulators
 
-    @Override
-    public void play(String audioType, String fileName) {
-        if (audioType.equalsIgnoreCase("mp3")) {
-            System.out.println("Playing mp3: " + fileName);
-        } else if (audioType.equals("mp4") || audioType.equals("vlc")) {
-            adapter = new MediaAdapter();
-            adapter.play(audioType, fileName);
-        }
+// Pattern: Adapter per environment
+@Configuration
+class MarketDataConfig {
+    @Bean
+    @Profile("production")
+    MarketDataFeed bloombergFeed() {
+        return new BloombergFeedAdapter(
+            new BloombergTerminal()
+        );
+    }
+
+    @Bean
+    @Profile("uat")
+    MarketDataFeed reutersFeed() {
+        return new ReutersFeedAdapter(
+            new ReutersElektra()
+        );
+    }
+
+    @Bean
+    @Profile("test")
+    MarketDataFeed replayFeed() {
+        // Adapter over historical data for backtesting
+        return new HistoricalReplayAdapter(
+            new TickDatabase("2024-01-15")
+        );
     }
 }
 
-// JDK Examples:
-// InputStreamReader adapts InputStream to Reader
-InputStreamReader reader = new InputStreamReader(System.in);
-
-// Arrays.asList() adapts array to List
-List<String> list = Arrays.asList("one", "two", "three");`
+// PITFALLS:
+// ✗ Don't put order validation in adapters
+// ✗ Don't let FIX tags leak into domain objects
+// ✗ Avoid adapter chains (adapter wrapping adapter)
+// ✗ Keep adapters thin — translate only
+// ✓ One adapter per venue/vendor
+// ✓ Unit test adapters with recorded messages
+// ✓ Log raw + translated for reconciliation`
         }
       ]
     },

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const FRAMEWORK_COLORS = {
   primary: '#4ade80',
@@ -409,6 +410,95 @@ public class LoggingAspect {
     System.out.println(joinPoint.getSignature() +
                        " executed in " + executionTime + "ms");
     return proceed;
+  }
+}`
+        },
+        {
+          name: 'How Spring Uses AOP Internally',
+          explanation: `Spring itself relies heavily on AOP to power many of its core features. When you use these annotations, Spring creates proxies behind the scenes that wrap your beans with aspect-like behavior:
+
+@Transactional - Transaction Management:
+- Spring creates a proxy around your bean using TransactionInterceptor
+- The proxy opens a transaction before the method, commits on success, and rolls back on exception
+- This is why @Transactional doesn't work on private methods or self-invocation - the call bypasses the proxy
+
+@Cacheable / @CacheEvict / @CachePut - Caching:
+- CacheInterceptor wraps methods to check the cache before execution
+- On cache hit, the actual method is never invoked - the proxy returns the cached result directly
+
+@Async - Asynchronous Execution:
+- AsyncAnnotationBeanPostProcessor creates a proxy that submits the method call to a TaskExecutor
+- The caller gets a Future/CompletableFuture immediately while the method runs on a different thread
+
+@PreAuthorize / @Secured - Security:
+- Spring Security's MethodSecurityInterceptor uses AOP to check authorization before method execution
+- Evaluates SpEL expressions or role checks and throws AccessDeniedException if unauthorized
+
+@Retryable (Spring Retry):
+- RetryOperationsInterceptor wraps the method call in a retry loop
+- Catches specified exceptions and re-executes with configurable backoff
+
+@Validated - Method Validation:
+- MethodValidationInterceptor validates method parameters and return values using Bean Validation
+- Throws ConstraintViolationException on validation failures
+
+Why This Matters:
+- All proxy-based features share the same limitations: no private methods, no self-invocation, no final classes (with CGLIB)
+- Understanding that these are AOP proxies explains why calling this.save() from within the same bean skips @Transactional
+- When debugging, the proxy is visible in stack traces as $$EnhancerBySpringCGLIB or $Proxy`,
+          codeExample: `// These annotations ALL work through AOP proxies:
+
+@Service
+public class OrderService {
+
+  // Spring creates a TransactionInterceptor proxy
+  @Transactional
+  public Order createOrder(OrderRequest request) {
+    Order order = orderRepository.save(new Order(request));
+    inventoryService.reserve(order.getItems());
+    return order;
+  }
+
+  // CacheInterceptor proxy - skips method on cache hit
+  @Cacheable(value = "orders", key = "#id")
+  public Order getOrder(Long id) {
+    return orderRepository.findById(id).orElseThrow();
+  }
+
+  // AsyncAnnotationInterceptor proxy - runs on separate thread
+  @Async
+  public CompletableFuture<Void> sendConfirmation(Order order) {
+    emailService.send(order.getCustomerEmail(), "Order Confirmed");
+    return CompletableFuture.completedFuture(null);
+  }
+
+  // MethodSecurityInterceptor proxy - checks access
+  @PreAuthorize("hasRole('ADMIN')")
+  public void cancelOrder(Long orderId) {
+    orderRepository.deleteById(orderId);
+  }
+
+  // RetryOperationsInterceptor proxy - retries on failure
+  @Retryable(value = RuntimeException.class, maxAttempts = 3,
+             backoff = @Backoff(delay = 1000))
+  public PaymentResult processPayment(Payment payment) {
+    return paymentGateway.charge(payment);
+  }
+}
+
+// COMMON PITFALL: Self-invocation bypasses ALL proxies
+@Service
+public class ReportService {
+
+  @Transactional  // THIS WON'T WORK when called from generate()
+  public void save(Report report) {
+    reportRepository.save(report);
+  }
+
+  public void generate() {
+    Report report = buildReport();
+    this.save(report);  // Direct call - bypasses proxy!
+    // Fix: inject self or use ApplicationContext.getBean()
   }
 }`
         },
@@ -1577,10 +1667,566 @@ public class ScheduledTasks {
   @Scheduled(cron = "0 0 2 * * ?") // Daily at 2 AM
   public void dailyCleanup() { }
 }`
+        },
+        {
+          name: 'Bean Scope & Lifecycle',
+          explanation: `Scope annotations control how many instances Spring creates. Lifecycle annotations hook into bean creation and destruction phases. Understanding scopes is critical for stateful vs stateless services.`,
+          codeExample: `// @Scope - Control bean instantiation
+@Component
+@Scope("singleton")  // DEFAULT - one instance per container
+public class AppConfig { }
+
+@Component
+@Scope("prototype")  // New instance every time requested
+public class ShoppingCart { }
+
+// Web scopes (require web-aware ApplicationContext)
+@Component
+@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class RequestContext { }  // One per HTTP request
+
+@Component
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class UserSession { }  // One per HTTP session
+
+// @PostConstruct / @PreDestroy - Lifecycle callbacks
+@Service
+public class ConnectionPool {
+  private List<Connection> connections;
+
+  @PostConstruct  // Called after injection, before use
+  public void init() {
+    connections = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      connections.add(createConnection());
+    }
+    System.out.println("Pool initialized with 10 connections");
+  }
+
+  @PreDestroy  // Called before bean is removed
+  public void cleanup() {
+    connections.forEach(Connection::close);
+    System.out.println("All connections closed");
+  }
+}
+
+// @Lazy - Delay initialization until first use
+@Configuration
+public class ExpensiveConfig {
+  @Bean
+  @Lazy  // Not created at startup, only when injected
+  public HeavyService heavyService() {
+    return new HeavyService();  // Expensive init
+  }
+}
+
+// @DependsOn - Control initialization order
+@Component
+@DependsOn({"databaseMigration", "cacheWarmer"})
+public class AppStartupService { }
+
+// @Order / @Priority - Control execution order
+@Component
+@Order(1)  // Lower = higher priority
+public class SecurityFilter implements Filter { }
+
+@Component
+@Order(2)
+public class LoggingFilter implements Filter { }`
+        },
+        {
+          name: 'Conditional & Profile',
+          explanation: `Conditional annotations control when beans and configurations are loaded. @Profile activates beans for specific environments. @Conditional provides fine-grained control based on classpath, properties, or custom conditions.`,
+          codeExample: `// @Profile - Environment-specific beans
+@Configuration
+@Profile("dev")
+public class DevConfig {
+  @Bean
+  public DataSource dataSource() {
+    return new EmbeddedDatabaseBuilder()
+      .setType(EmbeddedDatabaseType.H2).build();
+  }
+}
+
+@Configuration
+@Profile("prod")
+public class ProdConfig {
+  @Bean
+  public DataSource dataSource() {
+    HikariDataSource ds = new HikariDataSource();
+    ds.setJdbcUrl("jdbc:postgresql://prod-db:5432/app");
+    return ds;
+  }
+}
+
+// @Profile on component
+@Service
+@Profile("!test")  // Active in all profiles EXCEPT test
+public class EmailService implements NotificationService { }
+
+@Service
+@Profile("test")
+public class MockEmailService implements NotificationService { }
+
+// @ConditionalOnProperty
+@Configuration
+@ConditionalOnProperty(
+    name = "feature.caching.enabled",
+    havingValue = "true",
+    matchIfMissing = false
+)
+public class CacheConfig {
+  @Bean
+  public CacheManager cacheManager() {
+    return new ConcurrentMapCacheManager("orders", "users");
+  }
+}
+
+// @ConditionalOnClass - Only if class is on classpath
+@Configuration
+@ConditionalOnClass(name = "io.lettuce.core.RedisClient")
+public class RedisConfig {
+  @Bean
+  public RedisTemplate<String, Object> redisTemplate() {
+    return new RedisTemplate<>();
+  }
+}
+
+// @ConditionalOnMissingBean - Only if no other bean exists
+@Configuration
+public class DefaultConfig {
+  @Bean
+  @ConditionalOnMissingBean(NotificationService.class)
+  public NotificationService defaultNotification() {
+    return new ConsoleNotificationService();
+  }
+}
+
+// @ConditionalOnBean - Only if another bean exists
+@Bean
+@ConditionalOnBean(DataSource.class)
+public JdbcTemplate jdbcTemplate(DataSource ds) {
+  return new JdbcTemplate(ds);
+}`
+        },
+        {
+          name: 'Validation Annotations',
+          explanation: `Bean Validation (JSR-380) annotations validate input data declaratively. Spring auto-validates @Valid parameters and returns 400 errors. Custom validators can be created for complex rules.`,
+          codeExample: `// Bean Validation on DTOs
+public class OrderRequest {
+  @NotNull(message = "Symbol is required")
+  @Size(min = 1, max = 10)
+  private String symbol;
+
+  @NotNull @Positive(message = "Quantity must be positive")
+  private Integer quantity;
+
+  @NotNull @DecimalMin("0.01")
+  private BigDecimal price;
+
+  @Email(message = "Invalid email format")
+  private String traderEmail;
+
+  @Pattern(regexp = "BUY|SELL", message = "Side must be BUY or SELL")
+  private String side;
+
+  @Future(message = "Expiry must be in the future")
+  private LocalDateTime expiryTime;
+
+  @Size(min = 1, max = 5, message = "1 to 5 tags allowed")
+  private List<@NotBlank String> tags;
+}
+
+// Nested validation with @Valid
+public class PortfolioRequest {
+  @NotBlank private String name;
+
+  @Valid  // Validates each item in the list
+  @Size(min = 1, message = "At least one holding required")
+  private List<HoldingRequest> holdings;
+}
+
+// Validation groups - validate different fields per operation
+public interface OnCreate {}
+public interface OnUpdate {}
+
+public class UserDTO {
+  @Null(groups = OnCreate.class)       // No ID on create
+  @NotNull(groups = OnUpdate.class)    // ID required on update
+  private Long id;
+
+  @NotBlank(groups = {OnCreate.class, OnUpdate.class})
+  private String username;
+
+  @NotBlank(groups = OnCreate.class)   // Required on create only
+  private String password;
+}
+
+// Controller with validation groups
+@PostMapping
+public User create(
+    @Validated(OnCreate.class) @RequestBody UserDTO dto) { }
+
+@PutMapping("/{id}")
+public User update(
+    @Validated(OnUpdate.class) @RequestBody UserDTO dto) { }
+
+// Custom validator
+@Target({FIELD})
+@Retention(RUNTIME)
+@Constraint(validatedBy = ValidTickerValidator.class)
+public @interface ValidTicker {
+  String message() default "Invalid ticker symbol";
+  Class<?>[] groups() default {};
+  Class<?>[] payload() default {};
+}
+
+public class ValidTickerValidator
+    implements ConstraintValidator<ValidTicker, String> {
+  @Override
+  public boolean isValid(String value, ConstraintValidatorContext ctx) {
+    return value != null && value.matches("^[A-Z]{1,5}$");
+  }
+}`
+        },
+        {
+          name: 'Async & Event Annotations',
+          explanation: `@Async enables asynchronous method execution on a separate thread. @EventListener decouples components via application events. @Retryable adds automatic retry logic for transient failures.`,
+          codeExample: `// @Async - Run method on a separate thread
+@Configuration
+@EnableAsync
+public class AsyncConfig {
+  @Bean
+  public Executor taskExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(5);
+    executor.setMaxPoolSize(10);
+    executor.setQueueCapacity(100);
+    executor.setThreadNamePrefix("async-");
+    return executor;
+  }
+}
+
+@Service
+public class ReportService {
+  @Async  // Returns immediately, runs in background
+  public CompletableFuture<Report> generateReport(String type) {
+    Report report = buildReport(type);  // slow
+    return CompletableFuture.completedFuture(report);
+  }
+
+  @Async("taskExecutor")  // Use specific executor
+  public void sendNotification(String userId, String msg) {
+    // Runs on async-* thread
+    emailService.send(userId, msg);
+  }
+}
+
+// @EventListener - Loosely coupled event handling
+public class OrderCreatedEvent {
+  private final Order order;
+  public OrderCreatedEvent(Order order) { this.order = order; }
+  public Order getOrder() { return order; }
+}
+
+@Service
+public class OrderService {
+  @Autowired private ApplicationEventPublisher publisher;
+
+  @Transactional
+  public Order createOrder(OrderRequest req) {
+    Order order = orderRepository.save(new Order(req));
+    publisher.publishEvent(new OrderCreatedEvent(order));
+    return order;
+  }
+}
+
+// Multiple listeners react to the same event
+@Component
+public class OrderEventHandlers {
+  @EventListener
+  public void sendConfirmation(OrderCreatedEvent event) {
+    emailService.sendConfirmation(event.getOrder());
+  }
+
+  @EventListener
+  @Async  // Async listener
+  public void updateAnalytics(OrderCreatedEvent event) {
+    analyticsService.trackOrder(event.getOrder());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  public void afterOrderCommitted(OrderCreatedEvent event) {
+    // Only fires after transaction commits successfully
+    notificationService.notifyTrader(event.getOrder());
+  }
+}
+
+// @Retryable - Auto-retry on failure (spring-retry)
+@Service
+public class ExternalApiService {
+  @Retryable(
+    value = {HttpServerErrorException.class},
+    maxAttempts = 3,
+    backoff = @Backoff(delay = 1000, multiplier = 2)
+  )
+  public MarketData fetchPrices(String symbol) {
+    return restTemplate.getForObject(
+      "/api/prices/" + symbol, MarketData.class);
+  }
+
+  @Recover  // Fallback when all retries fail
+  public MarketData fallback(HttpServerErrorException e,
+      String symbol) {
+    return cachedPrices.get(symbol);
+  }
+}`
+        },
+        {
+          name: 'Security Annotations',
+          explanation: `Spring Security annotations control access at the method and class level. @PreAuthorize supports SpEL expressions for complex authorization rules. @Secured provides simpler role-based access.`,
+          codeExample: `// @EnableMethodSecurity - Enable annotation-based security
+@Configuration
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
+public class SecurityConfig { }
+
+// @PreAuthorize - SpEL expression before method executes
+@Service
+public class AccountService {
+  @PreAuthorize("hasRole('ADMIN')")
+  public void deleteAccount(Long id) { }
+
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  public List<Account> getAllAccounts() { }
+
+  // Access method arguments in SpEL
+  @PreAuthorize("#userId == authentication.principal.id " +
+      "or hasRole('ADMIN')")
+  public Account getAccount(Long userId) { }
+
+  @PreAuthorize("@authService.canAccessPortfolio(" +
+      "authentication, #portfolioId)")
+  public Portfolio getPortfolio(Long portfolioId) { }
+}
+
+// @PostAuthorize - Check AFTER method executes
+@PostAuthorize("returnObject.owner == authentication.name")
+public Order getOrder(Long orderId) {
+  return orderRepository.findById(orderId).orElseThrow();
+}
+
+// @PreFilter / @PostFilter - Filter collections
+@PreFilter("filterObject.owner == authentication.name")
+public void deleteOrders(List<Order> orders) {
+  orderRepository.deleteAll(orders);  // Only user's orders
+}
+
+@PostFilter("filterObject.visibility == 'PUBLIC' " +
+    "or filterObject.owner == authentication.name")
+public List<Report> getReports() {
+  return reportRepository.findAll();
+}
+
+// @Secured - Simpler role-based (no SpEL)
+@Secured("ROLE_ADMIN")
+public void adminOnly() { }
+
+@Secured({"ROLE_ADMIN", "ROLE_TRADER"})
+public void tradersAndAdmins() { }
+
+// @RolesAllowed - JSR-250 standard (same as @Secured)
+@RolesAllowed("ADMIN")
+public void jsr250Admin() { }
+
+// @WithMockUser - Testing secured methods
+@Test
+@WithMockUser(username = "trader", roles = {"TRADER"})
+void testPlaceOrder() {
+  // Runs as if authenticated user "trader" with ROLE_TRADER
+  orderService.placeOrder(new OrderRequest("AAPL", 100));
+}`
+        },
+        {
+          name: 'JPA & Data Annotations',
+          explanation: `JPA annotations map Java objects to database tables. Spring Data annotations add auditing, query derivation, and custom repository behavior. These eliminate most boilerplate SQL and mapping code.`,
+          codeExample: `// Entity mapping
+@Entity
+@Table(name = "trades",
+    indexes = @Index(columnList = "symbol,tradeDate"))
+public class Trade {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false, length = 10)
+  private String symbol;
+
+  @Enumerated(EnumType.STRING)
+  private Side side;  // BUY, SELL
+
+  @Column(precision = 19, scale = 4)
+  private BigDecimal price;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date tradeDate;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "trader_id")
+  private Trader trader;
+
+  @OneToMany(mappedBy = "trade", cascade = CascadeType.ALL,
+      orphanRemoval = true)
+  private List<Fill> fills = new ArrayList<>();
+
+  @Version  // Optimistic locking
+  private Long version;
+
+  @CreatedDate  // Spring Data auditing
+  private LocalDateTime createdAt;
+
+  @LastModifiedDate
+  private LocalDateTime updatedAt;
+
+  @Transient  // Not persisted to DB
+  private BigDecimal unrealizedPnL;
+}
+
+// Embeddable value objects
+@Embeddable
+public class Money {
+  @Column(precision = 19, scale = 4)
+  private BigDecimal amount;
+  @Column(length = 3)
+  private String currency;
+}
+
+@Entity
+public class Order {
+  @Embedded
+  @AttributeOverrides({
+    @AttributeOverride(name = "amount",
+        column = @Column(name = "order_amount")),
+    @AttributeOverride(name = "currency",
+        column = @Column(name = "order_currency"))
+  })
+  private Money totalValue;
+}
+
+// Spring Data repository with query methods
+public interface TradeRepository extends JpaRepository<Trade, Long> {
+  // Derived query from method name
+  List<Trade> findBySymbolAndSideOrderByTradeDateDesc(
+      String symbol, Side side);
+
+  // @Query with JPQL
+  @Query("SELECT t FROM Trade t WHERE t.trader.id = :traderId " +
+      "AND t.tradeDate >= :since")
+  List<Trade> findRecentTrades(@Param("traderId") Long traderId,
+      @Param("since") LocalDateTime since);
+
+  // Native SQL query
+  @Query(value = "SELECT symbol, SUM(quantity) as total " +
+      "FROM trades GROUP BY symbol", nativeQuery = true)
+  List<Object[]> getPositionSummary();
+
+  // @Modifying for UPDATE/DELETE queries
+  @Modifying
+  @Transactional
+  @Query("UPDATE Trade t SET t.side = :status WHERE t.id = :id")
+  int updateStatus(@Param("id") Long id, @Param("status") String status);
+
+  // Projections
+  @EntityGraph(attributePaths = {"trader", "fills"})
+  Optional<Trade> findWithDetailsById(Long id);
+}`
+        },
+        {
+          name: 'Testing Annotations',
+          explanation: `Spring testing annotations bootstrap the application context for integration tests. @MockBean replaces real beans with mocks. @DataJpaTest loads only JPA components for repository testing.`,
+          codeExample: `// @SpringBootTest - Full integration test
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class OrderControllerIntegrationTest {
+  @Autowired private TestRestTemplate restTemplate;
+  @MockBean private OrderService orderService;
+
+  @Test
+  void shouldReturnOrders() {
+    when(orderService.findAll())
+        .thenReturn(List.of(new Order("AAPL", 100)));
+
+    ResponseEntity<List> response = restTemplate
+        .getForEntity("/api/orders", List.class);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
+}
+
+// @WebMvcTest - Test only web layer (no DB, no services)
+@WebMvcTest(OrderController.class)
+class OrderControllerTest {
+  @Autowired private MockMvc mockMvc;
+  @MockBean private OrderService orderService;
+
+  @Test
+  void shouldCreateOrder() throws Exception {
+    mockMvc.perform(post("/api/orders")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\\"symbol\\":\\"AAPL\\",\\"quantity\\":100}"))
+      .andExpect(status().isCreated())
+      .andExpect(jsonPath("$.symbol").value("AAPL"));
+  }
+}
+
+// @DataJpaTest - Test only JPA repositories
+@DataJpaTest
+class TradeRepositoryTest {
+  @Autowired private TestEntityManager entityManager;
+  @Autowired private TradeRepository tradeRepository;
+
+  @Test
+  void shouldFindBySymbol() {
+    entityManager.persist(new Trade("AAPL", Side.BUY, 100));
+    entityManager.flush();
+
+    List<Trade> trades = tradeRepository
+        .findBySymbolAndSideOrderByTradeDateDesc("AAPL", Side.BUY);
+    assertThat(trades).hasSize(1);
+  }
+}
+
+// @TestConfiguration - Override beans for tests only
+@TestConfiguration
+public class TestConfig {
+  @Bean
+  public Clock clock() {
+    return Clock.fixed(Instant.parse("2024-01-15T09:30:00Z"),
+        ZoneId.of("America/New_York"));
+  }
+}
+
+// Slice test annotations:
+// @WebFluxTest     - WebFlux controllers only
+// @JsonTest        - JSON serialization/deserialization
+// @RestClientTest  - REST client testing
+// @JdbcTest        - JDBC repository testing
+
+// @DirtiesContext - Reset context after test
+@Test
+@DirtiesContext(methodMode = AFTER_METHOD)
+void testThatModifiesContext() { }
+
+// @Sql - Execute SQL before/after test
+@Test
+@Sql("/test-data/orders.sql")
+@Sql(scripts = "/cleanup.sql",
+    executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+void testWithPreloadedData() { }`
         }
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 

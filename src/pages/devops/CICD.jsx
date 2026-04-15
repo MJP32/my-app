@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const CICD_COLORS = {
   primary: '#0ea5e9',
@@ -1366,7 +1367,7 @@ spec:
         {
           name: 'Declarative Pipeline',
           explanation: 'Modern, structured syntax for Jenkins pipelines. Defined in Jenkinsfile. Pipeline block contains stages and steps. Agent directive specifies where to run. Environment for variables. Post block for cleanup and notifications. Easier to read and maintain. Built-in validation and error handling. Recommended for most use cases.',
-          code: `pipeline {
+          codeExample: `pipeline {
     agent any
     environment {
         DOCKER_REGISTRY = 'registry.example.com'
@@ -1403,7 +1404,7 @@ spec:
         {
           name: 'Scripted Pipeline',
           explanation: 'Groovy-based pipeline with full programming flexibility. More powerful but complex. Use when declarative is too limiting. Try-catch for error handling. Functions for code reuse. Access to Jenkins APIs. Can mix with declarative. Harder to validate before running.',
-          code: `node {
+          codeExample: `node {
     try {
         stage('Checkout') {
             checkout scm
@@ -1540,7 +1541,7 @@ unclassified:
         {
           name: 'Pipeline Configuration',
           explanation: 'Defined in .gitlab-ci.yml at repository root. Stages run in order. Jobs in same stage run in parallel. Variables for configuration. Cache and artifacts for sharing data. Extends for job inheritance. Include for modular configurations. Rules for conditional execution.',
-          code: `stages:
+          codeExample: `stages:
   - build
   - test
   - deploy
@@ -1733,7 +1734,7 @@ security_gate:
         {
           name: 'Workflow Structure',
           explanation: 'Workflows defined in .github/workflows/ directory. YAML files with on triggers and jobs. Jobs contain steps that run commands or actions. Matrix strategy for multiple configurations. Reusable workflows for DRY. Workflow dispatch for manual triggers. Environment secrets and variables.',
-          code: `name: CI/CD Pipeline
+          codeExample: `name: CI/CD Pipeline
 on:
   push:
     branches: [main]
@@ -1972,7 +1973,7 @@ k8s-manifests/
         {
           name: 'ArgoCD Applications',
           explanation: 'ArgoCD syncs Git repos to Kubernetes clusters. Application CRD defines source and destination. Supports Helm, Kustomize, plain YAML. Auto-sync for continuous deployment. Manual sync for controlled releases. Application sets for multi-cluster. Health checks and status monitoring. Web UI and CLI for management.',
-          code: `apiVersion: argoproj.io/v1alpha1
+          codeExample: `apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: my-app
@@ -2559,6 +2560,8 @@ flyway undo
     }
   ]
 
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
+
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
   // Handle keyboard navigation
@@ -2857,7 +2860,7 @@ flyway undo
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
-                  {(detail.code || detail.codeExample) && (
+                  {detail.codeExample && (
                     <SyntaxHighlighter
                       language="yaml"
                       style={vscDarkPlus}
@@ -2871,7 +2874,7 @@ flyway undo
                       }}
                       codeTagProps={{ style: { background: 'transparent' } }}
                     >
-                      {detail.code || detail.codeExample}
+                      {detail.codeExample}
                     </SyntaxHighlighter>
                   )}
                 </div>

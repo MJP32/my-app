@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const DATABASE_COLORS = {
   primary: '#06b6d4',
@@ -1703,6 +1704,8 @@ WHERE EXTRACT(DOW FROM created_at) IN (0, 6);  -- Weekends only`
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 

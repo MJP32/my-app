@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -184,6 +185,58 @@ const CachingOptDiagram = () => (
   </svg>
 )
 
+// SQL-oriented syntax highlighter
+const SyntaxHighlighter = ({ code }) => {
+  const highlightCode = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(--.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|ON|AND|OR|NOT|IN|EXISTS|BETWEEN|LIKE|IS|NULL|AS|ORDER|BY|GROUP|HAVING|LIMIT|OFFSET|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|ALTER|DROP|INDEX|PRIMARY|KEY|FOREIGN|REFERENCES|UNIQUE|CONSTRAINT|DEFAULT|CHECK|CASCADE|DISTINCT|UNION|ALL|CASE|WHEN|THEN|ELSE|END|WITH|OVER|PARTITION|ROW_NUMBER|RANK|DENSE_RANK|COUNT|SUM|AVG|MIN|MAX|EXPLAIN|ANALYZE|VACUUM|USING|HASH|BTREE|GIN|GIST|BRIN|CONCURRENTLY|REINDEX|CLUSTER|TABLESPACE|MATERIALIZED|VIEW|REFRESH|PARALLEL|SEQUENTIAL|BITMAP|NESTED|MERGE|FULL|SCAN|COST|ROWS|WIDTH|BUFFERS|TIMING|FORMAT|VERBOSE|SETTINGS|TEMP|TEMPORARY|UNLOGGED|GENERATED|ALWAYS|IDENTITY|STORED|INCLUDE|FILLFACTOR|AUTOVACUUM|TOAST|CACHE|CYCLE|OWNED|NONE|REPLICA)\b/gi, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(INT|INTEGER|BIGINT|SMALLINT|SERIAL|VARCHAR|CHAR|TEXT|BOOLEAN|DATE|TIMESTAMP|NUMERIC|DECIMAL|FLOAT|DOUBLE|REAL|JSON|JSONB|UUID|ARRAY|BYTEA|MONEY|INTERVAL)\b/gi, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
+    </pre>
+  )
+}
+
 function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -199,19 +252,89 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'SELECT Optimization',
-          explanation: 'Select only needed columns, never use SELECT *. Avoid selecting computed columns when not needed. Use column aliases for clarity. Consider covering indexes for frequently selected column sets. Projection pushdown filters columns early in execution.'
+          explanation: 'Select only needed columns, never use SELECT *. Avoid selecting computed columns when not needed. Use column aliases for clarity. Consider covering indexes for frequently selected column sets. Projection pushdown filters columns early in execution.',
+          codeExample: `-- BAD: SELECT * fetches all columns
+SELECT * FROM orders WHERE status = 'PENDING';
+
+-- GOOD: Select only needed columns
+SELECT order_id, customer_id, total_amount
+FROM orders
+WHERE status = 'PENDING';
+
+-- GOOD: Use aliases and avoid computed cols
+SELECT o.order_id,
+       c.name AS customer_name,
+       o.total_amount
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+WHERE o.status = 'PENDING';`
         },
         {
           name: 'WHERE Clause Optimization',
-          explanation: 'Use indexed columns in predicates. Avoid functions on indexed columns (prevents index usage). Use BETWEEN instead of >= AND <=. Prefer EXISTS over IN for subqueries. Use specific data types to avoid implicit conversions. Order conditions by selectivity.'
+          explanation: 'Use indexed columns in predicates. Avoid functions on indexed columns (prevents index usage). Use BETWEEN instead of >= AND <=. Prefer EXISTS over IN for subqueries. Use specific data types to avoid implicit conversions. Order conditions by selectivity.',
+          codeExample: `-- BAD: Function on indexed column prevents index use
+SELECT * FROM orders
+WHERE YEAR(created_at) = 2024;
+
+-- GOOD: Use range to preserve index usage
+SELECT * FROM orders
+WHERE created_at >= '2024-01-01'
+  AND created_at < '2025-01-01';
+
+-- GOOD: EXISTS instead of IN for large sets
+SELECT * FROM customers c
+WHERE EXISTS (
+    SELECT 1 FROM orders o
+    WHERE o.customer_id = c.id
+      AND o.total_amount > 1000
+);`
         },
         {
           name: 'JOIN Optimization',
-          explanation: 'Join on indexed columns. Reduce result sets before joining with WHERE filters. Choose appropriate join types (INNER, LEFT, etc.). Consider join order for optimal performance. Use hash joins for large unsorted data. Nested loops for small result sets with indexes.'
+          explanation: 'Join on indexed columns. Reduce result sets before joining with WHERE filters. Choose appropriate join types (INNER, LEFT, etc.). Consider join order for optimal performance. Use hash joins for large unsorted data. Nested loops for small result sets with indexes.',
+          codeExample: `-- BAD: Joining without filtering first
+SELECT o.*, p.name
+FROM orders o
+JOIN products p ON o.product_id = p.id
+JOIN customers c ON o.customer_id = c.id;
+
+-- GOOD: Filter early, join on indexed columns
+SELECT o.order_id, p.name, o.total_amount
+FROM orders o
+JOIN products p ON o.product_id = p.id
+WHERE o.status = 'SHIPPED'
+  AND o.created_at > CURRENT_DATE - INTERVAL '30 days';
+
+-- Ensure join columns are indexed
+CREATE INDEX idx_orders_product_id
+  ON orders(product_id);`
         },
         {
           name: 'Subquery vs JOIN',
-          explanation: 'Correlated subqueries execute once per row (slow). Uncorrelated subqueries execute once (faster). JOINs often outperform subqueries. EXISTS more efficient than IN for existence checks. Consider CTEs for readability without performance loss. Analyze execution plans to compare.'
+          explanation: 'Correlated subqueries execute once per row (slow). Uncorrelated subqueries execute once (faster). JOINs often outperform subqueries. EXISTS more efficient than IN for existence checks. Consider CTEs for readability without performance loss. Analyze execution plans to compare.',
+          codeExample: `-- BAD: Correlated subquery (runs per row)
+SELECT name, (
+    SELECT COUNT(*) FROM orders o
+    WHERE o.customer_id = c.id
+) AS order_count
+FROM customers c;
+
+-- GOOD: Rewrite as JOIN with aggregation
+SELECT c.name, COUNT(o.id) AS order_count
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+GROUP BY c.name;
+
+-- GOOD: CTE for complex logic
+WITH monthly_totals AS (
+    SELECT customer_id, SUM(amount) AS total
+    FROM orders
+    WHERE created_at >= '2024-01-01'
+    GROUP BY customer_id
+)
+SELECT c.name, mt.total
+FROM customers c
+JOIN monthly_totals mt ON c.id = mt.customer_id;`
         },
         {
           name: 'UNION Optimization',
@@ -233,19 +356,91 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'B-Tree Indexes',
-          explanation: 'Default index type in most databases. Optimal for equality and range queries. Maintains sorted order for efficient lookups. Supports prefix matching for LIKE patterns. Column order matters in composite indexes. Balance between read speed and write overhead.'
+          explanation: 'Default index type in most databases. Optimal for equality and range queries. Maintains sorted order for efficient lookups. Supports prefix matching for LIKE patterns. Column order matters in composite indexes. Balance between read speed and write overhead.',
+          codeExample: `-- Standard B-Tree index for equality lookups
+CREATE INDEX idx_users_email
+  ON users(email);
+
+-- B-Tree supports range queries efficiently
+SELECT * FROM orders
+WHERE created_at BETWEEN '2024-01-01' AND '2024-12-31';
+
+-- Verify index is being used
+EXPLAIN ANALYZE
+SELECT * FROM users WHERE email = 'alice@example.com';
+-- Expected: Index Scan using idx_users_email
+-- Cost: 0.29..8.31  rows=1  actual time=0.02..0.03
+
+-- LIKE prefix matching works with B-Tree
+SELECT * FROM products WHERE name LIKE 'Widget%';
+-- Uses index! But 'Widget%' only, NOT '%Widget'`
         },
         {
           name: 'Composite Indexes',
-          explanation: 'Multi-column indexes for complex queries. Leftmost prefix rule: index (a,b,c) supports queries on a, (a,b), or (a,b,c). Column order affects query coverage. Include highly selective columns first. Consider query patterns when designing. Avoid redundant single-column indexes.'
+          explanation: 'Multi-column indexes for complex queries. Leftmost prefix rule: index (a,b,c) supports queries on a, (a,b), or (a,b,c). Column order affects query coverage. Include highly selective columns first. Consider query patterns when designing. Avoid redundant single-column indexes.',
+          codeExample: `-- Composite index: column order matters!
+CREATE INDEX idx_orders_status_date
+  ON orders(status, created_at);
+
+-- USES index (leftmost prefix match)
+SELECT * FROM orders WHERE status = 'PENDING';
+SELECT * FROM orders
+  WHERE status = 'PENDING' AND created_at > '2024-01-01';
+
+-- DOES NOT use index (skips leftmost column)
+SELECT * FROM orders WHERE created_at > '2024-01-01';
+
+-- Verify with EXPLAIN
+EXPLAIN ANALYZE
+SELECT * FROM orders
+WHERE status = 'SHIPPED'
+  AND created_at > CURRENT_DATE - INTERVAL '7 days';`
         },
         {
           name: 'Covering Indexes',
-          explanation: 'Include all columns needed by query. Avoids table lookups (index-only scan). INCLUDE clause adds non-key columns. Trade storage for query speed. Monitor index size growth. Perfect for read-heavy workloads.'
+          explanation: 'Include all columns needed by query. Avoids table lookups (index-only scan). INCLUDE clause adds non-key columns. Trade storage for query speed. Monitor index size growth. Perfect for read-heavy workloads.',
+          codeExample: `-- Covering index: all queried columns in the index
+CREATE INDEX idx_orders_covering
+  ON orders(status, created_at)
+  INCLUDE (customer_id, total_amount);
+
+-- This query uses index-only scan (no table lookup)
+EXPLAIN ANALYZE
+SELECT customer_id, total_amount
+FROM orders
+WHERE status = 'SHIPPED'
+  AND created_at > '2024-06-01';
+-- Expected: Index Only Scan
+-- Much faster than Index Scan + heap fetch
+
+-- Check for index-only scan opportunities
+SELECT schemaname, relname, idx_scan, idx_tup_fetch
+FROM pg_stat_user_indexes
+WHERE idx_scan > 0
+ORDER BY idx_tup_fetch DESC;`
         },
         {
           name: 'Partial/Filtered Indexes',
-          explanation: 'Index subset of rows with WHERE clause. Smaller index size, faster maintenance. Ideal for queries on specific conditions. Example: index only active users. Reduces storage and improves write performance. Query must match filter condition to use index.'
+          explanation: 'Index subset of rows with WHERE clause. Smaller index size, faster maintenance. Ideal for queries on specific conditions. Example: index only active users. Reduces storage and improves write performance. Query must match filter condition to use index.',
+          codeExample: `-- Partial index: only index active orders
+CREATE INDEX idx_orders_pending
+  ON orders(created_at)
+  WHERE status = 'PENDING';
+
+-- Much smaller than indexing all rows
+-- Only useful for queries matching the WHERE clause
+SELECT * FROM orders
+WHERE status = 'PENDING'
+  AND created_at > '2024-06-01';
+
+-- Partial unique index: enforce uniqueness conditionally
+CREATE UNIQUE INDEX idx_users_active_email
+  ON users(email)
+  WHERE is_deleted = false;
+
+-- Compare index sizes
+SELECT pg_size_pretty(pg_relation_size('idx_orders_pending'))
+  AS partial_size;`
         },
         {
           name: 'Hash Indexes',
@@ -267,19 +462,96 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'Reading Execution Plans',
-          explanation: 'EXPLAIN shows planned execution strategy. EXPLAIN ANALYZE includes actual runtime statistics. Read from innermost to outermost operations. Cost estimates help compare alternatives. Row estimates indicate selectivity accuracy. Execution time reveals actual bottlenecks.'
+          explanation: 'EXPLAIN shows planned execution strategy. EXPLAIN ANALYZE includes actual runtime statistics. Read from innermost to outermost operations. Cost estimates help compare alternatives. Row estimates indicate selectivity accuracy. Execution time reveals actual bottlenecks.',
+          codeExample: `-- Basic EXPLAIN: shows planned strategy
+EXPLAIN
+SELECT * FROM orders WHERE customer_id = 42;
+
+-- EXPLAIN ANALYZE: includes actual execution stats
+EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+SELECT o.id, c.name, o.total_amount
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+WHERE o.status = 'PENDING';
+-- Output:
+-- Hash Join (cost=10.5..85.2 rows=12 width=48)
+--           (actual time=0.3..1.2 rows=15 loops=1)
+--   Buffers: shared hit=24
+--   -> Seq Scan on orders (actual time=0.01..0.5)
+--   -> Hash (actual time=0.2..0.2)
+--     -> Seq Scan on customers`
         },
         {
           name: 'Scan Operations',
-          explanation: 'Sequential Scan: reads entire table (avoid for large tables). Index Scan: uses index then fetches rows. Index Only Scan: all data from index (ideal). Bitmap Scan: combines multiple indexes. Identify unexpected full scans as optimization targets.'
+          explanation: 'Sequential Scan: reads entire table (avoid for large tables). Index Scan: uses index then fetches rows. Index Only Scan: all data from index (ideal). Bitmap Scan: combines multiple indexes. Identify unexpected full scans as optimization targets.',
+          codeExample: `-- Sequential Scan (full table read - often slow)
+EXPLAIN ANALYZE
+SELECT * FROM orders WHERE notes LIKE '%urgent%';
+-- Seq Scan on orders  cost=0..15420  rows=500
+
+-- Index Scan (uses index + fetches from table)
+EXPLAIN ANALYZE
+SELECT * FROM orders WHERE customer_id = 42;
+-- Index Scan using idx_orders_customer_id
+--   cost=0.29..8.31  rows=5
+
+-- Index Only Scan (best: no table access)
+EXPLAIN ANALYZE
+SELECT customer_id, total_amount FROM orders
+WHERE customer_id = 42;
+-- Index Only Scan using idx_orders_covering
+
+-- Force index use for testing
+SET enable_seqscan = off;
+EXPLAIN ANALYZE SELECT * FROM orders WHERE status = 'NEW';
+SET enable_seqscan = on;`
         },
         {
           name: 'Join Algorithms',
-          explanation: 'Nested Loop: good for small result sets with indexes. Hash Join: efficient for large unsorted data. Merge Join: optimal for pre-sorted data. Sort Merge: sorts then merges. Query planner chooses based on statistics. Poor joins often indicate missing indexes.'
+          explanation: 'Nested Loop: good for small result sets with indexes. Hash Join: efficient for large unsorted data. Merge Join: optimal for pre-sorted data. Sort Merge: sorts then merges. Query planner chooses based on statistics. Poor joins often indicate missing indexes.',
+          codeExample: `-- Nested Loop Join (small result + indexed lookup)
+EXPLAIN ANALYZE
+SELECT o.id, c.name
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+WHERE o.id = 42;
+-- Nested Loop (actual time=0.02..0.04 rows=1)
+--   -> Index Scan on orders (rows=1)
+--   -> Index Scan on customers (rows=1)
+
+-- Hash Join (larger datasets, no useful index)
+EXPLAIN ANALYZE
+SELECT c.name, COUNT(o.id)
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+GROUP BY c.name;
+-- HashAggregate
+--   -> Hash Join (actual time=5.2..28.4 rows=9500)
+--     -> Seq Scan on orders
+--     -> Hash -> Seq Scan on customers`
         },
         {
           name: 'Sort Operations',
-          explanation: 'External sort uses disk (slow). In-memory sort much faster. Create indexes to avoid runtime sorts. ORDER BY on indexed columns efficient. Reduce result set before sorting. Consider removing unnecessary ORDER BY.'
+          explanation: 'External sort uses disk (slow). In-memory sort much faster. Create indexes to avoid runtime sorts. ORDER BY on indexed columns efficient. Reduce result set before sorting. Consider removing unnecessary ORDER BY.',
+          codeExample: `-- BAD: Sort requires extra work on large result set
+EXPLAIN ANALYZE
+SELECT * FROM orders ORDER BY created_at DESC;
+-- Sort (cost=18500..18750)
+-- Sort Method: external merge  Disk: 45000kB
+
+-- GOOD: Index eliminates the sort operation
+CREATE INDEX idx_orders_created_desc
+  ON orders(created_at DESC);
+
+EXPLAIN ANALYZE
+SELECT * FROM orders ORDER BY created_at DESC
+LIMIT 20;
+-- Index Scan Backward using idx_orders_created_desc
+-- No sort needed! Direct index traversal
+
+-- Check work_mem for in-memory sorts
+SHOW work_mem;  -- default 4MB
+SET work_mem = '64MB';  -- increase for session`
         },
         {
           name: 'Estimated vs Actual Rows',
@@ -301,19 +573,103 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'Memory Configuration',
-          explanation: 'Buffer pool/shared buffers for caching data pages. Sort memory for in-memory operations. Hash memory for hash joins. Work mem per-operation allocation. Avoid memory pressure and swapping. Monitor hit ratios and adjust accordingly.'
+          explanation: 'Buffer pool/shared buffers for caching data pages. Sort memory for in-memory operations. Hash memory for hash joins. Work mem per-operation allocation. Avoid memory pressure and swapping. Monitor hit ratios and adjust accordingly.',
+          codeExample: `-- PostgreSQL: Check and tune memory settings
+SHOW shared_buffers;    -- Data page cache (25% of RAM)
+SHOW work_mem;          -- Per-operation sort/hash memory
+SHOW effective_cache_size;  -- OS cache estimate
+
+-- Check buffer cache hit ratio (target > 95%)
+SELECT
+  sum(heap_blks_hit) * 100.0 /
+    nullif(sum(heap_blks_hit) + sum(heap_blks_read), 0)
+    AS cache_hit_ratio
+FROM pg_statio_user_tables;
+
+-- Tune in postgresql.conf
+-- shared_buffers = '4GB'
+-- work_mem = '64MB'
+-- maintenance_work_mem = '512MB'
+-- effective_cache_size = '12GB'`
         },
         {
           name: 'Connection Pooling',
-          explanation: 'Reduce connection overhead with pooling. PgBouncer, HikariCP, connection pool settings. Transaction vs session pooling modes. Size pool based on expected concurrency. Monitor connection wait times. Avoid connection leaks in application.'
+          explanation: 'Reduce connection overhead with pooling. PgBouncer, HikariCP, connection pool settings. Transaction vs session pooling modes. Size pool based on expected concurrency. Monitor connection wait times. Avoid connection leaks in application.',
+          codeExample: `-- Check current connections
+SELECT count(*) AS total_connections,
+       state,
+       usename
+FROM pg_stat_activity
+GROUP BY state, usename;
+
+-- Monitor connection limits
+SHOW max_connections;  -- default 100
+
+-- Find long-running idle connections
+SELECT pid, now() - state_change AS idle_time,
+       query, usename
+FROM pg_stat_activity
+WHERE state = 'idle'
+  AND now() - state_change > INTERVAL '5 minutes'
+ORDER BY idle_time DESC;
+
+-- Terminate idle connections
+SELECT pg_terminate_backend(pid)
+FROM pg_stat_activity
+WHERE state = 'idle'
+  AND now() - state_change > INTERVAL '30 minutes';`
         },
         {
           name: 'Parallel Query',
-          explanation: 'Utilize multiple CPU cores for queries. Configure max parallel workers. Parallel-safe functions required. Parallel scans for large tables. Aggregate operations parallelizable. Monitor CPU usage during parallel execution.'
+          explanation: 'Utilize multiple CPU cores for queries. Configure max parallel workers. Parallel-safe functions required. Parallel scans for large tables. Aggregate operations parallelizable. Monitor CPU usage during parallel execution.',
+          codeExample: `-- Check parallel query settings
+SHOW max_parallel_workers_per_gather;  -- default 2
+SHOW max_parallel_workers;             -- default 8
+SHOW parallel_tuple_cost;
+
+-- See parallel plan in action
+EXPLAIN ANALYZE
+SELECT status, COUNT(*), AVG(total_amount)
+FROM orders
+GROUP BY status;
+-- Finalize Aggregate
+--   -> Gather (Workers Planned: 2)
+--     -> Partial Aggregate
+--       -> Parallel Seq Scan on orders
+
+-- Increase parallelism for large queries
+SET max_parallel_workers_per_gather = 4;
+
+-- Force parallel scan (for testing)
+SET parallel_tuple_cost = 0;
+SET parallel_setup_cost = 0;`
         },
         {
           name: 'I/O Optimization',
-          explanation: 'SSD storage dramatically improves I/O. Separate data and log files. RAID configuration for redundancy and speed. Sequential vs random I/O patterns. Reduce unnecessary I/O with better queries. Monitor disk queue lengths.'
+          explanation: 'SSD storage dramatically improves I/O. Separate data and log files. RAID configuration for redundancy and speed. Sequential vs random I/O patterns. Reduce unnecessary I/O with better queries. Monitor disk queue lengths.',
+          codeExample: `-- Identify I/O-heavy tables
+SELECT schemaname, relname,
+       heap_blks_read AS disk_reads,
+       heap_blks_hit AS cache_hits,
+       round(100.0 * heap_blks_hit /
+         nullif(heap_blks_hit + heap_blks_read, 0), 2)
+         AS hit_pct
+FROM pg_statio_user_tables
+ORDER BY heap_blks_read DESC
+LIMIT 10;
+
+-- Find tables needing VACUUM (reduce bloat)
+SELECT relname,
+       n_dead_tup,
+       n_live_tup,
+       round(n_dead_tup * 100.0 /
+         nullif(n_live_tup, 0), 2) AS dead_pct
+FROM pg_stat_user_tables
+WHERE n_dead_tup > 1000
+ORDER BY n_dead_tup DESC;
+
+-- Run VACUUM to reclaim space
+VACUUM (VERBOSE, ANALYZE) orders;`
         },
         {
           name: 'Lock Contention',
@@ -335,19 +691,106 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'Slow Query Log',
-          explanation: 'Enable slow query logging with threshold. Analyze patterns in slow queries. Identify candidates for optimization. Log execution plans for slow queries. Regularly review and address. Set appropriate thresholds for your SLA.'
+          explanation: 'Enable slow query logging with threshold. Analyze patterns in slow queries. Identify candidates for optimization. Log execution plans for slow queries. Regularly review and address. Set appropriate thresholds for your SLA.',
+          codeExample: `-- PostgreSQL: Enable slow query logging
+-- In postgresql.conf:
+-- log_min_duration_statement = 500  (ms)
+-- log_statement = 'none'
+
+-- Check current setting
+SHOW log_min_duration_statement;
+
+-- Auto-explain logs plans for slow queries
+-- shared_preload_libraries = 'auto_explain'
+-- auto_explain.log_min_duration = '500ms'
+-- auto_explain.log_analyze = true
+-- auto_explain.log_buffers = true
+
+-- Find currently running slow queries
+SELECT pid, now() - query_start AS duration,
+       query, state
+FROM pg_stat_activity
+WHERE state = 'active'
+  AND now() - query_start > INTERVAL '5 seconds'
+ORDER BY duration DESC;`
         },
         {
           name: 'Query Statistics',
-          explanation: 'pg_stat_statements for PostgreSQL. Query Store for SQL Server. Track execution counts and times. Identify top resource consumers. Compare before/after optimization. Reset statistics after major changes.'
+          explanation: 'pg_stat_statements for PostgreSQL. Query Store for SQL Server. Track execution counts and times. Identify top resource consumers. Compare before/after optimization. Reset statistics after major changes.',
+          codeExample: `-- Enable pg_stat_statements extension
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+
+-- Top 10 slowest queries by total time
+SELECT query,
+       calls,
+       round(total_exec_time::numeric, 2) AS total_ms,
+       round(mean_exec_time::numeric, 2) AS avg_ms,
+       rows
+FROM pg_stat_statements
+ORDER BY total_exec_time DESC
+LIMIT 10;
+
+-- Top queries by calls (most frequent)
+SELECT query, calls,
+       round(mean_exec_time::numeric, 2) AS avg_ms
+FROM pg_stat_statements
+ORDER BY calls DESC
+LIMIT 10;
+
+-- Reset statistics after optimization
+SELECT pg_stat_statements_reset();`
         },
         {
           name: 'Wait Statistics',
-          explanation: 'Identify what queries wait for. CPU, I/O, lock, network waits. sys.dm_os_wait_stats in SQL Server. pg_stat_activity in PostgreSQL. Target highest wait types. Correlate waits with specific queries.'
+          explanation: 'Identify what queries wait for. CPU, I/O, lock, network waits. sys.dm_os_wait_stats in SQL Server. pg_stat_activity in PostgreSQL. Target highest wait types. Correlate waits with specific queries.',
+          codeExample: `-- PostgreSQL: Check what queries are waiting on
+SELECT pid, wait_event_type, wait_event,
+       state, query
+FROM pg_stat_activity
+WHERE wait_event IS NOT NULL
+  AND state = 'active';
+
+-- Find blocking locks
+SELECT blocked.pid AS blocked_pid,
+       blocked.query AS blocked_query,
+       blocking.pid AS blocking_pid,
+       blocking.query AS blocking_query
+FROM pg_stat_activity blocked
+JOIN pg_locks bl ON bl.pid = blocked.pid
+JOIN pg_locks kl ON kl.locktype = bl.locktype
+  AND kl.relation = bl.relation
+  AND kl.pid != bl.pid
+JOIN pg_stat_activity blocking
+  ON kl.pid = blocking.pid
+WHERE NOT bl.granted;`
         },
         {
           name: 'Index Usage Statistics',
-          explanation: 'Track index scans vs sequential scans. Identify unused indexes for removal. Find missing index recommendations. Monitor index maintenance overhead. Balance read improvement vs write cost. Regular index usage reviews.'
+          explanation: 'Track index scans vs sequential scans. Identify unused indexes for removal. Find missing index recommendations. Monitor index maintenance overhead. Balance read improvement vs write cost. Regular index usage reviews.',
+          codeExample: `-- Find unused indexes (candidates for removal)
+SELECT schemaname, relname, indexrelname,
+       idx_scan AS times_used,
+       pg_size_pretty(pg_relation_size(indexrelid))
+         AS index_size
+FROM pg_stat_user_indexes
+WHERE idx_scan = 0
+ORDER BY pg_relation_size(indexrelid) DESC;
+
+-- Tables with high sequential scan ratio
+SELECT relname,
+       seq_scan, idx_scan,
+       round(100.0 * seq_scan /
+         nullif(seq_scan + idx_scan, 0), 2)
+         AS seq_pct
+FROM pg_stat_user_tables
+WHERE seq_scan + idx_scan > 100
+ORDER BY seq_pct DESC;
+
+-- Total index size per table
+SELECT relname,
+       pg_size_pretty(pg_indexes_size(relid)) AS idx_size
+FROM pg_stat_user_tables
+ORDER BY pg_indexes_size(relid) DESC;`
         },
         {
           name: 'Resource Monitoring',
@@ -369,19 +812,103 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'Normalization Trade-offs',
-          explanation: 'Normalized: reduces redundancy, more joins. Denormalized: faster reads, update anomalies. Choose based on read/write ratio. OLTP typically more normalized. OLAP often denormalized. Hybrid approaches common.'
+          explanation: 'Normalized: reduces redundancy, more joins. Denormalized: faster reads, update anomalies. Choose based on read/write ratio. OLTP typically more normalized. OLAP often denormalized. Hybrid approaches common.',
+          codeExample: `-- Normalized: separate tables, no redundancy
+CREATE TABLE customers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100)
+);
+CREATE TABLE addresses (
+    id SERIAL PRIMARY KEY,
+    customer_id INT REFERENCES customers(id),
+    city VARCHAR(100),
+    zip VARCHAR(10)
+);
+
+-- Denormalized: fewer joins, faster reads
+CREATE TABLE orders_denormalized (
+    id SERIAL PRIMARY KEY,
+    customer_name VARCHAR(100),  -- duplicated
+    customer_email VARCHAR(200), -- duplicated
+    total_amount NUMERIC(10,2),
+    created_at TIMESTAMP
+);
+-- Trades storage for read speed`
         },
         {
           name: 'Partitioning',
-          explanation: 'Range partitioning by date/value ranges. List partitioning for discrete values. Hash partitioning for even distribution. Partition pruning eliminates unnecessary scans. Maintenance per partition. Consider partition-wise joins.'
+          explanation: 'Range partitioning by date/value ranges. List partitioning for discrete values. Hash partitioning for even distribution. Partition pruning eliminates unnecessary scans. Maintenance per partition. Consider partition-wise joins.',
+          codeExample: `-- Range partitioning by date
+CREATE TABLE orders (
+    id SERIAL,
+    customer_id INT,
+    total_amount NUMERIC(10,2),
+    created_at TIMESTAMP NOT NULL
+) PARTITION BY RANGE (created_at);
+
+-- Create partitions per quarter
+CREATE TABLE orders_2024_q1 PARTITION OF orders
+  FOR VALUES FROM ('2024-01-01') TO ('2024-04-01');
+CREATE TABLE orders_2024_q2 PARTITION OF orders
+  FOR VALUES FROM ('2024-04-01') TO ('2024-07-01');
+
+-- Partition pruning: only scans relevant partition
+EXPLAIN ANALYZE
+SELECT * FROM orders
+WHERE created_at >= '2024-02-01'
+  AND created_at < '2024-03-01';
+-- Scans only orders_2024_q1`
         },
         {
           name: 'Vertical Partitioning',
-          explanation: 'Split wide tables into narrow ones. Separate frequently accessed columns. Reduce I/O for specific queries. Join back when all columns needed. Consider column-store for analytics. Balance normalization with performance.'
+          explanation: 'Split wide tables into narrow ones. Separate frequently accessed columns. Reduce I/O for specific queries. Join back when all columns needed. Consider column-store for analytics. Balance normalization with performance.',
+          codeExample: `-- Wide table with mixed access patterns
+-- Split into hot (frequently queried) and cold data
+
+-- Hot table: small, frequently accessed columns
+CREATE TABLE products_core (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    price NUMERIC(10,2),
+    stock INT,
+    category_id INT
+);
+
+-- Cold table: large, rarely accessed columns
+CREATE TABLE products_details (
+    product_id INT PRIMARY KEY
+      REFERENCES products_core(id),
+    description TEXT,
+    specifications JSONB,
+    images BYTEA[]
+);
+
+-- Most queries only hit the smaller core table
+SELECT name, price FROM products_core
+WHERE category_id = 5 AND stock > 0;`
         },
         {
           name: 'Materialized Views',
-          explanation: 'Pre-computed query results. Refresh strategies: on-demand, scheduled, incremental. Trade storage for query speed. Perfect for complex aggregations. Monitor staleness. Index materialized views.'
+          explanation: 'Pre-computed query results. Refresh strategies: on-demand, scheduled, incremental. Trade storage for query speed. Perfect for complex aggregations. Monitor staleness. Index materialized views.',
+          codeExample: `-- Create materialized view for expensive aggregation
+CREATE MATERIALIZED VIEW monthly_sales_summary AS
+SELECT
+    date_trunc('month', created_at) AS month,
+    category_id,
+    COUNT(*) AS order_count,
+    SUM(total_amount) AS revenue,
+    AVG(total_amount) AS avg_order_value
+FROM orders o
+JOIN order_items oi ON o.id = oi.order_id
+GROUP BY date_trunc('month', created_at), category_id;
+
+-- Index the materialized view
+CREATE INDEX idx_monthly_sales_month
+  ON monthly_sales_summary(month);
+
+-- Refresh when data changes
+REFRESH MATERIALIZED VIEW CONCURRENTLY
+  monthly_sales_summary;`
         },
         {
           name: 'Data Types',
@@ -403,19 +930,108 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'Batch Operations',
-          explanation: 'Multi-row INSERT reduces overhead. Batch size 1000-10000 rows typical. Use COPY/BULK INSERT for large loads. Disable indexes during bulk load. Reduce transaction log overhead. Parallel loading for maximum throughput.'
+          explanation: 'Multi-row INSERT reduces overhead. Batch size 1000-10000 rows typical. Use COPY/BULK INSERT for large loads. Disable indexes during bulk load. Reduce transaction log overhead. Parallel loading for maximum throughput.',
+          codeExample: `-- BAD: Single-row inserts (slow, high overhead)
+INSERT INTO orders VALUES (1, 100, 29.99);
+INSERT INTO orders VALUES (2, 101, 49.99);
+INSERT INTO orders VALUES (3, 102, 19.99);
+
+-- GOOD: Multi-row INSERT
+INSERT INTO orders (customer_id, total_amount)
+VALUES
+    (100, 29.99),
+    (101, 49.99),
+    (102, 19.99),
+    (103, 39.99);
+
+-- BEST: COPY for bulk loading (PostgreSQL)
+COPY orders (customer_id, total_amount, created_at)
+FROM '/data/orders.csv'
+WITH (FORMAT csv, HEADER true);
+
+-- Wrap bulk operations in single transaction
+BEGIN;
+INSERT INTO orders VALUES ...;  -- batch 1
+INSERT INTO orders VALUES ...;  -- batch 2
+COMMIT;`
         },
         {
           name: 'UPSERT Patterns',
-          explanation: 'INSERT ON CONFLICT (PostgreSQL). MERGE statement (SQL Server, Oracle). Avoid check-then-insert race conditions. Single statement atomic operation. Use with appropriate conflict target. Consider performance vs separate statements.'
+          explanation: 'INSERT ON CONFLICT (PostgreSQL). MERGE statement (SQL Server, Oracle). Avoid check-then-insert race conditions. Single statement atomic operation. Use with appropriate conflict target. Consider performance vs separate statements.',
+          codeExample: `-- PostgreSQL: INSERT ON CONFLICT (UPSERT)
+INSERT INTO products (sku, name, price, stock)
+VALUES ('WDG-001', 'Widget', 29.99, 100)
+ON CONFLICT (sku)
+DO UPDATE SET
+    price = EXCLUDED.price,
+    stock = products.stock + EXCLUDED.stock;
+
+-- Upsert with conditional update
+INSERT INTO daily_stats (date, page, views)
+VALUES ('2024-06-15', '/home', 1)
+ON CONFLICT (date, page)
+DO UPDATE SET views = daily_stats.views + 1;
+
+-- Bulk upsert
+INSERT INTO inventory (sku, warehouse, qty)
+VALUES
+    ('A001', 'US-EAST', 50),
+    ('A002', 'US-WEST', 30)
+ON CONFLICT (sku, warehouse)
+DO UPDATE SET qty = EXCLUDED.qty;`
         },
         {
           name: 'Minimal Logging',
-          explanation: 'Bulk-logged recovery model for loads. UNLOGGED tables for temp data. Reduce WAL generation. Faster but less durable. Use for recoverable data only. Re-enable logging after bulk operations.'
+          explanation: 'Bulk-logged recovery model for loads. UNLOGGED tables for temp data. Reduce WAL generation. Faster but less durable. Use for recoverable data only. Re-enable logging after bulk operations.',
+          codeExample: `-- UNLOGGED tables: no WAL, much faster writes
+CREATE UNLOGGED TABLE staging_import (
+    id SERIAL,
+    raw_data JSONB,
+    processed BOOLEAN DEFAULT false
+);
+
+-- Load data quickly into unlogged table
+COPY staging_import (raw_data)
+FROM '/data/import.json';
+
+-- Process and move to permanent table
+INSERT INTO orders (customer_id, amount)
+SELECT
+    (raw_data->>'customer_id')::INT,
+    (raw_data->>'amount')::NUMERIC
+FROM staging_import
+WHERE NOT processed;
+
+-- WARNING: UNLOGGED tables are truncated on crash
+-- Only use for data that can be recreated
+DROP TABLE staging_import;`
         },
         {
           name: 'Index Impact on Writes',
-          explanation: 'Each index slows INSERT/UPDATE. Drop indexes during bulk loads. Consider filtered indexes for writes. Balance read vs write performance. Defer index creation after loads. Monitor index maintenance time.'
+          explanation: 'Each index slows INSERT/UPDATE. Drop indexes during bulk loads. Consider filtered indexes for writes. Balance read vs write performance. Defer index creation after loads. Monitor index maintenance time.',
+          codeExample: `-- Check how many indexes slow down writes
+SELECT tablename,
+       COUNT(*) AS index_count,
+       pg_size_pretty(pg_indexes_size(
+         (schemaname||'.'||tablename)::regclass
+       )) AS total_index_size
+FROM pg_indexes
+WHERE schemaname = 'public'
+GROUP BY schemaname, tablename
+ORDER BY index_count DESC;
+
+-- Strategy: drop indexes before bulk load
+DROP INDEX idx_orders_status;
+DROP INDEX idx_orders_date;
+
+-- Perform bulk load (much faster)
+COPY orders FROM '/data/bulk_orders.csv' WITH CSV;
+
+-- Rebuild indexes after load
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX CONCURRENTLY idx_orders_date
+  ON orders(created_at);
+-- CONCURRENTLY avoids locking the table`
         },
         {
           name: 'Delete Strategies',
@@ -437,19 +1053,98 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       details: [
         {
           name: 'Query Result Caching',
-          explanation: 'Cache frequently accessed query results. Redis/Memcached for distributed caching. Cache invalidation strategies critical. TTL-based expiration simple but imprecise. Event-driven invalidation more accurate. Consider cache warming on startup.'
+          explanation: 'Cache frequently accessed query results. Redis/Memcached for distributed caching. Cache invalidation strategies critical. TTL-based expiration simple but imprecise. Event-driven invalidation more accurate. Consider cache warming on startup.',
+          codeExample: `-- Identify queries that benefit from caching:
+-- frequent, expensive, stable results
+
+-- Find top repeated queries
+SELECT query, calls, mean_exec_time,
+       round(total_exec_time::numeric, 2) AS total_ms
+FROM pg_stat_statements
+WHERE calls > 100
+  AND mean_exec_time > 10
+ORDER BY total_exec_time DESC
+LIMIT 10;
+
+-- Example: Cache this expensive aggregation
+-- instead of running it every request
+SELECT category, COUNT(*) AS product_count,
+       AVG(price) AS avg_price,
+       MIN(price) AS min_price
+FROM products
+WHERE active = true
+GROUP BY category;
+-- Cache result in Redis with 5min TTL`
         },
         {
           name: 'Application-Level Caching',
-          explanation: 'ORM caching (Hibernate L2 cache). Request-scoped caching. Read-through/write-through patterns. Cache-aside pattern for flexibility. Consider cache coherence. Monitor cache hit ratios.'
+          explanation: 'ORM caching (Hibernate L2 cache). Request-scoped caching. Read-through/write-through patterns. Cache-aside pattern for flexibility. Consider cache coherence. Monitor cache hit ratios.',
+          codeExample: `-- Identify hot tables for app-level caching
+SELECT relname,
+       seq_scan + idx_scan AS total_reads,
+       n_tup_ins + n_tup_upd + n_tup_del AS total_writes,
+       round(
+         (seq_scan + idx_scan)::numeric /
+         nullif(n_tup_ins + n_tup_upd + n_tup_del, 0),
+         2
+       ) AS read_write_ratio
+FROM pg_stat_user_tables
+ORDER BY total_reads DESC
+LIMIT 10;
+
+-- High read/write ratio = great cache candidates
+-- Example results:
+-- categories    | reads: 50000 | writes: 5    | ratio: 10000
+-- config        | reads: 30000 | writes: 10   | ratio: 3000
+-- products      | reads: 25000 | writes: 500  | ratio: 50`
         },
         {
           name: 'Buffer Pool Optimization',
-          explanation: 'Increase buffer pool for hot data. Monitor hit ratio (target >95%). Identify pages causing cache misses. Consider multiple buffer pools. Pin critical tables in memory. Avoid cache pollution from full scans.'
+          explanation: 'Increase buffer pool for hot data. Monitor hit ratio (target >95%). Identify pages causing cache misses. Consider multiple buffer pools. Pin critical tables in memory. Avoid cache pollution from full scans.',
+          codeExample: `-- Check overall buffer cache hit ratio
+SELECT
+  sum(blks_hit) * 100.0 /
+    nullif(sum(blks_hit) + sum(blks_read), 0)
+    AS overall_hit_ratio
+FROM pg_stat_database;
+
+-- Per-table cache hit ratios
+SELECT relname,
+       heap_blks_hit,
+       heap_blks_read,
+       round(100.0 * heap_blks_hit /
+         nullif(heap_blks_hit + heap_blks_read, 0), 2)
+         AS hit_pct
+FROM pg_statio_user_tables
+WHERE heap_blks_hit + heap_blks_read > 0
+ORDER BY hit_pct ASC
+LIMIT 10;
+
+-- Pin frequently accessed table using pg_prewarm
+CREATE EXTENSION pg_prewarm;
+SELECT pg_prewarm('products');  -- load into cache`
         },
         {
           name: 'Connection Caching',
-          explanation: 'Prepared statement caching. Plan cache utilization. Connection pool statement cache. Reduce parsing overhead. Monitor cache sizes. Clear cache when plans go stale.'
+          explanation: 'Prepared statement caching. Plan cache utilization. Connection pool statement cache. Reduce parsing overhead. Monitor cache sizes. Clear cache when plans go stale.',
+          codeExample: `-- Prepared statements reduce parse overhead
+PREPARE order_lookup (INT) AS
+SELECT id, customer_id, total_amount
+FROM orders
+WHERE customer_id = $1
+  AND status = 'ACTIVE';
+
+-- Execute cached prepared statement
+EXECUTE order_lookup(42);
+EXECUTE order_lookup(99);
+
+-- View all prepared statements
+SELECT name, statement, prepare_time
+FROM pg_prepared_statements;
+
+-- Deallocate when no longer needed
+DEALLOCATE order_lookup;
+DEALLOCATE ALL;  -- remove all prepared statements`
         },
         {
           name: 'CDN for Static Data',
@@ -462,6 +1157,8 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
@@ -761,6 +1458,18 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      borderLeft: `4px solid ${selectedConcept.color}`,
+                      overflow: 'auto',
+                      marginTop: '1rem'
+                    }}>
+                      <SyntaxHighlighter code={detail.codeExample} />
+                    </div>
+                  )}
                 </div>
               )
             })()}

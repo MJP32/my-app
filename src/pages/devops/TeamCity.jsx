@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const TEAMCITY_COLORS = {
   primary: '#6366f1',
@@ -2709,6 +2710,8 @@ curl -X POST "https://teamcity.example.com/app/rest/buildQueue" \\
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 

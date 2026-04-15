@@ -2540,8 +2540,18 @@ const RECURSION_COLORS = {
   topicBg: 'rgba(245, 158, 11, 0.05)'
 };
 
+const patternCategories = {
+  all: { label: 'All', ids: null },
+  basic: { label: 'Basic', ids: ['linear', 'two-branch', 'accumulator', 'tail-recursion'] },
+  divideConquer: { label: 'Divide & Conquer', ids: ['divide-conquer', 'multi-branch'] },
+  backtracking: { label: 'Backtracking & Search', ids: ['backtracking', 'include-exclude', 'grid-traversal', 'exhaustive'] },
+  dataStructures: { label: 'Data Structures', ids: ['tree-traversal', 'tree-construction', 'linked-list'] },
+  advanced: { label: 'Advanced', ids: ['memoization', 'mutual', 'nested'] }
+};
+
 export default function RecursionPatterns({ onBack, breadcrumb }) {
   const { isDark } = useTheme();
+  const [activeCategory, setActiveCategory] = useState('all');
   const [selectedPattern, setSelectedPattern] = useState(patterns[0]);
   const [executionState, setExecutionState] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
@@ -2681,6 +2691,20 @@ export default function RecursionPatterns({ onBack, breadcrumb }) {
     runExecution(selectedPattern.input);
   }, [selectedPattern]);
 
+  const filteredPatterns = activeCategory === 'all'
+    ? patterns
+    : patterns.filter(p => patternCategories[activeCategory].ids.includes(p.id));
+
+  const handleCategoryChange = (key) => {
+    setActiveCategory(key);
+    const newFiltered = key === 'all'
+      ? patterns
+      : patterns.filter(p => patternCategories[key].ids.includes(p.id));
+    if (!newFiltered.find(p => p.id === selectedPattern.id)) {
+      setSelectedPattern(newFiltered[0]);
+    }
+  };
+
   const runExecution = (input) => {
     try {
       const result = selectedPattern.execute(input);
@@ -2777,6 +2801,50 @@ export default function RecursionPatterns({ onBack, breadcrumb }) {
       </div>
 
       <div className="max-w-[1600px] mx-auto relative">
+        {/* Category Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '1rem',
+          borderBottom: '2px solid #374151',
+          overflowX: 'auto',
+          maxWidth: '100rem',
+          margin: '0 auto 1rem auto'
+        }}>
+          {Object.entries(patternCategories).map(([key, cat]) => (
+            <button
+              key={key}
+              onClick={() => handleCategoryChange(key)}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                backgroundColor: activeCategory === key ? '#f59e0b' : 'transparent',
+                color: activeCategory === key ? 'white' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = '#374151';
+                  e.target.style.color = '#d1d5db';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.color = '#9ca3af';
+                }
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
         {/* Pattern Selector - Collapsible on hover (desktop) */}
         <div className="hidden lg:block fixed left-0 top-1/2 -translate-y-1/2 z-50 group">
           {/* Collapsed tab */}
@@ -2789,7 +2857,7 @@ export default function RecursionPatterns({ onBack, breadcrumb }) {
           <div className="absolute left-0 top-1/2 -translate-y-1/2 bg-slate-900/95 backdrop-blur-lg border border-slate-700 rounded-r-2xl p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-2xl min-w-[200px] max-h-[80vh] overflow-y-auto">
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">Patterns</h2>
             <div className="flex flex-col gap-1">
-              {patterns.map(pattern => (
+              {filteredPatterns.map(pattern => (
                 <button
                   key={pattern.id}
                   onClick={() => setSelectedPattern(pattern)}
@@ -2810,7 +2878,7 @@ export default function RecursionPatterns({ onBack, breadcrumb }) {
         <div className="lg:hidden mb-4">
           <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-2">
             <div className="flex gap-1 overflow-x-auto pb-1">
-              {patterns.map(pattern => (
+              {filteredPatterns.map(pattern => (
                 <button
                   key={pattern.id}
                   onClick={() => setSelectedPattern(pattern)}

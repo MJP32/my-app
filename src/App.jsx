@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Routes, Route } from 'react-router-dom'
 import './App.css'
 import KeyboardShortcutsDialog from './components/KeyboardShortcutsDialog.jsx'
 import GlobalSearch from './components/GlobalSearch.jsx'
+import VoiceNavigation from './components/VoiceNavigation.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
 import { useTheme } from './contexts/ThemeContext'
 import ProgressDashboard from './pages/ProgressDashboard.jsx'
@@ -63,6 +64,11 @@ import RestAPI from './pages/spring/RestAPI.jsx'
 import Hibernate from './pages/spring/Hibernate.jsx'
 import Actuator from './pages/frameworks/Actuator.jsx'
 import Zipkin from './pages/frameworks/Zipkin.jsx'
+import SpringBatch from './pages/frameworks/SpringBatch.jsx'
+import SpringSecurity from './pages/frameworks/SpringSecurity.jsx'
+import Ehcache from './pages/frameworks/Ehcache.jsx'
+import Angular from './pages/frameworks/Angular.jsx'
+import GraphQL from './pages/frameworks/GraphQL.jsx'
 import GRPC from './pages/spring/GRPC.jsx'
 import SOAP from './pages/spring/SOAP.jsx'
 import ReactFramework from './pages/spring/ReactFramework.jsx'
@@ -106,6 +112,7 @@ import CommunicationQuestions from './pages/questions/CommunicationQuestions.jsx
 import JMeterQuestions from './pages/questions/JMeterQuestions.jsx'
 import JFRQuestions from './pages/questions/JFRQuestions.jsx'
 import DynatraceQuestions from './pages/questions/DynatraceQuestions.jsx'
+import ThreadingQuestions from './pages/questions/ThreadingQuestions.jsx'
 
 // Database pages
 import SQL from './pages/databases/SQL.jsx'
@@ -198,6 +205,8 @@ const MicroservicePatterns = lazy(() => import('./pages/design/MicroservicePatte
 const SystemDesign = lazy(() => import('./pages/design/SystemDesign.jsx'))
 const LRUCache = lazy(() => import('./pages/design/LRUCache.jsx'))
 const RateLimiter = lazy(() => import('./pages/design/RateLimiter.jsx'))
+const FileUploader = lazy(() => import('./pages/design/FileUploader.jsx'))
+const SpringBatchProcess = lazy(() => import('./pages/design/SpringBatchProcess.jsx'))
 const DesignProblems = lazy(() => import('./pages/design/DesignProblems.jsx'))
 const DesignPatternsInteractive = lazy(() => import('./pages/design/DesignPatternsInteractive.jsx'))
 const Design = lazy(() => import('./pages/design/Design.jsx'))
@@ -783,6 +792,9 @@ function App() {
   const [devopsInitialCategory, setDevopsInitialCategory] = useState(null)
   const [messagingInitialCategory, setMessagingInitialCategory] = useState(null)
   const [cloudInitialCategory, setCloudInitialCategory] = useState(null)
+  const [questionsInitialCategory, setQuestionsInitialCategory] = useState(null)
+  const [etradingInitialCategory, setEtradingInitialCategory] = useState(null)
+  const [practiceInitialCategory, setPracticeInitialCategory] = useState(null)
   const [hoveredOption, setHoveredOption] = useState(null)
   const [expandedGroup, setExpandedGroup] = useState(null)
   const [expandedSubcategory, setExpandedSubcategory] = useState(null)
@@ -791,6 +803,10 @@ function App() {
   const [focusedItemIndex, setFocusedItemIndex] = useState(-1)
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
   const [showGlobalSearch, setShowGlobalSearch] = useState(false)
+  const [voiceNavEnabled, setVoiceNavEnabled] = useState(() => {
+    const stored = localStorage.getItem('voice_navigation_enabled')
+    return stored === null ? true : stored === 'true'
+  })
   const [isKeyboardUser, setIsKeyboardUser] = useState(false)
   const [expandedProgressCategory, setExpandedProgressCategory] = useState(null)
   const [triggeringElement, setTriggeringElement] = useState(null)
@@ -885,9 +901,16 @@ function App() {
   const [showLRUCacheModal, setShowLRUCacheModal] = useState(false)
   const [showRateLimiterModal, setShowRateLimiterModal] = useState(false)
   const [showDesignProblemsModal, setShowDesignProblemsModal] = useState(false)
+  const [showFileUploaderModal, setShowFileUploaderModal] = useState(false)
+  const [showSpringBatchProcessModal, setShowSpringBatchProcessModal] = useState(false)
   const [showHibernateModal, setShowHibernateModal] = useState(false)
   const [showActuatorModal, setShowActuatorModal] = useState(false)
   const [showZipkinModal, setShowZipkinModal] = useState(false)
+  const [showSpringBatchModal, setShowSpringBatchModal] = useState(false)
+  const [showSpringSecurityModal, setShowSpringSecurityModal] = useState(false)
+  const [showEhcacheModal, setShowEhcacheModal] = useState(false)
+  const [showAngularModal, setShowAngularModal] = useState(false)
+  const [showGraphQLModal, setShowGraphQLModal] = useState(false)
   const [showGRPCModal, setShowGRPCModal] = useState(false)
   const [showSOAPModal, setShowSOAPModal] = useState(false)
   const [showReactModal, setShowReactModal] = useState(false)
@@ -929,6 +952,7 @@ function App() {
   const [showDataStorageQuestionsModal, setShowDataStorageQuestionsModal] = useState(false)
   const [showArchitectureQuestionsModal, setShowArchitectureQuestionsModal] = useState(false)
   const [showCommunicationQuestionsModal, setShowCommunicationQuestionsModal] = useState(false)
+  const [showThreadingQuestionsModal, setShowThreadingQuestionsModal] = useState(false)
   const [showSearchingModal, setShowSearchingModal] = useState(false)
   const [showGreedyAlgorithmsModal, setShowGreedyAlgorithmsModal] = useState(false)
   const [showFamousAlgorithmsModal, setShowFamousAlgorithmsModal] = useState(false)
@@ -2882,8 +2906,22 @@ function App() {
       setExpandedGroup(navigation.category)
       setExpandedSubcategory(navigation.subcategory)
       setFocusedItemIndex(-1)
+    } else if (navigation.type === 'section') {
+      setSelectedOptionAndRef(navigation.page)
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('navigateToSection', {
+          detail: { sectionId: navigation.sectionId }
+        }))
+      }, 150)
     }
   }
+
+  // Listen for voice navigation setting changes
+  useEffect(() => {
+    const handler = (e) => setVoiceNavEnabled(e.detail.enabled)
+    window.addEventListener('voiceNavigationChange', handler)
+    return () => window.removeEventListener('voiceNavigationChange', handler)
+  }, [])
 
   // Handle programmatic focus for keyboard navigation
   useEffect(() => {
@@ -3047,12 +3085,19 @@ function App() {
             [showLRUCacheModal, setShowLRUCacheModal],
             [showRateLimiterModal, setShowRateLimiterModal],
             [showDesignProblemsModal, setShowDesignProblemsModal],
+            [showFileUploaderModal, setShowFileUploaderModal],
+            [showSpringBatchProcessModal, setShowSpringBatchProcessModal],
             [showHibernateModal, setShowHibernateModal],
             [showActuatorModal, setShowActuatorModal],
             [showZipkinModal, setShowZipkinModal],
+            [showSpringBatchModal, setShowSpringBatchModal],
+            [showSpringSecurityModal, setShowSpringSecurityModal],
+            [showEhcacheModal, setShowEhcacheModal],
             [showGRPCModal, setShowGRPCModal],
             [showSOAPModal, setShowSOAPModal],
             [showReactModal, setShowReactModal],
+            [showAngularModal, setShowAngularModal],
+            [showGraphQLModal, setShowGraphQLModal],
           ];
 
           // Question modals that should use handleQuestionModalBack for proper Learning Path navigation
@@ -3095,6 +3140,7 @@ function App() {
             [showJMeterQuestionsModal, setShowJMeterQuestionsModal],
             [showJFRQuestionsModal, setShowJFRQuestionsModal],
             [showDynatraceQuestionsModal, setShowDynatraceQuestionsModal],
+            [showThreadingQuestionsModal, setShowThreadingQuestionsModal],
           ];
 
           // Check question modals first - use handleQuestionModalBack for proper navigation
@@ -3328,9 +3374,14 @@ function App() {
     showLRUCacheModal,
     showRateLimiterModal,
     showDesignProblemsModal,
+    showFileUploaderModal,
+    showSpringBatchProcessModal,
     showHibernateModal,
     showActuatorModal,
     showZipkinModal,
+    showSpringBatchModal,
+    showSpringSecurityModal,
+    showEhcacheModal,
     showGRPCModal,
     showSOAPModal,
     showReactModal,
@@ -3361,7 +3412,8 @@ function App() {
     showEtradingQuestionsModal,
     showJMeterQuestionsModal,
     showJFRQuestionsModal,
-    showDynatraceQuestionsModal
+    showDynatraceQuestionsModal,
+    showThreadingQuestionsModal
   ]);
 
   // Design topic category mapping for breadcrumbs (component level for modal access)
@@ -3439,10 +3491,15 @@ function App() {
     'Hibernate': { name: 'Spring Ecosystem', id: 'spring' },
     'Actuator': { name: 'Spring Ecosystem', id: 'spring' },
     'Zipkin': { name: 'Spring Ecosystem', id: 'spring' },
+    'SpringBatch': { name: 'Spring Ecosystem', id: 'spring' },
+    'SpringSecurity': { name: 'Spring Ecosystem', id: 'spring' },
+    'Ehcache': { name: 'Spring Ecosystem', id: 'spring' },
     'RestAPI': { name: 'API Development', id: 'api' },
     'GRPC': { name: 'API Development', id: 'api' },
     'SOAP': { name: 'API Development', id: 'api' },
-    'React': { name: 'Frontend', id: 'frontend' }
+    'React': { name: 'Frontend', id: 'frontend' },
+    'Angular': { name: 'Frontend', id: 'frontend' },
+    'GraphQL': { name: 'API Development', id: 'api' }
   }
 
   // Helper function to navigate to Frameworks with a specific category
@@ -3518,6 +3575,7 @@ function App() {
           setSelectedOptionAndRef(item)
         }}
         initialCategory={javaInitialCategory}
+        onInitialCategoryUsed={() => setJavaInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -3527,6 +3585,8 @@ function App() {
         onSelectItem={(item) => {
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={pythonInitialCategory}
+        onInitialCategoryUsed={() => setPythonInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -3706,6 +3766,7 @@ function App() {
           setSelectedOptionAndRef(item)
         }}
         initialCategory={designInitialCategory}
+        onInitialCategoryUsed={() => setDesignInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -3716,6 +3777,8 @@ function App() {
           // Open the appropriate database topic
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={databasesInitialCategory}
+        onInitialCategoryUsed={() => setDatabasesInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -3814,6 +3877,8 @@ function App() {
       return <Frameworks
         onBack={() => setSelectedOptionAndRef('')}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
+        initialCategory={frameworksInitialCategory}
+        onInitialCategoryUsed={() => setFrameworksInitialCategory(null)}
         onSelectItem={(item) => {
           // Open the appropriate framework topic
           setSelectedOptionAndRef(item)
@@ -3839,6 +3904,8 @@ function App() {
           // Open the appropriate cloud topic
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={cloudInitialCategory}
+        onInitialCategoryUsed={() => setCloudInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -3849,6 +3916,8 @@ function App() {
           // Open the appropriate messaging topic
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={messagingInitialCategory}
+        onInitialCategoryUsed={() => setMessagingInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -3859,6 +3928,8 @@ function App() {
           // Open the appropriate eTrading topic
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={etradingInitialCategory}
+        onInitialCategoryUsed={() => setEtradingInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -4100,7 +4171,7 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
-    if (selectedOption === 'PL/SQL') {
+    if (selectedOption === 'PLSQL' || selectedOption === 'PL/SQL') {
       setShowPLSQLModal(true)
       setSelectedOptionAndRef('')
       return null
@@ -4166,6 +4237,21 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
+    if (selectedOption === 'Spring Batch') {
+      setShowSpringBatchModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Spring Security') {
+      setShowSpringSecurityModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Ehcache') {
+      setShowEhcacheModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
     if (selectedOption === 'gRPC') {
       setShowGRPCModal(true)
       setSelectedOptionAndRef('')
@@ -4178,6 +4264,16 @@ function App() {
     }
     if (selectedOption === 'React') {
       setShowReactModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Angular') {
+      setShowAngularModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'GraphQL') {
+      setShowGraphQLModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -4560,6 +4656,8 @@ function App() {
       return <Practice
         onBack={() => setSelectedOptionAndRef('')}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
+        initialCategory={practiceInitialCategory}
+        onInitialCategoryUsed={() => setPracticeInitialCategory(null)}
         onSelectItem={(item) => {
           // Open the appropriate modal based on the item name
           switch (item) {
@@ -4608,6 +4706,8 @@ function App() {
             case 'LRU Cache': setShowLRUCacheModal(true); break;
             case 'Rate Limiter': setShowRateLimiterModal(true); break;
             case 'Design Problems': setShowDesignProblemsModal(true); break;
+            case 'File Uploader': setShowFileUploaderModal(true); break;
+            case 'Spring Batch Process': setShowSpringBatchProcessModal(true); break;
             case 'AI Interview': setSelectedOptionAndRef('AI Interview'); break;
             case 'Two Pointers': setShowTwoPointersModal(true); break;
             case 'Bit Manipulation': setShowBitManipulationModal(true); break;
@@ -4622,6 +4722,8 @@ function App() {
       return <Questions
         onBack={() => setSelectedOptionAndRef('')}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
+        initialCategory={questionsInitialCategory}
+        onInitialCategoryUsed={() => setQuestionsInitialCategory(null)}
         onSelectItem={(item) => {
           // Open the appropriate modal based on the item name
           console.log('Questions item clicked:', item);
@@ -4663,6 +4765,7 @@ function App() {
             case 'JMeter Questions': setShowJMeterQuestionsModal(true); break;
             case 'JFR Questions': setShowJFRQuestionsModal(true); break;
             case 'Dynatrace Questions': setShowDynatraceQuestionsModal(true); break;
+            case 'Threading Questions': setShowThreadingQuestionsModal(true); break;
             default:
               console.log('No match found for item:', item);
               break;
@@ -5213,6 +5316,63 @@ function App() {
         </div>
       )}
 
+      {/* Spring Batch Modal */}
+      {showSpringBatchModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowSpringBatchModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <SpringBatch onBack={() => { setShowSpringBatchModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringBatchModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['SpringBatch'].name, onClick: () => { setShowSpringBatchModal(false); goToFrameworksCategory(frameworksTopicCategories['SpringBatch'].id) } },
+              topic: 'Spring Batch',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Spring Security Modal */}
+      {showSpringSecurityModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowSpringSecurityModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <SpringSecurity onBack={() => { setShowSpringSecurityModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringSecurityModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['SpringSecurity'].name, onClick: () => { setShowSpringSecurityModal(false); goToFrameworksCategory(frameworksTopicCategories['SpringSecurity'].id) } },
+              topic: 'Spring Security',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Ehcache Modal */}
+      {showEhcacheModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowEhcacheModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <Ehcache onBack={() => { setShowEhcacheModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowEhcacheModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['Ehcache'].name, onClick: () => { setShowEhcacheModal(false); goToFrameworksCategory(frameworksTopicCategories['Ehcache'].id) } },
+              topic: 'Ehcache',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
       {/* gRPC Modal */}
       {showGRPCModal && (
         <div
@@ -5264,6 +5424,44 @@ function App() {
             <ReactFramework onBack={() => { setShowReactModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('React')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowReactModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['React'].name, onClick: () => { setShowReactModal(false); goToFrameworksCategory(frameworksTopicCategories['React'].id) } },
               topic: 'React',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Angular Modal */}
+      {showAngularModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowAngularModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <Angular onBack={() => { setShowAngularModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowAngularModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['Angular'].name, onClick: () => { setShowAngularModal(false); goToFrameworksCategory(frameworksTopicCategories['Angular'].id) } },
+              topic: 'Angular Framework',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* GraphQL Modal */}
+      {showGraphQLModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowGraphQLModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <GraphQL onBack={() => { setShowGraphQLModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowGraphQLModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['GraphQL'].name, onClick: () => { setShowGraphQLModal(false); goToFrameworksCategory(frameworksTopicCategories['GraphQL'].id) } },
+              topic: 'GraphQL',
               colors: BREADCRUMB_COLORS.Frameworks
             }} />
           </div>
@@ -7556,6 +7754,88 @@ function App() {
         </div>
       )}
 
+      {showFileUploaderModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowFileUploaderModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <Suspense fallback={<LoadingSpinner text="Loading File Uploader..." />}>
+              <FileUploader
+                onBack={() => { setShowFileUploaderModal(false); setSelectedOptionAndRef('Practice') }}
+                {...createNavigationCallbacks('File Uploader')}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
+
+      {showSpringBatchProcessModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowSpringBatchProcessModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <Suspense fallback={<LoadingSpinner text="Loading Spring Batch Process..." />}>
+              <SpringBatchProcess
+                onBack={() => { setShowSpringBatchProcessModal(false); setSelectedOptionAndRef('System Design') }}
+                {...createNavigationCallbacks('Spring Batch Process')}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
+
       {showDesignProblemsModal && (
         <div
           style={{
@@ -8762,6 +9042,49 @@ function App() {
         </div>
       )}
 
+      {showThreadingQuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowThreadingQuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <ThreadingQuestions
+              onBack={() => handleQuestionModalBack(setShowThreadingQuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowThreadingQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Threading & Concurrency',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
+      )}
+
       {showSpringCoreQuestionsModal && (
         <div
           style={{
@@ -9431,6 +9754,9 @@ function App() {
             <span>🔍</span>
           </button>
 
+          {/* Voice Navigation */}
+          {voiceNavEnabled && <VoiceNavigation onNavigate={handleSearchNavigation} />}
+
           {/* Theme Toggle */}
           <ThemeToggle size="small" />
 
@@ -9493,6 +9819,7 @@ function App() {
               isOpen={showAccountDropdown}
               onClose={() => setShowAccountDropdown(false)}
               onOpenStudyGuide={() => setShowStudyGuideModal(true)}
+              onSettings={() => setSelectedOptionAndRef('Settings')}
               onGoToHome={() => setSelectedOptionAndRef('')}
               onGoToPractice={(category) => {
                 // If category is 'Practice', navigate to Practice page, otherwise open specific modal

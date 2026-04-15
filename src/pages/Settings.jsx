@@ -17,6 +17,13 @@ export default function Settings({ onBack }) {
   const [saved, setSaved] = useState(false);
   const [testing, setTesting] = useState(null);
   const [testResults, setTestResults] = useState({});
+  const [voiceNavEnabled, setVoiceNavEnabled] = useState(() => {
+    const stored = localStorage.getItem('voice_navigation_enabled');
+    return stored === null ? true : stored === 'true';
+  });
+
+  const speechSupported = typeof window !== 'undefined' &&
+    !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   useEffect(() => {
     const keys = getApiKeys();
@@ -295,6 +302,49 @@ export default function Settings({ onBack }) {
               }}
             >
               {isDark ? '☀️ Light' : '🌙 Dark'}
+            </button>
+          </div>
+        </div>
+
+        {/* Voice Navigation Section */}
+        <div style={cardStyle}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+            Voice Navigation
+          </h2>
+          <p style={{ color: colors.textMuted, fontSize: '0.875rem', marginBottom: '1rem' }}>
+            Use your microphone to navigate by speaking topic names
+          </p>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontWeight: '500' }}>Microphone Button</div>
+              <div style={{ color: colors.textMuted, fontSize: '0.875rem' }}>
+                {!speechSupported
+                  ? 'Not supported in this browser (use Chrome or Edge)'
+                  : voiceNavEnabled ? 'Shown in the header bar' : 'Hidden from the header bar'}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (!speechSupported) return;
+                const next = !voiceNavEnabled;
+                setVoiceNavEnabled(next);
+                localStorage.setItem('voice_navigation_enabled', String(next));
+                window.dispatchEvent(new CustomEvent('voiceNavigationChange', { detail: { enabled: next } }));
+              }}
+              disabled={!speechSupported}
+              style={{
+                ...buttonStyle,
+                backgroundColor: voiceNavEnabled && speechSupported ? '#6366f1' : colors.bgTertiary,
+                color: voiceNavEnabled && speechSupported ? 'white' : colors.textPrimary,
+                opacity: speechSupported ? 1 : 0.5,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                cursor: speechSupported ? 'pointer' : 'not-allowed'
+              }}
+            >
+              {voiceNavEnabled && speechSupported ? 'Enabled' : 'Disabled'}
             </button>
           </div>
         </div>

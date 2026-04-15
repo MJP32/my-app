@@ -187,100 +187,67 @@ const OOPDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function Java({ onBack, onSelectItem, breadcrumb }) {
+const tabCategories = {
+  all: { label: 'All', ids: null },
+  quickref: { label: 'Quick Reference', ids: ['oop-overview', 'streams-overview', 'concurrency-overview', 'collections-overview', 'modern-java-overview', 'jvm-overview'] },
+  core: { label: 'Core Fundamentals', ids: ['Core Java', 'Object-Oriented Programming', 'Class', 'Interface', 'Exception Handling', 'Generics', 'File I/O'] },
+  collections: { label: 'Collections & Streams', ids: ['Collections Framework', 'Streams', 'Streams Advanced', 'Optional', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Functional Programming'] },
+  concurrency: { label: 'Concurrency', ids: ['Concurrency', 'Multithreading'] },
+  modern: { label: 'Modern Java', ids: ['Java 8', 'Module', 'Java 11', 'Java 15', 'Java 21', 'Java 24'] },
+  jvm: { label: 'JVM & Performance', ids: ['JVM Internals', 'Memory Management'] }
+}
+
+function Java({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
   const { colors, isDark } = useTheme()
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [activeCategory, setActiveCategory] = useState(initialCategory || 'all')
 
-  // Organized Java topics by category
-  const javaTopicCategories = [
-    {
-      category: 'Quick Reference',
-      icon: '📋',
-      color: '#64748b',
-      topics: [
-        { id: 'oop-overview', name: 'OOP Principles', icon: '📦', color: '#f59e0b', description: 'Encapsulation, inheritance, polymorphism, abstraction, and SOLID principles.', isQuickRef: true },
-        { id: 'streams-overview', name: 'Streams & Lambdas', icon: '🌊', color: '#3b82f6', description: 'Lambda expressions, method references, and functional interfaces.', isQuickRef: true },
-        { id: 'concurrency-overview', name: 'Concurrency', icon: '🔄', color: '#10b981', description: 'Thread pools, synchronization, CompletableFuture, and concurrent collections.', isQuickRef: true },
-        { id: 'collections-overview', name: 'Collections', icon: '📚', color: '#8b5cf6', description: 'List, Set, Map, Queue implementations and when to use each.', isQuickRef: true },
-        { id: 'modern-java-overview', name: 'Modern Java (8-21)', icon: '🚀', color: '#22c55e', description: 'Overview of all modern Java features from Java 8 to 24.', isQuickRef: true },
-        { id: 'jvm-overview', name: 'JVM & Performance', icon: '⚙️', color: '#6366f1', description: 'Memory model, garbage collection, and optimization techniques.', isQuickRef: true },
-      ]
-    },
-    {
-      category: 'Core Fundamentals',
-      icon: '📚',
-      color: '#f59e0b',
-      topics: [
-        { id: 'Core Java', name: 'Core Java', icon: '☕', color: '#f59e0b', description: 'Java fundamentals, syntax, data types, operators, and control flow.' },
-        { id: 'Object-Oriented Programming', name: 'Object-Oriented Programming', icon: '🎭', color: '#8b5cf6', description: 'Classes, objects, inheritance, polymorphism, encapsulation, and abstraction.' },
-        { id: 'Class', name: 'Classes', icon: '📦', color: '#3b82f6', description: 'Class structure, constructors, methods, fields, and access modifiers.' },
-        { id: 'Interface', name: 'Interfaces', icon: '🔌', color: '#10b981', description: 'Interface design, default methods, static methods, and multiple inheritance.' },
-        { id: 'Exception Handling', name: 'Exception Handling', icon: '⚠️', color: '#ef4444', description: 'Try-catch, custom exceptions, exception hierarchies, and error handling patterns.' },
-        { id: 'Generics', name: 'Generics', icon: '🔤', color: '#f97316', description: 'Generic classes, methods, bounded types, wildcards, and type erasure.' },
-        { id: 'File I/O', name: 'File I/O', icon: '📁', color: '#14b8a6', description: 'File operations, NIO.2, Path API, streams, and file system operations.' },
-      ]
-    },
-    {
-      category: 'Collections & Streams',
-      icon: '🗂️',
-      color: '#3b82f6',
-      topics: [
-        { id: 'Collections Framework', name: 'Collections Framework', icon: '📦', color: '#ec4899', description: 'List, Set, Map, Queue implementations and advanced collection operations.' },
-        { id: 'Streams', name: 'Streams API', icon: '🌊', color: '#06b6d4', description: 'Stream operations, collectors, parallel streams, and functional programming.' },
-        { id: 'Streams Advanced', name: 'Streams Advanced', icon: '🌀', color: '#0891b2', description: 'Advanced stream operations, custom collectors, and performance optimization.' },
-        { id: 'Optional', name: 'Optional', icon: '🎁', color: '#8b5cf6', description: 'Null-safety with Optional, functional transformations, and best practices.' },
-        { id: 'Lambdas', name: 'Lambdas', icon: 'λ', color: '#f59e0b', description: 'Lambda expressions, syntax, closures, and effectively final variables.' },
-        { id: 'Lambdas Advanced', name: 'Lambdas Advanced', icon: '⚡', color: '#eab308', description: 'Advanced lambda patterns, method references, and functional composition.' },
-        { id: 'Functional Interfaces', name: 'Functional Interfaces', icon: '🔗', color: '#14b8a6', description: 'Predicate, Function, Consumer, Supplier, and custom functional interfaces.' },
-        { id: 'Functional Programming', name: 'Functional Programming', icon: '🔄', color: '#a855f7', description: 'Functional paradigm, immutability, pure functions, and higher-order functions.' },
-      ]
-    },
-    {
-      category: 'Concurrency & Threading',
-      icon: '⚙️',
-      color: '#10b981',
-      topics: [
-        { id: 'Concurrency', name: 'Concurrency', icon: '🔄', color: '#10b981', description: 'Thread safety, locks, atomic operations, semaphores, and concurrent collections.' },
-        { id: 'Multithreading', name: 'Multithreading', icon: '🧵', color: '#059669', description: 'Thread lifecycle, synchronization, thread pools, and parallel processing.' },
-      ]
-    },
-    {
-      category: 'Modern Java (8-11)',
-      icon: '🎯',
-      color: '#3b82f6',
-      topics: [
-        { id: 'Java 8', name: 'Java 8', icon: '🎯', color: '#3b82f6', description: 'Lambda expressions, Stream API, Optional, functional interfaces, and Date/Time API.' },
-        { id: 'Module', name: 'Module System', icon: '📦', color: '#8b5cf6', description: 'Java Platform Module System (JPMS), module declarations, and encapsulation.' },
-        { id: 'Java 11', name: 'Java 11 LTS', icon: '🔧', color: '#06b6d4', description: 'Local variable type inference, HTTP Client, module system, and performance improvements.' },
-      ]
-    },
-    {
-      category: 'Recent Releases (15-21)',
-      icon: '🚀',
-      color: '#8b5cf6',
-      topics: [
-        { id: 'Java 15', name: 'Java 15', icon: '📝', color: '#8b5cf6', description: 'Text blocks, sealed classes preview, pattern matching, and hidden classes.' },
-        { id: 'Java 21', name: 'Java 21 LTS', icon: '🚀', color: '#22c55e', description: 'Virtual threads, pattern matching for switch, record patterns, and sequenced collections.' },
-      ]
-    },
-    {
-      category: 'Preview Features',
-      icon: '🔮',
-      color: '#f59e0b',
-      topics: [
-        { id: 'Java 24', name: 'Java 24 Preview', icon: '🔮', color: '#f59e0b', description: 'Cutting-edge preview features and experimental capabilities.' },
-      ]
-    },
-    {
-      category: 'JVM & Performance',
-      icon: '⚡',
-      color: '#6366f1',
-      topics: [
-        { id: 'JVM Internals', name: 'JVM Internals', icon: '⚙️', color: '#6366f1', description: 'Class loading, bytecode, JIT compilation, and JVM architecture.' },
-        { id: 'Memory Management', name: 'Memory Management', icon: '🧠', color: '#a855f7', description: 'Heap, stack, garbage collection algorithms, and memory optimization.' },
-      ]
+  useEffect(() => {
+    if (initialCategory) {
+      setActiveCategory(initialCategory)
+      onInitialCategoryUsed?.()
     }
+  }, [initialCategory])
+
+  const javaItems = [
+    // Quick Reference
+    { id: 'oop-overview', name: 'OOP Principles', icon: '📦', color: '#f59e0b', description: 'Encapsulation, inheritance, polymorphism, abstraction, and SOLID principles.', isQuickRef: true },
+    { id: 'streams-overview', name: 'Streams & Lambdas', icon: '🌊', color: '#3b82f6', description: 'Lambda expressions, method references, and functional interfaces.', isQuickRef: true },
+    { id: 'concurrency-overview', name: 'Concurrency', icon: '🔄', color: '#10b981', description: 'Thread pools, synchronization, CompletableFuture, and concurrent collections.', isQuickRef: true },
+    { id: 'collections-overview', name: 'Collections', icon: '📚', color: '#8b5cf6', description: 'List, Set, Map, Queue implementations and when to use each.', isQuickRef: true },
+    { id: 'modern-java-overview', name: 'Modern Java (8-21)', icon: '🚀', color: '#22c55e', description: 'Overview of all modern Java features from Java 8 to 24.', isQuickRef: true },
+    { id: 'jvm-overview', name: 'JVM & Performance', icon: '⚙️', color: '#6366f1', description: 'Memory model, garbage collection, and optimization techniques.', isQuickRef: true },
+    // Core Fundamentals
+    { id: 'Core Java', name: 'Core Java', icon: '☕', color: '#f59e0b', description: 'Java fundamentals, syntax, data types, operators, and control flow.' },
+    { id: 'Object-Oriented Programming', name: 'Object-Oriented Programming', icon: '🎭', color: '#8b5cf6', description: 'Classes, objects, inheritance, polymorphism, encapsulation, and abstraction.' },
+    { id: 'Class', name: 'Classes', icon: '📦', color: '#3b82f6', description: 'Class structure, constructors, methods, fields, and access modifiers.' },
+    { id: 'Interface', name: 'Interfaces', icon: '🔌', color: '#10b981', description: 'Interface design, default methods, static methods, and multiple inheritance.' },
+    { id: 'Exception Handling', name: 'Exception Handling', icon: '⚠️', color: '#ef4444', description: 'Try-catch, custom exceptions, exception hierarchies, and error handling patterns.' },
+    { id: 'Generics', name: 'Generics', icon: '🔤', color: '#f97316', description: 'Generic classes, methods, bounded types, wildcards, and type erasure.' },
+    { id: 'File I/O', name: 'File I/O', icon: '📁', color: '#14b8a6', description: 'File operations, NIO.2, Path API, streams, and file system operations.' },
+    // Collections & Streams
+    { id: 'Collections Framework', name: 'Collections Framework', icon: '📦', color: '#ec4899', description: 'List, Set, Map, Queue implementations and advanced collection operations.' },
+    { id: 'Streams', name: 'Streams API', icon: '🌊', color: '#06b6d4', description: 'Stream operations, collectors, parallel streams, and functional programming.' },
+    { id: 'Streams Advanced', name: 'Streams Advanced', icon: '🌀', color: '#0891b2', description: 'Advanced stream operations, custom collectors, and performance optimization.' },
+    { id: 'Optional', name: 'Optional', icon: '🎁', color: '#8b5cf6', description: 'Null-safety with Optional, functional transformations, and best practices.' },
+    { id: 'Lambdas', name: 'Lambdas', icon: 'λ', color: '#f59e0b', description: 'Lambda expressions, syntax, closures, and effectively final variables.' },
+    { id: 'Lambdas Advanced', name: 'Lambdas Advanced', icon: '⚡', color: '#eab308', description: 'Advanced lambda patterns, method references, and functional composition.' },
+    { id: 'Functional Interfaces', name: 'Functional Interfaces', icon: '🔗', color: '#14b8a6', description: 'Predicate, Function, Consumer, Supplier, and custom functional interfaces.' },
+    { id: 'Functional Programming', name: 'Functional Programming', icon: '🔄', color: '#a855f7', description: 'Functional paradigm, immutability, pure functions, and higher-order functions.' },
+    // Concurrency & Threading
+    { id: 'Concurrency', name: 'Concurrency', icon: '🔄', color: '#10b981', description: 'Thread safety, locks, atomic operations, semaphores, and concurrent collections.' },
+    { id: 'Multithreading', name: 'Multithreading', icon: '🧵', color: '#059669', description: 'Thread lifecycle, synchronization, thread pools, and parallel processing.' },
+    // Modern Java
+    { id: 'Java 8', name: 'Java 8', icon: '🎯', color: '#3b82f6', description: 'Lambda expressions, Stream API, Optional, functional interfaces, and Date/Time API.' },
+    { id: 'Module', name: 'Module System', icon: '📦', color: '#8b5cf6', description: 'Java Platform Module System (JPMS), module declarations, and encapsulation.' },
+    { id: 'Java 11', name: 'Java 11 LTS', icon: '🔧', color: '#06b6d4', description: 'Local variable type inference, HTTP Client, module system, and performance improvements.' },
+    { id: 'Java 15', name: 'Java 15', icon: '📝', color: '#8b5cf6', description: 'Text blocks, sealed classes preview, pattern matching, and hidden classes.' },
+    { id: 'Java 21', name: 'Java 21 LTS', icon: '🚀', color: '#22c55e', description: 'Virtual threads, pattern matching for switch, record patterns, and sequenced collections.' },
+    { id: 'Java 24', name: 'Java 24 Preview', icon: '🔮', color: '#f59e0b', description: 'Cutting-edge preview features and experimental capabilities.' },
+    // JVM & Performance
+    { id: 'JVM Internals', name: 'JVM Internals', icon: '⚙️', color: '#6366f1', description: 'Class loading, bytecode, JIT compilation, and JVM architecture.' },
+    { id: 'Memory Management', name: 'Memory Management', icon: '🧠', color: '#a855f7', description: 'Heap, stack, garbage collection algorithms, and memory optimization.' },
   ]
 
   const concepts = [
@@ -1193,12 +1160,13 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
     }
   ]
 
-  // Flatten all topics for keyboard navigation
-  const allTopics = javaTopicCategories.flatMap(cat => cat.topics)
+  const filteredItems = activeCategory === 'all'
+    ? javaItems
+    : javaItems.filter(item => tabCategories[activeCategory].ids.includes(item.id))
 
   // Keyboard navigation for main topic grid
   const { focusedIndex: focusedTopicIndex, itemRefs: topicRefs } = useKeyboardNavigation({
-    items: allTopics,
+    items: filteredItems,
     onSelect: (topic) => {
       if (topic.isQuickRef) {
         // Find the matching concept and open modal
@@ -1269,127 +1237,143 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
           fontSize: '1.2rem',
           color: isDark ? '#d1d5db' : '#4b5563',
           textAlign: 'center',
-          marginBottom: '3rem',
+          marginBottom: '2rem',
           lineHeight: '1.8'
         }}>
           Master Java from OOP fundamentals to modern features like virtual threads and pattern matching.
         </p>
 
-        {/* Organized Topic Categories */}
-        {javaTopicCategories.map((categoryGroup, catIndex) => {
-          // Calculate the start index for this category's topics
-          const categoryStartIndex = javaTopicCategories
-            .slice(0, catIndex)
-            .reduce((sum, cat) => sum + cat.topics.length, 0)
+        {/* Category Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '2px solid #374151',
+          overflowX: 'auto'
+        }}>
+          {Object.entries(tabCategories).map(([key, cat]) => (
+            <button
+              key={key}
+              onClick={() => setActiveCategory(key)}
+              style={{
+                padding: '1rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeCategory === key ? '#f59e0b' : 'transparent',
+                color: activeCategory === key ? 'white' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = '#374151'
+                  e.target.style.color = '#d1d5db'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = 'transparent'
+                  e.target.style.color = '#9ca3af'
+                }
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
 
-          return (
-          <div key={catIndex} style={{ marginBottom: '3rem' }}>
-            <h2 style={{
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              color: categoryGroup.color,
-              marginBottom: '1.25rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <span>{categoryGroup.icon}</span>
-              {categoryGroup.category}
-            </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '1rem'
-            }}>
-              {categoryGroup.topics.map((topic, topicIndex) => {
-                const globalIndex = categoryStartIndex + topicIndex
-                return (
-                <button
-                  key={topic.id}
-                  ref={(el) => topicRefs.current[globalIndex] = el}
-                  tabIndex={focusedTopicIndex === globalIndex ? 0 : -1}
-                  role="link"
-                  aria-label={`${topic.name}. ${topic.description}`}
-                  onClick={() => {
-                    if (topic.isQuickRef) {
-                      // Find the matching concept and open modal
-                      const conceptIndex = concepts.findIndex(c => c.id === topic.id.replace('-overview', ''))
-                      if (conceptIndex !== -1) {
-                        setSelectedConceptIndex(conceptIndex)
-                        setSelectedDetailIndex(0)
-                      }
-                    } else {
-                      // Navigate to dedicated page
-                      onSelectItem(topic.id)
-                    }
-                  }}
-                  style={{
-                    background: isDark
-                      ? 'linear-gradient(145deg, #1e293b, #0f172a)'
-                      : 'linear-gradient(145deg, #ffffff, #f9fafb)',
-                    border: `2px solid ${focusedTopicIndex === globalIndex ? topic.color : topic.color + '40'}`,
-                    borderRadius: '12px',
-                    padding: '1.25rem',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    transform: focusedTopicIndex === globalIndex ? 'translateY(-2px)' : 'translateY(0)',
-                    boxShadow: focusedTopicIndex === globalIndex ? `0 12px 24px -8px ${topic.color}30` : 'none'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = `0 12px 24px -8px ${topic.color}30`
-                    e.currentTarget.style.borderColor = topic.color
-                  }}
-                  onMouseLeave={(e) => {
-                    if (focusedTopicIndex !== globalIndex) {
-                      e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.boxShadow = 'none'
-                      e.currentTarget.style.borderColor = `${topic.color}40`
-                    }
-                  }}
-                >
-                  {topic.isQuickRef && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '0.5rem',
-                      right: '0.5rem',
-                      background: 'rgba(59, 130, 246, 0.2)',
-                      border: '1px solid rgba(59, 130, 246, 0.4)',
-                      borderRadius: '4px',
-                      padding: '0.15rem 0.4rem',
-                      fontSize: '0.65rem',
-                      color: '#60a5fa',
-                      fontWeight: '600'
-                    }}>
-                      QUICK REF
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '1.75rem' }}>{topic.icon}</span>
-                    <h3 style={{
-                      color: topic.color,
-                      fontSize: '1rem',
-                      fontWeight: '600',
-                      margin: 0
-                    }}>
-                      {topic.name}
-                    </h3>
-                  </div>
-                  <p style={{
-                    color: isDark ? '#9ca3af' : '#6b7280',
-                    fontSize: '0.875rem',
-                    lineHeight: '1.4',
-                    margin: 0
-                  }}>
-                    {topic.description}
-                  </p>
-                </button>
-              )})}
-            </div>
-          </div>
-        )})}
+        {/* Topic Cards Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1rem'
+        }}>
+          {filteredItems.map((topic, index) => (
+            <button
+              key={topic.id}
+              ref={(el) => topicRefs.current[index] = el}
+              tabIndex={focusedTopicIndex === index ? 0 : -1}
+              role="link"
+              aria-label={`${topic.name}. ${topic.description}`}
+              onClick={() => {
+                if (topic.isQuickRef) {
+                  const conceptIndex = concepts.findIndex(c => c.id === topic.id.replace('-overview', ''))
+                  if (conceptIndex !== -1) {
+                    setSelectedConceptIndex(conceptIndex)
+                    setSelectedDetailIndex(0)
+                  }
+                } else {
+                  onSelectItem(topic.id)
+                }
+              }}
+              style={{
+                background: isDark
+                  ? 'linear-gradient(145deg, #1e293b, #0f172a)'
+                  : 'linear-gradient(145deg, #ffffff, #f9fafb)',
+                border: `2px solid ${focusedTopicIndex === index ? topic.color : topic.color + '40'}`,
+                borderRadius: '12px',
+                padding: '1.25rem',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.3s ease',
+                position: 'relative',
+                transform: focusedTopicIndex === index ? 'translateY(-2px)' : 'translateY(0)',
+                boxShadow: focusedTopicIndex === index ? `0 12px 24px -8px ${topic.color}30` : 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = `0 12px 24px -8px ${topic.color}30`
+                e.currentTarget.style.borderColor = topic.color
+              }}
+              onMouseLeave={(e) => {
+                if (focusedTopicIndex !== index) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'none'
+                  e.currentTarget.style.borderColor = `${topic.color}40`
+                }
+              }}
+            >
+              {topic.isQuickRef && (
+                <div style={{
+                  position: 'absolute',
+                  top: '0.5rem',
+                  right: '0.5rem',
+                  background: 'rgba(59, 130, 246, 0.2)',
+                  border: '1px solid rgba(59, 130, 246, 0.4)',
+                  borderRadius: '4px',
+                  padding: '0.15rem 0.4rem',
+                  fontSize: '0.65rem',
+                  color: '#60a5fa',
+                  fontWeight: '600'
+                }}>
+                  QUICK REF
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '1.75rem' }}>{topic.icon}</span>
+                <h3 style={{
+                  color: topic.color,
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  margin: 0
+                }}>
+                  {topic.name}
+                </h3>
+              </div>
+              <p style={{
+                color: isDark ? '#9ca3af' : '#6b7280',
+                fontSize: '0.875rem',
+                lineHeight: '1.4',
+                margin: 0
+              }}>
+                {topic.description}
+              </p>
+            </button>
+          ))}
+        </div>
 
         {/* Hidden concept cards - kept for modal functionality */}
         <div style={{ display: 'none' }}>

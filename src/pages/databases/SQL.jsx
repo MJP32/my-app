@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -452,6 +453,57 @@ const MasterSlaveReplicationDiagram = () => (
   </svg>
 )
 
+const SyntaxHighlighter = ({ code }) => {
+  const highlightCode = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(--.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|ON|AND|OR|NOT|IN|EXISTS|BETWEEN|LIKE|IS|NULL|AS|ORDER|BY|GROUP|HAVING|LIMIT|OFFSET|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|ALTER|DROP|INDEX|PRIMARY|KEY|FOREIGN|REFERENCES|UNIQUE|CONSTRAINT|DEFAULT|CHECK|CASCADE|DISTINCT|UNION|ALL|CASE|WHEN|THEN|ELSE|END|WITH|RECURSIVE|OVER|PARTITION|ROW_NUMBER|RANK|DENSE_RANK|LAG|LEAD|FIRST_VALUE|LAST_VALUE|COUNT|SUM|AVG|MIN|MAX|COALESCE|NULLIF|CAST|GRANT|REVOKE|COMMIT|ROLLBACK|BEGIN|TRANSACTION|EXPLAIN|ANALYZE|VACUUM|TRUNCATE|VIEW|TRIGGER|FUNCTION|PROCEDURE|RETURN|RETURNS|DECLARE|IF|LOOP|FETCH|CURSOR|OPEN|CLOSE|RAISE|EXCEPTION|NOTICE|PERFORM|EXECUTE|PREPARE|DEALLOCATE)\b/gi, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(INT|INTEGER|BIGINT|SMALLINT|SERIAL|BIGSERIAL|VARCHAR|CHAR|TEXT|BOOLEAN|DATE|TIMESTAMP|TIMESTAMPTZ|NUMERIC|DECIMAL|FLOAT|DOUBLE|REAL|BLOB|CLOB|JSON|JSONB|UUID|ARRAY|BYTEA|MONEY|INTERVAL|TIME|POINT|INET|CIDR|MACADDR|BIT|XML)\b/gi, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
+    </pre>
+  )
+}
+
 function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -467,21 +519,101 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'Execution Plans',
-          explanation: 'EXPLAIN and EXPLAIN ANALYZE show query execution strategy. Identify sequential scans, index scans, and join algorithms. Understand cost estimates and actual execution times. Query planner statistics and optimizer hints help optimize based on actual execution metrics.'
+          explanation: 'EXPLAIN and EXPLAIN ANALYZE show query execution strategy. Identify sequential scans, index scans, and join algorithms. Understand cost estimates and actual execution times. Query planner statistics and optimizer hints help optimize based on actual execution metrics.',
+          codeExample: `-- Basic EXPLAIN shows estimated plan
+EXPLAIN
+SELECT e.name, d.department_name
+FROM employees e
+JOIN departments d ON e.dept_id = d.id
+WHERE e.salary > 50000;
+
+-- EXPLAIN ANALYZE runs the query and shows actual times
+EXPLAIN ANALYZE
+SELECT * FROM orders
+WHERE status = 'pending'
+  AND created_at > NOW() - INTERVAL '7 days'
+ORDER BY created_at DESC
+LIMIT 20;
+
+-- Look for: Seq Scan (bad on large tables)
+-- Prefer:  Index Scan, Index Only Scan`
         },
         {
           name: 'Indexing Strategy',
           explanation: 'B-tree indexes for equality and range queries. Hash indexes for exact matches. GiST and GIN for full-text and geometric data. Covering indexes avoid table lookups. Index-only scans provide optimal performance. Balance index maintenance cost vs query speed.',
-          diagram: IndexStructureDiagram
+          diagram: IndexStructureDiagram,
+          codeExample: `-- B-tree index for equality and range queries
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_date ON orders(created_at DESC);
+
+-- Composite index (column order matters!)
+CREATE INDEX idx_orders_status_date
+  ON orders(status, created_at);
+
+-- Covering index includes extra columns
+CREATE INDEX idx_orders_covering
+  ON orders(status) INCLUDE (total, customer_id);
+
+-- Partial index for subset of rows
+CREATE INDEX idx_active_users
+  ON users(email) WHERE active = true;
+
+-- GIN index for full-text search
+CREATE INDEX idx_articles_search
+  ON articles USING GIN(to_tsvector('english', body));`
         },
         {
           name: 'Query Rewriting',
-          explanation: 'Transform correlated subqueries to joins. Use EXISTS instead of IN for large subqueries. Predicate pushdown filters data early. Common table expressions (CTEs) improve readability and reuse. Avoid functions on indexed columns in WHERE clauses.'
+          explanation: 'Transform correlated subqueries to joins. Use EXISTS instead of IN for large subqueries. Predicate pushdown filters data early. Common table expressions (CTEs) improve readability and reuse. Avoid functions on indexed columns in WHERE clauses.',
+          codeExample: `-- BAD: correlated subquery runs per row
+SELECT * FROM orders o
+WHERE o.total > (
+  SELECT AVG(total) FROM orders
+  WHERE customer_id = o.customer_id
+);
+
+-- GOOD: rewrite as JOIN
+SELECT o.*
+FROM orders o
+JOIN (
+  SELECT customer_id, AVG(total) AS avg_total
+  FROM orders GROUP BY customer_id
+) avgs ON o.customer_id = avgs.customer_id
+WHERE o.total > avgs.avg_total;
+
+-- Use EXISTS instead of IN for large sets
+SELECT * FROM customers c
+WHERE EXISTS (
+  SELECT 1 FROM orders o
+  WHERE o.customer_id = c.id
+    AND o.total > 1000
+);`
         },
         {
           name: 'Join Optimization',
           explanation: 'Nested loop, hash, and merge join algorithms. Join order affects performance dramatically. Filter data before joining. Use appropriate join types (INNER, LEFT, etc.). Analyze cardinality for join optimization. Consider denormalization for frequently joined tables.',
-          diagram: JoinTypesDiagram
+          diagram: JoinTypesDiagram,
+          codeExample: `-- Filter before joining (push predicates down)
+SELECT o.id, c.name, o.total
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+WHERE o.created_at > '2025-01-01'  -- filter early
+  AND o.status = 'completed';
+
+-- INNER JOIN: only matching rows
+SELECT e.name, d.department_name
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id;
+
+-- LEFT JOIN: all employees, even without dept
+SELECT e.name, d.department_name
+FROM employees e
+LEFT JOIN departments d ON e.dept_id = d.id;
+
+-- Self-join: employees with their managers
+SELECT e.name, m.name AS manager
+FROM employees e
+LEFT JOIN employees m ON e.manager_id = m.id;`
         },
         {
           name: 'Statistics & Analyze',
@@ -503,15 +635,76 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'Normalization',
-          explanation: '1NF: atomic values, unique rows. 2NF: remove partial dependencies. 3NF: remove transitive dependencies. BCNF: every determinant is a candidate key. Reduce redundancy and update anomalies. Balance normalization with denormalization needs based on query patterns.'
+          explanation: '1NF: atomic values, unique rows. 2NF: remove partial dependencies. 3NF: remove transitive dependencies. BCNF: every determinant is a candidate key. Reduce redundancy and update anomalies. Balance normalization with denormalization needs based on query patterns.',
+          codeExample: `-- Unnormalized: repeating groups
+-- | order_id | items            |
+-- | 1        | Laptop, Mouse    |  -- BAD
+
+-- 1NF: atomic values, one value per cell
+CREATE TABLE order_items (
+  order_id  INT REFERENCES orders(id),
+  item_name VARCHAR(100),
+  quantity  INT,
+  PRIMARY KEY (order_id, item_name)
+);
+
+-- 3NF: remove transitive dependency
+-- BAD: zip_code -> city (non-key depends on non-key)
+-- GOOD: separate into addresses table
+CREATE TABLE addresses (
+  zip_code VARCHAR(10) PRIMARY KEY,
+  city     VARCHAR(100),
+  state    VARCHAR(50)
+);`
         },
         {
           name: 'Entity-Relationship Modeling',
-          explanation: 'Entities represent business objects. Relationships with cardinality (one-to-one, one-to-many, many-to-many). Define attributes and candidate keys. ER diagrams visualize data structure. Convert to relational schema with foreign keys to maintain referential integrity.'
+          explanation: 'Entities represent business objects. Relationships with cardinality (one-to-one, one-to-many, many-to-many). Define attributes and candidate keys. ER diagrams visualize data structure. Convert to relational schema with foreign keys to maintain referential integrity.',
+          codeExample: `-- One-to-Many: department has many employees
+CREATE TABLE departments (
+  id   SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE employees (
+  id      SERIAL PRIMARY KEY,
+  name    VARCHAR(100) NOT NULL,
+  dept_id INT REFERENCES departments(id)
+);
+
+-- Many-to-Many: students <-> courses
+CREATE TABLE enrollments (
+  student_id INT REFERENCES students(id),
+  course_id  INT REFERENCES courses(id),
+  enrolled_at DATE DEFAULT CURRENT_DATE,
+  PRIMARY KEY (student_id, course_id)
+);`
         },
         {
           name: 'Schema Patterns',
-          explanation: 'Star schema for data warehouses with fact and dimension tables. Snowflake schema for normalized dimensions. Slowly changing dimensions (SCD Type 1, 2, 3) track historical changes. Temporal tables provide built-in history tracking.'
+          explanation: 'Star schema for data warehouses with fact and dimension tables. Snowflake schema for normalized dimensions. Slowly changing dimensions (SCD Type 1, 2, 3) track historical changes. Temporal tables provide built-in history tracking.',
+          codeExample: `-- Star schema: fact table + dimension tables
+CREATE TABLE dim_product (
+  product_key SERIAL PRIMARY KEY,
+  name        VARCHAR(200),
+  category    VARCHAR(100)
+);
+
+CREATE TABLE dim_date (
+  date_key INT PRIMARY KEY,  -- e.g., 20250115
+  full_date DATE,
+  month     INT,
+  quarter   INT,
+  year      INT
+);
+
+CREATE TABLE fact_sales (
+  id          SERIAL PRIMARY KEY,
+  product_key INT REFERENCES dim_product(product_key),
+  date_key    INT REFERENCES dim_date(date_key),
+  quantity    INT,
+  revenue     NUMERIC(12,2)
+);`
         },
         {
           name: 'Denormalization',
@@ -519,7 +712,26 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         },
         {
           name: 'Constraints & Integrity',
-          explanation: 'Primary keys enforce uniqueness. Foreign keys maintain referential integrity. CHECK constraints implement business rules. UNIQUE constraints prevent duplicates. Handle NULL values carefully. Cascading updates and deletes propagate changes. Deferred constraint checking for bulk operations.'
+          explanation: 'Primary keys enforce uniqueness. Foreign keys maintain referential integrity. CHECK constraints implement business rules. UNIQUE constraints prevent duplicates. Handle NULL values carefully. Cascading updates and deletes propagate changes. Deferred constraint checking for bulk operations.',
+          codeExample: `CREATE TABLE products (
+  id       SERIAL PRIMARY KEY,
+  sku      VARCHAR(50) UNIQUE NOT NULL,
+  name     VARCHAR(200) NOT NULL,
+  price    NUMERIC(10,2) CHECK (price > 0),
+  stock    INT DEFAULT 0 CHECK (stock >= 0),
+  category VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE order_items (
+  id         SERIAL PRIMARY KEY,
+  order_id   INT NOT NULL REFERENCES orders(id)
+               ON DELETE CASCADE,
+  product_id INT NOT NULL REFERENCES products(id)
+               ON DELETE RESTRICT,
+  quantity   INT CHECK (quantity > 0),
+  CONSTRAINT unique_order_product
+    UNIQUE (order_id, product_id)
+);`
         },
         {
           name: 'Data Types Selection',
@@ -537,15 +749,67 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'ACID Properties',
-          explanation: 'Atomicity: all-or-nothing execution of transactions. Consistency: valid state transitions maintain database integrity. Isolation: concurrent execution appears serial to avoid conflicts. Durability: committed changes persist through system failures. Foundation for reliable database operations.'
+          explanation: 'Atomicity: all-or-nothing execution of transactions. Consistency: valid state transitions maintain database integrity. Isolation: concurrent execution appears serial to avoid conflicts. Durability: committed changes persist through system failures. Foundation for reliable database operations.',
+          codeExample: `-- Atomicity: transfer funds - all or nothing
+BEGIN;
+  UPDATE accounts SET balance = balance - 500
+    WHERE id = 1;
+  UPDATE accounts SET balance = balance + 500
+    WHERE id = 2;
+COMMIT;  -- both succeed, or neither does
+
+-- If something goes wrong, rollback everything
+BEGIN;
+  UPDATE accounts SET balance = balance - 500
+    WHERE id = 1;
+  -- Error occurs here...
+ROLLBACK;  -- undo all changes in this transaction`
         },
         {
           name: 'Isolation Levels',
-          explanation: 'Read Uncommitted allows dirty reads. Read Committed prevents dirty reads. Repeatable Read prevents non-repeatable reads. Serializable provides full isolation and prevents phantoms. Trade-off between data consistency and concurrency performance.'
+          explanation: 'Read Uncommitted allows dirty reads. Read Committed prevents dirty reads. Repeatable Read prevents non-repeatable reads. Serializable provides full isolation and prevents phantoms. Trade-off between data consistency and concurrency performance.',
+          codeExample: `-- Set isolation level for a transaction
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+  SELECT balance FROM accounts WHERE id = 1;
+  -- Only sees committed data from other transactions
+COMMIT;
+
+-- Serializable: strictest isolation
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+  SELECT SUM(balance) FROM accounts;
+  -- Guaranteed consistent snapshot
+  -- Other concurrent writes will wait or abort
+COMMIT;
+
+-- Check current isolation level
+SHOW transaction_isolation;
+
+-- Set default for session
+SET SESSION CHARACTERISTICS AS
+  TRANSACTION ISOLATION LEVEL REPEATABLE READ;`
         },
         {
           name: 'Locking Mechanisms',
-          explanation: 'Shared (read) locks and exclusive (write) locks coordinate access. Row-level, page-level, and table-level locking granularities. Deadlock detection and resolution strategies. Lock timeout configuration prevents indefinite waits. Choose between optimistic and pessimistic locking.'
+          explanation: 'Shared (read) locks and exclusive (write) locks coordinate access. Row-level, page-level, and table-level locking granularities. Deadlock detection and resolution strategies. Lock timeout configuration prevents indefinite waits. Choose between optimistic and pessimistic locking.',
+          codeExample: `-- Exclusive row lock with SELECT FOR UPDATE
+BEGIN;
+  SELECT * FROM seats
+    WHERE flight_id = 100 AND seat_number = '12A'
+    FOR UPDATE;  -- locks the row
+  -- Other transactions wait here
+  UPDATE seats SET status = 'booked', passenger = 'Alice'
+    WHERE flight_id = 100 AND seat_number = '12A';
+COMMIT;  -- lock released
+
+-- SKIP LOCKED: skip already-locked rows (job queue)
+SELECT * FROM tasks
+  WHERE status = 'pending'
+  ORDER BY created_at
+  LIMIT 1
+  FOR UPDATE SKIP LOCKED;
+
+-- Set lock timeout
+SET lock_timeout = '5s';`
         },
         {
           name: 'MVCC',
@@ -553,7 +817,24 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         },
         {
           name: 'Savepoints',
-          explanation: 'Enable partial rollback within transactions. SAVEPOINT creates named transaction checkpoints. ROLLBACK TO SAVEPOINT allows selective undo. Provides nested transaction-like behavior. Useful for error recovery without full transaction rollback.'
+          explanation: 'Enable partial rollback within transactions. SAVEPOINT creates named transaction checkpoints. ROLLBACK TO SAVEPOINT allows selective undo. Provides nested transaction-like behavior. Useful for error recovery without full transaction rollback.',
+          codeExample: `BEGIN;
+  INSERT INTO orders (customer_id, total)
+    VALUES (1, 250.00);
+
+  SAVEPOINT before_items;
+
+  INSERT INTO order_items (order_id, product_id, qty)
+    VALUES (currval('orders_id_seq'), 99, 2);
+  -- Oops, product 99 doesn't exist
+
+  ROLLBACK TO SAVEPOINT before_items;
+  -- Order still exists, only items rolled back
+
+  INSERT INTO order_items (order_id, product_id, qty)
+    VALUES (currval('orders_id_seq'), 42, 2);
+
+COMMIT;  -- order + correct items saved`
         },
         {
           name: 'Two-Phase Commit',
@@ -571,11 +852,52 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'Connection Pooling',
-          explanation: 'Reuse database connections to reduce overhead. Tune pool size based on workload characteristics. Configure connection timeout and validation. PgBouncer and HikariCP provide connection management. Monitor pool utilization and wait times to avoid bottlenecks.'
+          explanation: 'Reuse database connections to reduce overhead. Tune pool size based on workload characteristics. Configure connection timeout and validation. PgBouncer and HikariCP provide connection management. Monitor pool utilization and wait times to avoid bottlenecks.',
+          codeExample: `-- PgBouncer configuration (pgbouncer.ini)
+-- [databases]
+-- mydb = host=127.0.0.1 port=5432 dbname=mydb
+--
+-- [pgbouncer]
+-- pool_mode = transaction
+-- max_client_conn = 1000
+-- default_pool_size = 25
+
+-- Monitor active connections in PostgreSQL
+SELECT datname, count(*) AS connections
+FROM pg_stat_activity
+GROUP BY datname;
+
+-- Check max connections setting
+SHOW max_connections;
+
+-- View connection states
+SELECT state, count(*)
+FROM pg_stat_activity
+GROUP BY state;`
         },
         {
           name: 'Caching Strategies',
-          explanation: 'Query result caching with Redis or Memcached. Application-level cache for frequently accessed data. Database query cache (MySQL). Materialized views for expensive aggregations. Implement effective cache invalidation strategies to maintain consistency.'
+          explanation: 'Query result caching with Redis or Memcached. Application-level cache for frequently accessed data. Database query cache (MySQL). Materialized views for expensive aggregations. Implement effective cache invalidation strategies to maintain consistency.',
+          codeExample: `-- Materialized view: pre-compute expensive queries
+CREATE MATERIALIZED VIEW monthly_sales AS
+  SELECT date_trunc('month', order_date) AS month,
+         category,
+         SUM(total) AS revenue,
+         COUNT(*) AS order_count
+  FROM orders o
+  JOIN products p ON o.product_id = p.id
+  GROUP BY 1, 2;
+
+-- Refresh when data changes
+REFRESH MATERIALIZED VIEW CONCURRENTLY monthly_sales;
+
+-- Create index on materialized view
+CREATE UNIQUE INDEX idx_monthly_sales
+  ON monthly_sales(month, category);
+
+-- Query the cached view (fast!)
+SELECT * FROM monthly_sales
+WHERE month = '2025-01-01';`
         },
         {
           name: 'Buffer Pool Tuning',
@@ -583,11 +905,47 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         },
         {
           name: 'Batch Processing',
-          explanation: 'Batch inserts and updates reduce round trips. Use COPY command for bulk loading. Batch size tuning for optimal throughput. Disable indexes during bulk operations. Consider table locking for large batch operations.'
+          explanation: 'Batch inserts and updates reduce round trips. Use COPY command for bulk loading. Batch size tuning for optimal throughput. Disable indexes during bulk operations. Consider table locking for large batch operations.',
+          codeExample: `-- Batch insert: multiple rows in one statement
+INSERT INTO products (name, price, category)
+VALUES
+  ('Keyboard', 79.99, 'peripherals'),
+  ('Mouse', 29.99, 'peripherals'),
+  ('Monitor', 399.99, 'displays'),
+  ('Webcam', 89.99, 'peripherals');
+
+-- COPY for bulk loading (fastest)
+COPY products (name, price, category)
+FROM '/data/products.csv'
+WITH (FORMAT csv, HEADER true);
+
+-- Bulk update with FROM clause
+UPDATE products p
+SET price = p.price * t.multiplier
+FROM price_adjustments t
+WHERE p.category = t.category;`
         },
         {
           name: 'Query Profiling',
-          explanation: 'pg_stat_statements tracks query performance. Identify slow queries and high-frequency queries. Analyze wait events and lock contention. Monitor I/O patterns and memory usage. Set up alerting for performance degradation.'
+          explanation: 'pg_stat_statements tracks query performance. Identify slow queries and high-frequency queries. Analyze wait events and lock contention. Monitor I/O patterns and memory usage. Set up alerting for performance degradation.',
+          codeExample: `-- Enable pg_stat_statements extension
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+
+-- Find top 10 slowest queries
+SELECT query,
+       calls,
+       round(total_exec_time::numeric, 2) AS total_ms,
+       round(mean_exec_time::numeric, 2) AS avg_ms,
+       rows
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
+LIMIT 10;
+
+-- Find most frequently called queries
+SELECT query, calls, rows
+FROM pg_stat_statements
+ORDER BY calls DESC
+LIMIT 10;`
         },
         {
           name: 'Maintenance Tasks',
@@ -605,15 +963,80 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'Window Functions',
-          explanation: 'ROW_NUMBER, RANK, DENSE_RANK for ranking. LAG/LEAD for accessing adjacent rows. SUM/AVG/COUNT OVER for running calculations. PARTITION BY divides result set. Frame specification (ROWS/RANGE) defines window bounds.'
+          explanation: 'ROW_NUMBER, RANK, DENSE_RANK for ranking. LAG/LEAD for accessing adjacent rows. SUM/AVG/COUNT OVER for running calculations. PARTITION BY divides result set. Frame specification (ROWS/RANGE) defines window bounds.',
+          codeExample: `-- ROW_NUMBER: assign sequential numbers
+SELECT name, department, salary,
+  ROW_NUMBER() OVER (
+    PARTITION BY department
+    ORDER BY salary DESC
+  ) AS rank_in_dept
+FROM employees;
+
+-- Running total with SUM OVER
+SELECT order_date, total,
+  SUM(total) OVER (
+    ORDER BY order_date
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS running_total
+FROM orders;
+
+-- LAG/LEAD: compare with previous/next row
+SELECT month, revenue,
+  revenue - LAG(revenue) OVER (ORDER BY month)
+    AS month_over_month_change
+FROM monthly_revenue;`
         },
         {
           name: 'Common Table Expressions',
-          explanation: 'WITH clause for readable subqueries. Recursive CTEs for hierarchical data traversal. Materialized vs non-materialized CTE behavior. Named intermediate results improve maintainability. Multiple CTEs can reference each other.'
+          explanation: 'WITH clause for readable subqueries. Recursive CTEs for hierarchical data traversal. Materialized vs non-materialized CTE behavior. Named intermediate results improve maintainability. Multiple CTEs can reference each other.',
+          codeExample: `-- Basic CTE for readable queries
+WITH high_value_customers AS (
+  SELECT customer_id, SUM(total) AS lifetime_value
+  FROM orders
+  GROUP BY customer_id
+  HAVING SUM(total) > 10000
+)
+SELECT c.name, hvc.lifetime_value
+FROM customers c
+JOIN high_value_customers hvc ON c.id = hvc.customer_id;
+
+-- Recursive CTE: org chart traversal
+WITH RECURSIVE org_chart AS (
+  SELECT id, name, manager_id, 1 AS level
+  FROM employees WHERE manager_id IS NULL
+  UNION ALL
+  SELECT e.id, e.name, e.manager_id, oc.level + 1
+  FROM employees e
+  JOIN org_chart oc ON e.manager_id = oc.id
+)
+SELECT * FROM org_chart ORDER BY level, name;`
         },
         {
           name: 'JSON Operations',
-          explanation: 'JSONB type for efficient JSON storage. Operators: ->, ->>, @>, ?. GIN indexes for JSON queries. jsonb_agg for aggregating to JSON. json_table for converting JSON to relational format.'
+          explanation: 'JSONB type for efficient JSON storage. Operators: ->, ->>, @>, ?. GIN indexes for JSON queries. jsonb_agg for aggregating to JSON. json_table for converting JSON to relational format.',
+          codeExample: `-- Store and query JSON data
+CREATE TABLE events (
+  id   SERIAL PRIMARY KEY,
+  data JSONB NOT NULL
+);
+
+INSERT INTO events (data) VALUES
+  ('{"type": "click", "page": "/home", "user_id": 42}');
+
+-- Extract JSON fields
+SELECT data->>'type' AS event_type,
+       data->>'page' AS page,
+       (data->>'user_id')::INT AS user_id
+FROM events
+WHERE data->>'type' = 'click';
+
+-- Containment query (uses GIN index)
+SELECT * FROM events
+WHERE data @> '{"type": "click"}';
+
+-- Aggregate rows into JSON array
+SELECT jsonb_agg(name) AS all_names
+FROM employees WHERE department = 'Engineering';`
         },
         {
           name: 'Full-Text Search',
@@ -625,7 +1048,26 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         },
         {
           name: 'UPSERT Operations',
-          explanation: 'INSERT ON CONFLICT for atomic upsert. DO UPDATE SET for merge operations. DO NOTHING for ignore duplicates. Conflict targets: constraints or columns. EXCLUDED pseudo-table references new values.'
+          explanation: 'INSERT ON CONFLICT for atomic upsert. DO UPDATE SET for merge operations. DO NOTHING for ignore duplicates. Conflict targets: constraints or columns. EXCLUDED pseudo-table references new values.',
+          codeExample: `-- Upsert: insert or update on conflict
+INSERT INTO products (sku, name, price)
+VALUES ('KB-001', 'Mechanical Keyboard', 89.99)
+ON CONFLICT (sku)
+DO UPDATE SET
+  name  = EXCLUDED.name,
+  price = EXCLUDED.price;
+
+-- Insert or ignore duplicates
+INSERT INTO tags (name)
+VALUES ('javascript'), ('python'), ('go')
+ON CONFLICT (name) DO NOTHING;
+
+-- Upsert with conditional update
+INSERT INTO inventory (product_id, quantity)
+VALUES (42, 100)
+ON CONFLICT (product_id)
+DO UPDATE SET quantity = inventory.quantity + EXCLUDED.quantity
+WHERE inventory.quantity + EXCLUDED.quantity >= 0;`
         }
       ]
     },
@@ -639,7 +1081,26 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'Streaming Replication',
-          explanation: 'PostgreSQL streaming replication for hot standby. Asynchronous mode for performance, synchronous for consistency. Replication slots ensure reliable WAL retention. Cascading replication enables hierarchical setups. Monitor replication lag to detect issues early.'
+          explanation: 'PostgreSQL streaming replication for hot standby. Asynchronous mode for performance, synchronous for consistency. Replication slots ensure reliable WAL retention. Cascading replication enables hierarchical setups. Monitor replication lag to detect issues early.',
+          codeExample: `-- On primary: create replication user
+CREATE ROLE replicator WITH REPLICATION LOGIN
+  PASSWORD 'secure_password';
+
+-- On primary: create replication slot
+SELECT pg_create_physical_replication_slot('replica1');
+
+-- Monitor replication lag on primary
+SELECT client_addr,
+       state,
+       sent_lsn,
+       write_lsn,
+       replay_lsn,
+       pg_wal_lsn_diff(sent_lsn, replay_lsn) AS lag_bytes
+FROM pg_stat_replication;
+
+-- Check if server is primary or standby
+SELECT pg_is_in_recovery();
+-- false = primary, true = standby`
         },
         {
           name: 'Master-Slave Architecture',
@@ -647,11 +1108,46 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         },
         {
           name: 'Logical Replication',
-          explanation: 'Selective table replication for flexibility. Publish-subscribe model for distributed systems. Cross-version replication during upgrades. Bidirectional replication patterns for multi-master setups. Useful for migrations and multi-tenant systems.'
+          explanation: 'Selective table replication for flexibility. Publish-subscribe model for distributed systems. Cross-version replication during upgrades. Bidirectional replication patterns for multi-master setups. Useful for migrations and multi-tenant systems.',
+          codeExample: `-- On publisher: create publication
+CREATE PUBLICATION my_pub
+  FOR TABLE orders, customers, products;
+
+-- Or publish all tables
+CREATE PUBLICATION all_tables FOR ALL TABLES;
+
+-- On subscriber: create subscription
+CREATE SUBSCRIPTION my_sub
+  CONNECTION 'host=primary dbname=mydb user=replicator'
+  PUBLICATION my_pub;
+
+-- Monitor subscription status
+SELECT subname, received_lsn, latest_end_lsn
+FROM pg_stat_subscription;
+
+-- Add table to existing publication
+ALTER PUBLICATION my_pub ADD TABLE inventory;`
         },
         {
           name: 'Backup Strategies',
-          explanation: 'Physical backups with pg_basebackup for full copies. Logical dumps with pg_dump/pg_dumpall. Point-in-time recovery (PITR) with WAL archiving. Incremental and differential backups reduce storage. Automated backup validation and regular restoration testing.'
+          explanation: 'Physical backups with pg_basebackup for full copies. Logical dumps with pg_dump/pg_dumpall. Point-in-time recovery (PITR) with WAL archiving. Incremental and differential backups reduce storage. Automated backup validation and regular restoration testing.',
+          codeExample: `-- Logical backup: dump single database
+-- pg_dump -Fc mydb > mydb_backup.dump
+
+-- Restore from dump
+-- pg_restore -d mydb mydb_backup.dump
+
+-- Dump specific tables only
+-- pg_dump -t orders -t customers mydb > tables.sql
+
+-- Physical backup with pg_basebackup
+-- pg_basebackup -D /backups/base -Ft -z -P
+
+-- List database sizes for backup planning
+SELECT datname,
+       pg_size_pretty(pg_database_size(datname)) AS size
+FROM pg_database
+ORDER BY pg_database_size(datname) DESC;`
         },
         {
           name: 'Failover & Recovery',
@@ -673,15 +1169,71 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'Authentication',
-          explanation: 'Password, certificate, LDAP, and Kerberos authentication methods. pg_hba.conf configures host-based authentication. Connection encryption with SSL/TLS protects data in transit. SCRAM-SHA-256 for secure password storage. Two-factor authentication integration for sensitive systems.'
+          explanation: 'Password, certificate, LDAP, and Kerberos authentication methods. pg_hba.conf configures host-based authentication. Connection encryption with SSL/TLS protects data in transit. SCRAM-SHA-256 for secure password storage. Two-factor authentication integration for sensitive systems.',
+          codeExample: `-- Create user with encrypted password
+CREATE USER app_user WITH
+  PASSWORD 'strong_password'
+  LOGIN
+  CONNECTION LIMIT 10;
+
+-- pg_hba.conf entries (host-based auth)
+-- TYPE  DATABASE  USER      ADDRESS         METHOD
+-- host  mydb      app_user  192.168.1.0/24  scram-sha-256
+-- host  all       all       0.0.0.0/0       reject
+
+-- Force SSL connections
+-- ALTER SYSTEM SET ssl = on;
+
+-- Verify connection encryption
+SELECT datname, usename, ssl, client_addr
+FROM pg_stat_ssl
+JOIN pg_stat_activity USING (pid);`
         },
         {
           name: 'Authorization & Roles',
-          explanation: 'Role-based access control (RBAC) manages permissions. GRANT and REVOKE control access. Schema-level and table-level privileges. Column-level security for sensitive data. Role hierarchies and inheritance. Follow the principle of least privilege.'
+          explanation: 'Role-based access control (RBAC) manages permissions. GRANT and REVOKE control access. Schema-level and table-level privileges. Column-level security for sensitive data. Role hierarchies and inheritance. Follow the principle of least privilege.',
+          codeExample: `-- Create roles with specific privileges
+CREATE ROLE readonly;
+GRANT CONNECT ON DATABASE mydb TO readonly;
+GRANT USAGE ON SCHEMA public TO readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO readonly;
+
+CREATE ROLE readwrite;
+GRANT readonly TO readwrite;  -- inherit read access
+GRANT INSERT, UPDATE, DELETE
+  ON ALL TABLES IN SCHEMA public TO readwrite;
+
+-- Assign role to user
+GRANT readwrite TO app_user;
+
+-- Column-level permissions
+GRANT SELECT (name, email) ON employees TO readonly;
+REVOKE SELECT (salary, ssn) ON employees FROM readonly;`
         },
         {
           name: 'Row-Level Security',
-          explanation: 'Fine-grained access control at the row level. Policies based on user context and attributes. Multi-tenant data isolation within shared tables. Transparent to application code. Consider performance implications of complex RLS policies.'
+          explanation: 'Fine-grained access control at the row level. Policies based on user context and attributes. Multi-tenant data isolation within shared tables. Transparent to application code. Consider performance implications of complex RLS policies.',
+          codeExample: `-- Enable RLS on table
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+
+-- Policy: users only see their own orders
+CREATE POLICY user_orders ON orders
+  FOR ALL
+  USING (customer_id = current_setting('app.user_id')::INT);
+
+-- Multi-tenant isolation
+CREATE POLICY tenant_isolation ON documents
+  FOR ALL
+  USING (tenant_id = current_setting('app.tenant_id')::INT);
+
+-- Set context before queries
+SET app.user_id = '42';
+SELECT * FROM orders;  -- only sees user 42's orders
+
+-- Admin can see all rows
+CREATE POLICY admin_all ON orders
+  FOR ALL TO admin_role
+  USING (true);`
         },
         {
           name: 'Encryption',
@@ -693,7 +1245,28 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         },
         {
           name: 'SQL Injection Prevention',
-          explanation: 'Parameterized queries and prepared statements prevent injection. Input validation and sanitization at application layer. Principle of least privilege for database users. Avoid dynamic SQL construction. Use ORM frameworks safely with proper configuration.'
+          explanation: 'Parameterized queries and prepared statements prevent injection. Input validation and sanitization at application layer. Principle of least privilege for database users. Avoid dynamic SQL construction. Use ORM frameworks safely with proper configuration.',
+          codeExample: `-- BAD: string concatenation (SQL injection risk!)
+-- query = "SELECT * FROM users WHERE name = '" + input + "'"
+-- Input: ' OR '1'='1  => returns ALL users!
+
+-- GOOD: prepared statements with parameters
+PREPARE user_lookup (TEXT) AS
+  SELECT id, name, email FROM users WHERE name = $1;
+
+EXECUTE user_lookup('Alice');
+
+-- GOOD: parameterized in application code
+-- cursor.execute(
+--   "SELECT * FROM users WHERE email = %s",
+--   (user_email,)
+-- )
+
+-- Restrict app user permissions
+REVOKE ALL ON ALL TABLES IN SCHEMA public
+  FROM app_user;
+GRANT SELECT, INSERT, UPDATE
+  ON orders, order_items TO app_user;`
         }
       ]
     },
@@ -706,7 +1279,19 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       details: [
         {
           name: 'Star & Snowflake Schema',
-          explanation: 'Fact tables contain measures and foreign keys to dimensions. Dimension tables store descriptive attributes. Star schema uses denormalized dimensions for simplicity. Snowflake schema normalizes dimensions to reduce redundancy. Optimized for analytics queries with fewer joins.'
+          explanation: 'Fact tables contain measures and foreign keys to dimensions. Dimension tables store descriptive attributes. Star schema uses denormalized dimensions for simplicity. Snowflake schema normalizes dimensions to reduce redundancy. Optimized for analytics queries with fewer joins.',
+          codeExample: `-- Star schema analytics query
+SELECT d.year, d.quarter,
+       p.category, p.brand,
+       SUM(f.quantity) AS units_sold,
+       SUM(f.revenue) AS total_revenue,
+       AVG(f.revenue / f.quantity) AS avg_unit_price
+FROM fact_sales f
+JOIN dim_date d ON f.date_key = d.date_key
+JOIN dim_product p ON f.product_key = p.product_key
+WHERE d.year = 2025
+GROUP BY d.year, d.quarter, p.category, p.brand
+ORDER BY total_revenue DESC;`
         },
         {
           name: 'ETL Processes',
@@ -718,11 +1303,32 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         },
         {
           name: 'OLAP Operations',
-          explanation: 'Roll-up, drill-down, slice, dice, and pivot operations for analysis. CUBE and ROLLUP for multi-dimensional aggregations. Window functions enable complex analytics. Materialized views pre-compute aggregations. Optimize analytical queries with proper indexing.'
+          explanation: 'Roll-up, drill-down, slice, dice, and pivot operations for analysis. CUBE and ROLLUP for multi-dimensional aggregations. Window functions enable complex analytics. Materialized views pre-compute aggregations. Optimize analytical queries with proper indexing.',
+          codeExample: `-- ROLLUP: hierarchical subtotals
+SELECT region, city, SUM(revenue) AS total
+FROM sales
+GROUP BY ROLLUP(region, city);
+-- Returns: region+city, region totals, grand total
+
+-- CUBE: all dimension combinations
+SELECT category, quarter, SUM(revenue) AS total
+FROM sales
+GROUP BY CUBE(category, quarter);
+
+-- GROUPING SETS: specific combinations
+SELECT category, quarter, SUM(revenue) AS total
+FROM sales
+GROUP BY GROUPING SETS (
+  (category, quarter),  -- by category and quarter
+  (category),           -- by category only
+  ()                    -- grand total
+);`
         }
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
@@ -1022,6 +1628,18 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      borderLeft: `4px solid ${selectedConcept.color}`,
+                      overflow: 'auto',
+                      marginTop: '1rem'
+                    }}>
+                      <SyntaxHighlighter code={detail.codeExample} />
+                    </div>
+                  )}
                 </div>
               )
             })()}

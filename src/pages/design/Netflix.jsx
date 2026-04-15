@@ -11,6 +11,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -1443,6 +1444,8 @@ public class ChaosMonkey {
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   // =============================================================================
   // NAVIGATION HANDLERS

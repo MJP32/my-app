@@ -9,6 +9,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -791,11 +792,95 @@ public class StateTTLExample extends KeyedProcessFunction<String, Event, Result>
         },
         {
           name: 'Queryable State',
-          explanation: 'Query state from external applications. Expose state over network. Key-based lookups for dashboards. Real-time materialized views. Client API for queries. No impact on processing performance. Alternative to writing state to external database.'
+          explanation: 'Query state from external applications. Expose state over network. Key-based lookups for dashboards. Real-time materialized views. Client API for queries. No impact on processing performance. Alternative to writing state to external database.',
+          codeExample: `// Queryable State - expose state for external queries
+public class QueryableStateFunction extends KeyedProcessFunction<String, Event, Void> {
+
+    private ValueState<UserStats> userStatsState;
+
+    @Override
+    public void open(Configuration parameters) {
+        ValueStateDescriptor<UserStats> descriptor = new ValueStateDescriptor<>(
+            "user-stats",  // State name used for querying
+            UserStats.class
+        );
+
+        // Make state queryable with a unique name
+        descriptor.setQueryable("user-stats-query");
+
+        userStatsState = getRuntimeContext().getState(descriptor);
+    }
+
+    @Override
+    public void processElement(Event event, Context ctx, Collector<Void> out) throws Exception {
+        UserStats stats = userStatsState.value();
+        if (stats == null) {
+            stats = new UserStats();
+        }
+        stats.addEvent(event);
+        userStatsState.update(stats);
+    }
+}
+
+// Client-side: Query state from external application
+QueryableStateClient client = new QueryableStateClient("localhost", 9069);
+
+// Query by key
+CompletableFuture<ValueState<UserStats>> future = client.getKvState(
+    JobID.fromHexString("abc123..."),
+    "user-stats-query",                   // Queryable state name
+    "user-42",                            // Key to look up
+    BasicTypeInfo.STRING_TYPE_INFO,       // Key type
+    new ValueStateDescriptor<>("user-stats", UserStats.class)
+);
+
+UserStats stats = future.get().value();
+System.out.println("User stats: " + stats);`
         },
         {
           name: 'Savepoints',
-          explanation: 'Manually triggered snapshots for versioning. Upgrade applications with state migration. A/B testing with state forking. State evolution with serializer upgrades. Relocate jobs across clusters. Debug production issues. Externalized state for disaster recovery.'
+          explanation: 'Manually triggered snapshots for versioning. Upgrade applications with state migration. A/B testing with state forking. State evolution with serializer upgrades. Relocate jobs across clusters. Debug production issues. Externalized state for disaster recovery.',
+          codeExample: `// Savepoint operations via CLI and programmatic API
+
+// 1. Trigger a savepoint via CLI
+// $ bin/flink savepoint <jobId> s3://my-bucket/savepoints/
+// $ bin/flink savepoint <jobId> --dispose  (dispose after cancel)
+
+// 2. Cancel job with savepoint
+// $ bin/flink cancel -s s3://my-bucket/savepoints/ <jobId>
+
+// 3. Resume job from savepoint
+// $ bin/flink run -s s3://my-bucket/savepoints/savepoint-abc123 myJob.jar
+
+// 4. Programmatic savepoint trigger via REST API
+public class SavepointManager {
+
+    private final RestClusterClient<String> client;
+
+    public CompletableFuture<String> triggerSavepoint(JobID jobId, String targetDir) {
+        return client.triggerSavepoint(jobId, targetDir)
+            .thenApply(savepointPath -> {
+                System.out.println("Savepoint created at: " + savepointPath);
+                return savepointPath;
+            });
+    }
+
+    // State migration: upgrade job with modified state schema
+    public void upgradeJob(String savepointPath, String newJarPath) throws Exception {
+        // Stop current job with savepoint
+        // Start new version from savepoint
+        PackagedProgram program = PackagedProgram.newBuilder()
+            .setJarFile(new File(newJarPath))
+            .setArguments("--fromSavepoint", savepointPath)
+            .build();
+
+        // Allow non-restored state for removed operators
+        SavepointRestoreSettings restoreSettings =
+            SavepointRestoreSettings.forPath(savepointPath, true);
+
+        client.submitJob(program, restoreSettings);
+    }
+}`
         }
       ]
     },
@@ -849,23 +934,227 @@ env.setStateBackend(new HashMapStateBackend());
         },
         {
           name: 'Chandy-Lamport Algorithm',
-          explanation: 'Distributed snapshot algorithm for stream processing. Barriers flow with data through DAG. Snapshot taken when barrier reaches operator. Consistent global state without stopping processing. Handles multiple input streams. Foundation for exactly-once semantics.'
+          explanation: 'Distributed snapshot algorithm for stream processing. Barriers flow with data through DAG. Snapshot taken when barrier reaches operator. Consistent global state without stopping processing. Handles multiple input streams. Foundation for exactly-once semantics.',
+          codeExample: `// Chandy-Lamport in Flink: Barrier Alignment
+// Flink injects checkpoint barriers into the data stream.
+// Each operator aligns barriers from all input channels.
+
+// Conceptual view of barrier alignment in a multi-input operator:
+public class BarrierAlignmentExample extends AbstractStreamOperator<String>
+    implements TwoInputStreamOperator<String, String, String> {
+
+    // When barrier arrives from input 1:
+    // 1. Buffer records from input 1 (after barrier)
+    // 2. Continue processing records from input 2
+    // 3. When barrier arrives from input 2 -> snapshot state
+
+    @Override
+    public void processElement1(StreamRecord<String> record) throws Exception {
+        // Process records from stream 1
+        output.collect(new StreamRecord<>(transform(record.getValue())));
+    }
+
+    @Override
+    public void processElement2(StreamRecord<String> record) throws Exception {
+        // Process records from stream 2
+        output.collect(new StreamRecord<>(transform(record.getValue())));
+    }
+
+    @Override
+    public void snapshotState(StateSnapshotContext context) throws Exception {
+        // Called when barriers from ALL inputs are aligned
+        // Snapshot operator state to checkpoint storage
+        super.snapshotState(context);
+        // Persist any internal state
+    }
+
+    @Override
+    public void initializeState(StateInitializationContext context) throws Exception {
+        // Restore state from checkpoint during recovery
+        super.initializeState(context);
+    }
+}
+
+// Timeline visualization:
+// Input 1: [data] [data] [barrier-n] [data] [data]
+// Input 2: [data] [data] [data] [barrier-n] [data]
+//                                     ^
+//                          Both barriers received
+//                          -> Take snapshot of state`
         },
         {
           name: 'Recovery Mechanism',
-          explanation: 'Restore state from latest checkpoint. Rewind source offsets (Kafka, Kinesis). Replay events since checkpoint. Coordinate recovery across tasks. Restart strategies: fixed delay, exponential backoff, failure rate. Regional and global failover. Minimal data loss.'
+          explanation: 'Restore state from latest checkpoint. Rewind source offsets (Kafka, Kinesis). Replay events since checkpoint. Coordinate recovery across tasks. Restart strategies: fixed delay, exponential backoff, failure rate. Regional and global failover. Minimal data loss.',
+          codeExample: `// Restart strategy configuration
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// 1. Fixed delay restart strategy
+// Restart up to 3 times with 10 second delay between attempts
+env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
+    3,                              // Max restart attempts
+    Time.seconds(10)                // Delay between restarts
+));
+
+// 2. Exponential delay restart strategy
+env.setRestartStrategy(RestartStrategies.exponentialDelayRestart(
+    Time.milliseconds(1),           // Initial backoff
+    Time.seconds(120),              // Max backoff
+    1.5,                            // Backoff multiplier
+    Time.hours(1),                  // Reset backoff threshold
+    0.1                             // Jitter
+));
+
+// 3. Failure rate restart strategy
+// Allow 3 failures within 5 minutes, with 10 second delay
+env.setRestartStrategy(RestartStrategies.failureRateRestart(
+    3,                              // Max failures per interval
+    Time.minutes(5),                // Failure rate interval
+    Time.seconds(10)                // Delay between restarts
+));
+
+// 4. No restart (fail immediately)
+env.setRestartStrategy(RestartStrategies.noRestart());
+
+// 5. Configure failover strategy in flink-conf.yaml:
+// jobmanager.execution.failover-strategy: region
+// (regional restart only restarts affected pipeline regions)
+
+// Recovery process:
+// 1. Detect failure (TaskManager heartbeat timeout)
+// 2. Cancel affected tasks
+// 3. Load latest completed checkpoint
+// 4. Restore operator state from checkpoint
+// 5. Reset source offsets to checkpoint position
+// 6. Resume processing from checkpoint`
         },
         {
           name: 'Incremental Checkpoints',
-          explanation: 'Only snapshot state changes since last checkpoint. Dramatically reduces checkpoint size. RocksDB backend support. Faster checkpoints for large state. Lower storage costs. Asynchronous materialization. Critical for terabyte-scale state.'
+          explanation: 'Only snapshot state changes since last checkpoint. Dramatically reduces checkpoint size. RocksDB backend support. Faster checkpoints for large state. Lower storage costs. Asynchronous materialization. Critical for terabyte-scale state.',
+          codeExample: `// Incremental Checkpoints with RocksDB
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// Enable RocksDB state backend with incremental checkpoints
+EmbeddedRocksDBStateBackend rocksDBBackend = new EmbeddedRocksDBStateBackend(true);
+// true = enable incremental checkpointing
+env.setStateBackend(rocksDBBackend);
+
+// Configure checkpoint storage
+env.getCheckpointConfig().setCheckpointStorage("s3://my-bucket/checkpoints");
+
+// Enable checkpointing
+env.enableCheckpointing(60000); // Every 60 seconds
+
+// How incremental checkpoints work:
+// Checkpoint 1: Full snapshot (all SST files uploaded)
+//   State size: 10 GB -> Upload: 10 GB
+//
+// Checkpoint 2: Only new/changed SST files since CP 1
+//   State size: 12 GB -> Upload: 2 GB (only delta)
+//
+// Checkpoint 3: Only new/changed SST files since CP 2
+//   State size: 15 GB -> Upload: 3 GB (only delta)
+
+// RocksDB-specific tuning for incremental checkpoints
+Configuration config = new Configuration();
+
+// Number of checkpoints to retain (for incremental base)
+config.set(CheckpointingOptions.MAX_RETAINED_CHECKPOINTS, 3);
+
+// Async snapshots (non-blocking)
+config.set(CheckpointingOptions.ASYNC_SNAPSHOTS, true);
+
+// Local recovery (faster restarts from local disk)
+config.set(CheckpointingOptions.LOCAL_RECOVERY, true);
+
+// Configure RocksDB write buffer for better compaction
+config.set(RocksDBConfigurableOptions.WRITE_BUFFER_SIZE, MemorySize.parse("128m"));
+config.set(RocksDBConfigurableOptions.MAX_WRITE_BUFFER_NUMBER, 4);`
         },
         {
           name: 'Unaligned Checkpoints',
-          explanation: 'Skip barrier alignment for faster checkpoints. Reduce back-pressure during checkpointing. Include in-flight data in snapshot. Lower checkpoint latency. Trade storage for speed. Useful for high-throughput pipelines with skew.'
+          explanation: 'Skip barrier alignment for faster checkpoints. Reduce back-pressure during checkpointing. Include in-flight data in snapshot. Lower checkpoint latency. Trade storage for speed. Useful for high-throughput pipelines with skew.',
+          codeExample: `// Unaligned Checkpoints Configuration
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// Enable checkpointing
+env.enableCheckpointing(60000);
+CheckpointConfig config = env.getCheckpointConfig();
+
+// Enable unaligned checkpoints
+config.enableUnalignedCheckpoints();
+
+// Configure unaligned checkpoint timeout
+// Falls back to aligned checkpoints if unaligned takes too long
+config.setAlignedCheckpointTimeout(Duration.ofSeconds(30));
+
+// Must use EXACTLY_ONCE mode
+config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+
+// How unaligned checkpoints work:
+//
+// ALIGNED (traditional):
+// Input 1: [data][data][barrier]----wait----[data]
+// Input 2: [data]-------[data][data][barrier][data]
+//                                      ^
+//                           Barrier aligned, then snapshot
+// Problem: slow input blocks fast input (back-pressure)
+//
+// UNALIGNED:
+// Input 1: [data][data][barrier][data][data]
+// Input 2: [data][data][data]---[barrier][data]
+//                         ^
+//           Snapshot immediately when first barrier arrives
+//           In-flight buffers included in checkpoint
+//
+// Trade-offs:
+// + No alignment wait -> lower checkpoint latency
+// + Reduced back-pressure during checkpoints
+// - Larger checkpoint size (includes in-flight data)
+// - Higher I/O during checkpoint
+// - Cannot be used with AT_LEAST_ONCE mode`
         },
         {
           name: 'Recovery Time',
-          explanation: 'Fast recovery with distributed restore. Parallel state loading from checkpoint. Local recovery from TaskManager disk. Rescale jobs during recovery. Checkpoint retention policies. RTO and RPO guarantees. Minimize downtime.'
+          explanation: 'Fast recovery with distributed restore. Parallel state loading from checkpoint. Local recovery from TaskManager disk. Rescale jobs during recovery. Checkpoint retention policies. RTO and RPO guarantees. Minimize downtime.',
+          codeExample: `// Recovery Time Optimization Configuration
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+CheckpointConfig config = env.getCheckpointConfig();
+
+// 1. Enable local recovery (avoid network transfer on restart)
+Configuration flinkConfig = new Configuration();
+flinkConfig.set(CheckpointingOptions.LOCAL_RECOVERY, true);
+
+// 2. Retain checkpoints on cancellation for fast restart
+config.enableExternalizedCheckpoints(
+    CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION
+);
+
+// 3. Configure number of retained checkpoints
+config.setMaxRetainedCheckpoints(3);
+
+// 4. Faster checkpoint frequency = lower RPO
+env.enableCheckpointing(30000); // 30 seconds
+
+// 5. Configure task-local state recovery
+// In flink-conf.yaml:
+// state.backend.local-recovery: true
+// taskmanager.state.local.root-dirs: /local/ssd/state
+
+// 6. Fine-grained recovery with region failover
+// In flink-conf.yaml:
+// jobmanager.execution.failover-strategy: region
+
+// Recovery Timeline:
+// T0: Failure detected (heartbeat timeout ~30s)
+// T1: Cancel affected tasks (~1s)
+// T2: Allocate new resources (~5s on Kubernetes)
+// T3: Restore state from checkpoint
+//     - Local recovery: ~seconds (from local disk)
+//     - Remote recovery: ~minutes (from S3/HDFS)
+// T4: Reset source offsets
+// T5: Resume processing
+// Total RTO: seconds (local) to minutes (remote)
+// RPO: bounded by checkpoint interval`
         }
       ]
     },
@@ -879,7 +1168,52 @@ env.setStateBackend(new HashMapStateBackend());
       details: [
         {
           name: 'Unified Batch & Stream',
-          explanation: 'Single API for batch and streaming. Bounded tables (batch) and unbounded tables (streaming). Automatic mode detection. Unified semantics across modes. Append, retract, upsert modes. Dynamic tables continuously updated. SQL queries on streams.'
+          explanation: 'Single API for batch and streaming. Bounded tables (batch) and unbounded tables (streaming). Automatic mode detection. Unified semantics across modes. Append, retract, upsert modes. Dynamic tables continuously updated. SQL queries on streams.',
+          codeExample: `// Unified Batch & Stream with Table API
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+// Streaming mode (default): process unbounded data
+// Batch mode: process bounded data with optimizations
+// tableEnv.getConfig().set("execution.runtime-mode", "BATCH");
+
+// 1. Create a streaming table (unbounded)
+tableEnv.executeSql(
+    "CREATE TABLE orders (" +
+    "  order_id STRING," +
+    "  amount DECIMAL(10,2)," +
+    "  order_time TIMESTAMP(3)," +
+    "  WATERMARK FOR order_time AS order_time - INTERVAL '5' SECOND" +
+    ") WITH (" +
+    "  'connector' = 'kafka'," +
+    "  'topic' = 'orders'," +
+    "  'format' = 'json'" +
+    ")"
+);
+
+// 2. Create a batch table (bounded)
+tableEnv.executeSql(
+    "CREATE TABLE historical_orders (" +
+    "  order_id STRING," +
+    "  amount DECIMAL(10,2)," +
+    "  order_date DATE" +
+    ") WITH (" +
+    "  'connector' = 'filesystem'," +
+    "  'path' = 's3://data/orders/'," +
+    "  'format' = 'parquet'" +
+    ")"
+);
+
+// 3. Same SQL query works for both bounded and unbounded tables
+Table result = tableEnv.sqlQuery(
+    "SELECT DATE_FORMAT(order_time, 'yyyy-MM-dd') as day, " +
+    "SUM(amount) as total FROM orders GROUP BY DATE_FORMAT(order_time, 'yyyy-MM-dd')"
+);
+
+// 4. Convert between DataStream and Table
+DataStream<Order> orderStream = env.fromSource(kafkaSource, watermarks, "orders");
+Table orderTable = tableEnv.fromDataStream(orderStream);
+DataStream<Row> resultStream = tableEnv.toChangelogStream(result);`
         },
         {
           name: 'ANSI SQL Support',
@@ -934,19 +1268,222 @@ tableEnv.executeSql(
         },
         {
           name: 'Catalogs & Connectors',
-          explanation: 'Catalog API for metadata management. Hive Metastore integration. Table schemas and configurations. File, JDBC, Kafka, Elasticsearch connectors. Format support: JSON, Avro, Parquet, ORC. Automatic schema inference. Dynamic table options.'
+          explanation: 'Catalog API for metadata management. Hive Metastore integration. Table schemas and configurations. File, JDBC, Kafka, Elasticsearch connectors. Format support: JSON, Avro, Parquet, ORC. Automatic schema inference. Dynamic table options.',
+          codeExample: `// Catalogs & Connectors Configuration
+StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+// 1. Register Hive Catalog for metadata management
+HiveCatalog hiveCatalog = new HiveCatalog(
+    "myhive",                    // Catalog name
+    "default",                   // Default database
+    "/etc/hive/conf"            // Hive conf directory
+);
+tableEnv.registerCatalog("myhive", hiveCatalog);
+tableEnv.useCatalog("myhive");
+
+// 2. Kafka connector with JSON format
+tableEnv.executeSql(
+    "CREATE TABLE kafka_events (" +
+    "  event_id STRING," +
+    "  user_id STRING," +
+    "  event_type STRING," +
+    "  payload STRING," +
+    "  event_time TIMESTAMP(3)," +
+    "  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND" +
+    ") WITH (" +
+    "  'connector' = 'kafka'," +
+    "  'topic' = 'events'," +
+    "  'properties.bootstrap.servers' = 'kafka:9092'," +
+    "  'format' = 'json'," +
+    "  'json.fail-on-missing-field' = 'false'," +
+    "  'json.ignore-parse-errors' = 'true'" +
+    ")"
+);
+
+// 3. JDBC connector for database sink
+tableEnv.executeSql(
+    "CREATE TABLE jdbc_sink (" +
+    "  user_id STRING," +
+    "  total_events BIGINT," +
+    "  last_event_time TIMESTAMP(3)," +
+    "  PRIMARY KEY (user_id) NOT ENFORCED" +
+    ") WITH (" +
+    "  'connector' = 'jdbc'," +
+    "  'url' = 'jdbc:mysql://localhost:3306/analytics'," +
+    "  'table-name' = 'user_stats'," +
+    "  'username' = 'flink'," +
+    "  'password' = 'secret'," +
+    "  'sink.buffer-flush.max-rows' = '1000'," +
+    "  'sink.buffer-flush.interval' = '5s'" +
+    ")"
+);
+
+// 4. Elasticsearch connector
+tableEnv.executeSql(
+    "CREATE TABLE es_sink (" +
+    "  user_id STRING," +
+    "  event_count BIGINT" +
+    ") WITH (" +
+    "  'connector' = 'elasticsearch-7'," +
+    "  'hosts' = 'http://elasticsearch:9200'," +
+    "  'index' = 'user-events'" +
+    ")"
+);`
         },
         {
           name: 'Table Ecosystem',
-          explanation: 'Python, Java, Scala Table API. Pyflink for Python data scientists. Pandas integration. Jupyter notebook support. Table descriptors and environments. Convert between DataStream and Table. Hybrid pipelines.'
+          explanation: 'Python, Java, Scala Table API. Pyflink for Python data scientists. Pandas integration. Jupyter notebook support. Table descriptors and environments. Convert between DataStream and Table. Hybrid pipelines.',
+          codeExample: `// Table Ecosystem - Java Table API
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+// 1. Programmatic Table API (type-safe, IDE auto-complete)
+Table orders = tableEnv.from("orders");
+
+Table result = orders
+    .filter($("amount").isGreater(100))
+    .groupBy($("user_id"))
+    .select(
+        $("user_id"),
+        $("amount").sum().as("total_amount"),
+        $("order_id").count().as("order_count")
+    );
+
+// 2. Convert DataStream to Table and back
+DataStream<Order> orderStream = env.fromSource(source, watermarks, "orders");
+
+// DataStream -> Table
+Table orderTable = tableEnv.fromDataStream(
+    orderStream,
+    $("orderId"),
+    $("amount"),
+    $("timestamp").rowtime()  // Use event time
+);
+
+// Table -> DataStream (append mode for insert-only)
+DataStream<Row> appendStream = tableEnv.toDataStream(result);
+
+// Table -> DataStream (changelog mode for updates/deletes)
+DataStream<Row> changelogStream = tableEnv.toChangelogStream(result);
+
+// 3. User-Defined Functions (UDFs)
+public class ParseJson extends ScalarFunction {
+    public String eval(String json, String field) {
+        return JsonParser.parse(json).get(field).asText();
+    }
+}
+
+// Register and use UDF
+tableEnv.createTemporarySystemFunction("parseJson", ParseJson.class);
+tableEnv.sqlQuery("SELECT parseJson(payload, 'name') FROM events");
+
+// 4. Table-valued functions (UDTF)
+public class SplitFunction extends TableFunction<Row> {
+    public void eval(String str) {
+        for (String s : str.split(",")) {
+            collect(Row.of(s, s.length()));
+        }
+    }
+}`
         },
         {
           name: 'Continuous Queries',
-          explanation: 'Long-running SQL queries on streams. Results continuously updated. Changelog streams with retractions. Upsert semantics for point queries. Windowed aggregations. Temporal patterns with MATCH_RECOGNIZE. Real-time materialized views.'
+          explanation: 'Long-running SQL queries on streams. Results continuously updated. Changelog streams with retractions. Upsert semantics for point queries. Windowed aggregations. Temporal patterns with MATCH_RECOGNIZE. Real-time materialized views.',
+          codeExample: `// Continuous Queries - always-running SQL on streams
+StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+// 1. Continuous aggregation (emits updates as new data arrives)
+tableEnv.executeSql(
+    "SELECT user_id, COUNT(*) as event_count, SUM(amount) as total " +
+    "FROM orders GROUP BY user_id"
+    // This query continuously updates as new orders arrive
+    // Emits changelog: +I (insert), -U (update before), +U (update after)
+);
+
+// 2. MATCH_RECOGNIZE - temporal pattern matching in SQL
+tableEnv.executeSql(
+    "SELECT * FROM orders " +
+    "MATCH_RECOGNIZE (" +
+    "  PARTITION BY user_id " +
+    "  ORDER BY order_time " +
+    "  MEASURES " +
+    "    FIRST(A.order_time) AS start_time," +
+    "    LAST(B.order_time) AS end_time," +
+    "    SUM(A.amount) + B.amount AS total_amount " +
+    "  PATTERN (A+ B) " +
+    "  DEFINE " +
+    "    A AS A.amount < 100," +
+    "    B AS B.amount >= 500" +
+    ")"
+    // Detects: sequence of small orders followed by large order
+);
+
+// 3. Temporal table join (point-in-time lookup)
+tableEnv.executeSql(
+    "SELECT o.order_id, o.amount, o.amount * r.rate AS converted " +
+    "FROM orders AS o " +
+    "JOIN currency_rates FOR SYSTEM_TIME AS OF o.order_time AS r " +
+    "ON o.currency = r.currency"
+    // Joins each order with the exchange rate valid at order time
+);
+
+// 4. Deduplication with continuous query
+tableEnv.executeSql(
+    "SELECT * FROM (" +
+    "  SELECT *, ROW_NUMBER() OVER (" +
+    "    PARTITION BY order_id ORDER BY event_time DESC" +
+    "  ) AS row_num FROM orders" +
+    ") WHERE row_num = 1"
+    // Keeps only the latest version of each order
+);`
         },
         {
           name: 'Query Optimization',
-          explanation: 'Volcano/Cascades optimizer for SQL. Rule-based and cost-based optimization. Predicate pushdown. Join reordering. Operator fusion. Statistics-based optimization. Explain plan for debugging. Incremental aggregation optimization.'
+          explanation: 'Volcano/Cascades optimizer for SQL. Rule-based and cost-based optimization. Predicate pushdown. Join reordering. Operator fusion. Statistics-based optimization. Explain plan for debugging. Incremental aggregation optimization.',
+          codeExample: `// Query Optimization - understanding Flink's optimizer
+StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+// 1. Explain plan for debugging query optimization
+String explanation = tableEnv.explainSql(
+    "SELECT user_id, SUM(amount) FROM orders " +
+    "WHERE amount > 100 GROUP BY user_id",
+    ExplainDetail.ESTIMATED_COST,
+    ExplainDetail.CHANGELOG_MODE,
+    ExplainDetail.JSON_EXECUTION_PLAN
+);
+System.out.println(explanation);
+// Output shows: logical plan, optimized plan, physical plan
+// Optimizations applied: predicate pushdown, projection pruning
+
+// 2. Table API explain
+Table result = tableEnv.from("orders")
+    .filter($("amount").isGreater(100))
+    .groupBy($("user_id"))
+    .select($("user_id"), $("amount").sum().as("total"));
+
+System.out.println(result.explain());
+
+// 3. Optimizer hints for join strategy
+tableEnv.executeSql(
+    "SELECT /*+ BROADCAST(dim) */ " +
+    "  f.user_id, f.amount, dim.user_name " +
+    "FROM fact_orders f " +
+    "JOIN dim_users dim ON f.user_id = dim.user_id"
+    // Hint: broadcast the smaller dimension table
+);
+
+// 4. Configure optimizer rules
+Configuration config = tableEnv.getConfig().getConfiguration();
+// Enable mini-batch aggregation (buffer and aggregate in batches)
+config.setString("table.exec.mini-batch.enabled", "true");
+config.setString("table.exec.mini-batch.allow-latency", "5s");
+config.setString("table.exec.mini-batch.size", "5000");
+
+// Enable two-phase aggregation (local + global)
+config.setString("table.optimizer.agg-phase-strategy", "TWO_PHASE");
+
+// Enable distinct aggregation splitting
+config.setString("table.optimizer.distinct-agg.split.enabled", "true");`
         }
       ]
     },
@@ -960,27 +1497,341 @@ tableEnv.executeSql(
       details: [
         {
           name: 'Flexible Deployment',
-          explanation: 'Standalone cluster mode. YARN for Hadoop environments. Kubernetes native deployment. Mesos support. Session vs per-job vs application mode. Run on-premise or cloud (AWS, GCP, Azure). Docker containers. Embedded mode for testing.'
+          explanation: 'Standalone cluster mode. YARN for Hadoop environments. Kubernetes native deployment. Mesos support. Session vs per-job vs application mode. Run on-premise or cloud (AWS, GCP, Azure). Docker containers. Embedded mode for testing.',
+          codeExample: `// Deployment modes and configuration
+
+// 1. Application Mode (recommended for production)
+// Each application runs its own JobManager
+// $ bin/flink run-application -t kubernetes-application \\
+//     -Dkubernetes.cluster-id=my-app \\
+//     -Dkubernetes.container.image=my-flink-app:latest \\
+//     local:///opt/flink/usrlib/my-app.jar
+
+// 2. Session Mode (shared cluster for multiple jobs)
+// $ bin/flink run -t kubernetes-session \\
+//     -Dkubernetes.cluster-id=my-session \\
+//     myJob.jar
+
+// 3. Standalone cluster setup (flink-conf.yaml)
+// jobmanager.rpc.address: jobmanager-host
+// jobmanager.rpc.port: 6123
+// jobmanager.memory.process.size: 4096m
+// taskmanager.memory.process.size: 8192m
+// taskmanager.numberOfTaskSlots: 4
+// parallelism.default: 8
+
+// 4. YARN deployment
+// $ bin/flink run -t yarn-per-job \\
+//     -Djobmanager.memory.process.size=4096m \\
+//     -Dtaskmanager.memory.process.size=8192m \\
+//     -Dtaskmanager.numberOfTaskSlots=4 \\
+//     myJob.jar
+
+// 5. Embedded mode for testing
+public class EmbeddedFlinkTest {
+    @Test
+    public void testPipeline() throws Exception {
+        StreamExecutionEnvironment env =
+            StreamExecutionEnvironment.createLocalEnvironment(2);
+
+        env.fromElements("hello", "world")
+            .map(String::toUpperCase)
+            .print();
+
+        env.execute("Test Job");
+    }
+}`
         },
         {
           name: 'Dynamic Scaling',
-          explanation: 'Rescale jobs without downtime. Savepoint → stop → change parallelism → restore. Reactive mode auto-scales based on available resources. Key groups enable rescaling keyed state. Rebalance partitions. Kubernetes HPA integration. Elastic resource allocation.'
+          explanation: 'Rescale jobs without downtime. Savepoint → stop → change parallelism → restore. Reactive mode auto-scales based on available resources. Key groups enable rescaling keyed state. Rebalance partitions. Kubernetes HPA integration. Elastic resource allocation.',
+          codeExample: `// Dynamic Scaling - rescale with savepoints
+
+// 1. Stop job with savepoint
+// $ bin/flink stop --savepointPath s3://savepoints/ <jobId>
+
+// 2. Restart with new parallelism
+// $ bin/flink run -s s3://savepoints/savepoint-abc123 \\
+//     -p 16 myJob.jar  // Changed from 8 to 16
+
+// 3. Reactive Mode - auto-scale based on TaskManagers
+// In flink-conf.yaml:
+// scheduler-mode: reactive
+// When TaskManagers are added/removed, Flink automatically
+// adjusts parallelism to use all available slots
+
+// 4. Programmatic parallelism configuration
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// Set default parallelism
+env.setParallelism(8);
+
+// Set per-operator parallelism
+DataStream<Event> events = env.fromSource(source, watermarks, "src");
+
+events
+    .map(new ExpensiveTransform())
+    .setParallelism(16)           // Higher parallelism for CPU-intensive
+    .keyBy(Event::getKey)
+    .window(TumblingEventTimeWindows.of(Time.minutes(5)))
+    .aggregate(new MyAggregator())
+    .setParallelism(8)
+    .addSink(new MySink())
+    .setParallelism(4);           // Lower parallelism for sink
+
+// 5. Max parallelism (determines key groups for rescaling)
+env.setMaxParallelism(128);
+// Key groups = max parallelism
+// Actual parallelism must be <= max parallelism
+// Set max parallelism at job creation (cannot change later)
+
+// 6. Kubernetes HPA for reactive scaling
+// apiVersion: autoscaling/v2
+// kind: HorizontalPodAutoscaler
+// spec:
+//   scaleTargetRef:
+//     apiVersion: apps/v1
+//     kind: Deployment
+//     name: flink-taskmanager
+//   minReplicas: 2
+//   maxReplicas: 10`
         },
         {
           name: 'Resource Management',
-          explanation: 'TaskManager and JobManager architecture. Slot sharing for efficiency. Task chaining reduces network overhead. Memory configuration: heap, off-heap, network buffers. CPU and memory profiles. Resource isolation. Workload-specific tuning.'
+          explanation: 'TaskManager and JobManager architecture. Slot sharing for efficiency. Task chaining reduces network overhead. Memory configuration: heap, off-heap, network buffers. CPU and memory profiles. Resource isolation. Workload-specific tuning.',
+          codeExample: `// Resource Management Configuration
+
+// 1. TaskManager Memory Configuration (flink-conf.yaml)
+// taskmanager.memory.process.size: 8192m
+// taskmanager.memory.flink.size: 6144m
+//
+// Memory breakdown:
+// taskmanager.memory.framework.heap.size: 128m
+// taskmanager.memory.task.heap.size: 2048m
+// taskmanager.memory.managed.size: 2048m     (for RocksDB, sorting)
+// taskmanager.memory.network.min: 256m
+// taskmanager.memory.network.max: 1024m
+// taskmanager.memory.task.off-heap.size: 256m
+
+// 2. JobManager Memory Configuration
+// jobmanager.memory.process.size: 4096m
+// jobmanager.memory.heap.size: 2048m
+// jobmanager.memory.off-heap.size: 256m
+
+// 3. Slot sharing and resource groups
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+DataStream<Event> events = env.fromSource(source, watermarks, "src");
+
+// Default: all operators share same slot (slot sharing group "default")
+events
+    .map(new LightTransform())      // Shares slot with source
+    .keyBy(Event::getKey)
+    .process(new HeavyProcessor())  // Shares slot
+    .addSink(new MySink());         // Shares slot
+
+// Custom slot sharing groups for resource isolation
+events
+    .map(new LightTransform())
+    .slotSharingGroup("lightweight")   // Separate slot group
+    .keyBy(Event::getKey)
+    .process(new HeavyProcessor())
+    .slotSharingGroup("heavyweight")   // Separate slot group
+    .addSink(new MySink())
+    .slotSharingGroup("io-intensive"); // Separate slot group
+
+// 4. Disable operator chaining for debugging
+env.disableOperatorChaining();
+// Or per-operator:
+events.map(new MyMapper()).disableChaining();`
         },
         {
           name: 'High Availability',
-          explanation: 'Multiple JobManager instances with ZooKeeper. Leader election for active JobManager. TaskManager failure recovery. Checkpointing for state recovery. Region-based failover for localized failures. Split-brain prevention. Application master HA on YARN.'
+          explanation: 'Multiple JobManager instances with ZooKeeper. Leader election for active JobManager. TaskManager failure recovery. Checkpointing for state recovery. Region-based failover for localized failures. Split-brain prevention. Application master HA on YARN.',
+          codeExample: `// High Availability Configuration
+
+// 1. ZooKeeper-based HA (flink-conf.yaml)
+// high-availability: zookeeper
+// high-availability.zookeeper.quorum: zk1:2181,zk2:2181,zk3:2181
+// high-availability.zookeeper.path.root: /flink
+// high-availability.cluster-id: my-flink-cluster
+// high-availability.storageDir: s3://ha-storage/
+
+// 2. Kubernetes HA (flink-conf.yaml)
+// high-availability: kubernetes
+// high-availability.cluster-id: my-flink-cluster
+// high-availability.storageDir: s3://ha-storage/
+// kubernetes.cluster-id: my-flink-cluster
+
+// 3. Programmatic HA configuration
+Configuration config = new Configuration();
+config.set(HighAvailabilityOptions.HA_MODE, "zookeeper");
+config.set(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, "zk1:2181,zk2:2181");
+config.set(HighAvailabilityOptions.HA_STORAGE_PATH, "s3://ha-storage/");
+
+StreamExecutionEnvironment env =
+    StreamExecutionEnvironment.createRemoteEnvironment("jobmanager", 6123, config);
+
+// 4. Masters file for standalone HA (conf/masters)
+// jobmanager1:8081
+// jobmanager2:8081
+// (Both run as standby, ZK elects leader)
+
+// 5. YARN HA setup
+// yarn.application-attempts: 10
+// (YARN restarts ApplicationMaster on failure)
+
+// HA Architecture:
+// JobManager 1 (Leader)  <--> ZooKeeper Quorum <--> Checkpoint Storage
+// JobManager 2 (Standby) <--> (ZK Leader Election)
+// JobManager 3 (Standby)
+//
+// On leader failure:
+// 1. ZK detects heartbeat loss
+// 2. New leader elected from standby
+// 3. New leader recovers jobs from checkpoint storage
+// 4. Processing resumes with minimal downtime`
         },
         {
           name: 'Monitoring & Metrics',
-          explanation: 'REST API for job metrics. Prometheus, Grafana integration. Throughput, latency, backpressure metrics. Checkpoint statistics. Memory and CPU usage. Watermark monitoring. Web UI for visualization. Custom metrics reporters.'
+          explanation: 'REST API for job metrics. Prometheus, Grafana integration. Throughput, latency, backpressure metrics. Checkpoint statistics. Memory and CPU usage. Watermark monitoring. Web UI for visualization. Custom metrics reporters.',
+          codeExample: `// Monitoring & Metrics Configuration
+
+// 1. Prometheus metrics reporter (flink-conf.yaml)
+// metrics.reporter.prom.factory.class:
+//   org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+// metrics.reporter.prom.port: 9249
+
+// 2. Custom metrics in operators
+public class MonitoredProcessor extends RichMapFunction<Event, Result> {
+
+    private transient Counter eventCounter;
+    private transient Meter throughputMeter;
+    private transient Histogram latencyHistogram;
+    private transient Gauge<Long> pendingGauge;
+    private long pendingCount = 0;
+
+    @Override
+    public void open(Configuration parameters) {
+        // Counter - counts events
+        eventCounter = getRuntimeContext()
+            .getMetricGroup()
+            .counter("processed_events");
+
+        // Meter - tracks throughput (events/sec)
+        throughputMeter = getRuntimeContext()
+            .getMetricGroup()
+            .meter("throughput", new MeterView(60));
+
+        // Histogram - tracks latency distribution
+        latencyHistogram = getRuntimeContext()
+            .getMetricGroup()
+            .histogram("processing_latency",
+                new DescriptiveStatisticsHistogram(1000));
+
+        // Gauge - tracks current value
+        getRuntimeContext()
+            .getMetricGroup()
+            .gauge("pending_count", () -> pendingCount);
+    }
+
+    @Override
+    public Result map(Event event) {
+        long start = System.currentTimeMillis();
+
+        Result result = process(event);
+
+        // Update metrics
+        eventCounter.inc();
+        throughputMeter.markEvent();
+        latencyHistogram.update(System.currentTimeMillis() - start);
+        pendingCount = calculatePending();
+
+        return result;
+    }
+}
+
+// 3. REST API endpoints
+// GET /jobs                          - List all jobs
+// GET /jobs/<jobId>                  - Job details
+// GET /jobs/<jobId>/checkpoints      - Checkpoint stats
+// GET /taskmanagers                  - TaskManager list
+// GET /taskmanagers/<tmId>/metrics   - TM metrics`
         },
         {
           name: 'Kubernetes Native',
-          explanation: 'Native Kubernetes deployment mode. Dynamic resource allocation. Pod templates for customization. Service accounts and RBAC. ConfigMaps for configuration. Persistent volume claims for checkpoints. Operator for complex deployments. Multi-tenancy support.'
+          explanation: 'Native Kubernetes deployment mode. Dynamic resource allocation. Pod templates for customization. Service accounts and RBAC. ConfigMaps for configuration. Persistent volume claims for checkpoints. Operator for complex deployments. Multi-tenancy support.',
+          codeExample: `// Kubernetes Native Deployment
+
+// 1. Application mode deployment via CLI
+// $ bin/flink run-application \\
+//     --target kubernetes-application \\
+//     -Dkubernetes.cluster-id=my-flink-app \\
+//     -Dkubernetes.container.image=registry/my-app:v1.0 \\
+//     -Dkubernetes.jobmanager.cpu=2 \\
+//     -Dkubernetes.taskmanager.cpu=4 \\
+//     -Dkubernetes.namespace=flink-prod \\
+//     -Dkubernetes.service-account=flink-sa \\
+//     local:///opt/flink/usrlib/my-app.jar
+
+// 2. Kubernetes configuration (flink-conf.yaml)
+// kubernetes.cluster-id: my-flink-app
+// kubernetes.container.image: registry/my-app:v1.0
+// kubernetes.namespace: flink-prod
+// kubernetes.service-account: flink-sa
+// kubernetes.jobmanager.replicas: 1
+// kubernetes.taskmanager.cpu: 4
+// kubernetes.rest-service.exposed.type: LoadBalancer
+
+// 3. Pod template for customization
+// kubernetes.pod-template-file: /opt/flink/pod-template.yaml
+//
+// apiVersion: v1
+// kind: Pod
+// spec:
+//   containers:
+//     - name: flink-main-container
+//       resources:
+//         requests:
+//           memory: "8Gi"
+//           cpu: "4"
+//         limits:
+//           memory: "12Gi"
+//           cpu: "8"
+//       volumeMounts:
+//         - name: checkpoint-pvc
+//           mountPath: /checkpoints
+//   volumes:
+//     - name: checkpoint-pvc
+//       persistentVolumeClaim:
+//         claimName: flink-checkpoints
+//   tolerations:
+//     - key: "dedicated"
+//       operator: "Equal"
+//       value: "flink"
+//       effect: "NoSchedule"
+//   nodeSelector:
+//     workload-type: stream-processing
+
+// 4. Flink Kubernetes Operator (FlinkDeployment CRD)
+// apiVersion: flink.apache.org/v1beta1
+// kind: FlinkDeployment
+// metadata:
+//   name: my-flink-app
+// spec:
+//   image: registry/my-app:v1.0
+//   flinkVersion: v1_17
+//   flinkConfiguration:
+//     taskmanager.numberOfTaskSlots: "4"
+//   jobManager:
+//     resource: { memory: "4096m", cpu: 2 }
+//   taskManager:
+//     resource: { memory: "8192m", cpu: 4 }
+//     replicas: 3
+//   job:
+//     jarURI: local:///opt/flink/usrlib/my-app.jar
+//     parallelism: 12
+//     upgradeMode: savepoint`
         }
       ]
     },
@@ -1047,23 +1898,346 @@ env.execute("Kafka Integration Example");`
         },
         {
           name: 'File Systems',
-          explanation: 'HDFS, S3, Azure Blob storage connectors. Parquet, ORC, Avro, CSV formats. Streaming file monitoring with continuous ingestion. Bucketing for exactly-once file sinks. Rolling policies for file rotation. Partition pruning. Compaction strategies.'
+          explanation: 'HDFS, S3, Azure Blob storage connectors. Parquet, ORC, Avro, CSV formats. Streaming file monitoring with continuous ingestion. Bucketing for exactly-once file sinks. Rolling policies for file rotation. Partition pruning. Compaction strategies.',
+          codeExample: `// File System Source & Sink
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// 1. File Source - continuously monitor directory for new files
+FileSource<String> fileSource = FileSource
+    .forRecordStreamFormat(
+        new TextLineInputFormat(),
+        new Path("s3://my-bucket/input/")
+    )
+    .monitorContinuously(Duration.ofMinutes(1))  // Check every minute
+    .build();
+
+DataStream<String> lines = env.fromSource(
+    fileSource,
+    WatermarkStrategy.noWatermarks(),
+    "File Source"
+);
+
+// 2. Parquet file source (bounded/batch)
+FileSource<GenericRecord> parquetSource = FileSource
+    .forBulkFileFormat(
+        new ParquetAvroInputFormat<>(schema),
+        new Path("s3://my-bucket/data/")
+    )
+    .build();
+
+// 3. FileSink with bucketing and rolling policies
+FileSink<String> fileSink = FileSink
+    .forRowFormat(
+        new Path("s3://my-bucket/output/"),
+        new SimpleStringEncoder<String>("UTF-8")
+    )
+    // Bucket by date (creates partitioned output)
+    .withBucketAssigner(new DateTimeBucketAssigner<>("yyyy-MM-dd--HH"))
+    // Roll file after 15 minutes or 1 GB
+    .withRollingPolicy(
+        DefaultRollingPolicy.builder()
+            .withRolloverInterval(Duration.ofMinutes(15))
+            .withInactivityInterval(Duration.ofMinutes(5))
+            .withMaxPartSize(MemorySize.ofMebiBytes(1024))
+            .build()
+    )
+    .build();
+
+// 4. Parquet bulk format sink
+FileSink<GenericRecord> parquetSink = FileSink
+    .forBulkFormat(
+        new Path("s3://my-bucket/parquet-output/"),
+        ParquetAvroWriters.forGenericRecord(schema)
+    )
+    .withBucketAssigner(new DateTimeBucketAssigner<>("yyyy/MM/dd"))
+    .build();
+
+processedStream.sinkTo(fileSink);`
         },
         {
           name: 'Databases',
-          explanation: 'JDBC connector for relational databases. Change Data Capture (CDC) connectors: Debezium, Canal. Elasticsearch for search and analytics. MongoDB, Cassandra connectors. HBase integration. Upsert mode for databases. Connection pooling. Batch writes.'
+          explanation: 'JDBC connector for relational databases. Change Data Capture (CDC) connectors: Debezium, Canal. Elasticsearch for search and analytics. MongoDB, Cassandra connectors. HBase integration. Upsert mode for databases. Connection pooling. Batch writes.',
+          codeExample: `// Database Connectors
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// 1. JDBC Sink - write to relational database
+DataStream<Order> orders = ...;
+
+orders.addSink(JdbcSink.sink(
+    "INSERT INTO orders (order_id, user_id, amount, status) " +
+    "VALUES (?, ?, ?, ?) " +
+    "ON DUPLICATE KEY UPDATE status = ?, amount = ?",
+    (ps, order) -> {
+        ps.setString(1, order.getOrderId());
+        ps.setString(2, order.getUserId());
+        ps.setBigDecimal(3, order.getAmount());
+        ps.setString(4, order.getStatus());
+        ps.setString(5, order.getStatus());     // For upsert
+        ps.setBigDecimal(6, order.getAmount());  // For upsert
+    },
+    JdbcExecutionOptions.builder()
+        .withBatchSize(1000)
+        .withBatchIntervalMs(5000)
+        .withMaxRetries(3)
+        .build(),
+    new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
+        .withUrl("jdbc:mysql://localhost:3306/mydb")
+        .withDriverName("com.mysql.cj.jdbc.Driver")
+        .withUsername("flink")
+        .withPassword("secret")
+        .build()
+));
+
+// 2. CDC Source (Debezium) - capture database changes
+// Table API:
+// CREATE TABLE products_cdc (
+//   id INT,
+//   name STRING,
+//   price DECIMAL(10,2),
+//   PRIMARY KEY (id) NOT ENFORCED
+// ) WITH (
+//   'connector' = 'mysql-cdc',
+//   'hostname' = 'mysql-host',
+//   'port' = '3306',
+//   'username' = 'cdc_user',
+//   'password' = 'secret',
+//   'database-name' = 'inventory',
+//   'table-name' = 'products'
+// );
+// Captures INSERT, UPDATE, DELETE in real-time
+
+// 3. Elasticsearch Sink
+DataStream<Event> events = ...;
+
+events.sinkTo(
+    new Elasticsearch7SinkBuilder<Event>()
+        .setHosts(new HttpHost("elasticsearch", 9200, "http"))
+        .setEmitter((event, ctx, indexer) -> {
+            indexer.add(Requests.indexRequest()
+                .index("events-" + event.getDate())
+                .source(event.toJson(), XContentType.JSON));
+        })
+        .setBulkFlushMaxActions(1000)
+        .setBulkFlushInterval(5000)
+        .build()
+);`
         },
         {
           name: 'AWS Services',
-          explanation: 'Kinesis Data Streams source and sink. DynamoDB sink. S3 StreamingFileSink. AWS SDK authentication. IAM role support. Enhanced fan-out for Kinesis. Cross-region replication. Glue catalog integration. EMR deployment.'
+          explanation: 'Kinesis Data Streams source and sink. DynamoDB sink. S3 StreamingFileSink. AWS SDK authentication. IAM role support. Enhanced fan-out for Kinesis. Cross-region replication. Glue catalog integration. EMR deployment.',
+          codeExample: `// AWS Services Integration
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// 1. Kinesis Data Streams Source
+Properties kinesisProps = new Properties();
+kinesisProps.setProperty(AWSConfigConstants.AWS_REGION, "us-east-1");
+kinesisProps.setProperty(AWSConfigConstants.AWS_CREDENTIALS_PROVIDER, "AUTO");
+kinesisProps.setProperty(ConsumerConfigConstants.STREAM_INITIAL_POSITION, "LATEST");
+// Enhanced Fan-Out for dedicated throughput
+kinesisProps.setProperty(ConsumerConfigConstants.RECORD_PUBLISHER_TYPE, "EFO");
+kinesisProps.setProperty(ConsumerConfigConstants.EFO_CONSUMER_NAME, "flink-consumer");
+
+FlinkKinesisConsumer<String> kinesisSource = new FlinkKinesisConsumer<>(
+    "my-kinesis-stream",
+    new SimpleStringSchema(),
+    kinesisProps
+);
+
+DataStream<String> kinesisStream = env.addSource(kinesisSource);
+
+// 2. Kinesis Data Streams Sink
+Properties sinkProps = new Properties();
+sinkProps.setProperty(AWSConfigConstants.AWS_REGION, "us-east-1");
+
+KinesisStreamsSink<String> kinesisSink = KinesisStreamsSink.<String>builder()
+    .setKinesisClientProperties(sinkProps)
+    .setStreamName("output-stream")
+    .setSerializationSchema(new SimpleStringSchema())
+    .setPartitionKeyGenerator(element -> String.valueOf(element.hashCode()))
+    .build();
+
+processedStream.sinkTo(kinesisSink);
+
+// 3. S3 File Sink with checkpointing
+FileSink<String> s3Sink = FileSink
+    .forRowFormat(
+        new Path("s3://my-bucket/flink-output/"),
+        new SimpleStringEncoder<String>("UTF-8")
+    )
+    .withBucketAssigner(new DateTimeBucketAssigner<>())
+    .build();
+
+// 4. DynamoDB Sink
+DynamoDbSink<Event> dynamoSink = DynamoDbSink.<Event>builder()
+    .setTableName("events")
+    .setElementConverter(new EventToDynamoConverter())
+    .setDynamoDbProperties(sinkProps)
+    .setMaxBatchSize(25)
+    .build();
+
+// 5. AWS Glue Catalog for Table API
+// CREATE CATALOG glue_catalog WITH (
+//   'type' = 'glue',
+//   'aws.region' = 'us-east-1'
+// );
+// USE CATALOG glue_catalog;`
         },
         {
           name: 'Message Queues',
-          explanation: 'RabbitMQ, Pulsar connectors. JMS support for enterprise messaging. MQTT for IoT scenarios. NATS connector. Exactly-once delivery guarantees. Queue discovery. Message acknowledgment strategies. Dead letter queues.'
+          explanation: 'RabbitMQ, Pulsar connectors. JMS support for enterprise messaging. MQTT for IoT scenarios. NATS connector. Exactly-once delivery guarantees. Queue discovery. Message acknowledgment strategies. Dead letter queues.',
+          codeExample: `// Message Queue Connectors
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// 1. RabbitMQ Source
+RMQConnectionConfig rmqConfig = new RMQConnectionConfig.Builder()
+    .setHost("rabbitmq-host")
+    .setPort(5672)
+    .setVirtualHost("/")
+    .setUserName("guest")
+    .setPassword("guest")
+    .build();
+
+DataStream<String> rmqStream = env.addSource(
+    new RMQSource<>(
+        rmqConfig,
+        "my-queue",
+        true,  // Use correlation IDs for exactly-once
+        new SimpleStringSchema()
+    )
+).setParallelism(1); // RabbitMQ source must be single-threaded
+
+// 2. RabbitMQ Sink
+rmqStream
+    .map(new MyTransform())
+    .addSink(new RMQSink<>(
+        rmqConfig,
+        "output-queue",
+        new SimpleStringSchema()
+    ));
+
+// 3. Apache Pulsar Source
+PulsarSource<String> pulsarSource = PulsarSource.builder()
+    .setServiceUrl("pulsar://pulsar-host:6650")
+    .setAdminUrl("http://pulsar-host:8080")
+    .setStartCursor(StartCursor.earliest())
+    .setTopics("persistent://public/default/my-topic")
+    .setDeserializationSchema(
+        PulsarDeserializationSchema.flinkSchema(new SimpleStringSchema())
+    )
+    .setSubscriptionName("flink-sub")
+    .setSubscriptionType(SubscriptionType.Exclusive)
+    .build();
+
+DataStream<String> pulsarStream = env.fromSource(
+    pulsarSource,
+    WatermarkStrategy.noWatermarks(),
+    "Pulsar Source"
+);
+
+// 4. Pulsar Sink
+PulsarSink<String> pulsarSink = PulsarSink.builder()
+    .setServiceUrl("pulsar://pulsar-host:6650")
+    .setAdminUrl("http://pulsar-host:8080")
+    .setTopics("persistent://public/default/output-topic")
+    .setSerializationSchema(
+        PulsarSerializationSchema.flinkSchema(new SimpleStringSchema())
+    )
+    .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
+    .build();
+
+processedStream.sinkTo(pulsarSink);`
         },
         {
           name: 'Custom Connectors',
-          explanation: 'Implement SourceFunction or SinkFunction interfaces. RichFunction for initialization. Async I/O for external lookups. Table connector SDK for Table API. FLIP-27 source interface. Watermark strategies. Exactly-once sink implementation patterns.'
+          explanation: 'Implement SourceFunction or SinkFunction interfaces. RichFunction for initialization. Async I/O for external lookups. Table connector SDK for Table API. FLIP-27 source interface. Watermark strategies. Exactly-once sink implementation patterns.',
+          codeExample: `// Custom Connector Implementation
+
+// 1. Custom Source (FLIP-27 Source API)
+public class CustomSource implements Source<Event, CustomSplit, CustomEnumState> {
+
+    @Override
+    public Boundedness getBoundedness() {
+        return Boundedness.CONTINUOUS_UNBOUNDED;
+    }
+
+    @Override
+    public SplitEnumerator<CustomSplit, CustomEnumState> createEnumerator(
+            SplitEnumeratorContext<CustomSplit> ctx) {
+        return new CustomSplitEnumerator(ctx);
+    }
+
+    @Override
+    public SourceReader<Event, CustomSplit> createReader(SourceReaderContext ctx) {
+        return new CustomSourceReader(ctx);
+    }
+}
+
+// 2. Custom Sink (SinkFunction)
+public class CustomDatabaseSink extends RichSinkFunction<Event> {
+
+    private transient Connection connection;
+    private transient PreparedStatement statement;
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
+        connection = DriverManager.getConnection("jdbc:...");
+        statement = connection.prepareStatement(
+            "INSERT INTO events (id, data, ts) VALUES (?, ?, ?)"
+        );
+    }
+
+    @Override
+    public void invoke(Event event, Context context) throws Exception {
+        statement.setString(1, event.getId());
+        statement.setString(2, event.getData());
+        statement.setTimestamp(3, new Timestamp(event.getTimestamp()));
+        statement.executeUpdate();
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (statement != null) statement.close();
+        if (connection != null) connection.close();
+    }
+}
+
+// 3. Async I/O for external service lookups
+public class AsyncEnrichmentFunction
+    extends RichAsyncFunction<Event, EnrichedEvent> {
+
+    private transient AsyncHttpClient httpClient;
+
+    @Override
+    public void open(Configuration parameters) {
+        httpClient = new AsyncHttpClient();
+    }
+
+    @Override
+    public void asyncInvoke(Event event,
+                            ResultFuture<EnrichedEvent> resultFuture) {
+        CompletableFuture<UserProfile> future =
+            httpClient.getUser(event.getUserId());
+
+        future.thenAccept(profile -> {
+            resultFuture.complete(
+                Collections.singleton(new EnrichedEvent(event, profile))
+            );
+        });
+    }
+
+    @Override
+    public void timeout(Event event, ResultFuture<EnrichedEvent> out) {
+        out.complete(Collections.singleton(
+            new EnrichedEvent(event, UserProfile.unknown())
+        ));
+    }
+}
+
+// Usage:
+AsyncDataStream.unorderedWait(
+    events, new AsyncEnrichmentFunction(),
+    5000, TimeUnit.MILLISECONDS, 100
+);`
         }
       ]
     },
@@ -1077,27 +2251,292 @@ env.execute("Kafka Integration Example");`
       details: [
         {
           name: 'Pipelined Execution',
-          explanation: 'Streaming execution without batch boundaries. Data flows through operators without materialization. Lower latency than batch. Credit-based flow control for back-pressure. Network buffers for efficiency. No disk spilling in streaming mode.'
+          explanation: 'Streaming execution without batch boundaries. Data flows through operators without materialization. Lower latency than batch. Credit-based flow control for back-pressure. Network buffers for efficiency. No disk spilling in streaming mode.',
+          codeExample: `// Pipelined Execution - data flows through operator chain
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// Operators are chained into a single task when possible
+// This avoids serialization/deserialization between operators
+DataStream<Event> events = env.fromSource(source, watermarks, "src");
+
+DataStream<Result> results = events
+    // These operators will be chained together
+    .filter(e -> e.isValid())          // Chained: no serialization
+    .map(e -> transform(e))            // Chained: direct function call
+    .flatMap(new EnrichFunction())     // Chained: direct function call
+    // KeyBy forces a network shuffle (new chain starts)
+    .keyBy(Event::getKey)
+    // New chain after shuffle
+    .process(new StatefulProcessor()); // Chained with window
+
+// Control chaining behavior
+events
+    .map(new ExpensiveMapper())
+    .startNewChain()                   // Force new chain
+    .keyBy(Event::getKey)
+    .process(new MyProcessor())
+    .disableChaining();                // Isolate this operator
+
+// Network buffer configuration (flink-conf.yaml)
+// taskmanager.network.memory.min: 256mb
+// taskmanager.network.memory.max: 1gb
+// taskmanager.network.memory.fraction: 0.1
+// taskmanager.network.memory.buffers-per-channel: 2
+// taskmanager.network.memory.floating-buffers-per-gate: 8
+
+// Credit-based flow control:
+// - Receiver tells sender how many buffers it can accept (credits)
+// - Sender only sends data when credits are available
+// - Prevents buffer bloat and excessive memory usage
+// - Back-pressure propagates naturally upstream`
         },
         {
           name: 'Memory Management',
-          explanation: 'Off-heap memory management with Flink-managed memory. Binary format in memory. Sorting and hashing without JVM heap. Prevents OutOfMemoryErrors. Spill to disk for large state. Memory pools. Garbage collection reduction. RocksDB memory integration.'
+          explanation: 'Off-heap memory management with Flink-managed memory. Binary format in memory. Sorting and hashing without JVM heap. Prevents OutOfMemoryErrors. Spill to disk for large state. Memory pools. Garbage collection reduction. RocksDB memory integration.',
+          codeExample: `// Memory Management Configuration
+
+// TaskManager Memory Model (flink-conf.yaml):
+//
+// Total Process Memory: 8192m
+// |-- JVM Heap
+// |   |-- Framework Heap: 128m (Flink runtime)
+// |   |-- Task Heap: 2048m (user code)
+// |-- Off-Heap
+// |   |-- Managed Memory: 2048m (RocksDB, sorting, caching)
+// |   |-- Framework Off-Heap: 128m
+// |   |-- Task Off-Heap: 256m
+// |   |-- Network Memory: 1024m (shuffle buffers)
+// |-- JVM Metaspace: 256m
+// |-- JVM Overhead: 192m (native, thread stacks)
+
+// Configuration:
+// taskmanager.memory.process.size: 8192m
+// taskmanager.memory.task.heap.size: 2048m
+// taskmanager.memory.managed.fraction: 0.4
+// taskmanager.memory.network.fraction: 0.1
+// taskmanager.memory.jvm-metaspace.size: 256m
+// taskmanager.memory.jvm-overhead.fraction: 0.1
+
+// RocksDB memory configuration
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// RocksDB uses managed memory by default
+EmbeddedRocksDBStateBackend rocksDB = new EmbeddedRocksDBStateBackend();
+env.setStateBackend(rocksDB);
+
+// Fine-tune RocksDB memory
+Configuration config = new Configuration();
+// Use managed memory for RocksDB (recommended)
+config.set(RocksDBConfigurableOptions.USE_MANAGED_MEMORY, true);
+// Fixed memory for RocksDB block cache and write buffers
+config.set(RocksDBConfigurableOptions.FIX_PER_TM_MEMORY_SIZE,
+    MemorySize.parse("2gb"));
+
+// JVM Garbage Collection tuning
+// For low-latency: use G1GC
+// env.java.opts.taskmanager: -XX:+UseG1GC
+//   -XX:MaxGCPauseMillis=100
+//   -XX:ParallelGCThreads=4
+// For throughput: use ZGC (JDK 15+)
+// env.java.opts.taskmanager: -XX:+UseZGC`
         },
         {
           name: 'Network Stack',
-          explanation: 'Netty-based network communication. Zero-copy network transfers. Network buffer tuning. Compression for network traffic. Batch shuffle for batch jobs. Credit-based flow control prevents buffer bloat. SSL/TLS encryption. Network bandwidth management.'
+          explanation: 'Netty-based network communication. Zero-copy network transfers. Network buffer tuning. Compression for network traffic. Batch shuffle for batch jobs. Credit-based flow control prevents buffer bloat. SSL/TLS encryption. Network bandwidth management.',
+          codeExample: `// Network Stack Configuration
+
+// 1. Network buffer tuning (flink-conf.yaml)
+// taskmanager.network.memory.min: 256mb
+// taskmanager.network.memory.max: 1gb
+// taskmanager.network.memory.fraction: 0.1
+// taskmanager.network.memory.buffers-per-channel: 2
+// taskmanager.network.memory.floating-buffers-per-gate: 8
+
+// 2. Network compression (reduce bandwidth)
+// taskmanager.network.compression.codec: lz4  (or zstd, snappy)
+// Compresses shuffle data between operators
+// Trade CPU for network bandwidth
+
+// 3. SSL/TLS encryption
+// security.ssl.internal.enabled: true
+// security.ssl.internal.keystore: /path/to/keystore.jks
+// security.ssl.internal.keystore-password: keystore-pass
+// security.ssl.internal.truststore: /path/to/truststore.jks
+// security.ssl.internal.truststore-password: truststore-pass
+//
+// security.ssl.rest.enabled: true  (encrypt REST API)
+
+// 4. Batch shuffle configuration for batch mode
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+env.setRuntimeMode(RuntimeExecutionMode.BATCH);
+
+// Sort-shuffle (default for batch)
+// taskmanager.network.sort-shuffle.min-parallelism: 1
+// taskmanager.network.sort-shuffle.min-buffers: 512
+
+// Hash-shuffle (alternative)
+// taskmanager.network.blocking-shuffle.type: hash
+
+// 5. Netty configuration
+// taskmanager.network.netty.num-arenas: 4
+// taskmanager.network.netty.server.numThreads: 4
+// taskmanager.network.netty.client.numThreads: 4
+// taskmanager.network.netty.transport: auto  (epoll on Linux, nio elsewhere)
+
+// 6. Buffer timeout for latency tuning
+env.setBufferTimeout(100); // Flush every 100ms (default)
+// env.setBufferTimeout(0);  // Flush immediately (lowest latency)
+// env.setBufferTimeout(-1); // Flush only when buffer is full (highest throughput)`
         },
         {
           name: 'Operator Chaining',
-          explanation: 'Combine multiple operators into single task. Reduce serialization overhead. Function calls instead of network. Parallel execution in single thread. Disable for debugging. Start new chain for specific operators. Slot sharing groups.'
+          explanation: 'Combine multiple operators into single task. Reduce serialization overhead. Function calls instead of network. Parallel execution in single thread. Disable for debugging. Start new chain for specific operators. Slot sharing groups.',
+          codeExample: `// Operator Chaining - fuse operators into single task
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// By default, Flink chains compatible operators together
+// Chained operators run in the same thread, no serialization needed
+DataStream<Event> events = env.fromSource(source, watermarks, "src");
+
+// Example: these 3 operators will be chained into ONE task
+DataStream<String> result = events
+    .filter(e -> e.getType().equals("CLICK"))  // Chained
+    .map(e -> e.getUserId())                    // Chained
+    .flatMap((userId, out) -> {                 // Chained
+        out.collect(userId.toUpperCase());
+    });
+// Without chaining: Source -> [network] -> Filter -> [network] -> Map -> [network] -> FlatMap
+// With chaining:    [Source | Filter | Map | FlatMap] (single task, no network)
+
+// Control chaining per operator
+events
+    .map(new Step1())
+    .name("step1")                       // Name for web UI
+    .startNewChain()                     // Break chain, start new one here
+    .map(new Step2())                    // Chained with Step1's new chain
+    .disableChaining()                   // This operator runs alone
+    .map(new Step3());                   // Starts yet another chain
+
+// Globally disable chaining (useful for debugging)
+env.disableOperatorChaining();
+
+// Chaining conditions (operators are chained when ALL are true):
+// 1. Same parallelism
+// 2. Same slot sharing group
+// 3. Neither has disableChaining()
+// 4. Connected by FORWARD or REBALANCE partitioner
+// 5. Downstream operator has single input
+// 6. ChainingStrategy is not NEVER
+
+// Slot sharing groups for resource isolation
+events
+    .map(new CpuIntensive()).slotSharingGroup("cpu-heavy")
+    .keyBy(Event::getKey)
+    .process(new IoIntensive()).slotSharingGroup("io-heavy");`
         },
         {
           name: 'Batch Processing Mode',
-          explanation: 'Optimized execution for bounded data. Sort-based aggregations and joins. Blocking shuffles for efficiency. Adaptive query execution. Statistics-based optimization. Hash joins vs sort-merge joins. Memory budget allocation. Batch vs streaming trade-offs.'
+          explanation: 'Optimized execution for bounded data. Sort-based aggregations and joins. Blocking shuffles for efficiency. Adaptive query execution. Statistics-based optimization. Hash joins vs sort-merge joins. Memory budget allocation. Batch vs streaming trade-offs.',
+          codeExample: `// Batch Processing Mode
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// Set execution mode to BATCH for bounded data
+env.setRuntimeMode(RuntimeExecutionMode.BATCH);
+// AUTOMATIC: Flink decides based on source boundedness
+// env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+// Read bounded data source
+FileSource<String> source = FileSource
+    .forRecordStreamFormat(new TextLineInputFormat(), new Path("s3://data/input/"))
+    .build();
+
+DataStream<String> input = env.fromSource(
+    source, WatermarkStrategy.noWatermarks(), "File Source"
+);
+
+// Same API works for batch and streaming
+DataStream<Tuple2<String, Integer>> wordCounts = input
+    .flatMap((line, out) -> {
+        for (String word : line.split("\\\\s+")) {
+            out.collect(Tuple2.of(word, 1));
+        }
+    })
+    .returns(Types.TUPLE(Types.STRING, Types.INT))
+    .keyBy(t -> t.f0)
+    .sum(1);
+
+wordCounts.sinkTo(fileSink);
+
+// Batch mode optimizations (flink-conf.yaml):
+// execution.batch-shuffle-mode: ALL_EXCHANGES_BLOCKING
+// (Blocking shuffle: write all data before downstream reads)
+
+// Sort-based shuffle for large data
+// taskmanager.network.sort-shuffle.min-parallelism: 1
+
+// Memory for sorting and hashing
+// taskmanager.memory.managed.fraction: 0.4
+
+// Batch-specific Table API optimizations
+// table.exec.resource.default-parallelism: 16
+// table.optimizer.join.broadcast-threshold: 10485760  (10MB)
+
+env.execute("Batch Word Count");`
         },
         {
           name: 'Benchmarks',
-          explanation: 'Industry-leading performance. Yahoo Streaming Benchmark results. TPC-DS for SQL performance. Nexmark benchmark for streaming auctions. Lower latency than alternatives. High throughput sustained. Stateful streaming at scale. Terabyte-scale state management.'
+          explanation: 'Industry-leading performance. Yahoo Streaming Benchmark results. TPC-DS for SQL performance. Nexmark benchmark for streaming auctions. Lower latency than alternatives. High throughput sustained. Stateful streaming at scale. Terabyte-scale state management.',
+          codeExample: `// Benchmark and Performance Testing Setup
+
+// 1. Nexmark Benchmark - streaming auction simulation
+// Measures: throughput, latency for common streaming patterns
+// $ bin/flink run nexmark-flink.jar \\
+//     --query q5 \\
+//     --events-num 100000000 \\
+//     --parallelism 8
+
+// 2. Simple throughput benchmark
+public class ThroughputBenchmark {
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env =
+            StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(8);
+
+        // Generate 100M events as fast as possible
+        DataStream<Event> events = env.addSource(new EventGenerator(100_000_000));
+
+        events
+            .keyBy(Event::getKey)
+            .window(TumblingProcessingTimeWindows.of(Time.seconds(10)))
+            .aggregate(new CountAggregate())
+            .addSink(new DiscardingSink<>());
+
+        JobExecutionResult result = env.execute("Throughput Benchmark");
+
+        long elapsed = result.getNetRuntime(TimeUnit.MILLISECONDS);
+        System.out.println("Throughput: " +
+            (100_000_000 * 1000L / elapsed) + " events/sec");
+        System.out.println("Runtime: " + elapsed + " ms");
+    }
+}
+
+// 3. Latency measurement with LatencyMarker
+// In flink-conf.yaml:
+// metrics.latency.interval: 2000  (emit latency marker every 2s)
+// metrics.latency.granularity: operator
+// Access via: Flink Web UI > Task Metrics > latency
+
+// Typical benchmark results (8-node cluster):
+// Throughput: 10-50M events/sec (depending on complexity)
+// Latency: 10-100ms (p99, end-to-end)
+// State: handles TBs of state with RocksDB
+// Checkpointing: < 1 second for 100GB state (incremental)
+
+// 4. Performance comparison dimensions:
+// vs Spark Streaming: Lower latency (true streaming vs micro-batch)
+// vs Kafka Streams: Better for complex topologies, larger state
+// vs Storm: Higher throughput, exactly-once guarantees
+// Flink advantage: unified batch+stream, managed state`
         }
       ]
     },
@@ -1111,27 +2550,346 @@ env.execute("Kafka Integration Example");`
       details: [
         {
           name: 'Real-time Analytics',
-          explanation: 'Streaming dashboards and KPIs. Aggregations over tumbling/sliding windows. Real-time reports and alerts. Business intelligence on fresh data. Customer behavior analytics. Application performance monitoring. Ad-hoc queries on streams with SQL.'
+          explanation: 'Streaming dashboards and KPIs. Aggregations over tumbling/sliding windows. Real-time reports and alerts. Business intelligence on fresh data. Customer behavior analytics. Application performance monitoring. Ad-hoc queries on streams with SQL.',
+          codeExample: `// Real-time Analytics Dashboard Pipeline
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+// 1. Ingest clickstream events from Kafka
+tableEnv.executeSql(
+    "CREATE TABLE clickstream (" +
+    "  user_id STRING," +
+    "  page_url STRING," +
+    "  event_type STRING," +
+    "  device STRING," +
+    "  event_time TIMESTAMP(3)," +
+    "  WATERMARK FOR event_time AS event_time - INTERVAL '10' SECOND" +
+    ") WITH (" +
+    "  'connector' = 'kafka'," +
+    "  'topic' = 'clickstream'," +
+    "  'format' = 'json'" +
+    ")"
+);
+
+// 2. Real-time KPIs with windowed aggregation
+tableEnv.executeSql(
+    "CREATE VIEW realtime_kpis AS " +
+    "SELECT " +
+    "  TUMBLE_START(event_time, INTERVAL '1' MINUTE) as window_start," +
+    "  COUNT(DISTINCT user_id) as active_users," +
+    "  COUNT(*) as total_events," +
+    "  COUNT(CASE WHEN event_type = 'PURCHASE' THEN 1 END) as purchases," +
+    "  SUM(CASE WHEN event_type = 'PURCHASE' THEN 1.0 ELSE 0 END) / " +
+    "    COUNT(DISTINCT user_id) as conversion_rate " +
+    "FROM clickstream " +
+    "GROUP BY TUMBLE(event_time, INTERVAL '1' MINUTE)"
+);
+
+// 3. Sink to Elasticsearch for Kibana dashboard
+tableEnv.executeSql(
+    "CREATE TABLE dashboard_sink (" +
+    "  window_start TIMESTAMP(3)," +
+    "  active_users BIGINT," +
+    "  total_events BIGINT," +
+    "  purchases BIGINT," +
+    "  conversion_rate DOUBLE" +
+    ") WITH (" +
+    "  'connector' = 'elasticsearch-7'," +
+    "  'hosts' = 'http://elasticsearch:9200'," +
+    "  'index' = 'realtime-kpis'" +
+    ")"
+);
+
+tableEnv.executeSql(
+    "INSERT INTO dashboard_sink SELECT * FROM realtime_kpis"
+);`
         },
         {
           name: 'ETL Pipelines',
-          explanation: 'Extract-Transform-Load for data lakes and warehouses. Streaming ingestion from multiple sources. Data cleansing and enrichment. Schema evolution and validation. Compaction and deduplication. Incremental updates to data warehouse. Medallion architecture (bronze/silver/gold).'
+          explanation: 'Extract-Transform-Load for data lakes and warehouses. Streaming ingestion from multiple sources. Data cleansing and enrichment. Schema evolution and validation. Compaction and deduplication. Incremental updates to data warehouse. Medallion architecture (bronze/silver/gold).',
+          codeExample: `// Streaming ETL Pipeline - Medallion Architecture
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+env.enableCheckpointing(60000);
+
+// Bronze Layer: Raw ingestion from multiple sources
+DataStream<String> rawOrders = env.fromSource(kafkaOrdersSource, watermarks, "orders");
+DataStream<String> rawPayments = env.fromSource(kafkaPaymentsSource, watermarks, "payments");
+
+// Silver Layer: Cleansed, validated, enriched data
+DataStream<Order> cleanOrders = rawOrders
+    .map(json -> Order.fromJson(json))
+    .filter(order -> order.isValid())           // Remove invalid records
+    .map(order -> {
+        // Data cleansing
+        order.setEmail(order.getEmail().toLowerCase().trim());
+        order.setAmount(order.getAmount().setScale(2, RoundingMode.HALF_UP));
+        return order;
+    })
+    .keyBy(Order::getOrderId)
+    .process(new DeduplicationFunction());       // Remove duplicates
+
+// Enrichment: join with dimension data
+DataStream<EnrichedOrder> enrichedOrders = cleanOrders
+    .keyBy(Order::getCustomerId)
+    .connect(customerDimStream.keyBy(Customer::getId))
+    .process(new EnrichmentFunction());
+
+// Gold Layer: Business aggregations
+DataStream<DailyRevenue> dailyRevenue = enrichedOrders
+    .keyBy(order -> order.getRegion())
+    .window(TumblingEventTimeWindows.of(Time.days(1)))
+    .aggregate(new RevenueAggregator());
+
+// Sink to data lake (Parquet on S3)
+enrichedOrders.sinkTo(FileSink
+    .forBulkFormat(
+        new Path("s3://data-lake/silver/orders/"),
+        ParquetAvroWriters.forReflectRecord(EnrichedOrder.class)
+    )
+    .withBucketAssigner(new DateTimeBucketAssigner<>("yyyy/MM/dd"))
+    .build()
+);
+
+// Sink aggregations to data warehouse
+dailyRevenue.addSink(JdbcSink.sink(
+    "INSERT INTO daily_revenue (region, date, total) VALUES (?, ?, ?)" +
+    " ON CONFLICT (region, date) DO UPDATE SET total = ?",
+    (ps, rev) -> {
+        ps.setString(1, rev.getRegion());
+        ps.setDate(2, rev.getDate());
+        ps.setBigDecimal(3, rev.getTotal());
+        ps.setBigDecimal(4, rev.getTotal());
+    },
+    jdbcOptions, jdbcConnectionOptions
+));`
         },
         {
           name: 'Fraud Detection',
-          explanation: 'Real-time transaction monitoring. Pattern detection with CEP. Machine learning model scoring. Rule engines for complex logic. Risk scoring and alerting. Multi-level aggregations. Session-based analysis. Low-latency requirements (milliseconds).'
+          explanation: 'Real-time transaction monitoring. Pattern detection with CEP. Machine learning model scoring. Rule engines for complex logic. Risk scoring and alerting. Multi-level aggregations. Session-based analysis. Low-latency requirements (milliseconds).',
+          codeExample: `// Real-time Fraud Detection System
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+DataStream<Transaction> transactions = env.fromSource(kafkaSource, watermarks, "txn");
+
+// 1. Rule-based fraud detection with stateful processing
+DataStream<FraudAlert> ruleAlerts = transactions
+    .keyBy(Transaction::getAccountId)
+    .process(new FraudRuleEngine());
+
+public class FraudRuleEngine extends KeyedProcessFunction<String, Transaction, FraudAlert> {
+    private ValueState<Double> runningTotal;
+    private ValueState<Long> transactionCount;
+    private ListState<Transaction> recentTransactions;
+
+    @Override
+    public void open(Configuration params) {
+        runningTotal = getRuntimeContext().getState(
+            new ValueStateDescriptor<>("total", Double.class));
+        transactionCount = getRuntimeContext().getState(
+            new ValueStateDescriptor<>("count", Long.class));
+        recentTransactions = getRuntimeContext().getListState(
+            new ListStateDescriptor<>("recent", Transaction.class));
+    }
+
+    @Override
+    public void processElement(Transaction txn, Context ctx, Collector<FraudAlert> out) throws Exception {
+        Double total = runningTotal.value();
+        if (total == null) total = 0.0;
+        Long count = transactionCount.value();
+        if (count == null) count = 0L;
+
+        // Rule 1: Single large transaction
+        if (txn.getAmount() > 10000) {
+            out.collect(new FraudAlert(txn, "HIGH_AMOUNT", 0.8));
+        }
+
+        // Rule 2: Velocity check (>5 transactions in 1 minute)
+        recentTransactions.add(txn);
+        if (count > 5) {
+            out.collect(new FraudAlert(txn, "HIGH_VELOCITY", 0.7));
+        }
+
+        // Rule 3: Unusual location
+        // (compare with historical pattern using broadcast state)
+
+        runningTotal.update(total + txn.getAmount());
+        transactionCount.update(count + 1);
+
+        // Register cleanup timer (reset counters every hour)
+        ctx.timerService().registerEventTimeTimer(
+            txn.getTimestamp() + 3600000);
+    }
+
+    @Override
+    public void onTimer(long timestamp, OnTimerContext ctx, Collector<FraudAlert> out) {
+        transactionCount.clear();
+        runningTotal.clear();
+        recentTransactions.clear();
+    }
+}
+
+// 2. CEP pattern: small transaction followed by large withdrawal
+Pattern<Transaction, ?> fraudPattern = Pattern.<Transaction>begin("small")
+    .where(SimpleCondition.of(t -> t.getAmount() < 1.0))
+    .followedBy("large")
+    .where(SimpleCondition.of(t -> t.getAmount() > 5000))
+    .within(Time.minutes(5));`
         },
         {
           name: 'IoT & Sensors',
-          explanation: 'Process telemetry from millions of devices. Time-series aggregations. Anomaly detection on sensor data. Predictive maintenance. Device state management. Geo-spatial processing. Protocol conversion (MQTT, CoAP). Edge computing integration.'
+          explanation: 'Process telemetry from millions of devices. Time-series aggregations. Anomaly detection on sensor data. Predictive maintenance. Device state management. Geo-spatial processing. Protocol conversion (MQTT, CoAP). Edge computing integration.',
+          codeExample: `// IoT Sensor Data Processing Pipeline
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// Ingest sensor data from MQTT/Kafka
+DataStream<SensorReading> readings = env.fromSource(sensorSource, watermarks, "sensors");
+
+// 1. Per-device state management and anomaly detection
+DataStream<Alert> anomalies = readings
+    .keyBy(SensorReading::getDeviceId)
+    .process(new AnomalyDetector());
+
+public class AnomalyDetector extends KeyedProcessFunction<String, SensorReading, Alert> {
+    private ValueState<Double> avgTemperature;
+    private ValueState<Double> stdDeviation;
+    private ValueState<Long> readingCount;
+
+    @Override
+    public void open(Configuration params) {
+        avgTemperature = getRuntimeContext().getState(
+            new ValueStateDescriptor<>("avg-temp", Double.class));
+        stdDeviation = getRuntimeContext().getState(
+            new ValueStateDescriptor<>("std-dev", Double.class));
+        readingCount = getRuntimeContext().getState(
+            new ValueStateDescriptor<>("count", Long.class));
+    }
+
+    @Override
+    public void processElement(SensorReading reading, Context ctx,
+                                Collector<Alert> out) throws Exception {
+        Double avg = avgTemperature.value();
+        Double std = stdDeviation.value();
+        Long count = readingCount.value();
+
+        if (avg != null && std != null && std > 0) {
+            double zScore = Math.abs(reading.getTemperature() - avg) / std;
+            if (zScore > 3.0) {
+                out.collect(new Alert(
+                    reading.getDeviceId(),
+                    "TEMPERATURE_ANOMALY",
+                    "Z-score: " + zScore
+                ));
+            }
+        }
+
+        // Update running statistics
+        count = (count == null) ? 1L : count + 1;
+        avg = (avg == null) ? reading.getTemperature() :
+            avg + (reading.getTemperature() - avg) / count;
+
+        avgTemperature.update(avg);
+        readingCount.update(count);
+    }
+}
+
+// 2. Time-series aggregation (5-minute windows)
+DataStream<DeviceStats> stats = readings
+    .keyBy(SensorReading::getDeviceId)
+    .window(TumblingEventTimeWindows.of(Time.minutes(5)))
+    .aggregate(new AggregateFunction<SensorReading, StatsAccumulator, DeviceStats>() {
+        public StatsAccumulator createAccumulator() { return new StatsAccumulator(); }
+        public StatsAccumulator add(SensorReading r, StatsAccumulator acc) {
+            acc.addReading(r.getTemperature());
+            return acc;
+        }
+        public DeviceStats getResult(StatsAccumulator acc) {
+            return new DeviceStats(acc.getMin(), acc.getMax(), acc.getAvg(), acc.getCount());
+        }
+        public StatsAccumulator merge(StatsAccumulator a, StatsAccumulator b) {
+            return a.merge(b);
+        }
+    });`
         },
         {
           name: 'Recommendation Engines',
-          explanation: 'Real-time personalization. Feature engineering on user behavior. Online model inference. A/B testing analytics. Collaborative filtering. Content-based recommendations. Session-based recommendations. Contextual bandits with online learning.'
+          explanation: 'Real-time personalization. Feature engineering on user behavior. Online model inference. A/B testing analytics. Collaborative filtering. Content-based recommendations. Session-based recommendations. Contextual bandits with online learning.',
+          codeExample: `// Real-time Recommendation Engine
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+// 1. Feature engineering from user activity stream
+DataStream<UserActivity> activities = env.fromSource(activitySource, watermarks, "activity");
+
+// Compute real-time user features
+DataStream<UserFeatures> userFeatures = activities
+    .keyBy(UserActivity::getUserId)
+    .process(new FeatureEngineering());
+
+public class FeatureEngineering extends KeyedProcessFunction<String, UserActivity, UserFeatures> {
+    private MapState<String, Integer> categoryViews;    // Category view counts
+    private ValueState<Long> sessionStart;              // Session tracking
+    private ListState<String> recentProducts;           // Recent product views
+
+    @Override
+    public void open(Configuration params) {
+        categoryViews = getRuntimeContext().getMapState(
+            new MapStateDescriptor<>("cat-views", String.class, Integer.class));
+        sessionStart = getRuntimeContext().getState(
+            new ValueStateDescriptor<>("session-start", Long.class));
+        recentProducts = getRuntimeContext().getListState(
+            new ListStateDescriptor<>("recent", String.class));
+    }
+
+    @Override
+    public void processElement(UserActivity activity, Context ctx,
+                                Collector<UserFeatures> out) throws Exception {
+        // Update category preferences
+        String category = activity.getCategory();
+        Integer count = categoryViews.get(category);
+        categoryViews.put(category, (count == null ? 0 : count) + 1);
+
+        // Track recent products (keep last 50)
+        recentProducts.add(activity.getProductId());
+
+        // Compute session duration
+        Long start = sessionStart.value();
+        if (start == null || activity.getTimestamp() - start > 1800000) {
+            sessionStart.update(activity.getTimestamp());
+        }
+
+        // Emit feature vector
+        UserFeatures features = new UserFeatures(
+            activity.getUserId(),
+            getCategoryDistribution(categoryViews),
+            getRecentProductsList(recentProducts),
+            activity.getTimestamp() - sessionStart.value()
+        );
+        out.collect(features);
+    }
+}
+
+// 2. Online model scoring with AsyncIO
+DataStream<Recommendation> recommendations = AsyncDataStream.orderedWait(
+    userFeatures,
+    new AsyncFunction<UserFeatures, Recommendation>() {
+        @Override
+        public void asyncInvoke(UserFeatures features,
+                                ResultFuture<Recommendation> resultFuture) {
+            // Call ML model serving endpoint
+            mlClient.predict(features).thenAccept(prediction -> {
+                resultFuture.complete(Collections.singleton(
+                    new Recommendation(features.getUserId(), prediction.getTopK(10))
+                ));
+            });
+        }
+    },
+    5000, TimeUnit.MILLISECONDS, 100
+);`
         }
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   // =============================================================================
   // NAVIGATION HANDLERS

@@ -4,6 +4,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -1235,6 +1236,8 @@ Map<String, RateLimitConfig> tierConfigs = Map.of(
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   // =============================================================================
   // NAVIGATION HANDLERS

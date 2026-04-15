@@ -26,32 +26,65 @@ describe('DevOpsPage', () => {
     vi.clearAllMocks()
   })
 
-  it('renders all 7 category cards on initial view', () => {
+  it('renders all 25 item cards on initial view (All tab)', () => {
     render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
-    expect(screen.getByText('Containerization & Orchestration')).toBeInTheDocument()
+    expect(screen.getByText('Docker & Containers')).toBeInTheDocument()
+    expect(screen.getByText('Kubernetes')).toBeInTheDocument()
+    expect(screen.getByText('CI/CD Pipelines')).toBeInTheDocument()
+    expect(screen.getByText('Deployment Strategies')).toBeInTheDocument()
+    expect(screen.getByText('Jenkins')).toBeInTheDocument()
+    expect(screen.getByText('TeamCity')).toBeInTheDocument()
+    expect(screen.getByText('Prometheus')).toBeInTheDocument()
+    expect(screen.getByText('Grafana')).toBeInTheDocument()
+    expect(screen.getByText('Production Support')).toBeInTheDocument()
+    expect(screen.getByText('Java Flight Recorder')).toBeInTheDocument()
+    expect(screen.getByText('JMeter')).toBeInTheDocument()
+    expect(screen.getByText('Dynatrace')).toBeInTheDocument()
+    expect(screen.getByText('Security & OWASP')).toBeInTheDocument()
+    expect(screen.getByText('JWT (JSON Web Tokens)')).toBeInTheDocument()
+    expect(screen.getByText('OAuth 1.0')).toBeInTheDocument()
+    expect(screen.getByText('OAuth 2.0')).toBeInTheDocument()
+    expect(screen.getByText('Agile & Scrum')).toBeInTheDocument()
+    expect(screen.getByText('Testing & QA')).toBeInTheDocument()
+    expect(screen.getByText('Ansible')).toBeInTheDocument()
+    expect(screen.getByText('Unix Scripting')).toBeInTheDocument()
+    expect(screen.getByText('Apache Kafka')).toBeInTheDocument()
+    expect(screen.getByText('Apache Flink')).toBeInTheDocument()
+    expect(screen.getByText('RabbitMQ')).toBeInTheDocument()
+    expect(screen.getByText('Solace')).toBeInTheDocument()
+    expect(screen.getByText('MuleSoft')).toBeInTheDocument()
+  })
+
+  it('renders all 7 category tabs', () => {
+    render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
+
+    expect(screen.getByText('All')).toBeInTheDocument()
+    expect(screen.getByText('Containers & Orchestration')).toBeInTheDocument()
     expect(screen.getByText('CI/CD & Build Tools')).toBeInTheDocument()
     expect(screen.getByText('Monitoring & Observability')).toBeInTheDocument()
-    expect(screen.getByText('Performance & Profiling')).toBeInTheDocument()
-    expect(screen.getByText('Security & Authentication')).toBeInTheDocument()
+    expect(screen.getByText('Security & Auth')).toBeInTheDocument()
     expect(screen.getByText('Methodology & Quality')).toBeInTheDocument()
     expect(screen.getByText('Messaging & Streaming')).toBeInTheDocument()
   })
 
-  describe('Containerization & Orchestration', () => {
-    it('shows Docker and Kubernetes items when category clicked', () => {
+  describe('Containers & Orchestration tab', () => {
+    it('filters to Docker and Kubernetes items', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
-      fireEvent.click(screen.getByText('Containerization & Orchestration'))
+      fireEvent.click(screen.getByText('Containers & Orchestration'))
 
       expect(screen.getByText('Docker & Containers')).toBeInTheDocument()
       expect(screen.getByText('Kubernetes')).toBeInTheDocument()
+      expect(screen.queryByText('CI/CD Pipelines')).not.toBeInTheDocument()
+      expect(screen.queryByText('Prometheus')).not.toBeInTheDocument()
     })
 
     it('calls onSelectItem with correct IDs', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
-      fireEvent.click(screen.getByText('Containerization & Orchestration'))
+      fireEvent.click(screen.getByText('Containers & Orchestration'))
+
       fireEvent.click(screen.getByText('Docker & Containers'))
       expect(mockOnSelectItem).toHaveBeenCalledWith('Docker')
 
@@ -61,8 +94,8 @@ describe('DevOpsPage', () => {
     })
   })
 
-  describe('CI/CD & Build Tools', () => {
-    it('shows all items when category clicked', () => {
+  describe('CI/CD & Build Tools tab', () => {
+    it('filters to CI/CD items', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
       fireEvent.click(screen.getByText('CI/CD & Build Tools'))
@@ -71,6 +104,7 @@ describe('DevOpsPage', () => {
       expect(screen.getByText('Deployment Strategies')).toBeInTheDocument()
       expect(screen.getByText('Jenkins')).toBeInTheDocument()
       expect(screen.getByText('TeamCity')).toBeInTheDocument()
+      expect(screen.queryByText('Docker & Containers')).not.toBeInTheDocument()
     })
 
     it('calls onSelectItem with correct IDs', () => {
@@ -95,8 +129,8 @@ describe('DevOpsPage', () => {
     })
   })
 
-  describe('Monitoring & Observability', () => {
-    it('shows all items when category clicked', () => {
+  describe('Monitoring & Observability tab', () => {
+    it('filters to monitoring items', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
       fireEvent.click(screen.getByText('Monitoring & Observability'))
@@ -104,7 +138,10 @@ describe('DevOpsPage', () => {
       expect(screen.getByText('Prometheus')).toBeInTheDocument()
       expect(screen.getByText('Grafana')).toBeInTheDocument()
       expect(screen.getByText('Production Support')).toBeInTheDocument()
+      expect(screen.getByText('Java Flight Recorder')).toBeInTheDocument()
+      expect(screen.getByText('JMeter')).toBeInTheDocument()
       expect(screen.getByText('Dynatrace')).toBeInTheDocument()
+      expect(screen.queryByText('Docker & Containers')).not.toBeInTheDocument()
     })
 
     it('calls onSelectItem with correct IDs', () => {
@@ -129,46 +166,23 @@ describe('DevOpsPage', () => {
     })
   })
 
-  describe('Performance & Profiling', () => {
-    it('shows JFR and JMeter items when category clicked', () => {
+  describe('Security & Auth tab', () => {
+    it('filters to security items', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
-      fireEvent.click(screen.getByText('Performance & Profiling'))
-
-      expect(screen.getByText('Java Flight Recorder')).toBeInTheDocument()
-      expect(screen.getByText('Apache JMeter')).toBeInTheDocument()
-    })
-
-    it('calls onSelectItem with correct IDs', () => {
-      render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
-
-      fireEvent.click(screen.getByText('Performance & Profiling'))
-
-      fireEvent.click(screen.getByText('Java Flight Recorder'))
-      expect(mockOnSelectItem).toHaveBeenCalledWith('JFR')
-
-      mockOnSelectItem.mockClear()
-      fireEvent.click(screen.getByText('Apache JMeter'))
-      expect(mockOnSelectItem).toHaveBeenCalledWith('JMeter')
-    })
-  })
-
-  describe('Security & Authentication', () => {
-    it('shows all items when category clicked', () => {
-      render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
-
-      fireEvent.click(screen.getByText('Security & Authentication'))
+      fireEvent.click(screen.getByText('Security & Auth'))
 
       expect(screen.getByText('Security & OWASP')).toBeInTheDocument()
       expect(screen.getByText('JWT (JSON Web Tokens)')).toBeInTheDocument()
       expect(screen.getByText('OAuth 1.0')).toBeInTheDocument()
       expect(screen.getByText('OAuth 2.0')).toBeInTheDocument()
+      expect(screen.queryByText('Docker & Containers')).not.toBeInTheDocument()
     })
 
     it('calls onSelectItem with correct IDs', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
-      fireEvent.click(screen.getByText('Security & Authentication'))
+      fireEvent.click(screen.getByText('Security & Auth'))
 
       fireEvent.click(screen.getByText('Security & OWASP'))
       expect(mockOnSelectItem).toHaveBeenCalledWith('Security OWASP')
@@ -187,14 +201,17 @@ describe('DevOpsPage', () => {
     })
   })
 
-  describe('Methodology & Quality', () => {
-    it('shows all items when category clicked', () => {
+  describe('Methodology & Quality tab', () => {
+    it('filters to methodology items', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
       fireEvent.click(screen.getByText('Methodology & Quality'))
 
       expect(screen.getByText('Agile & Scrum')).toBeInTheDocument()
       expect(screen.getByText('Testing & QA')).toBeInTheDocument()
+      expect(screen.getByText('Ansible')).toBeInTheDocument()
+      expect(screen.getByText('Unix Scripting')).toBeInTheDocument()
+      expect(screen.queryByText('Docker & Containers')).not.toBeInTheDocument()
     })
 
     it('calls onSelectItem with correct IDs', () => {
@@ -211,8 +228,8 @@ describe('DevOpsPage', () => {
     })
   })
 
-  describe('Messaging & Streaming', () => {
-    it('shows all items when category clicked', () => {
+  describe('Messaging & Streaming tab', () => {
+    it('filters to messaging items', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
       fireEvent.click(screen.getByText('Messaging & Streaming'))
@@ -222,6 +239,7 @@ describe('DevOpsPage', () => {
       expect(screen.getByText('RabbitMQ')).toBeInTheDocument()
       expect(screen.getByText('Solace')).toBeInTheDocument()
       expect(screen.getByText('MuleSoft')).toBeInTheDocument()
+      expect(screen.queryByText('Docker & Containers')).not.toBeInTheDocument()
     })
 
     it('calls onSelectItem with correct IDs', () => {
@@ -251,27 +269,22 @@ describe('DevOpsPage', () => {
   })
 
   describe('All DevOps item IDs are routable', () => {
-    // Every item ID that DevOpsPage passes to onSelectItem must be handled in App.jsx
-    // This maps to either devOpsModalMap entries or renderSelectedComponent checks
     const ALL_ROUTABLE_IDS = [
       'Docker', 'Kubernetes',
       'CI/CD', 'Deployment', 'Jenkins', 'TeamCity',
-      'Prometheus', 'Grafana', 'Production Support', 'Dynatrace',
-      'JFR', 'JMeter',
+      'Prometheus', 'Grafana', 'Production Support', 'JavaFlightRecorder', 'JMeter', 'Dynatrace',
       'Security OWASP', 'JWT', 'OAuth', 'OAuth2',
-      'Agile Scrum', 'Testing',
+      'Agile Scrum', 'Testing', 'Ansible', 'UnixScripting',
       'Kafka', 'Apache Flink', 'RabbitMQ', 'Solace', 'MuleSoft'
     ]
 
-    // These are handled via devOpsModalMap useEffect in App.jsx
     const DEVOPS_MODAL_MAP_IDS = [
       'Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD',
       'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins',
-      'Prometheus', 'Grafana', 'JFR', 'JMeter', 'Dynatrace',
-      'Security OWASP'
+      'Prometheus', 'Grafana', 'JavaFlightRecorder', 'JMeter', 'Dynatrace',
+      'Security OWASP', 'Ansible', 'UnixScripting'
     ]
 
-    // These are handled via renderSelectedComponent in App.jsx
     const RENDER_COMPONENT_IDS = [
       'JWT', 'OAuth', 'OAuth2', 'Kafka', 'Apache Flink',
       'RabbitMQ', 'Solace', 'MuleSoft'
@@ -292,25 +305,39 @@ describe('DevOpsPage', () => {
     })
   })
 
-  describe('navigation', () => {
-    it('navigates back from subcategory to main categories', () => {
+  describe('tab switching', () => {
+    it('switches back to All tab showing all items', () => {
       render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
 
-      // Enter a category
-      fireEvent.click(screen.getByText('Containerization & Orchestration'))
+      // Switch to a filtered tab
+      fireEvent.click(screen.getByText('Containers & Orchestration'))
+      expect(screen.queryByText('CI/CD Pipelines')).not.toBeInTheDocument()
+
+      // Switch back to All
+      fireEvent.click(screen.getByText('All'))
+      expect(screen.getByText('CI/CD Pipelines')).toBeInTheDocument()
       expect(screen.getByText('Docker & Containers')).toBeInTheDocument()
-
-      // The breadcrumb should show the category name - click it to go back
-      // Since we mock breadcrumb, verify items change when we re-render
     })
+  })
 
-    it('shows topic count on category cards', () => {
-      render(<DevOpsPage onBack={mockOnBack} onSelectItem={mockOnSelectItem} breadcrumb={mockBreadcrumb} />)
+  describe('initialCategory prop', () => {
+    it('pre-selects the given category tab', () => {
+      const mockUsed = vi.fn()
+      render(
+        <DevOpsPage
+          onBack={mockOnBack}
+          onSelectItem={mockOnSelectItem}
+          breadcrumb={mockBreadcrumb}
+          initialCategory="security"
+          onInitialCategoryUsed={mockUsed}
+        />
+      )
 
-      // Multiple categories share the same counts, so use getAllByText
-      expect(screen.getAllByText('2 topics').length).toBeGreaterThanOrEqual(1) // Containerization, Performance, Methodology
-      expect(screen.getAllByText('4 topics').length).toBeGreaterThanOrEqual(1) // CI/CD, Monitoring, Security
-      expect(screen.getAllByText('5 topics').length).toBeGreaterThanOrEqual(1) // Messaging
+      // Should show security items
+      expect(screen.getByText('Security & OWASP')).toBeInTheDocument()
+      expect(screen.getByText('JWT (JSON Web Tokens)')).toBeInTheDocument()
+      // Should not show items from other categories
+      expect(screen.queryByText('Docker & Containers')).not.toBeInTheDocument()
     })
   })
 })

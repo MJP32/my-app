@@ -1,6 +1,60 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 
+const SyntaxHighlighter = ({ code }) => {
+  const highlightJava = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|super|this|null|default)\b/g, '<span style="color: #c586c0;">$1</span>')
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean|var)\b/g, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(String|List|ArrayList|Map|HashMap|Optional|Exception|Override|Integer|Long|Component|Bean|Configuration|Autowired|Health|HealthIndicator|MeterRegistry|Counter|Timer|Gauge|Endpoint|ReadOperation|WriteOperation|SecurityFilterChain|HttpSecurity)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
+    </pre>
+  )
+}
+
 function Actuator({ onBack, breadcrumb }) {
   const [activeSection, setActiveSection] = useState('overview')
 
@@ -130,6 +184,32 @@ function Actuator({ onBack, breadcrumb }) {
                 <strong>Key Benefit:</strong> Out-of-the-box observability without writing custom monitoring code
               </p>
             </div>
+
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#d1d5db', marginTop: '1.5rem', marginBottom: '0.75rem' }}>
+              Getting Started - Maven Dependency
+            </h3>
+            <div style={{
+              backgroundColor: '#1e1e1e',
+              padding: '1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <SyntaxHighlighter code={`// build.gradle
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "io.micrometer:micrometer-registry-prometheus"
+}
+
+// Or Maven pom.xml
+// <dependency>
+//     <groupId>org.springframework.boot</groupId>
+//     <artifactId>spring-boot-starter-actuator</artifactId>
+// </dependency>
+// <dependency>
+//     <groupId>io.micrometer</groupId>
+//     <artifactId>micrometer-registry-prometheus</artifactId>
+// </dependency>`} />
+            </div>
           </div>
 
           <div style={{
@@ -165,6 +245,48 @@ function Actuator({ onBack, breadcrumb }) {
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '1px solid #374151'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+              Basic Actuator Application
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              A minimal Spring Boot application with Actuator enabled and a custom info contributor:
+            </p>
+            <div style={{
+              backgroundColor: '#1e1e1e',
+              padding: '1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <SyntaxHighlighter code={`@SpringBootApplication
+public class ActuatorDemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ActuatorDemoApplication.class, args);
+    }
+
+    // Custom InfoContributor to add runtime details
+    @Bean
+    public InfoContributor runtimeInfoContributor() {
+        return builder -> {
+            Map<String, Object> runtimeInfo = new HashMap<>();
+            runtimeInfo.put("javaVersion", System.getProperty("java.version"));
+            runtimeInfo.put("availableProcessors",
+                Runtime.getRuntime().availableProcessors());
+            runtimeInfo.put("maxMemory",
+                Runtime.getRuntime().maxMemory() / (1024 * 1024) + " MB");
+            builder.withDetail("runtime", runtimeInfo);
+        };
+    }
+}`} />
             </div>
           </div>
         </div>
@@ -229,6 +351,98 @@ function Actuator({ onBack, breadcrumb }) {
               </div>
             ))}
           </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '2rem', marginBottom: '1rem' }}>
+            Custom Actuator Endpoint
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Create custom endpoints to expose application-specific operational data:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151',
+            marginBottom: '1.5rem'
+          }}>
+            <SyntaxHighlighter code={`@Component
+@Endpoint(id = "features")
+public class FeaturesEndpoint {
+
+    private final Map<String, Boolean> featureFlags = new ConcurrentHashMap<>();
+
+    public FeaturesEndpoint() {
+        featureFlags.put("darkMode", true);
+        featureFlags.put("betaSearch", false);
+        featureFlags.put("newCheckout", true);
+    }
+
+    // GET /actuator/features
+    @ReadOperation
+    public Map<String, Boolean> getAllFeatures() {
+        return Collections.unmodifiableMap(featureFlags);
+    }
+
+    // GET /actuator/features/{name}
+    @ReadOperation
+    public Boolean getFeature(@Selector String name) {
+        return featureFlags.get(name);
+    }
+
+    // POST /actuator/features/{name}
+    @WriteOperation
+    public void setFeature(@Selector String name, boolean enabled) {
+        featureFlags.put(name, enabled);
+    }
+}`} />
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '1.5rem', marginBottom: '1rem' }}>
+            WebMvcEndpointHandlerMapping - Expose via REST
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Extend actuator with a web-specific endpoint for richer HTTP interactions:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151'
+          }}>
+            <SyntaxHighlighter code={`@Component
+@RestControllerEndpoint(id = "cache-management")
+public class CacheManagementEndpoint {
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    // GET /actuator/cache-management
+    @GetMapping(produces = "application/json")
+    public Map<String, Object> getCacheStats() {
+        Map<String, Object> stats = new LinkedHashMap<>();
+        for (String cacheName : cacheManager.getCacheNames()) {
+            Cache cache = cacheManager.getCache(cacheName);
+            stats.put(cacheName, Map.of(
+                "type", cache.getClass().getSimpleName(),
+                "nativeCache", cache.getNativeCache().toString()
+            ));
+        }
+        return stats;
+    }
+
+    // DELETE /actuator/cache-management/{cacheName}
+    @DeleteMapping("/{cacheName}")
+    public ResponseEntity<Void> evictCache(
+            @PathVariable String cacheName) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.clear();
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+}`} />
+          </div>
         </div>
       )}
 
@@ -270,6 +484,108 @@ function Actuator({ onBack, breadcrumb }) {
                 </ul>
               </div>
             ))}
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '2rem', marginBottom: '1rem' }}>
+            Custom Metrics with Micrometer
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Use Micrometer to register custom counters, gauges, and timers for your business logic:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151',
+            marginBottom: '1.5rem'
+          }}>
+            <SyntaxHighlighter code={`@Component
+public class OrderMetrics {
+
+    private final Counter ordersPlaced;
+    private final Counter ordersFailed;
+    private final Timer orderProcessingTime;
+    private final AtomicInteger activeOrders = new AtomicInteger(0);
+
+    public OrderMetrics(MeterRegistry registry) {
+        // Counter - tracks total number of events
+        this.ordersPlaced = Counter.builder("orders.placed")
+            .description("Total orders placed")
+            .tag("type", "all")
+            .register(registry);
+
+        this.ordersFailed = Counter.builder("orders.failed")
+            .description("Total failed orders")
+            .register(registry);
+
+        // Timer - tracks duration and count
+        this.orderProcessingTime = Timer.builder("orders.processing.time")
+            .description("Time to process an order")
+            .publishPercentiles(0.5, 0.95, 0.99)
+            .register(registry);
+
+        // Gauge - tracks current value
+        Gauge.builder("orders.active", activeOrders, AtomicInteger::get)
+            .description("Currently active orders")
+            .register(registry);
+    }
+
+    public void recordOrderPlaced() {
+        ordersPlaced.increment();
+        activeOrders.incrementAndGet();
+    }
+
+    public void recordOrderCompleted(long durationMs) {
+        orderProcessingTime.record(durationMs, TimeUnit.MILLISECONDS);
+        activeOrders.decrementAndGet();
+    }
+
+    public void recordOrderFailed() {
+        ordersFailed.increment();
+        activeOrders.decrementAndGet();
+    }
+}`} />
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '1.5rem', marginBottom: '1rem' }}>
+            Timed Annotation for Method-Level Metrics
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Use annotations to automatically instrument method execution times:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151'
+          }}>
+            <SyntaxHighlighter code={`@Configuration
+public class MetricsConfig {
+
+    // Enable @Timed annotation support
+    @Bean
+    public TimedAspect timedAspect(MeterRegistry registry) {
+        return new TimedAspect(registry);
+    }
+}
+
+@Service
+public class PaymentService {
+
+    // Automatically creates timer metric: "payment.process"
+    @Timed(value = "payment.process",
+           description = "Time to process payment",
+           percentiles = {0.5, 0.95, 0.99})
+    public PaymentResult processPayment(PaymentRequest request) {
+        // Business logic here
+        return gateway.charge(request);
+    }
+
+    @Timed(value = "payment.refund", histogram = true)
+    public RefundResult processRefund(String transactionId) {
+        return gateway.refund(transactionId);
+    }
+}`} />
           </div>
         </div>
       )}
@@ -322,6 +638,114 @@ function Actuator({ onBack, breadcrumb }) {
                 </div>
               </div>
             ))}
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '2rem', marginBottom: '1rem' }}>
+            Custom Health Indicator
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Implement custom health checks for external services, APIs, or business-critical resources:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151',
+            marginBottom: '1.5rem'
+          }}>
+            <SyntaxHighlighter code={`@Component
+public class ExternalApiHealthIndicator implements HealthIndicator {
+
+    private final RestTemplate restTemplate;
+    private final String apiBaseUrl;
+
+    public ExternalApiHealthIndicator(
+            RestTemplate restTemplate,
+            @Value("\${external.api.base-url}") String apiBaseUrl) {
+        this.restTemplate = restTemplate;
+        this.apiBaseUrl = apiBaseUrl;
+    }
+
+    @Override
+    public Health health() {
+        try {
+            long startTime = System.currentTimeMillis();
+            ResponseEntity<String> response = restTemplate
+                .getForEntity(apiBaseUrl + "/health", String.class);
+            long responseTime = System.currentTimeMillis() - startTime;
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return Health.up()
+                    .withDetail("url", apiBaseUrl)
+                    .withDetail("responseTimeMs", responseTime)
+                    .withDetail("status", response.getStatusCode().value())
+                    .build();
+            }
+
+            return Health.down()
+                .withDetail("url", apiBaseUrl)
+                .withDetail("status", response.getStatusCode().value())
+                .build();
+
+        } catch (Exception ex) {
+            return Health.down()
+                .withDetail("url", apiBaseUrl)
+                .withDetail("error", ex.getMessage())
+                .build();
+        }
+    }
+}`} />
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '1.5rem', marginBottom: '1rem' }}>
+            Composite Health with Health Groups
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Group health indicators for Kubernetes liveness and readiness probes:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151'
+          }}>
+            <SyntaxHighlighter code={`@Component
+public class DatabaseHealthIndicator implements HealthIndicator {
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Override
+    public Health health() {
+        try (Connection conn = dataSource.getConnection()) {
+            if (conn.isValid(3)) {
+                return Health.up()
+                    .withDetail("database", conn.getMetaData().getDatabaseProductName())
+                    .withDetail("version", conn.getMetaData().getDatabaseProductVersion())
+                    .build();
+            }
+        } catch (Exception e) {
+            return Health.down(e).build();
+        }
+        return Health.down().withDetail("error", "Connection invalid").build();
+    }
+}
+
+// application.yml configuration for health groups:
+// management:
+//   endpoint:
+//     health:
+//       group:
+//         liveness:
+//           include: livenessState
+//         readiness:
+//           include: readinessState, db, redis
+//       probes:
+//         enabled: true
+//
+// Kubernetes probes:
+//   GET /actuator/health/liveness  -> liveness probe
+//   GET /actuator/health/readiness -> readiness probe`} />
           </div>
         </div>
       )}
@@ -386,6 +810,164 @@ info:
             <p style={{ fontSize: '0.95rem', color: '#6ee7b7', margin: 0 }}>
               <strong>Security Note:</strong> Always secure your actuator endpoints in production! Use Spring Security to restrict access.
             </p>
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '2rem', marginBottom: '1rem' }}>
+            Securing Actuator Endpoints
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Use Spring Security to restrict actuator access to authorized users only:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151',
+            marginBottom: '1.5rem'
+          }}>
+            <SyntaxHighlighter code={`@Configuration
+public class ActuatorSecurityConfig {
+
+    @Bean
+    public SecurityFilterChain actuatorSecurityFilterChain(
+            HttpSecurity http) throws Exception {
+        return http
+            .securityMatcher("/actuator/**")
+            .authorizeHttpRequests(auth -> auth
+                // Health and info are public
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/info").permitAll()
+                // Prometheus endpoint for monitoring stack
+                .requestMatchers("/actuator/prometheus").hasRole("MONITORING")
+                // All other endpoints require ADMIN
+                .anyRequest().hasRole("ADMIN")
+            )
+            .httpBasic(Customizer.withDefaults())
+            .build();
+    }
+
+    @Bean
+    public UserDetailsService actuatorUsers() {
+        var monitoring = User.withUsername("prometheus")
+            .password("{bcrypt}$2a$10$...")
+            .roles("MONITORING")
+            .build();
+
+        var admin = User.withUsername("admin")
+            .password("{bcrypt}$2a$10$...")
+            .roles("ADMIN", "MONITORING")
+            .build();
+
+        return new InMemoryUserDetailsManager(monitoring, admin);
+    }
+}`} />
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '1.5rem', marginBottom: '1rem' }}>
+            Prometheus + Grafana Integration
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Configure Micrometer to export metrics in Prometheus format for dashboarding:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151',
+            marginBottom: '1.5rem'
+          }}>
+            <SyntaxHighlighter code={`@Configuration
+public class PrometheusMetricsConfig {
+
+    @Bean
+    public MeterRegistryCustomizer<MeterRegistry> commonTags() {
+        return registry -> registry.config()
+            .commonTags(
+                "application", "order-service",
+                "environment", "production",
+                "region", "us-east-1"
+            );
+    }
+
+    // Custom metric binder for domain-specific metrics
+    @Bean
+    public MeterBinder queueSizeMetrics(OrderQueue orderQueue) {
+        return registry -> {
+            Gauge.builder("order.queue.size", orderQueue, OrderQueue::size)
+                .description("Number of orders waiting in queue")
+                .tag("priority", "all")
+                .register(registry);
+
+            Gauge.builder("order.queue.oldest.age.seconds",
+                    orderQueue, q -> q.oldestAgeSeconds())
+                .description("Age of oldest order in queue")
+                .register(registry);
+        };
+    }
+}
+
+// prometheus.yml scrape config:
+// scrape_configs:
+//   - job_name: 'spring-boot-app'
+//     metrics_path: '/actuator/prometheus'
+//     scrape_interval: 15s
+//     basic_auth:
+//       username: 'prometheus'
+//       password: 'secret'
+//     static_configs:
+//       - targets: ['localhost:8080']`} />
+          </div>
+
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#d1d5db', marginTop: '1.5rem', marginBottom: '1rem' }}>
+            Custom Actuator Configuration Bean
+          </h3>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1rem' }}>
+            Programmatically customize endpoint behavior and CORS settings:
+          </p>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            padding: '1.25rem',
+            borderRadius: '8px',
+            border: '1px solid #374151'
+          }}>
+            <SyntaxHighlighter code={`@Configuration
+public class ActuatorConfig {
+
+    // Customize CORS for actuator endpoints
+    @Bean
+    public CorsEndpointProperties corsProperties() {
+        var cors = new CorsEndpointProperties();
+        cors.setAllowedOrigins(List.of("https://monitoring.example.com"));
+        cors.setAllowedMethods(List.of("GET", "POST"));
+        return cors;
+    }
+
+    // Customize health endpoint to include detailed status
+    @Bean
+    public HttpCodeStatusMapper httpCodeStatusMapper() {
+        return statusCode -> {
+            if ("DOWN".equals(statusCode)) {
+                return 503; // Service Unavailable
+            }
+            if ("OUT_OF_SERVICE".equals(statusCode)) {
+                return 503;
+            }
+            return 200;
+        };
+    }
+
+    // Register shutdown hook for graceful metrics export
+    @Bean
+    public ApplicationListener<ContextClosedEvent> shutdownHook(
+            MeterRegistry registry) {
+        return event -> {
+            if (registry instanceof PrometheusMeterRegistry prometheus) {
+                // Push final metrics before shutdown
+                prometheus.scrape();
+            }
+        };
+    }
+}`} />
           </div>
         </div>
       )}

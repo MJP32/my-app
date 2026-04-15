@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const FRAMEWORK_COLORS = {
   primary: '#4ade80',
@@ -146,36 +147,32 @@ const CachingDiagram = () => (
   </svg>
 )
 
-// Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
   const highlightJava = (code) => {
     let highlighted = code
       .replace(/&/g, '&amp;')
-      .replace(/</g, '<')
-      .replace(/>/g, '>')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
 
     const protectedContent = []
     let placeholder = 0
 
-    // Protect comments
     highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
       const id = `___COMMENT_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
       return id
     })
 
-    // Protect strings
     highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
       const id = `___STRING_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
       return id
     })
 
-    // Apply syntax highlighting
     highlighted = highlighted
-      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null)\b/g, '<span style="color: #c586c0;">$1</span>')
-      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
-      .replace(/\b(String|List|ArrayList|HashMap|Optional|Stream|Exception|Session|SessionFactory|Transaction|Query|Criteria|Entity|Table|Column|Id|GeneratedValue|OneToMany|ManyToOne|ManyToMany|OneToOne|JoinColumn|Cascade|Fetch|Lazy|Eager)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|super|this|null|default)\b/g, '<span style="color: #c586c0;">$1</span>')
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean|var)\b/g, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(String|List|ArrayList|Set|HashSet|Map|HashMap|Optional|Stream|Exception|Override|Integer|Long|BigDecimal|LocalDate|Date|Session|SessionFactory|Transaction|Query|Criteria|CriteriaBuilder|CriteriaQuery|Root|TypedQuery|Entity|Table|Column|Id|GeneratedValue|OneToMany|ManyToOne|ManyToMany|OneToOne|JoinColumn|JoinTable|Cascade|FetchType|EntityManager|Transactional|Configuration|ServiceRegistry|StandardServiceRegistryBuilder|Cacheable|Cache|BatchSize|Version|Embedded|Embeddable|Inheritance|DiscriminatorColumn|NamedQuery|NamedEntityGraph|EntityGraph)\b/g, '<span style="color: #4ec9b0;">$1</span>')
       .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
       .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
       .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
@@ -279,7 +276,25 @@ session.close();`
         },
         {
           name: 'Key Points',
-          explanation: 'ORM maps Java objects to database tables automatically. Eliminates boilerplate JDBC code - no manual SQL queries needed. Database independence - change database by changing configuration. Automatic table creation from entity classes. Built-in caching (first-level and second-level cache). Lazy loading for better performance. HQL (Hibernate Query Language) - object-oriented query language. Criteria API for type-safe queries.'
+          explanation: 'ORM maps Java objects to database tables automatically. Eliminates boilerplate JDBC code - no manual SQL queries needed. Database independence - change database by changing configuration. Automatic table creation from entity classes. Built-in caching (first-level and second-level cache). Lazy loading for better performance. HQL (Hibernate Query Language) - object-oriented query language. Criteria API for type-safe queries.',
+          codeExample: `// HQL - Hibernate Query Language
+List<User> users = session.createQuery(
+    "FROM User u WHERE u.email LIKE :domain", User.class)
+    .setParameter("domain", "%@example.com")
+    .getResultList();
+
+// Criteria API - type-safe queries
+CriteriaBuilder cb = session.getCriteriaBuilder();
+CriteriaQuery<User> cq = cb.createQuery(User.class);
+Root<User> root = cq.from(User.class);
+cq.select(root).where(
+    cb.like(root.get("email"), "%@example.com"));
+List<User> result = session.createQuery(cq).getResultList();
+
+// hibernate.cfg.xml key properties
+// hibernate.dialect = org.hibernate.dialect.MySQLDialect
+// hibernate.hbm2ddl.auto = update  (auto table creation)
+// hibernate.show_sql = true`
         }
       ]
     },
@@ -365,7 +380,37 @@ public class Order {
         },
         {
           name: 'Key Points',
-          explanation: '@OneToMany: Parent entity has collection of child entities. @ManyToOne: Child entity references parent entity. @OneToOne: One entity associated with exactly one other entity. @ManyToMany: Multiple entities on both sides, requires join table. Cascade types control operations propagation (PERSIST, MERGE, REMOVE, etc.). Fetch types: LAZY (load when accessed) vs EAGER (load immediately). mappedBy attribute defines bidirectional relationship owner. @JoinColumn specifies foreign key column.'
+          explanation: '@OneToMany: Parent entity has collection of child entities. @ManyToOne: Child entity references parent entity. @OneToOne: One entity associated with exactly one other entity. @ManyToMany: Multiple entities on both sides, requires join table. Cascade types control operations propagation (PERSIST, MERGE, REMOVE, etc.). Fetch types: LAZY (load when accessed) vs EAGER (load immediately). mappedBy attribute defines bidirectional relationship owner. @JoinColumn specifies foreign key column.',
+          codeExample: `// @OneToOne with shared primary key
+@Entity
+public class User {
+    @Id @GeneratedValue
+    private Long id;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserProfile profile;
+}
+
+@Entity
+public class UserProfile {
+    @Id @GeneratedValue
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+}
+
+// Bidirectional helper methods (best practice)
+public void addEmployee(Employee emp) {
+    employees.add(emp);
+    emp.setDepartment(this);
+}
+
+public void removeEmployee(Employee emp) {
+    employees.remove(emp);
+    emp.setDepartment(null);
+}`
         }
       ]
     },
@@ -459,7 +504,30 @@ User managed = (User) newSession.merge(transient);`
         },
         {
           name: 'Key Points',
-          explanation: 'SessionFactory: Heavy object, thread-safe, created once per application. Session: Light object, not thread-safe, one per request/transaction. First-level cache: Automatic, associated with Session. Entity states: Transient (not in DB), Persistent (managed), Detached (was persistent). save() vs persist(): save() returns ID immediately. get() vs load(): get() hits DB immediately, load() returns proxy. update() vs merge(): update() for detached entities, merge() creates copy. Always close Session in finally block or use try-with-resources.'
+          explanation: 'SessionFactory: Heavy object, thread-safe, created once per application. Session: Light object, not thread-safe, one per request/transaction. First-level cache: Automatic, associated with Session. Entity states: Transient (not in DB), Persistent (managed), Detached (was persistent). save() vs persist(): save() returns ID immediately. get() vs load(): get() hits DB immediately, load() returns proxy. update() vs merge(): update() for detached entities, merge() creates copy. Always close Session in finally block or use try-with-resources.',
+          codeExample: `// update() vs merge() comparison
+Session session1 = factory.openSession();
+Transaction tx1 = session1.beginTransaction();
+User user = session1.get(User.class, 1L);
+tx1.commit();
+session1.close(); // user is now detached
+
+// Option 1: update() - reattaches same object
+Session session2 = factory.openSession();
+Transaction tx2 = session2.beginTransaction();
+user.setName("Updated");
+session2.update(user); // reattaches 'user'
+tx2.commit();
+session2.close();
+
+// Option 2: merge() - returns new managed copy
+Session session3 = factory.openSession();
+Transaction tx3 = session3.beginTransaction();
+user.setName("Merged");
+User managed = (User) session3.merge(user);
+// 'managed' is persistent, 'user' is still detached
+tx3.commit();
+session3.close();`
         }
       ]
     },
@@ -580,11 +648,34 @@ List<Department> depts = session
         },
         {
           name: 'Key Points',
-          explanation: 'First-level cache: Enabled by default, Session-scoped, cannot be disabled. Second-level cache: Optional, SessionFactory-scoped, requires configuration. Cache providers: EhCache, Infinispan, Hazelcast, Redis. Cache concurrency strategies: READ_ONLY, NONSTRICT_READ_WRITE, READ_WRITE, TRANSACTIONAL. Query cache: Caches query results, must enable explicitly. Cache eviction methods: evict(), clear(), evictAll(). Use @Cacheable and @Cache annotations. Cache only read-mostly entities to avoid stale data.'
+          explanation: 'First-level cache: Enabled by default, Session-scoped, cannot be disabled. Second-level cache: Optional, SessionFactory-scoped, requires configuration. Cache providers: EhCache, Infinispan, Hazelcast, Redis. Cache concurrency strategies: READ_ONLY, NONSTRICT_READ_WRITE, READ_WRITE, TRANSACTIONAL. Query cache: Caches query results, must enable explicitly. Cache eviction methods: evict(), clear(), evictAll(). Use @Cacheable and @Cache annotations. Cache only read-mostly entities to avoid stale data.',
+          codeExample: `// Cache concurrency strategies
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+public class Country { /* immutable reference data */ }
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class Product { /* read-mostly, occasional writes */ }
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+public class BlogPost { /* eventual consistency OK */ }
+
+// Statistics to monitor cache performance
+Statistics stats = sessionFactory.getStatistics();
+stats.setStatisticsEnabled(true);
+
+long hitCount = stats.getSecondLevelCacheHitCount();
+long missCount = stats.getSecondLevelCacheMissCount();
+double hitRatio = (double) hitCount / (hitCount + missCount);
+System.out.println("L2 Cache hit ratio: " + hitRatio);`
         }
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 

@@ -251,7 +251,8 @@ function SignInModal({ isOpen, onClose }) {
                     transition: 'border-color 0.2s',
                     fontFamily: 'inherit',
                     backgroundColor: colors.bgPrimary,
-                    color: colors.textPrimary
+                    color: colors.textPrimary,
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
                   onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
@@ -292,7 +293,8 @@ function SignInModal({ isOpen, onClose }) {
                   transition: 'border-color 0.2s',
                   fontFamily: 'inherit',
                   backgroundColor: colors.bgPrimary,
-                  color: colors.textPrimary
+                  color: colors.textPrimary,
+                  boxSizing: 'border-box'
                 }}
                 onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
@@ -332,7 +334,8 @@ function SignInModal({ isOpen, onClose }) {
                   transition: 'border-color 0.2s',
                   fontFamily: 'inherit',
                   backgroundColor: colors.bgPrimary,
-                  color: colors.textPrimary
+                  color: colors.textPrimary,
+                  boxSizing: 'border-box'
                 }}
                 onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.currentTarget.style.borderColor = colors.border}

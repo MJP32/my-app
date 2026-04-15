@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -251,6 +252,60 @@ const GraphDatabaseDiagram = () => (
   </svg>
 )
 
+// Syntax highlighter for NoSQL code examples (MongoDB shell, Java drivers, Redis, CQL)
+const SyntaxHighlighter = ({ code }) => {
+  const highlightCode = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/|#.*$)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(db|use|find|insert|update|delete|aggregate|createIndex|createCollection|drop|sort|limit|skip|count|distinct|lookup|unwind|match|group|project|set|push|pull|addToSet|inc|put|get|scan|query|batch|execute|connect|close|create|new|return|var|let|const|if|else|for|while|function|class|public|private|static|void|import|try|catch|finally|throw|this|null|true|false)\b/g, '<span style="color: #c586c0;">$1</span>')
+      .replace(/\b(String|Map|List|HashMap|ArrayList|Document|MongoClient|MongoDatabase|MongoCollection|BasicDBObject|Table|Item|DynamoDB|Jedis|RedisTemplate|Session|Cluster|ResultSet)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
+      .replace(/(\$\w+)/g, '<span style="color: #569cd6;">$1</span>')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
+    </pre>
+  )
+}
+
 function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -266,19 +321,108 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Document Database',
-          explanation: 'MongoDB stores data as flexible JSON-like BSON documents. Schema-less design allows dynamic fields per document, perfect for evolving data structures. Documents can contain nested arrays and objects for hierarchical data. Natural mapping to programming language objects.'
+          explanation: 'MongoDB stores data as flexible JSON-like BSON documents. Schema-less design allows dynamic fields per document, perfect for evolving data structures. Documents can contain nested arrays and objects for hierarchical data. Natural mapping to programming language objects.',
+          codeExample: `// Insert a document with nested structure
+db.users.insertOne({
+  name: "Alice Johnson",
+  email: "alice@example.com",
+  address: {
+    city: "New York",
+    zip: "10001"
+  },
+  orders: [
+    { product: "Laptop", price: 999.99 },
+    { product: "Mouse", price: 29.99 }
+  ]
+})
+
+// Query with nested field filter
+db.users.find({ "address.city": "New York" })
+
+// Update nested field
+db.users.updateOne(
+  { email: "alice@example.com" },
+  { $set: { "address.zip": "10002" } }
+)`
         },
         {
           name: 'Aggregation Framework',
-          explanation: 'Powerful pipeline-based data processing with stages like $match, $group, $project, $sort, and $lookup. Perform complex transformations and analytics directly in the database. MapReduce alternative with better performance. Support for joins via $lookup stage.'
+          explanation: 'Powerful pipeline-based data processing with stages like $match, $group, $project, $sort, and $lookup. Perform complex transformations and analytics directly in the database. MapReduce alternative with better performance. Support for joins via $lookup stage.',
+          codeExample: `// Aggregation pipeline: sales report by category
+db.orders.aggregate([
+  { $match: { status: "completed" } },
+  { $unwind: "$items" },
+  { $group: {
+      _id: "$items.category",
+      totalRevenue: { $sum: "$items.price" },
+      count: { $sum: 1 }
+  }},
+  { $sort: { totalRevenue: -1 } },
+  { $limit: 10 },
+  { $project: {
+      category: "$_id",
+      totalRevenue: 1,
+      count: 1,
+      _id: 0
+  }}
+])
+
+// $lookup for joining collections
+db.orders.aggregate([
+  { $lookup: {
+      from: "users",
+      localField: "userId",
+      foreignField: "_id",
+      as: "customer"
+  }}
+])`
         },
         {
           name: 'Indexing Strategies',
-          explanation: 'Support for single field, compound, multikey, text, geospatial, and hashed indexes. Index intersection for using multiple indexes in queries. Partial indexes for subset of documents. Covered queries serve entirely from index. Critical for query performance.'
+          explanation: 'Support for single field, compound, multikey, text, geospatial, and hashed indexes. Index intersection for using multiple indexes in queries. Partial indexes for subset of documents. Covered queries serve entirely from index. Critical for query performance.',
+          codeExample: `// Single field index
+db.users.createIndex({ email: 1 }, { unique: true })
+
+// Compound index (order matters for queries)
+db.orders.createIndex({ userId: 1, createdAt: -1 })
+
+// Text index for full-text search
+db.articles.createIndex({ title: "text", body: "text" })
+db.articles.find({ $text: { $search: "mongodb" } })
+
+// Partial index - only index active users
+db.users.createIndex(
+  { email: 1 },
+  { partialFilterExpression: { status: "active" } }
+)
+
+// Check index usage with explain
+db.users.find({ email: "a@b.com" }).explain("executionStats")`
         },
         {
           name: 'Replication',
-          explanation: 'Replica sets provide high availability with automatic failover. Primary handles writes, secondaries replicate data. Automatic election of new primary on failure. Read preference options for distributing load. Ensures data durability and availability.'
+          explanation: 'Replica sets provide high availability with automatic failover. Primary handles writes, secondaries replicate data. Automatic election of new primary on failure. Read preference options for distributing load. Ensures data durability and availability.',
+          codeExample: `// Initialize a replica set (mongosh)
+rs.initiate({
+  _id: "myReplicaSet",
+  members: [
+    { _id: 0, host: "mongo1:27017" },
+    { _id: 1, host: "mongo2:27017" },
+    { _id: 2, host: "mongo3:27017" }
+  ]
+})
+
+// Check replica set status
+rs.status()
+
+// Read from secondary (Java driver)
+MongoClient client = MongoClients.create(
+  "mongodb://mongo1,mongo2,mongo3/?replicaSet=myReplicaSet"
+);
+MongoCollection<Document> col = client
+  .getDatabase("mydb")
+  .getCollection("users")
+  .withReadPreference(ReadPreference.secondaryPreferred());`
         },
         {
           name: 'Sharding',
@@ -300,19 +444,95 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Column-Family Store',
-          explanation: 'Wide-column store organizing data into column families. Rows can have varying columns. Optimized for write-heavy workloads. Columns grouped by access patterns. Inspired by Google Bigtable design for massive scale.'
+          explanation: 'Wide-column store organizing data into column families. Rows can have varying columns. Optimized for write-heavy workloads. Columns grouped by access patterns. Inspired by Google Bigtable design for massive scale.',
+          codeExample: `-- Create a keyspace with replication
+CREATE KEYSPACE ecommerce
+  WITH replication = {
+    'class': 'NetworkTopologyStrategy',
+    'dc1': 3, 'dc2': 2
+  };
+
+USE ecommerce;
+
+-- Create a table (column family)
+CREATE TABLE users (
+  user_id UUID PRIMARY KEY,
+  name TEXT,
+  email TEXT,
+  created_at TIMESTAMP
+);
+
+-- Insert a row
+INSERT INTO users (user_id, name, email, created_at)
+VALUES (uuid(), 'Alice', 'alice@co.com', toTimestamp(now()));`
         },
         {
           name: 'Ring Architecture',
-          explanation: 'Peer-to-peer distributed system with no single point of failure. Data distributed via consistent hashing across a ring topology. Every node is identical in responsibilities. Gossip protocol for cluster communication. Enables linear scalability.'
+          explanation: 'Peer-to-peer distributed system with no single point of failure. Data distributed via consistent hashing across a ring topology. Every node is identical in responsibilities. Gossip protocol for cluster communication. Enables linear scalability.',
+          codeExample: `-- Check cluster ring status
+nodetool status
+
+-- View token ownership
+nodetool ring
+
+-- Java driver: connect to cluster
+Cluster cluster = Cluster.builder()
+    .addContactPoints("node1", "node2", "node3")
+    .withLoadBalancingPolicy(
+        DCAwareRoundRobinPolicy.builder()
+            .withLocalDc("dc1")
+            .build()
+    )
+    .build();
+Session session = cluster.connect("ecommerce");
+
+-- Decommission a node gracefully
+nodetool decommission`
         },
         {
           name: 'Tunable Consistency',
-          explanation: 'Configurable consistency levels from ONE to ALL. Quorum reads/writes balance consistency and availability. Choose per-operation consistency level. CAP theorem trade-offs controlled by application. Eventual consistency by default for maximum availability.'
+          explanation: 'Configurable consistency levels from ONE to ALL. Quorum reads/writes balance consistency and availability. Choose per-operation consistency level. CAP theorem trade-offs controlled by application. Eventual consistency by default for maximum availability.',
+          codeExample: `-- CQL: set consistency per query
+CONSISTENCY QUORUM;
+SELECT * FROM users WHERE user_id = ?;
+
+-- Java driver: per-statement consistency
+Statement stmt = new SimpleStatement(
+    "SELECT * FROM users WHERE user_id = ?", userId
+).setConsistencyLevel(ConsistencyLevel.QUORUM);
+ResultSet rs = session.execute(stmt);
+
+// Write with LOCAL_QUORUM for cross-DC safety
+Statement insert = new SimpleStatement(
+    "INSERT INTO users (user_id, name) VALUES (?, ?)",
+    userId, "Bob"
+).setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
+session.execute(insert);`
         },
         {
           name: 'Partition Keys',
-          explanation: 'Partition key determines data distribution across nodes. Clustering keys define sort order within partition. Proper key design critical for performance. Avoid hot partitions that overload specific nodes. Data modeling driven by query patterns.'
+          explanation: 'Partition key determines data distribution across nodes. Clustering keys define sort order within partition. Proper key design critical for performance. Avoid hot partitions that overload specific nodes. Data modeling driven by query patterns.',
+          codeExample: `-- Partition key + clustering key design
+CREATE TABLE user_activity (
+  user_id UUID,           -- partition key
+  activity_time TIMESTAMP, -- clustering key
+  action TEXT,
+  details TEXT,
+  PRIMARY KEY (user_id, activity_time)
+) WITH CLUSTERING ORDER BY (activity_time DESC);
+
+-- Composite partition key for even distribution
+CREATE TABLE sensor_data (
+  sensor_id TEXT,
+  day TEXT,               -- bucket by day
+  reading_time TIMESTAMP,
+  value DOUBLE,
+  PRIMARY KEY ((sensor_id, day), reading_time)
+);
+
+-- Query within a single partition (efficient)
+SELECT * FROM user_activity
+  WHERE user_id = ? AND activity_time > '2024-01-01';`
         },
         {
           name: 'Write-Optimized',
@@ -334,19 +554,95 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'In-Memory Store',
-          explanation: 'All data kept in RAM for microsecond latency. Optional persistence to disk via snapshots or AOF. Dramatically faster than disk-based databases. Perfect for caching, sessions, and real-time applications. Memory as the primary storage medium.'
+          explanation: 'All data kept in RAM for microsecond latency. Optional persistence to disk via snapshots or AOF. Dramatically faster than disk-based databases. Perfect for caching, sessions, and real-time applications. Memory as the primary storage medium.',
+          codeExample: `# Basic string operations
+SET user:1001 "Alice"
+GET user:1001              # "Alice"
+
+# Set with expiration (TTL)
+SET session:abc123 "data" EX 3600   # expires in 1 hour
+TTL session:abc123                   # seconds remaining
+
+# Java with Jedis client
+Jedis jedis = new Jedis("localhost", 6379);
+jedis.set("user:1001", "Alice");
+String name = jedis.get("user:1001");
+
+// Set with TTL
+jedis.setex("session:abc", 3600, "sessionData");
+jedis.close();`
         },
         {
           name: 'Rich Data Structures',
-          explanation: 'Native support for strings, hashes, lists, sets, sorted sets, bitmaps, hyperloglogs, and streams. Operations optimized for each type. Atomic operations on complex types. Enables sophisticated caching and data modeling patterns beyond simple key-value.'
+          explanation: 'Native support for strings, hashes, lists, sets, sorted sets, bitmaps, hyperloglogs, and streams. Operations optimized for each type. Atomic operations on complex types. Enables sophisticated caching and data modeling patterns beyond simple key-value.',
+          codeExample: `# Hash - store user as object
+HSET user:1001 name "Alice" email "a@b.com" age 30
+HGET user:1001 name           # "Alice"
+HGETALL user:1001             # all fields
+
+# List - message queue
+LPUSH queue:tasks "task1" "task2"
+RPOP queue:tasks              # "task1"
+
+# Sorted Set - leaderboard
+ZADD leaderboard 100 "player1" 200 "player2"
+ZRANGE leaderboard 0 -1 WITHSCORES   # sorted
+ZREVRANK leaderboard "player2"        # rank 0
+
+# Set - unique tags
+SADD article:1:tags "java" "nosql" "redis"
+SISMEMBER article:1:tags "java"       # 1 (true)
+SINTER article:1:tags article:2:tags  # common tags`
         },
         {
           name: 'Pub/Sub Messaging',
-          explanation: 'Built-in publish/subscribe messaging pattern. Channels for topic-based messaging. Pattern matching subscriptions for flexible routing. Real-time event distribution. Foundation for message queues and real-time notifications.'
+          explanation: 'Built-in publish/subscribe messaging pattern. Channels for topic-based messaging. Pattern matching subscriptions for flexible routing. Real-time event distribution. Foundation for message queues and real-time notifications.',
+          codeExample: `# Subscribe to a channel (terminal 1)
+SUBSCRIBE notifications
+
+# Publish a message (terminal 2)
+PUBLISH notifications "New order received"
+
+# Pattern-based subscription
+PSUBSCRIBE order.*         # matches order.created, order.shipped
+
+# Java Jedis pub/sub
+Jedis subscriber = new Jedis("localhost");
+subscriber.subscribe(new JedisPubSub() {
+    public void onMessage(String channel, String msg) {
+        System.out.println(channel + ": " + msg);
+    }
+}, "notifications");
+
+// Publisher
+Jedis publisher = new Jedis("localhost");
+publisher.publish("notifications", "Hello!");`
         },
         {
           name: 'Transactions',
-          explanation: 'MULTI/EXEC for transaction blocks. All commands executed atomically. WATCH for optimistic locking. Pipeline commands for better performance. Lua scripting for server-side atomic operations with complex logic.'
+          explanation: 'MULTI/EXEC for transaction blocks. All commands executed atomically. WATCH for optimistic locking. Pipeline commands for better performance. Lua scripting for server-side atomic operations with complex logic.',
+          codeExample: `# Atomic transaction
+MULTI
+SET account:1 900
+SET account:2 1100
+EXEC                # both execute atomically
+
+# Optimistic locking with WATCH
+WATCH account:1
+val = GET account:1
+MULTI
+SET account:1 (val - 100)
+EXEC                # fails if account:1 changed
+
+# Lua script for atomic operations
+EVAL "
+  local current = redis.call('GET', KEYS[1])
+  if tonumber(current) >= tonumber(ARGV[1]) then
+    redis.call('DECRBY', KEYS[1], ARGV[1])
+    return 1
+  end
+  return 0
+" 1 account:1 100`
         },
         {
           name: 'Persistence Options',
@@ -368,19 +664,97 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Managed Service',
-          explanation: 'Fully managed by AWS - no servers to provision or manage. Automatic scaling based on traffic patterns. Built-in backup and restore capabilities. Point-in-time recovery for data protection. Multi-region replication. Focus on application development, not database operations.'
+          explanation: 'Fully managed by AWS - no servers to provision or manage. Automatic scaling based on traffic patterns. Built-in backup and restore capabilities. Point-in-time recovery for data protection. Multi-region replication. Focus on application development, not database operations.',
+          codeExample: `// AWS SDK v2 - Create DynamoDB table
+DynamoDbClient ddb = DynamoDbClient.builder()
+    .region(Region.US_EAST_1).build();
+
+CreateTableRequest request = CreateTableRequest.builder()
+    .tableName("Users")
+    .keySchema(
+        KeySchemaElement.builder()
+            .attributeName("userId")
+            .keyType(KeyType.HASH).build()
+    )
+    .attributeDefinitions(
+        AttributeDefinition.builder()
+            .attributeName("userId")
+            .attributeType(ScalarAttributeType.S).build()
+    )
+    .billingMode(BillingMode.PAY_PER_REQUEST)
+    .build();
+
+ddb.createTable(request);`
         },
         {
           name: 'Key-Value & Document',
-          explanation: 'Supports both key-value and document data models. Store complex nested structures. Flexible schema per item. Primary key required (partition key or partition + sort key). Items up to 400 KB. Versatile for different use cases.'
+          explanation: 'Supports both key-value and document data models. Store complex nested structures. Flexible schema per item. Primary key required (partition key or partition + sort key). Items up to 400 KB. Versatile for different use cases.',
+          codeExample: `// Put item with nested attributes
+Map<String, AttributeValue> item = new HashMap<>();
+item.put("userId", AttributeValue.builder().s("u123").build());
+item.put("name", AttributeValue.builder().s("Alice").build());
+item.put("age", AttributeValue.builder().n("30").build());
+item.put("address", AttributeValue.builder().m(Map.of(
+    "city", AttributeValue.builder().s("NYC").build(),
+    "zip", AttributeValue.builder().s("10001").build()
+)).build());
+
+ddb.putItem(PutItemRequest.builder()
+    .tableName("Users").item(item).build());
+
+// Get item by key
+GetItemResponse resp = ddb.getItem(GetItemRequest.builder()
+    .tableName("Users")
+    .key(Map.of("userId",
+        AttributeValue.builder().s("u123").build()))
+    .build());`
         },
         {
           name: 'Provisioned & On-Demand',
-          explanation: 'Provisioned capacity mode with predictable performance and cost. On-demand mode for variable workloads with pay-per-request billing. Auto-scaling for provisioned capacity. Switch between modes as workload changes. Flexibility in cost and performance management.'
+          explanation: 'Provisioned capacity mode with predictable performance and cost. On-demand mode for variable workloads with pay-per-request billing. Auto-scaling for provisioned capacity. Switch between modes as workload changes. Flexibility in cost and performance management.',
+          codeExample: `// Provisioned capacity with auto-scaling
+CreateTableRequest request = CreateTableRequest.builder()
+    .tableName("Orders")
+    .billingMode(BillingMode.PROVISIONED)
+    .provisionedThroughput(ProvisionedThroughput.builder()
+        .readCapacityUnits(100L)
+        .writeCapacityUnits(50L)
+        .build())
+    .build();
+
+// Switch to on-demand (via update)
+ddb.updateTable(UpdateTableRequest.builder()
+    .tableName("Orders")
+    .billingMode(BillingMode.PAY_PER_REQUEST)
+    .build());
+
+// AWS CLI equivalent
+// aws dynamodb update-table \
+//   --table-name Orders \
+//   --billing-mode PAY_PER_REQUEST`
         },
         {
           name: 'Global Tables',
-          explanation: 'Multi-region, multi-master replication. Active-active configuration across regions. Automatic conflict resolution with last-writer-wins. Single-digit millisecond latency globally. Built-in disaster recovery and geographic data distribution.'
+          explanation: 'Multi-region, multi-master replication. Active-active configuration across regions. Automatic conflict resolution with last-writer-wins. Single-digit millisecond latency globally. Built-in disaster recovery and geographic data distribution.',
+          codeExample: `// Create global table replica (AWS CLI)
+// aws dynamodb create-table \
+//   --table-name Users \
+//   --billing-mode PAY_PER_REQUEST \
+//   --key-schema AttributeName=userId,KeyType=HASH \
+//   --attribute-definitions AttributeName=userId,AttributeType=S \
+//   --region us-east-1
+
+// Add replica in eu-west-1
+// aws dynamodb update-table \
+//   --table-name Users \
+//   --replica-updates \
+//     '[{"Create": {"RegionName": "eu-west-1"}}]' \
+//   --region us-east-1
+
+// Java: write in us-east-1, read in eu-west-1
+DynamoDbClient euClient = DynamoDbClient.builder()
+    .region(Region.EU_WEST_1).build();
+// Reads local replica with single-digit ms latency`
         },
         {
           name: 'DynamoDB Streams',
@@ -402,15 +776,77 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Schema Flexibility',
-          explanation: 'Documents can have different fields and structures without predefined schema. Add/remove fields without migrations. Perfect for evolving requirements and rapid development. Natural representation of object-oriented data. Each document is self-contained.'
+          explanation: 'Documents can have different fields and structures without predefined schema. Add/remove fields without migrations. Perfect for evolving requirements and rapid development. Natural representation of object-oriented data. Each document is self-contained.',
+          codeExample: `// Different documents in the same collection
+db.products.insertMany([
+  {
+    name: "Laptop",
+    specs: { ram: "16GB", cpu: "i7" },
+    price: 999
+  },
+  {
+    name: "T-Shirt",
+    size: "L", color: "blue",
+    price: 25
+    // no "specs" field - that's fine!
+  },
+  {
+    name: "eBook",
+    format: "PDF", pages: 350,
+    price: 15
+    // completely different fields
+  }
+])`
         },
         {
           name: 'Nested Structures',
-          explanation: 'Support for embedded documents and arrays. Hierarchical data modeling without joins. Denormalization for query performance. Reduce complex joins by embedding related data. Single document reads instead of multiple table queries.'
+          explanation: 'Support for embedded documents and arrays. Hierarchical data modeling without joins. Denormalization for query performance. Reduce complex joins by embedding related data. Single document reads instead of multiple table queries.',
+          codeExample: `// Embedded document pattern (denormalized)
+db.blogPosts.insertOne({
+  title: "NoSQL Guide",
+  author: { name: "Alice", email: "alice@co.com" },
+  comments: [
+    { user: "Bob", text: "Great post!", date: new Date() },
+    { user: "Carol", text: "Very helpful", date: new Date() }
+  ],
+  tags: ["nosql", "mongodb", "tutorial"]
+})
+
+// Query nested fields directly
+db.blogPosts.find({ "author.name": "Alice" })
+
+// Query inside arrays
+db.blogPosts.find({ "comments.user": "Bob" })
+
+// Update nested array element
+db.blogPosts.updateOne(
+  { title: "NoSQL Guide", "comments.user": "Bob" },
+  { $set: { "comments.$.text": "Updated comment" } }
+)`
         },
         {
           name: 'Rich Query Languages',
-          explanation: 'Query capabilities beyond simple key lookups. Filter by nested field values. Projection to return specific fields. Sorting and pagination support. Aggregation and analytics. Index-backed queries for high performance.'
+          explanation: 'Query capabilities beyond simple key lookups. Filter by nested field values. Projection to return specific fields. Sorting and pagination support. Aggregation and analytics. Index-backed queries for high performance.',
+          codeExample: `// Filter with comparison operators
+db.products.find({
+  price: { $gte: 10, $lte: 100 },
+  tags: { $in: ["sale", "featured"] }
+})
+
+// Projection - return only specific fields
+db.products.find(
+  { category: "electronics" },
+  { name: 1, price: 1, _id: 0 }
+)
+
+// Sort + paginate
+db.products.find({ status: "active" })
+  .sort({ price: -1 })
+  .skip(20)
+  .limit(10)
+
+// Regex search
+db.products.find({ name: { $regex: /laptop/i } })`
         },
         {
           name: 'ACID Properties',
@@ -428,15 +864,73 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Simple Model',
-          explanation: 'Simplest NoSQL model - unique key maps to value. Value is opaque to database. No complex query language needed. PUT, GET, DELETE operations only. Blazing fast lookups via direct hash-based access. Foundation for other NoSQL types.'
+          explanation: 'Simplest NoSQL model - unique key maps to value. Value is opaque to database. No complex query language needed. PUT, GET, DELETE operations only. Blazing fast lookups via direct hash-based access. Foundation for other NoSQL types.',
+          codeExample: `# Redis key-value basics
+SET user:1001 "Alice"
+GET user:1001             # "Alice"
+DEL user:1001             # removes key
+EXISTS user:1001          # 0 (false)
+
+# Store JSON as value
+SET config:app '{"theme":"dark","lang":"en"}'
+GET config:app
+
+# Atomic increment (counters)
+SET page:views 0
+INCR page:views           # 1
+INCRBY page:views 10      # 11
+
+# Key patterns
+KEYS user:*               # find all user keys
+SCAN 0 MATCH user:* COUNT 100  # safer iteration`
         },
         {
           name: 'Extreme Performance',
-          explanation: 'Optimized for extremely high throughput and low latency. Direct hash-based lookup without query parsing overhead. In-memory implementations deliver microsecond response times. Linear scalability as you add nodes. Ideal for high-traffic applications.'
+          explanation: 'Optimized for extremely high throughput and low latency. Direct hash-based lookup without query parsing overhead. In-memory implementations deliver microsecond response times. Linear scalability as you add nodes. Ideal for high-traffic applications.',
+          codeExample: `// Java Jedis - pipeline for bulk operations
+Jedis jedis = new Jedis("localhost", 6379);
+
+// Pipeline: batch commands (reduce round trips)
+Pipeline pipe = jedis.pipelined();
+for (int i = 0; i < 10000; i++) {
+    pipe.set("key:" + i, "value:" + i);
+}
+pipe.sync();  // send all at once
+
+// MGET/MSET for batch key-value
+jedis.mset("k1", "v1", "k2", "v2", "k3", "v3");
+List<String> vals = jedis.mget("k1", "k2", "k3");
+
+// Benchmark: redis-benchmark -q -n 100000
+// SET: ~150,000 ops/sec
+// GET: ~150,000 ops/sec`
         },
         {
           name: 'Caching Layer',
-          explanation: 'Primary use case as cache in front of databases. Store session data, user preferences, and temporary data. TTL (time-to-live) for automatic expiration. Implement cache-aside, read-through, and write-through patterns. Reduces database load dramatically.'
+          explanation: 'Primary use case as cache in front of databases. Store session data, user preferences, and temporary data. TTL (time-to-live) for automatic expiration. Implement cache-aside, read-through, and write-through patterns. Reduces database load dramatically.',
+          codeExample: `// Cache-aside pattern in Java
+public User getUser(String userId) {
+    // 1. Check cache first
+    String cached = jedis.get("user:" + userId);
+    if (cached != null) {
+        return deserialize(cached);
+    }
+
+    // 2. Cache miss - query database
+    User user = database.findById(userId);
+
+    // 3. Store in cache with TTL
+    jedis.setex("user:" + userId, 3600,
+        serialize(user));
+
+    return user;
+}
+
+// Invalidate on update
+public void updateUser(User user) {
+    database.save(user);
+    jedis.del("user:" + user.getId());
+}`
         },
         {
           name: 'Distributed Hash Tables',
@@ -454,19 +948,97 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Wide-Column Model',
-          explanation: 'Tables with rows and dynamic columns. Columns grouped into column families. Each row can have different columns for sparse data representation. Two-dimensional key-value store (row key, column key). Flexible schema per row.'
+          explanation: 'Tables with rows and dynamic columns. Columns grouped into column families. Each row can have different columns for sparse data representation. Two-dimensional key-value store (row key, column key). Flexible schema per row.',
+          codeExample: `-- Cassandra: wide-column with clustering keys
+CREATE TABLE timeseries (
+  sensor_id TEXT,
+  ts TIMESTAMP,
+  temperature DOUBLE,
+  humidity DOUBLE,
+  PRIMARY KEY (sensor_id, ts)
+);
+
+-- Each sensor_id is a row with many timestamp columns
+INSERT INTO timeseries (sensor_id, ts, temperature, humidity)
+VALUES ('sensor-1', '2024-01-01 12:00:00', 22.5, 45.0);
+
+-- Range query within a partition
+SELECT * FROM timeseries
+WHERE sensor_id = 'sensor-1'
+  AND ts >= '2024-01-01' AND ts < '2024-02-01';`
         },
         {
           name: 'Data Locality',
-          explanation: 'Columns accessed together stored together physically. Column family design based on query patterns. Reduces I/O for analytical queries. Compression works better on similar data types stored together. Columnar storage benefits for analytics.'
+          explanation: 'Columns accessed together stored together physically. Column family design based on query patterns. Reduces I/O for analytical queries. Compression works better on similar data types stored together. Columnar storage benefits for analytics.',
+          codeExample: `-- Design table around query patterns
+-- Query: "Get all orders for a user, newest first"
+CREATE TABLE user_orders (
+  user_id UUID,
+  order_date TIMESTAMP,
+  order_id UUID,
+  total DECIMAL,
+  status TEXT,
+  PRIMARY KEY (user_id, order_date)
+) WITH CLUSTERING ORDER BY (order_date DESC);
+
+-- Data for same user stored together on disk
+-- Efficient sequential read for one user's orders
+SELECT * FROM user_orders
+WHERE user_id = ? LIMIT 20;
+
+-- Anti-pattern: avoid queries across partitions
+-- BAD: SELECT * FROM user_orders WHERE status = 'pending'
+-- This scans ALL partitions (full table scan)`
         },
         {
           name: 'Versioning',
-          explanation: 'Multiple versions of cell values with timestamps. Time-travel queries to retrieve historical data. Automatic garbage collection of old versions. Enables audit trails and temporal data analysis without application-level complexity.'
+          explanation: 'Multiple versions of cell values with timestamps. Time-travel queries to retrieve historical data. Automatic garbage collection of old versions. Enables audit trails and temporal data analysis without application-level complexity.',
+          codeExample: `-- Cassandra: TTL and WRITETIME for versioning
+INSERT INTO users (user_id, name, email)
+VALUES (uuid(), 'Alice', 'alice@v1.com')
+USING TTL 86400;    -- auto-delete after 24 hours
+
+-- Check when a value was written
+SELECT name, WRITETIME(name), TTL(name)
+FROM users WHERE user_id = ?;
+
+-- HBase: explicit versioning (Java API)
+// Put with timestamp
+Put put = new Put(Bytes.toBytes("row1"));
+put.addColumn(
+    Bytes.toBytes("cf"), Bytes.toBytes("name"),
+    timestamp, Bytes.toBytes("Alice")
+);
+table.put(put);
+
+// Get specific number of versions
+Get get = new Get(Bytes.toBytes("row1"));
+get.readVersions(3);  // last 3 versions`
         },
         {
           name: 'Compression',
-          explanation: 'Columnar layout enables efficient compression. Similar values in columns compress exceptionally well. Reduce storage costs significantly. Lower I/O requirements improve query performance. Multiple compression algorithms per column family.'
+          explanation: 'Columnar layout enables efficient compression. Similar values in columns compress exceptionally well. Reduce storage costs significantly. Lower I/O requirements improve query performance. Multiple compression algorithms per column family.',
+          codeExample: `-- Cassandra: enable compression per table
+CREATE TABLE logs (
+  app TEXT,
+  log_time TIMESTAMP,
+  level TEXT,
+  message TEXT,
+  PRIMARY KEY (app, log_time)
+) WITH compression = {
+  'class': 'LZ4Compressor',
+  'chunk_length_in_kb': 64
+};
+
+-- Alternative compressors
+ALTER TABLE logs WITH compression = {
+  'class': 'ZstdCompressor',
+  'compression_level': 3
+};
+
+-- Check compression ratio
+nodetool tablestats keyspace.logs
+-- SSTable Compression Ratio: 0.35 (65% savings)`
         },
         {
           name: 'Analytics Workloads',
@@ -484,19 +1056,87 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Nodes & Relationships',
-          explanation: 'Store data as nodes (entities) and edges (relationships). Relationships are first-class citizens with properties. Both nodes and edges can have properties. Labels for typing. Natural representation of highly connected data.'
+          explanation: 'Store data as nodes (entities) and edges (relationships). Relationships are first-class citizens with properties. Both nodes and edges can have properties. Labels for typing. Natural representation of highly connected data.',
+          codeExample: `// Neo4j Cypher: create nodes and relationships
+CREATE (alice:User {name: "Alice", age: 30})
+CREATE (bob:User {name: "Bob", age: 28})
+CREATE (laptop:Product {name: "Laptop", price: 999})
+
+// Create relationships with properties
+CREATE (alice)-[:FRIENDS_WITH {since: 2020}]->(bob)
+CREATE (alice)-[:PURCHASED {date: "2024-01-15"}]->(laptop)
+CREATE (bob)-[:VIEWED]->(laptop)
+
+// Query: find Alice's friends
+MATCH (alice:User {name: "Alice"})-[:FRIENDS_WITH]->(friend)
+RETURN friend.name`
         },
         {
           name: 'Traversal Queries',
-          explanation: 'Query by traversing relationships between nodes. Find paths between entities. Shortest path algorithms built-in. Depth and breadth-first traversal. Pattern matching for complex queries. Much faster than SQL joins for connected data.'
+          explanation: 'Query by traversing relationships between nodes. Find paths between entities. Shortest path algorithms built-in. Depth and breadth-first traversal. Pattern matching for complex queries. Much faster than SQL joins for connected data.',
+          codeExample: `// Friends of friends (2 hops)
+MATCH (user:User {name: "Alice"})
+      -[:FRIENDS_WITH*2]->(fof)
+WHERE fof <> user
+RETURN DISTINCT fof.name
+
+// Shortest path between two users
+MATCH path = shortestPath(
+  (a:User {name: "Alice"})
+  -[:FRIENDS_WITH*..6]-
+  (b:User {name: "Zara"})
+)
+RETURN path, length(path)
+
+// Variable-length traversal (1 to 5 hops)
+MATCH (start:User {name: "Alice"})
+      -[:FOLLOWS*1..5]->(reached)
+RETURN reached.name, min(length(path)) AS distance
+ORDER BY distance`
         },
         {
           name: 'Query Languages',
-          explanation: 'Cypher (Neo4j) with intuitive ASCII-art syntax. Gremlin (TinkerPop) for traversal-based queries. SPARQL for RDF graphs. Declarative pattern matching. Optimized for graph operations. Much more intuitive than complex SQL joins.'
+          explanation: 'Cypher (Neo4j) with intuitive ASCII-art syntax. Gremlin (TinkerPop) for traversal-based queries. SPARQL for RDF graphs. Declarative pattern matching. Optimized for graph operations. Much more intuitive than complex SQL joins.',
+          codeExample: `// Cypher: pattern matching (Neo4j)
+MATCH (u:User)-[:PURCHASED]->(p:Product)
+      <-[:PURCHASED]-(other:User)
+WHERE u.name = "Alice" AND other <> u
+RETURN other.name, p.name
+
+// Gremlin: traversal-based (TinkerPop)
+g.V().has("User", "name", "Alice")
+  .out("PURCHASED").in("PURCHASED")
+  .where(neq("alice"))
+  .values("name")
+
+// Cypher: aggregation
+MATCH (u:User)-[:PURCHASED]->(p:Product)
+RETURN u.name, count(p) AS purchases,
+       sum(p.price) AS totalSpent
+ORDER BY totalSpent DESC
+LIMIT 10`
         },
         {
           name: 'Use Cases',
-          explanation: 'Social networks and friend-of-friend queries. Recommendation engines. Fraud detection analyzing transaction patterns. Knowledge graphs. Network and IT operations. Master data management. Identity and access management. Any domain with complex relationships.'
+          explanation: 'Social networks and friend-of-friend queries. Recommendation engines. Fraud detection analyzing transaction patterns. Knowledge graphs. Network and IT operations. Master data management. Identity and access management. Any domain with complex relationships.',
+          codeExample: `// Recommendation: "users who bought X also bought"
+MATCH (u:User)-[:PURCHASED]->(p:Product {name: "Laptop"})
+      -[:IN_CATEGORY]->(cat:Category)
+      <-[:IN_CATEGORY]-(rec:Product)
+WHERE NOT (u)-[:PURCHASED]->(rec)
+RETURN rec.name, count(*) AS score
+ORDER BY score DESC LIMIT 5
+
+// Fraud detection: circular money transfers
+MATCH path = (a:Account)-[:TRANSFER*3..6]->(a)
+WHERE ALL(t IN relationships(path)
+      WHERE t.amount > 10000)
+RETURN path
+
+// Social: mutual friends count
+MATCH (a:User {name: "Alice"})-[:FRIENDS_WITH]-(mutual)
+      -[:FRIENDS_WITH]-(b:User {name: "Bob"})
+RETURN count(mutual) AS mutualFriends`
         },
         {
           name: 'Performance',
@@ -505,6 +1145,8 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
@@ -804,6 +1446,18 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      borderLeft: `4px solid ${selectedConcept.color}`,
+                      overflow: 'auto',
+                      marginTop: '1rem'
+                    }}>
+                      <SyntaxHighlighter code={detail.codeExample} />
+                    </div>
+                  )}
                 </div>
               )
             })()}

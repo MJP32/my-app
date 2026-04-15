@@ -26,6 +26,13 @@ const CLOUD_COLORS = {
   topicBg: 'rgba(56, 189, 248, 0.2)'  // Topic card background
 }
 
+const conceptCategories = {
+  all: { label: 'All', ids: null },
+  foundations: { label: 'Foundations', ids: ['service-models', 'deployment-models'] },
+  architecture: { label: 'Architecture', ids: ['architecture', 'scalability'] },
+  operations: { label: 'Security & Cost', ids: ['security', 'cost-optimization'] }
+}
+
 const SUBTOPIC_COLORS = [
   { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },    // blue
   { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },      // green
@@ -606,8 +613,17 @@ const CostOptimizationDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function Cloud({ onBack, onSelectItem, breadcrumb }) {
+function Cloud({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
   const { colors, isDark } = useTheme()
+  const [activeCategory, setActiveCategory] = useState(initialCategory || 'all')
+
+  useEffect(() => {
+    if (initialCategory) {
+      setActiveCategory(initialCategory)
+      onInitialCategoryUsed?.()
+    }
+  }, [initialCategory])
+
   // Cloud provider items for navigation
   const cloudProviders = [
     {
@@ -1929,6 +1945,10 @@ const intelligentTieringConfig = {
     }
   ]
 
+  const filteredConcepts = activeCategory === 'all'
+    ? concepts
+    : concepts.filter(c => conceptCategories[activeCategory].ids.includes(c.id))
+
   // =============================================================================
   // NAVIGATION HANDLERS
   // =============================================================================
@@ -2116,10 +2136,10 @@ const intelligentTieringConfig = {
 
       {/* Collapsible Sidebar for quick concept navigation */}
       <CollapsibleSidebar
-        items={concepts}
+        items={filteredConcepts}
         selectedIndex={selectedConceptIndex ?? -1}
         onSelect={(index) => {
-          setSelectedConceptIndex(index)
+          setSelectedConceptIndex(concepts.indexOf(filteredConcepts[index]))
           setSelectedDetailIndex(0)
         }}
         title="Concepts"
@@ -2145,17 +2165,58 @@ const intelligentTieringConfig = {
           Learn fundamental cloud computing concepts including service models, architecture patterns, and best practices.
         </p>
 
+        {/* Category Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '2px solid #374151',
+          overflowX: 'auto'
+        }}>
+          {Object.entries(conceptCategories).map(([key, cat]) => (
+            <button
+              key={key}
+              onClick={() => setActiveCategory(key)}
+              style={{
+                padding: '1rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeCategory === key ? '#0ea5e9' : 'transparent',
+                color: activeCategory === key ? 'white' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = '#374151'
+                  e.target.style.color = '#d1d5db'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = 'transparent'
+                  e.target.style.color = '#9ca3af'
+                }
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
         {/* Concept Cards Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.5rem',
-          marginTop: '2rem'
+          gap: '1.5rem'
         }}>
-        {concepts.map((concept, index) => (
+        {filteredConcepts.map((concept) => (
           <div
             key={concept.id}
-            onClick={() => setSelectedConceptIndex(index)}
+            onClick={() => setSelectedConceptIndex(concepts.indexOf(concept))}
             style={{
               background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderRadius: '1rem',

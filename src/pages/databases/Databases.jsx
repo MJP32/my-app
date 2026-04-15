@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
@@ -13,9 +14,26 @@ const DATABASE_COLORS = {
   topicBg: 'rgba(59, 130, 246, 0.2)'
 }
 
-function Databases({ onBack, onSelectItem, breadcrumb }) {
+const categories = {
+  all: { label: 'All', ids: null },
+  relational: { label: 'Relational', ids: ['SQL', 'Oracle', 'PostgreSQL', 'SQLFundamentals', 'PLSQL'] },
+  nosql: { label: 'NoSQL & Caching', ids: ['NoSQL', 'Redis'] },
+  access: { label: 'Data Access & Optimization', ids: ['ORM', 'StoredProcedures', 'DatabaseOptimization'] }
+}
+
+function Databases({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
   const { colors, isDark } = useTheme()
+  const [activeCategory, setActiveCategory] = useState(initialCategory || 'all')
+
+  useEffect(() => {
+    if (initialCategory) {
+      setActiveCategory(initialCategory)
+      onInitialCategoryUsed?.()
+    }
+  }, [initialCategory])
+
   const databaseItems = [
+    // Relational
     {
       id: 'SQL',
       name: 'SQL Databases',
@@ -24,53 +42,11 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
       description: 'Relational databases, SQL queries, normalization, indexing, transactions, and ACID principles.'
     },
     {
-      id: 'NoSQL',
-      name: 'NoSQL Databases',
-      icon: '📊',
-      color: '#0ea5e9',
-      description: 'Document stores, key-value stores, column-family stores, graph databases, and CAP theorem.'
-    },
-    {
       id: 'Oracle',
       name: 'Oracle Database',
       icon: '🔴',
       color: '#dc2626',
       description: 'Oracle database administration, PL/SQL, performance tuning, and enterprise database features.'
-    },
-    {
-      id: 'ORM',
-      name: 'ORM & Data Access',
-      icon: '🔗',
-      color: '#2563eb',
-      description: 'Object-Relational Mapping, Hibernate, JPA, Spring Data, and data access patterns.'
-    },
-    {
-      id: 'Redis',
-      name: 'Redis',
-      icon: '⚡',
-      color: '#ef4444',
-      description: 'In-memory data structure store, caching, pub/sub messaging, distributed locks, and session management.'
-    },
-    {
-      id: 'StoredProcedures',
-      name: 'Stored Procedures',
-      icon: '📜',
-      color: '#8b5cf6',
-      description: 'Database stored procedures, functions, triggers, cursors, and procedural SQL programming for encapsulating business logic.'
-    },
-    {
-      id: 'DatabaseOptimization',
-      name: 'Database Optimization',
-      icon: '🚀',
-      color: '#10b981',
-      description: 'Query optimization, indexing strategies, execution plans, performance tuning, and database profiling techniques.'
-    },
-    {
-      id: 'PLSQL',
-      name: 'PL/SQL',
-      icon: '📜',
-      color: '#f97316',
-      description: 'Oracle procedural language extension for SQL with variables, control structures, cursors, and exception handling.'
     },
     {
       id: 'PostgreSQL',
@@ -85,11 +61,59 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
       icon: '📖',
       color: '#06b6d4',
       description: 'Core SQL concepts: SELECT, JOIN types, subqueries, CTEs, aggregate functions, and essential SQL vocabulary.'
+    },
+    {
+      id: 'PLSQL',
+      name: 'PL/SQL',
+      icon: '📜',
+      color: '#f97316',
+      description: 'Oracle procedural language extension for SQL with variables, control structures, cursors, and exception handling.'
+    },
+    // NoSQL & Caching
+    {
+      id: 'NoSQL',
+      name: 'NoSQL Databases',
+      icon: '📊',
+      color: '#0ea5e9',
+      description: 'Document stores, key-value stores, column-family stores, graph databases, and CAP theorem.'
+    },
+    {
+      id: 'Redis',
+      name: 'Redis',
+      icon: '⚡',
+      color: '#ef4444',
+      description: 'In-memory data structure store, caching, pub/sub messaging, distributed locks, and session management.'
+    },
+    // Data Access & Optimization
+    {
+      id: 'ORM',
+      name: 'ORM & Data Access',
+      icon: '🔗',
+      color: '#2563eb',
+      description: 'Object-Relational Mapping, Hibernate, JPA, Spring Data, and data access patterns.'
+    },
+    {
+      id: 'StoredProcedures',
+      name: 'Stored Procedures',
+      icon: '📜',
+      color: '#8b5cf6',
+      description: 'Database stored procedures, functions, triggers, cursors, and procedural SQL programming for encapsulating business logic.'
+    },
+    {
+      id: 'DatabaseOptimization',
+      name: 'Database Optimization',
+      icon: '🚀',
+      color: '#10b981',
+      description: 'Query optimization, indexing strategies, execution plans, performance tuning, and database profiling techniques.'
     }
   ]
 
+  const filteredItems = activeCategory === 'all'
+    ? databaseItems
+    : databaseItems.filter(item => categories[activeCategory].ids.includes(item.id))
+
   const { focusedIndex, itemRefs } = useKeyboardNavigation({
-    items: databaseItems,
+    items: filteredItems,
     onSelect: (item) => onSelectItem(item.id),
     onBack,
     enabled: true,
@@ -118,9 +142,9 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
 
         {/* Collapsible Sidebar for quick topic navigation */}
         <CollapsibleSidebar
-          items={databaseItems}
+          items={filteredItems}
           selectedIndex={-1}
-          onSelect={(index) => onSelectItem(databaseItems[index].id)}
+          onSelect={(index) => onSelectItem(filteredItems[index].id)}
           title="Databases"
           getItemLabel={(item) => item.name}
           getItemIcon={(item) => item.icon}
@@ -131,18 +155,60 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
           fontSize: '1.2rem',
           color: isDark ? '#d1d5db' : '#4b5563',
           textAlign: 'center',
-          marginBottom: '3rem',
+          marginBottom: '2rem',
           lineHeight: '1.8'
         }}>
           Explore database technologies from SQL to NoSQL, understanding data storage, retrieval, and management strategies.
         </p>
+
+        {/* Category Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '2px solid #374151',
+          overflowX: 'auto'
+        }}>
+          {Object.entries(categories).map(([key, cat]) => (
+            <button
+              key={key}
+              onClick={() => setActiveCategory(key)}
+              style={{
+                padding: '1rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeCategory === key ? '#3b82f6' : 'transparent',
+                color: activeCategory === key ? 'white' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = '#374151'
+                  e.target.style.color = '#d1d5db'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeCategory !== key) {
+                  e.target.style.backgroundColor = 'transparent'
+                  e.target.style.color = '#9ca3af'
+                }
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
 
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           gap: '1.5rem'
         }}>
-          {databaseItems.map((item, index) => (
+          {filteredItems.map((item, index) => (
             <button
               key={item.id}
               ref={(el) => itemRefs.current[index] = el}

@@ -552,6 +552,397 @@ function SearchInput() {
 }`
         }
       ]
+    },
+    {
+      id: 'backend-integration',
+      name: 'Backend Integration',
+      icon: '🔗',
+      color: '#f59e0b',
+      description: 'Connecting React to REST APIs, Spring Boot, and real-time services',
+      details: [
+        {
+          name: 'Overview',
+          explanation: 'React frontends communicate with backends (Spring Boot, Node.js, etc.) via HTTP REST calls, WebSockets for real-time data, and Server-Sent Events. The typical architecture is a React SPA making API calls to a separate backend server. Key concerns include CORS configuration, authentication token management, error handling, and environment-based API URLs.',
+          keyPoints: [
+            'fetch API: Built-in browser API for HTTP requests',
+            'Axios: Popular HTTP client with interceptors and request/response transforms',
+            'CORS: Cross-Origin Resource Sharing must be configured on the backend',
+            'Environment variables: Use VITE_API_URL or REACT_APP_API_URL for base URLs',
+            'Authentication: Store JWT tokens and attach via Authorization header',
+            'Error handling: Global error interceptors + per-request error states',
+            'WebSocket: Real-time bidirectional communication (e.g., SockJS + STOMP)',
+            'React Query / SWR: Libraries for caching, refetching, and server state management'
+          ]
+        },
+        {
+          name: 'Fetch & Axios Basics',
+          codeExample: `// ===== Using fetch API =====
+async function getOrders() {
+  const response = await fetch('/api/orders', {
+    headers: {
+      'Authorization': \`Bearer \${getToken()}\`,
+      'Content-Type': 'application/json'
+    }
+  })
+  if (!response.ok) throw new Error(\`HTTP \${response.status}\`)
+  return response.json()
+}
+
+// POST request
+async function createOrder(order) {
+  const response = await fetch('/api/orders', {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${getToken()}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(order)
+  })
+  return response.json()
+}
+
+// ===== Using Axios (npm install axios) =====
+import axios from 'axios'
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
+  timeout: 10000,
+  headers: { 'Content-Type': 'application/json' }
+})
+
+// Request interceptor — attach JWT token
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = \`Bearer \${token}\`
+  }
+  return config
+})
+
+// Response interceptor — handle 401 globally
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
+  }
+)
+
+// Usage
+const { data } = await api.get('/api/orders')
+await api.post('/api/orders', { symbol: 'AAPL', qty: 100 })
+await api.put('/api/orders/123', { status: 'CANCELLED' })
+await api.delete('/api/orders/123')`
+        },
+        {
+          name: 'Custom Hook for API Calls',
+          codeExample: `// useApi hook — reusable data fetching with loading/error states
+import { useState, useEffect, useCallback } from 'react'
+import api from '../services/api'
+
+function useApi(url, options = {}) {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await api.get(url)
+      setData(response.data)
+    } catch (err) {
+      setError(err.response?.data?.message || err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [url])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  return { data, loading, error, refetch: fetchData }
+}
+
+// Usage in component
+function OrderList() {
+  const { data: orders, loading, error, refetch } = useApi('/api/orders')
+
+  if (loading) return <div>Loading orders...</div>
+  if (error) return <div>Error: {error} <button onClick={refetch}>Retry</button></div>
+
+  return (
+    <ul>
+      {orders.map(order => (
+        <li key={order.id}>{order.symbol} - {order.quantity} @ {order.price}</li>
+      ))}
+    </ul>
+  )
+}
+
+// useMutation hook — for POST/PUT/DELETE
+function useMutation(method, url) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const mutate = async (body) => {
+    try {
+      setLoading(true)
+      const response = await api[method](url, body)
+      return response.data
+    } catch (err) {
+      setError(err.response?.data?.message || err.message)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+  return { mutate, loading, error }
+}
+
+// Usage
+function CreateOrderForm() {
+  const { mutate, loading } = useMutation('post', '/api/orders')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    await mutate({ symbol: 'AAPL', quantity: 100, price: 150.50 })
+  }
+
+  return <button onClick={handleSubmit} disabled={loading}>
+    {loading ? 'Submitting...' : 'Place Order'}
+  </button>
+}`
+        },
+        {
+          name: 'Spring Boot CORS Config',
+          codeExample: `// ===== BACKEND: Spring Boot CORS Configuration =====
+
+// Option 1: Global CORS config (recommended)
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+            .allowedOrigins("http://localhost:5173")  // Vite dev
+            .allowedMethods("GET", "POST", "PUT", "DELETE")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(3600);
+    }
+}
+
+// Option 2: Per-controller annotation
+@RestController
+@RequestMapping("/api/orders")
+@CrossOrigin(origins = "http://localhost:5173")
+public class OrderController {
+
+    @GetMapping
+    public List<Order> getOrders() {
+        return orderService.findAll();
+    }
+
+    @PostMapping
+    public Order createOrder(@RequestBody OrderRequest req) {
+        return orderService.create(req);
+    }
+}
+
+// Option 3: Spring Security CORS (when security is enabled)
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http)
+        throws Exception {
+    http.cors(cors -> cors.configurationSource(request -> {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        return config;
+    }));
+    return http.build();
+}
+
+// ===== FRONTEND: Vite proxy (avoid CORS in dev) =====
+// vite.config.js
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      }
+    }
+  }
+})
+// Now fetch('/api/orders') proxies to localhost:8080/api/orders`
+        },
+        {
+          name: 'WebSocket Real-Time Data',
+          codeExample: `// ===== React WebSocket hook for live market data =====
+import { useEffect, useRef, useState, useCallback } from 'react'
+
+function useWebSocket(url) {
+  const [messages, setMessages] = useState([])
+  const [connected, setConnected] = useState(false)
+  const wsRef = useRef(null)
+
+  useEffect(() => {
+    const ws = new WebSocket(url)
+    wsRef.current = ws
+
+    ws.onopen = () => setConnected(true)
+    ws.onclose = () => {
+      setConnected(false)
+      // Auto-reconnect after 3 seconds
+      setTimeout(() => wsRef.current = new WebSocket(url), 3000)
+    }
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      setMessages(prev => [...prev.slice(-99), data])
+    }
+
+    return () => ws.close()
+  }, [url])
+
+  const send = useCallback((data) => {
+    wsRef.current?.send(JSON.stringify(data))
+  }, [])
+
+  return { messages, connected, send }
+}
+
+// Usage: live stock prices
+function LivePrices() {
+  const { messages: prices, connected } = useWebSocket(
+    'ws://localhost:8080/ws/prices'
+  )
+
+  return (
+    <div>
+      <span>{connected ? '🟢 Live' : '🔴 Disconnected'}</span>
+      {prices.map((p, i) => (
+        <div key={i}>{p.symbol}: \${p.price}</div>
+      ))}
+    </div>
+  )
+}
+
+// ===== Spring Boot WebSocket backend =====
+// @Configuration @EnableWebSocketMessageBroker
+// public class WebSocketConfig implements
+//     WebSocketMessageBrokerConfigurer {
+//
+//   @Override
+//   public void configureMessageBroker(
+//       MessageBrokerRegistry config) {
+//     config.enableSimpleBroker("/topic");
+//     config.setApplicationDestinationPrefixes("/app");
+//   }
+//
+//   @Override
+//   public void registerStompEndpoints(
+//       StompEndpointRegistry registry) {
+//     registry.addEndpoint("/ws")
+//         .setAllowedOrigins("http://localhost:5173")
+//         .withSockJS();
+//   }
+// }
+
+// STOMP client (npm install @stomp/stompjs sockjs-client)
+import { Client } from '@stomp/stompjs'
+import SockJS from 'sockjs-client'
+
+const client = new Client({
+  webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+  onConnect: () => {
+    client.subscribe('/topic/prices', (message) => {
+      const price = JSON.parse(message.body)
+      console.log('Price update:', price)
+    })
+  }
+})
+client.activate()`
+        },
+        {
+          name: 'Auth Flow (JWT + Spring)',
+          codeExample: `// ===== Complete JWT auth flow: React + Spring Boot =====
+
+// AuthContext — manage token globally
+const AuthContext = React.createContext()
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [token, setToken] = useState(localStorage.getItem('token'))
+
+  const login = async (email, password) => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
+    if (!response.ok) throw new Error('Login failed')
+    const data = await response.json()
+    setToken(data.token)
+    setUser(data.user)
+    localStorage.setItem('token', data.token)
+  }
+
+  const logout = () => {
+    setToken(null)
+    setUser(null)
+    localStorage.removeItem('token')
+  }
+
+  // Check token on mount
+  useEffect(() => {
+    if (token) {
+      fetch('/api/auth/me', {
+        headers: { 'Authorization': \`Bearer \${token}\` }
+      })
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(setUser)
+      .catch(logout)
+    }
+  }, [])
+
+  return (
+    <AuthContext.Provider value={{ user, token, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+// Protected route
+function ProtectedRoute({ children }) {
+  const { user } = useContext(AuthContext)
+  if (!user) return <Navigate to="/login" />
+  return children
+}
+
+// Spring Boot auth controller
+// @PostMapping("/api/auth/login")
+// public ResponseEntity<AuthResponse> login(
+//     @RequestBody LoginRequest request) {
+//   Authentication auth = authManager.authenticate(
+//     new UsernamePasswordAuthenticationToken(
+//       request.getEmail(), request.getPassword()));
+//   String token = jwtService.generateToken(auth);
+//   return ResponseEntity.ok(new AuthResponse(token, user));
+// }
+//
+// @GetMapping("/api/auth/me")
+// public ResponseEntity<UserDto> me(
+//     @AuthenticationPrincipal UserDetails user) {
+//   return ResponseEntity.ok(toDto(user));
+// }`
+        }
+      ]
     }
   ]
 

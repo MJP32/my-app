@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const FRAMEWORK_COLORS = {
   primary: '#4ade80',
@@ -182,6 +183,60 @@ const ConfigPropertiesDiagram = () => (
   </svg>
 )
 
+const SyntaxHighlighter = ({ code }) => {
+  const highlightJava = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|super|this|null|default)\b/g, '<span style="color: #c586c0;">$1</span>')
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean|var)\b/g, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(String|List|ArrayList|Set|HashSet|Map|HashMap|Optional|Stream|Exception|SpringBootApplication|EnableAutoConfiguration|ComponentScan|Configuration|Component|Service|Repository|Controller|RestController|Autowired|Qualifier|Primary|Value|Bean|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|PathVariable|RequestParam|RequestBody|ResponseBody|ResponseStatus|Entity|Table|Column|Id|GeneratedValue|Transactional|Query|ConditionalOnClass|ConditionalOnMissingBean|ConditionalOnProperty|Profile|ConfigurationProperties|SpringApplication|ResponseEntity|HttpStatus|ObjectMapper|WebMvcConfigurer|SecurityFilterChain|HttpSecurity|WebClient|RestTemplate|JdbcTemplate|DataSource|Environment|ApplicationContext|ApplicationRunner|CommandLineRunner|ExceptionHandler|ControllerAdvice|Valid|NotNull|NotBlank|Size|Min|Max|Pattern|Override|Integer|Long|BigDecimal|LocalDate|Date|Duration|Scheduled|Async|EnableScheduling|EnableAsync|Cacheable|CacheEvict|EnableCaching)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
+    </pre>
+  )
+}
+
 function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -197,27 +252,139 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       details: [
         {
           name: 'How It Works',
-          explanation: 'Spring Boot\'s auto-configuration dramatically reduces boilerplate by intelligently configuring your application based on classpath dependencies. Conditional annotations (@ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty) apply configuration only when conditions are met. @SpringBootApplication combines @Configuration, @EnableAutoConfiguration, and @ComponentScan in one annotation. Uses spring.factories file to discover auto-configuration classes.'
+          explanation: 'Spring Boot\'s auto-configuration dramatically reduces boilerplate by intelligently configuring your application based on classpath dependencies. Conditional annotations (@ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty) apply configuration only when conditions are met. @SpringBootApplication combines @Configuration, @EnableAutoConfiguration, and @ComponentScan in one annotation. Uses spring.factories file to discover auto-configuration classes.',
+          codeExample: `@SpringBootApplication
+// Equivalent to: @Configuration + @EnableAutoConfiguration + @ComponentScan
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+
+// Exclude specific auto-configurations
+@SpringBootApplication(exclude = {
+    DataSourceAutoConfiguration.class,
+    SecurityAutoConfiguration.class
+})
+public class LightweightApp {
+    public static void main(String[] args) {
+        SpringApplication.run(LightweightApp.class, args);
+    }
+}`
         },
         {
           name: 'Key Features',
-          explanation: 'Intelligent bean creation based on classpath scanning and conditional logic. Sensible defaults eliminating manual configuration for common patterns. Selective exclusion of auto-configurations via exclude attribute. Integration with Actuator\'s conditions endpoint to inspect applied configurations. Support for custom auto-configuration classes following same patterns.'
+          explanation: 'Intelligent bean creation based on classpath scanning and conditional logic. Sensible defaults eliminating manual configuration for common patterns. Selective exclusion of auto-configurations via exclude attribute. Integration with Actuator\'s conditions endpoint to inspect applied configurations. Support for custom auto-configuration classes following same patterns.',
+          codeExample: `// Custom auto-configuration class
+@Configuration
+@ConditionalOnClass(DataSource.class)
+@ConditionalOnProperty(prefix = "app.cache", name = "enabled", havingValue = "true")
+public class CacheAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager("users", "products");
+    }
+}
+
+// Run with --debug to see auto-configuration report
+// java -jar app.jar --debug`
         },
         {
           name: 'Real-World Use Cases',
-          explanation: 'Microservices architectures: Quickly spinning up multiple services with consistent configurations. REST APIs: Automatic configuration of web server, JSON processing, validation. Database access: Auto-configuring data sources, JPA, transaction management. Security: Setting up authentication, authorization with minimal configuration. Messaging: Configuring message brokers, templates, and listeners.'
+          explanation: 'Microservices architectures: Quickly spinning up multiple services with consistent configurations. REST APIs: Automatic configuration of web server, JSON processing, validation. Database access: Auto-configuring data sources, JPA, transaction management. Security: Setting up authentication, authorization with minimal configuration. Messaging: Configuring message brokers, templates, and listeners.',
+          codeExample: `// REST API - just add spring-boot-starter-web
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(userService.save(user));
+    }
+}`
         },
         {
           name: 'Best Practices',
-          explanation: 'Understand what\'s being configured using --debug flag or Actuator\'s conditions endpoint. Selectively exclude unwanted auto-configurations using exclude attribute. Create custom auto-configuration classes for organization-specific patterns. Document deviations from auto-configuration defaults. Use @ConditionalOnProperty for feature toggles in custom configurations.'
+          explanation: 'Understand what\'s being configured using --debug flag or Actuator\'s conditions endpoint. Selectively exclude unwanted auto-configurations using exclude attribute. Create custom auto-configuration classes for organization-specific patterns. Document deviations from auto-configuration defaults. Use @ConditionalOnProperty for feature toggles in custom configurations.',
+          codeExample: `// Feature toggle via @ConditionalOnProperty
+@Configuration
+@ConditionalOnProperty(
+    prefix = "app.notifications",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = false
+)
+public class NotificationConfig {
+
+    @Bean
+    @ConditionalOnProperty(name = "app.notifications.type", havingValue = "email")
+    public NotificationService emailNotificationService() {
+        return new EmailNotificationService();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "app.notifications.type", havingValue = "sms")
+    public NotificationService smsNotificationService() {
+        return new SmsNotificationService();
+    }
+}`
         },
         {
           name: 'Common Pitfalls',
-          explanation: 'Over-relying on auto-configuration without understanding underlying Spring concepts causes debugging confusion. Conflicting configurations between auto-configuration and explicit configuration. Not understanding order of precedence leading to unexpected behavior. Assuming all dependencies will auto-configure when conditions aren\'t met. Forgetting to exclude auto-configurations when providing custom implementations.'
+          explanation: 'Over-relying on auto-configuration without understanding underlying Spring concepts causes debugging confusion. Conflicting configurations between auto-configuration and explicit configuration. Not understanding order of precedence leading to unexpected behavior. Assuming all dependencies will auto-configure when conditions aren\'t met. Forgetting to exclude auto-configurations when providing custom implementations.',
+          codeExample: `// PITFALL: Conflicting configurations
+// Auto-configured DataSource conflicts with custom one
+@Configuration
+public class DatabaseConfig {
+
+    // This REPLACES auto-configured DataSource
+    @Bean
+    public DataSource dataSource() {
+        HikariDataSource ds = new HikariDataSource();
+        ds.setJdbcUrl("jdbc:postgresql://localhost/mydb");
+        ds.setUsername("admin");
+        return ds;
+    }
+}
+
+// FIX: Use @ConditionalOnMissingBean in custom configs
+// or exclude: @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)`
         },
         {
           name: 'When to Use',
-          explanation: 'Use auto-configuration for rapid application development, microservices, and standard patterns. Essential for reducing boilerplate in REST APIs, data access, security, and messaging. Most valuable when following Spring Boot conventions. Order of precedence: explicit configuration > property overrides > auto-configuration.'
+          explanation: 'Use auto-configuration for rapid application development, microservices, and standard patterns. Essential for reducing boilerplate in REST APIs, data access, security, and messaging. Most valuable when following Spring Boot conventions. Order of precedence: explicit configuration > property overrides > auto-configuration.',
+          codeExample: `// Customizing auto-configuration via properties
+// application.yml
+// server:
+//   port: 8080
+//   servlet:
+//     context-path: /api
+// spring:
+//   datasource:
+//     url: jdbc:postgresql://localhost/mydb
+//     username: admin
+//   jpa:
+//     hibernate:
+//       ddl-auto: validate
+//     show-sql: false
+
+// Precedence order (highest to lowest):
+// 1. Command line args:  --server.port=9090
+// 2. Environment vars:   SERVER_PORT=9090
+// 3. application-{profile}.yml
+// 4. application.yml
+// 5. Auto-configuration defaults`
         }
       ]
     },
@@ -231,27 +398,147 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       details: [
         {
           name: 'How It Works',
-          explanation: 'Spring Boot starters are carefully curated dependency sets providing everything needed for specific use cases. Each starter bundles related dependencies for a specific technical capability or pattern. Bill of Materials (BOM) manages compatible versions across all included libraries. Transitive dependencies automatically include everything needed (server, serialization, validation). Version upgrades happen together when upgrading Spring Boot version.'
+          explanation: 'Spring Boot starters are carefully curated dependency sets providing everything needed for specific use cases. Each starter bundles related dependencies for a specific technical capability or pattern. Bill of Materials (BOM) manages compatible versions across all included libraries. Transitive dependencies automatically include everything needed (server, serialization, validation). Version upgrades happen together when upgrading Spring Boot version.',
+          codeExample: `<!-- pom.xml - Starter Dependencies -->
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.0</version>
+</parent>
+
+<dependencies>
+    <!-- Web starter: Tomcat + Spring MVC + Jackson -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- No version needed - managed by parent BOM -->
+</dependencies>`
         },
         {
           name: 'Key Features',
-          explanation: '"Batteries included" approach with all necessary dependencies in one declaration. Automatic version compatibility eliminating dependency conflict resolution. Modular composition allowing mixing starters for needed functionality. Transitive dependency management including servers, libraries, and utilities. Support for exclusions and customization when needed.'
+          explanation: '"Batteries included" approach with all necessary dependencies in one declaration. Automatic version compatibility eliminating dependency conflict resolution. Modular composition allowing mixing starters for needed functionality. Transitive dependency management including servers, libraries, and utilities. Support for exclusions and customization when needed.',
+          codeExample: `<!-- Exclude Tomcat and use Jetty instead -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jetty</artifactId>
+</dependency>`
         },
         {
           name: 'Common Starters',
-          explanation: 'spring-boot-starter-web: REST APIs (Tomcat, Spring MVC, Jackson, Validation). spring-boot-starter-data-jpa: Relational DB (Hibernate, Spring Data JPA, JDBC). spring-boot-starter-security: Authentication and authorization. spring-boot-starter-test: Testing (JUnit 5, Mockito, AssertJ, Spring Test). spring-boot-starter-actuator: Monitoring (metrics, health checks, endpoints). spring-boot-starter-webflux: Reactive web (Reactor Netty, Spring WebFlux).'
+          explanation: 'spring-boot-starter-web: REST APIs (Tomcat, Spring MVC, Jackson, Validation). spring-boot-starter-data-jpa: Relational DB (Hibernate, Spring Data JPA, JDBC). spring-boot-starter-security: Authentication and authorization. spring-boot-starter-test: Testing (JUnit 5, Mockito, AssertJ, Spring Test). spring-boot-starter-actuator: Monitoring (metrics, health checks, endpoints). spring-boot-starter-webflux: Reactive web (Reactor Netty, Spring WebFlux).',
+          codeExample: `<!-- Typical microservice dependency set -->
+<dependencies>
+    <!-- REST API -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- Database -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <!-- Security -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <!-- Monitoring -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <!-- Testing -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>`
         },
         {
           name: 'Real-World Use Cases',
-          explanation: 'Microservices: Quickly composing web, data, security, and actuator starters for complete service. REST APIs: spring-boot-starter-web provides server, MVC, JSON, and validation instantly. Data access: spring-boot-starter-data-jpa for relational or spring-boot-starter-data-mongodb for NoSQL. Messaging: spring-boot-starter-kafka or spring-boot-starter-amqp for event-driven architectures. Testing: spring-boot-starter-test bundles JUnit, Mockito, AssertJ for comprehensive test support.'
+          explanation: 'Microservices: Quickly composing web, data, security, and actuator starters for complete service. REST APIs: spring-boot-starter-web provides server, MVC, JSON, and validation instantly. Data access: spring-boot-starter-data-jpa for relational or spring-boot-starter-data-mongodb for NoSQL. Messaging: spring-boot-starter-kafka or spring-boot-starter-amqp for event-driven architectures. Testing: spring-boot-starter-test bundles JUnit, Mockito, AssertJ for comprehensive test support.',
+          codeExample: `// With spring-boot-starter-data-jpa, this just works:
+@Entity
+public class Product {
+    @Id @GeneratedValue
+    private Long id;
+    private String name;
+    private BigDecimal price;
+}
+
+// Spring Data JPA repository - zero implementation needed
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    List<Product> findByNameContaining(String name);
+    List<Product> findByPriceLessThan(BigDecimal price);
+
+    @Query("SELECT p FROM Product p WHERE p.price BETWEEN :min AND :max")
+    List<Product> findInPriceRange(@Param("min") BigDecimal min,
+                                   @Param("max") BigDecimal max);
+}`
         },
         {
           name: 'Best Practices',
-          explanation: 'Include only starters actually needed to keep application lean and focused. Review transitive dependencies to understand what\'s being included. Use exclusion mechanisms when swapping implementations (e.g., Tomcat to Jetty). Consider creating custom starters for organization-specific patterns. Check Spring Boot documentation for specific library versions in each starter.'
+          explanation: 'Include only starters actually needed to keep application lean and focused. Review transitive dependencies to understand what\'s being included. Use exclusion mechanisms when swapping implementations (e.g., Tomcat to Jetty). Consider creating custom starters for organization-specific patterns. Check Spring Boot documentation for specific library versions in each starter.',
+          codeExample: `// Custom starter for your organization
+// my-company-starter/pom.xml
+// <artifactId>my-company-spring-boot-starter</artifactId>
+// Bundles: logging config, security defaults, health checks
+
+// Auto-configuration class in the custom starter
+@Configuration
+@ConditionalOnClass(SecurityFilterChain.class)
+public class CompanySecurityAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SecurityFilterChain companySecurityChain(HttpSecurity http)
+            throws Exception {
+        return http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health").permitAll()
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+            .build();
+    }
+}`
         },
         {
           name: 'Common Pitfalls',
-          explanation: 'Adding too many starters bloats application and increases startup time. Starter auto-configurations may conflict with explicit configuration. Not understanding transitive dependencies leading to unexpected libraries. Forgetting to exclude default implementations when providing alternatives. Version conflicts when mixing Spring Boot starters with non-Boot dependencies.'
+          explanation: 'Adding too many starters bloats application and increases startup time. Starter auto-configurations may conflict with explicit configuration. Not understanding transitive dependencies leading to unexpected libraries. Forgetting to exclude default implementations when providing alternatives. Version conflicts when mixing Spring Boot starters with non-Boot dependencies.',
+          codeExample: `// PITFALL: Mixing managed and unmanaged versions
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- BAD: Explicit old version conflicts with starter -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.0</version> <!-- Conflicts! -->
+    </dependency>
+</dependencies>
+
+// FIX: Let the BOM manage versions
+// Remove <version> tag, or override in <properties>:
+// <properties>
+//     <jackson-bom.version>2.16.0</jackson-bom.version>
+// </properties>`
         }
       ]
     },
@@ -265,27 +552,146 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       details: [
         {
           name: 'How It Works',
-          explanation: 'Spring Boot\'s embedded servers revolutionize deployment by including the web server directly in your application JAR. Web server (Tomcat, Jetty, Undertow, Reactor Netty) packaged inside application JAR. Application runs with simple java -jar command without separate server deployment. Server lifecycle managed by Spring Boot application context. Same server version embedded ensuring consistency across environments.'
+          explanation: 'Spring Boot\'s embedded servers revolutionize deployment by including the web server directly in your application JAR. Web server (Tomcat, Jetty, Undertow, Reactor Netty) packaged inside application JAR. Application runs with simple java -jar command without separate server deployment. Server lifecycle managed by Spring Boot application context. Same server version embedded ensuring consistency across environments.',
+          codeExample: `// Build and run as executable JAR
+// mvn clean package
+// java -jar target/myapp-1.0.0.jar
+
+// Customize embedded server via application.yml
+// server:
+//   port: 8443
+//   ssl:
+//     key-store: classpath:keystore.p12
+//     key-store-password: secret
+//     key-store-type: PKCS12
+//   compression:
+//     enabled: true
+//     mime-types: application/json,text/html
+
+@SpringBootApplication
+public class MyApp {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApp.class, args);
+        // Embedded Tomcat starts automatically on port 8443
+    }
+}`
         },
         {
           name: 'Key Features',
-          explanation: 'Self-contained executable JARs eliminating WAR deployment to external servers. Simplified deployment with no separate server installation or configuration. Consistent server versions across development, testing, and production. Trivial containerization requiring only JRE and application JAR. Instant application startup from IDE or command line.'
+          explanation: 'Self-contained executable JARs eliminating WAR deployment to external servers. Simplified deployment with no separate server installation or configuration. Consistent server versions across development, testing, and production. Trivial containerization requiring only JRE and application JAR. Instant application startup from IDE or command line.',
+          codeExample: `# Dockerfile - minimal container with embedded server
+FROM eclipse-temurin:21-jre-alpine
+COPY target/myapp-1.0.0.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Build and run:
+# docker build -t myapp .
+# docker run -p 8080:8080 myapp
+
+# No Tomcat installation needed!
+# No WAR deployment!
+# No server configuration files!`
         },
         {
           name: 'Available Servers',
-          explanation: 'Tomcat (default): Full Servlet support, extensive documentation, proven production use. Jetty: Lightweight, excellent async I/O, ideal for WebSocket and long-polling. Undertow: High-performance, non-blocking I/O, lowest memory footprint, best for microservices. Reactor Netty: Built for Spring WebFlux, fully non-blocking, optimal for high-concurrency reactive apps.'
+          explanation: 'Tomcat (default): Full Servlet support, extensive documentation, proven production use. Jetty: Lightweight, excellent async I/O, ideal for WebSocket and long-polling. Undertow: High-performance, non-blocking I/O, lowest memory footprint, best for microservices. Reactor Netty: Built for Spring WebFlux, fully non-blocking, optimal for high-concurrency reactive apps.',
+          codeExample: `// Switch from Tomcat to Undertow for better performance
+// pom.xml:
+// <dependency>
+//     <groupId>spring-boot-starter-web</groupId>
+//     <exclusions>
+//         <exclusion>spring-boot-starter-tomcat</exclusion>
+//     </exclusions>
+// </dependency>
+// <dependency>spring-boot-starter-undertow</dependency>
+
+// Programmatic server customization
+@Bean
+public WebServerFactoryCustomizer<TomcatServletWebServerFactory>
+        tomcatCustomizer() {
+    return factory -> {
+        factory.setPort(8080);
+        factory.addConnectorCustomizers(connector -> {
+            connector.setMaxPostSize(10 * 1024 * 1024); // 10MB
+        });
+    };
+}`
         },
         {
           name: 'Real-World Use Cases',
-          explanation: 'Microservices: Deploying dozens or hundreds of independent services with embedded servers. Containerization: Docker and Kubernetes deployments with minimal container images. Cloud platforms: AWS Elastic Beanstalk, Google App Engine, Azure App Service compatibility. Standalone tools: Admin utilities and monitoring tools needing HTTP interface. Development: Rapid application testing without external server setup.'
+          explanation: 'Microservices: Deploying dozens or hundreds of independent services with embedded servers. Containerization: Docker and Kubernetes deployments with minimal container images. Cloud platforms: AWS Elastic Beanstalk, Google App Engine, Azure App Service compatibility. Standalone tools: Admin utilities and monitoring tools needing HTTP interface. Development: Rapid application testing without external server setup.',
+          codeExample: `// Kubernetes deployment with embedded server
+// k8s-deployment.yml:
+// apiVersion: apps/v1
+// kind: Deployment
+// spec:
+//   replicas: 3
+//   template:
+//     spec:
+//       containers:
+//       - name: myapp
+//         image: myapp:1.0.0
+//         ports:
+//         - containerPort: 8080
+//         readinessProbe:
+//           httpGet:
+//             path: /actuator/health/readiness
+//             port: 8080
+//         livenessProbe:
+//           httpGet:
+//             path: /actuator/health/liveness
+//             port: 8080`
         },
         {
           name: 'Best Practices',
-          explanation: 'Choose server based on needs: Tomcat (default, broad compatibility), Undertow (performance), Jetty (WebSocket), Reactor Netty (reactive). Configure thread pools, connection limits, and timeouts for production. Use externalized configuration for server settings allowing tuning without rebuild. Consider reverse proxy (Nginx) for SSL termination, load balancing, security in production. Monitor memory usage and resource consumption per server choice.'
+          explanation: 'Choose server based on needs: Tomcat (default, broad compatibility), Undertow (performance), Jetty (WebSocket), Reactor Netty (reactive). Configure thread pools, connection limits, and timeouts for production. Use externalized configuration for server settings allowing tuning without rebuild. Consider reverse proxy (Nginx) for SSL termination, load balancing, security in production. Monitor memory usage and resource consumption per server choice.',
+          codeExample: `// Production server tuning in application.yml
+// server:
+//   tomcat:
+//     threads:
+//       max: 200          # Max worker threads
+//       min-spare: 20     # Min idle threads
+//     max-connections: 8192
+//     accept-count: 100   # Queue when all threads busy
+//     connection-timeout: 20000
+//   shutdown: graceful     # Wait for active requests
+// spring:
+//   lifecycle:
+//     timeout-per-shutdown-phase: 30s
+
+// Graceful shutdown handler
+@Bean
+public GracefulShutdown gracefulShutdown() {
+    return new GracefulShutdown();
+}`
         },
         {
           name: 'Common Pitfalls',
-          explanation: 'Assuming default settings are production-ready without tuning thread pools and connection limits. High memory overhead when running multiple instances on same host. Blocking I/O operations on server threads in high-concurrency scenarios. Not implementing graceful shutdown in containerized environments. Ignoring resource management since server and application share same JVM.'
+          explanation: 'Assuming default settings are production-ready without tuning thread pools and connection limits. High memory overhead when running multiple instances on same host. Blocking I/O operations on server threads in high-concurrency scenarios. Not implementing graceful shutdown in containerized environments. Ignoring resource management since server and application share same JVM.',
+          codeExample: `// PITFALL: Default thread pool exhaustion under load
+// Default Tomcat: 200 threads, each blocking on I/O
+
+// BAD: Blocking call on server thread
+@GetMapping("/data")
+public Data getData() {
+    // Blocks a Tomcat thread for entire external call
+    return restTemplate.getForObject("http://slow-service/api", Data.class);
+}
+
+// BETTER: Use async or reactive for I/O-bound work
+@GetMapping("/data")
+public CompletableFuture<Data> getDataAsync() {
+    return CompletableFuture.supplyAsync(() ->
+        restTemplate.getForObject("http://slow-service/api", Data.class)
+    );
+}
+
+// BEST: Use WebClient (non-blocking)
+@GetMapping("/data")
+public Mono<Data> getDataReactive() {
+    return webClient.get().uri("/api").retrieve().bodyToMono(Data.class);
+}`
         }
       ]
     },
@@ -299,27 +705,177 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       details: [
         {
           name: 'How It Works',
-          explanation: 'Spring Boot Actuator provides production-ready monitoring, management, and diagnostic features. Exposes operational information through HTTP endpoints (/actuator/*) and JMX. Built on Micrometer metrics facade providing vendor-neutral instrumentation. Health check system monitors application components (database, disk, message brokers). Metrics collection includes JVM stats, HTTP requests, database pools, custom metrics. Exports to multiple monitoring systems (Prometheus, Grafana, Datadog, CloudWatch).'
+          explanation: 'Spring Boot Actuator provides production-ready monitoring, management, and diagnostic features. Exposes operational information through HTTP endpoints (/actuator/*) and JMX. Built on Micrometer metrics facade providing vendor-neutral instrumentation. Health check system monitors application components (database, disk, message brokers). Metrics collection includes JVM stats, HTTP requests, database pools, custom metrics. Exports to multiple monitoring systems (Prometheus, Grafana, Datadog, CloudWatch).',
+          codeExample: `// Add actuator dependency
+// <dependency>
+//     <groupId>org.springframework.boot</groupId>
+//     <artifactId>spring-boot-starter-actuator</artifactId>
+// </dependency>
+
+// application.yml - expose endpoints
+// management:
+//   endpoints:
+//     web:
+//       exposure:
+//         include: health,metrics,info,prometheus
+//   endpoint:
+//     health:
+//       show-details: when_authorized
+//       probes:
+//         enabled: true
+
+// GET /actuator/health
+// { "status": "UP",
+//   "components": {
+//     "db": { "status": "UP" },
+//     "diskSpace": { "status": "UP" }
+//   }
+// }`
         },
         {
           name: 'Key Features',
-          explanation: 'Comprehensive health checks with detailed component status for orchestration platforms. Vendor-neutral metrics collection exportable to multiple monitoring systems. Dynamic logging level adjustment without application restart. Custom endpoints and health indicators for application-specific monitoring. Thread dumps, heap dumps, and bean inspection for debugging. Auto-configuration visibility showing applied configurations.'
+          explanation: 'Comprehensive health checks with detailed component status for orchestration platforms. Vendor-neutral metrics collection exportable to multiple monitoring systems. Dynamic logging level adjustment without application restart. Custom endpoints and health indicators for application-specific monitoring. Thread dumps, heap dumps, and bean inspection for debugging. Auto-configuration visibility showing applied configurations.',
+          codeExample: `// Custom health indicator
+@Component
+public class PaymentGatewayHealthIndicator
+        implements HealthIndicator {
+
+    @Autowired
+    private PaymentGatewayClient gateway;
+
+    @Override
+    public Health health() {
+        try {
+            boolean reachable = gateway.ping();
+            if (reachable) {
+                return Health.up()
+                    .withDetail("provider", "Stripe")
+                    .withDetail("latency", "45ms")
+                    .build();
+            }
+            return Health.down()
+                .withDetail("error", "Gateway unreachable")
+                .build();
+        } catch (Exception e) {
+            return Health.down(e).build();
+        }
+    }
+}`
         },
         {
           name: 'Common Endpoints',
-          explanation: '/actuator/health: Component health checks for Kubernetes probes. /actuator/metrics: JVM, HTTP, database metrics for performance monitoring. /actuator/prometheus: Prometheus-formatted metrics for scraping. /actuator/info: Version, build, git commit information. /actuator/loggers: Dynamic log level modification without restart. /actuator/env: Environment properties for configuration debugging. /actuator/beans: Spring beans and dependencies for DI understanding. /actuator/threaddump: Thread dump for deadlock troubleshooting.'
+          explanation: '/actuator/health: Component health checks for Kubernetes probes. /actuator/metrics: JVM, HTTP, database metrics for performance monitoring. /actuator/prometheus: Prometheus-formatted metrics for scraping. /actuator/info: Version, build, git commit information. /actuator/loggers: Dynamic log level modification without restart. /actuator/env: Environment properties for configuration debugging. /actuator/beans: Spring beans and dependencies for DI understanding. /actuator/threaddump: Thread dump for deadlock troubleshooting.',
+          codeExample: `// Custom metrics with Micrometer
+@Service
+public class OrderService {
+
+    private final Counter orderCounter;
+    private final Timer orderTimer;
+
+    public OrderService(MeterRegistry registry) {
+        this.orderCounter = Counter.builder("orders.placed")
+            .tag("type", "online")
+            .description("Total orders placed")
+            .register(registry);
+        this.orderTimer = Timer.builder("orders.processing.time")
+            .description("Order processing duration")
+            .register(registry);
+    }
+
+    public Order placeOrder(OrderRequest request) {
+        return orderTimer.record(() -> {
+            Order order = processOrder(request);
+            orderCounter.increment();
+            return order;
+        });
+    }
+}`
         },
         {
           name: 'Real-World Use Cases',
-          explanation: 'Microservices: Centralized monitoring across dozens of services with Prometheus/Grafana integration. Kubernetes: Health endpoints for liveness and readiness probes. Production debugging: Adjusting log levels, capturing heap dumps, analyzing thread states. Performance monitoring: Tracking HTTP requests, database connections, JVM metrics. Observability: Foundation for monitoring, logging, and tracing practices. SLI/SLO implementation: Tracking Service Level Indicators and Objectives.'
+          explanation: 'Microservices: Centralized monitoring across dozens of services with Prometheus/Grafana integration. Kubernetes: Health endpoints for liveness and readiness probes. Production debugging: Adjusting log levels, capturing heap dumps, analyzing thread states. Performance monitoring: Tracking HTTP requests, database connections, JVM metrics. Observability: Foundation for monitoring, logging, and tracing practices. SLI/SLO implementation: Tracking Service Level Indicators and Objectives.',
+          codeExample: `// Dynamic log level change at runtime (no restart!)
+// POST /actuator/loggers/com.myapp.service
+// { "configuredLevel": "DEBUG" }
+
+// Kubernetes readiness/liveness probes
+// spec:
+//   containers:
+//   - name: myapp
+//     livenessProbe:
+//       httpGet:
+//         path: /actuator/health/liveness
+//         port: 8080
+//       initialDelaySeconds: 15
+//       periodSeconds: 10
+//     readinessProbe:
+//       httpGet:
+//         path: /actuator/health/readiness
+//         port: 8080
+//       initialDelaySeconds: 5
+//       periodSeconds: 5`
         },
         {
           name: 'Best Practices',
-          explanation: 'Secure endpoints with Spring Security requiring authentication for management access. Selectively expose only needed endpoints rather than all endpoints. Integrate with Prometheus for metrics collection and Grafana for visualization. Create custom health indicators for critical external dependencies. Use metric tags for filtering and aggregation in monitoring systems. Cache expensive health check operations to avoid overhead.'
+          explanation: 'Secure endpoints with Spring Security requiring authentication for management access. Selectively expose only needed endpoints rather than all endpoints. Integrate with Prometheus for metrics collection and Grafana for visualization. Create custom health indicators for critical external dependencies. Use metric tags for filtering and aggregation in monitoring systems. Cache expensive health check operations to avoid overhead.',
+          codeExample: `// Secure actuator endpoints
+@Configuration
+public class ActuatorSecurityConfig {
+
+    @Bean
+    public SecurityFilterChain actuatorSecurity(HttpSecurity http)
+            throws Exception {
+        return http
+            .securityMatcher("/actuator/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health/**").permitAll()
+                .requestMatchers("/actuator/prometheus").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
+            )
+            .httpBasic(Customizer.withDefaults())
+            .build();
+    }
+}
+
+// Separate management port for internal-only access
+// management:
+//   server:
+//     port: 9090    # Different from app port 8080
+//   endpoints:
+//     web:
+//       base-path: /manage`
         },
         {
           name: 'Common Pitfalls',
-          explanation: 'Exposing endpoints publicly without security leaks sensitive information and enables DoS attacks. Relying solely on health checks without proper logging and distributed tracing. Enabling /shutdown endpoint accidentally allowing external termination. Expensive operations in health indicators impacting load balancer health checks. Not considering performance overhead of metrics collection and heap dumps under high load.'
+          explanation: 'Exposing endpoints publicly without security leaks sensitive information and enables DoS attacks. Relying solely on health checks without proper logging and distributed tracing. Enabling /shutdown endpoint accidentally allowing external termination. Expensive operations in health indicators impacting load balancer health checks. Not considering performance overhead of metrics collection and heap dumps under high load.',
+          codeExample: `// PITFALL: Expensive health check blocks load balancer
+@Component
+public class SlowHealthIndicator implements HealthIndicator {
+    @Override
+    public Health health() {
+        // BAD: 5-second DB query on every health check
+        int count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM large_table", Integer.class);
+        return Health.up().withDetail("rows", count).build();
+    }
+}
+
+// FIX: Cache health check results
+@Component
+public class CachedHealthIndicator extends AbstractHealthIndicator {
+    private Health cachedHealth = Health.up().build();
+
+    @Scheduled(fixedRate = 30000) // Refresh every 30 seconds
+    public void refreshHealth() {
+        // Expensive check runs in background, not on probe
+        cachedHealth = checkDatabaseHealth();
+    }
+
+    @Override
+    protected void doHealthCheck(Health.Builder builder) {
+        builder.status(cachedHealth.getStatus());
+    }
+}`
         }
       ]
     },
@@ -333,27 +889,144 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       details: [
         {
           name: 'How It Works',
-          explanation: 'Spring Boot DevTools accelerates development with automatic application restart, LiveReload browser refresh, and development-optimized property defaults. Two-classloader architecture: application code (frequently changing) and dependencies (stable). Monitors classpath for changes and restarts only application classloader (5-10 seconds vs 30-60 seconds full restart). LiveReload integration automatically refreshes browser on static resource changes. Automatically disabled when application is packaged and deployed to production.'
+          explanation: 'Spring Boot DevTools accelerates development with automatic application restart, LiveReload browser refresh, and development-optimized property defaults. Two-classloader architecture: application code (frequently changing) and dependencies (stable). Monitors classpath for changes and restarts only application classloader (5-10 seconds vs 30-60 seconds full restart). LiveReload integration automatically refreshes browser on static resource changes. Automatically disabled when application is packaged and deployed to production.',
+          codeExample: `<!-- Add DevTools as optional dependency -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <scope>runtime</scope>
+    <optional>true</optional>  <!-- Not included in prod JAR -->
+</dependency>
+
+// DevTools auto-detects and enables:
+// 1. Automatic restart on code changes
+// 2. LiveReload server on port 35729
+// 3. Development-friendly defaults:
+//    - Template caching disabled
+//    - H2 console enabled
+//    - Detailed error pages shown`
         },
         {
           name: 'Key Features',
-          explanation: 'Intelligent fast restart reloading only changed application code, not dependencies. LiveReload browser extension integration for instant frontend feedback. Development-optimized defaults (disabled caching, H2 console, detailed errors). Configurable exclusion patterns for resources that shouldn\'t trigger restarts. Remote DevTools support for cloud development with security configuration.'
+          explanation: 'Intelligent fast restart reloading only changed application code, not dependencies. LiveReload browser extension integration for instant frontend feedback. Development-optimized defaults (disabled caching, H2 console, detailed errors). Configurable exclusion patterns for resources that shouldn\'t trigger restarts. Remote DevTools support for cloud development with security configuration.',
+          codeExample: `// DevTools automatically applies these dev defaults:
+// spring.thymeleaf.cache=false
+// spring.freemarker.cache=false
+// spring.h2.console.enabled=true
+// server.error.include-stacktrace=always
+// logging.level.web=DEBUG
+
+// Trigger file - manual restart control
+// Create: src/main/resources/.reloadtrigger
+// spring.devtools.restart.trigger-file=.reloadtrigger
+// Only restarts when trigger file is modified
+
+// Global DevTools settings (~/.config/spring-boot/spring-boot-devtools.yml)
+// spring:
+//   devtools:
+//     restart:
+//       quiet-period: 400ms`
         },
         {
           name: 'Real-World Use Cases',
-          explanation: 'REST API development: Modifying controllers and testing immediately without manual restart. Full-stack development: LiveReload keeping browser synchronized with backend and frontend changes. Rapid prototyping: Fast iteration cycle enabling flow state during active development. Configuration experimentation: Quick testing of property changes without long restart cycles. Debugging: Fast restart for testing theories and fixes.'
+          explanation: 'REST API development: Modifying controllers and testing immediately without manual restart. Full-stack development: LiveReload keeping browser synchronized with backend and frontend changes. Rapid prototyping: Fast iteration cycle enabling flow state during active development. Configuration experimentation: Quick testing of property changes without long restart cycles. Debugging: Fast restart for testing theories and fixes.',
+          codeExample: `// Modify controller -> auto-restart -> test immediately
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    @GetMapping
+    public List<Product> getAll() {
+        // Change this method -> save -> auto-restart in ~3 seconds
+        return productService.findAll();
+    }
+
+    // Add new endpoint -> save -> available immediately
+    @GetMapping("/featured")
+    public List<Product> getFeatured() {
+        return productService.findFeatured();
+    }
+}
+
+// LiveReload: Install browser extension
+// Changes to src/main/resources/static/* auto-refresh browser`
         },
         {
           name: 'Configuration Options',
-          explanation: 'spring.devtools.restart.enabled=true enables automatic restart. spring.devtools.restart.additional-paths adds extra directories to watch. spring.devtools.restart.exclude specifies patterns to ignore. spring.devtools.livereload.enabled=true enables browser refresh. spring.devtools.livereload.port=35729 configures LiveReload port. Remote DevTools requires spring.devtools.remote.secret configuration.'
+          explanation: 'spring.devtools.restart.enabled=true enables automatic restart. spring.devtools.restart.additional-paths adds extra directories to watch. spring.devtools.restart.exclude specifies patterns to ignore. spring.devtools.livereload.enabled=true enables browser refresh. spring.devtools.livereload.port=35729 configures LiveReload port. Remote DevTools requires spring.devtools.remote.secret configuration.',
+          codeExample: `// application-dev.yml - DevTools configuration
+// spring:
+//   devtools:
+//     restart:
+//       enabled: true
+//       additional-paths: src/main/java
+//       exclude: static/**,public/**,templates/**
+//       poll-interval: 1s
+//       quiet-period: 400ms
+//     livereload:
+//       enabled: true
+//       port: 35729
+//     remote:
+//       secret: mydev-secret  # For remote debugging
+
+// Disable restart programmatically
+// System.setProperty("spring.devtools.restart.enabled", "false");
+
+// IntelliJ: Enable Build > Build Project Automatically
+// Eclipse: Project > Build Automatically (enabled by default)`
         },
         {
           name: 'Best Practices',
-          explanation: 'Add as optional dependency ensuring exclusion from production builds. Configure exclusion patterns for static assets that shouldn\'t trigger restarts. Use with IDE\'s build-on-save feature for optimal experience. Set up development profile with additional debugging properties. Configure remote DevTools with security for cloud development scenarios.'
+          explanation: 'Add as optional dependency ensuring exclusion from production builds. Configure exclusion patterns for static assets that shouldn\'t trigger restarts. Use with IDE\'s build-on-save feature for optimal experience. Set up development profile with additional debugging properties. Configure remote DevTools with security for cloud development scenarios.',
+          codeExample: `// Use profiles to isolate dev configuration
+// application-dev.yml
+// spring:
+//   h2:
+//     console:
+//       enabled: true
+//       path: /h2-console
+//   jpa:
+//     show-sql: true
+//     properties:
+//       hibernate:
+//         format_sql: true
+//   devtools:
+//     restart:
+//       log-condition-evaluation-delta: false
+
+// Run with dev profile:
+// ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+// OR set in IDE run configuration:
+// --spring.profiles.active=dev`
         },
         {
           name: 'Common Pitfalls',
-          explanation: 'Classloader architecture causing issues with libraries using reflection or assuming specific classloader. Automatic restart triggered by irrelevant file changes without proper exclusions. @PostConstruct and lifecycle methods invoked on each restart, not just once. Static field values lost on restart without explicit preservation. Not configuring IDE for automatic build preventing DevTools from working.'
+          explanation: 'Classloader architecture causing issues with libraries using reflection or assuming specific classloader. Automatic restart triggered by irrelevant file changes without proper exclusions. @PostConstruct and lifecycle methods invoked on each restart, not just once. Static field values lost on restart without explicit preservation. Not configuring IDE for automatic build preventing DevTools from working.',
+          codeExample: `// PITFALL: Expensive @PostConstruct runs on every restart
+@Service
+public class DataLoader {
+    @PostConstruct
+    public void init() {
+        // BAD: Loads 10MB of data on every code change restart
+        loadReferenceData();
+    }
+}
+
+// FIX: Use ApplicationRunner with conditional loading
+@Component
+public class DataLoader implements ApplicationRunner {
+    @Override
+    public void run(ApplicationArguments args) {
+        if (!isDataLoaded()) {
+            loadReferenceData(); // Only loads when needed
+        }
+    }
+}
+
+// PITFALL: Static state lost on restart
+// BAD: static Map<String, Object> cache = new HashMap<>();
+// FIX: Use Spring-managed @Bean with @Scope("singleton")`
         }
       ]
     },
@@ -367,27 +1040,187 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       details: [
         {
           name: 'How It Works',
-          explanation: 'Spring Boot\'s configuration properties provide type-safe externalized configuration enabling the same binary to work across environments. @ConfigurationProperties binds external configuration to strongly-typed Java objects. Well-defined precedence: command-line args > environment variables > application.properties/yml > defaults. Profile-specific files (application-dev.yml, application-prod.yml) for per-environment overrides. Bean Validation (JSR-303/JSR-380) integration for declarative configuration validation at startup.'
+          explanation: 'Spring Boot\'s configuration properties provide type-safe externalized configuration enabling the same binary to work across environments. @ConfigurationProperties binds external configuration to strongly-typed Java objects. Well-defined precedence: command-line args > environment variables > application.properties/yml > defaults. Profile-specific files (application-dev.yml, application-prod.yml) for per-environment overrides. Bean Validation (JSR-303/JSR-380) integration for declarative configuration validation at startup.',
+          codeExample: `@Configuration
+@ConfigurationProperties(prefix = "app")
+@Validated
+public class AppProperties {
+
+    @NotBlank
+    private String name;
+
+    @Min(1) @Max(65535)
+    private int port = 8080;
+
+    private final Security security = new Security();
+
+    public static class Security {
+        @NotBlank
+        private String jwtSecret;
+        private Duration tokenExpiration = Duration.ofHours(24);
+        // getters and setters
+    }
+    // getters and setters
+}
+
+// application.yml
+// app:
+//   name: MyService
+//   port: 8080
+//   security:
+//     jwt-secret: \${JWT_SECRET}
+//     token-expiration: 24h`
         },
         {
           name: 'Key Features',
-          explanation: 'Type-safe configuration with compile-time checking and IDE autocomplete. Centralized configuration management avoiding scattered @Value annotations. Multiple configuration sources with clear precedence order. Profile-based environment-specific configuration. Validation support catching misconfiguration at startup with clear error messages. Integration with ConfigMap and Secrets in Kubernetes.'
+          explanation: 'Type-safe configuration with compile-time checking and IDE autocomplete. Centralized configuration management avoiding scattered @Value annotations. Multiple configuration sources with clear precedence order. Profile-based environment-specific configuration. Validation support catching misconfiguration at startup with clear error messages. Integration with ConfigMap and Secrets in Kubernetes.',
+          codeExample: `// Type-safe injection - IDE autocomplete works!
+@Service
+public class AuthService {
+
+    private final AppProperties.Security securityConfig;
+
+    public AuthService(AppProperties appProperties) {
+        this.securityConfig = appProperties.getSecurity();
+    }
+
+    public String generateToken(User user) {
+        return Jwts.builder()
+            .setSubject(user.getEmail())
+            .setExpiration(Date.from(
+                Instant.now().plus(securityConfig.getTokenExpiration())
+            ))
+            .signWith(Keys.hmacShaKeyFor(
+                securityConfig.getJwtSecret().getBytes()
+            ))
+            .compact();
+    }
+}
+
+// vs scattered @Value (harder to maintain):
+// @Value("\${app.security.jwt-secret}") String secret;
+// @Value("\${app.security.token-expiration}") Duration exp;`
         },
         {
           name: 'Real-World Use Cases',
-          explanation: 'Environment-varying values: Database connections, API endpoints, feature flags, rate limits. Microservices configuration: Service discovery endpoints, circuit breaker thresholds, retry policies. Feature toggles: Enabling/disabling functionality without code changes. Security: Externalized credentials, JWT secrets, API keys via environment variables. Cloud-native apps: Kubernetes ConfigMap and Secrets integration. Performance tuning: Cache TTLs, thread pool sizes, timeout values.'
+          explanation: 'Environment-varying values: Database connections, API endpoints, feature flags, rate limits. Microservices configuration: Service discovery endpoints, circuit breaker thresholds, retry policies. Feature toggles: Enabling/disabling functionality without code changes. Security: Externalized credentials, JWT secrets, API keys via environment variables. Cloud-native apps: Kubernetes ConfigMap and Secrets integration. Performance tuning: Cache TTLs, thread pool sizes, timeout values.',
+          codeExample: `// Feature toggles via configuration
+@ConfigurationProperties(prefix = "app.features")
+public class FeatureFlags {
+    private boolean newCheckout = false;
+    private boolean darkMode = false;
+    private boolean betaApi = false;
+    // getters and setters
+}
+
+@RestController
+public class CheckoutController {
+
+    @Autowired
+    private FeatureFlags features;
+
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkout(@RequestBody Order order) {
+        if (features.isNewCheckout()) {
+            return newCheckoutFlow(order);
+        }
+        return legacyCheckoutFlow(order);
+    }
+}
+
+// Toggle without code change or restart:
+// APP_FEATURES_NEW_CHECKOUT=true docker restart myapp`
         },
         {
           name: 'Property Binding',
-          explanation: '@ConfigurationProperties(prefix = "app") binds properties starting with "app." Nested objects supported with dot notation (app.security.jwt-secret). Lists and maps can be bound from YAML or properties files. Relaxed binding allows different formats (app.jwt-secret, APP_JWT_SECRET, app.jwtSecret). Duration and DataSize types have special parsing (10s, 10MB). Constructor binding with @ConstructorBinding for immutable configuration objects.'
+          explanation: '@ConfigurationProperties(prefix = "app") binds properties starting with "app." Nested objects supported with dot notation (app.security.jwt-secret). Lists and maps can be bound from YAML or properties files. Relaxed binding allows different formats (app.jwt-secret, APP_JWT_SECRET, app.jwtSecret). Duration and DataSize types have special parsing (10s, 10MB). Constructor binding with @ConstructorBinding for immutable configuration objects.',
+          codeExample: `// Immutable configuration with constructor binding
+@ConfigurationProperties(prefix = "app.cache")
+public record CacheProperties(
+    @DefaultValue("true") boolean enabled,
+    @DefaultValue("300s") Duration ttl,
+    @DefaultValue("1000") int maxSize,
+    List<String> cacheNames
+) {}
+
+// application.yml
+// app:
+//   cache:
+//     enabled: true
+//     ttl: 5m              # Duration parsing
+//     max-size: 5000
+//     cache-names:
+//       - users
+//       - products
+//       - sessions
+
+// Relaxed binding - all equivalent:
+// app.cache.max-size    (kebab-case - recommended)
+// app.cache.maxSize     (camelCase)
+// APP_CACHE_MAX_SIZE    (env variable)
+// app.cache.max_size    (underscore)`
         },
         {
           name: 'Best Practices',
-          explanation: 'Group related properties into nested objects for organization (app.security.jwt-secret). Provide sensible defaults where possible for optional configuration. Validate all properties with JSR-303 annotations catching errors early. Use @ConfigurationProperties instead of scattered @Value for maintainability. Document properties with Javadoc or generate metadata for IDE support. Store sensitive values in environment variables or secret managers, never in version control.'
+          explanation: 'Group related properties into nested objects for organization (app.security.jwt-secret). Provide sensible defaults where possible for optional configuration. Validate all properties with JSR-303 annotations catching errors early. Use @ConfigurationProperties instead of scattered @Value for maintainability. Document properties with Javadoc or generate metadata for IDE support. Store sensitive values in environment variables or secret managers, never in version control.',
+          codeExample: `// Profile-specific configuration
+// application.yml (shared defaults)
+// app:
+//   name: MyService
+//   cache:
+//     ttl: 5m
+
+// application-dev.yml
+// app:
+//   cache:
+//     ttl: 10s   # Short TTL for development
+// spring:
+//   jpa:
+//     show-sql: true
+
+// application-prod.yml
+// app:
+//   cache:
+//     ttl: 1h   # Long TTL for production
+// spring:
+//   jpa:
+//     show-sql: false
+
+// Activate profile:
+// java -jar app.jar --spring.profiles.active=prod
+// SPRING_PROFILES_ACTIVE=prod docker run myapp`
         },
         {
           name: 'Common Pitfalls',
-          explanation: 'Committing sensitive configuration to version control instead of using environment variables. Property name binding confusion - understand Spring Boot\'s flexible binding conventions. Over-using profiles creating configuration management complexity. Bypassing validation by making everything optional with defaults - fail fast instead. Mixing @Value and @ConfigurationProperties inconsistently. Not understanding property precedence leading to unexpected values.'
+          explanation: 'Committing sensitive configuration to version control instead of using environment variables. Property name binding confusion - understand Spring Boot\'s flexible binding conventions. Over-using profiles creating configuration management complexity. Bypassing validation by making everything optional with defaults - fail fast instead. Mixing @Value and @ConfigurationProperties inconsistently. Not understanding property precedence leading to unexpected values.',
+          codeExample: `// PITFALL: Secrets in version control
+// BAD: application.yml committed to git
+// app:
+//   security:
+//     jwt-secret: myHardcodedSecret123
+
+// FIX: Use environment variables
+// app:
+//   security:
+//     jwt-secret: \${JWT_SECRET}
+
+// PITFALL: No validation - app starts with bad config
+// BAD:
+@ConfigurationProperties(prefix = "app.db")
+public class DbProps {
+    private String url; // Could be null/empty!
+}
+
+// FIX: Validate at startup
+@ConfigurationProperties(prefix = "app.db")
+@Validated
+public class DbProps {
+    @NotBlank(message = "Database URL is required")
+    private String url;
+
+    @Min(value = 1, message = "Pool size must be >= 1")
+    private int poolSize = 10;
+}`
         }
       ]
     },
@@ -400,31 +1233,206 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       details: [
         {
           name: 'Core Application',
-          explanation: '@SpringBootApplication - Combines @Configuration, @EnableAutoConfiguration, and @ComponentScan. Entry point for Spring Boot apps. @EnableAutoConfiguration - Tells Spring Boot to automatically configure beans based on classpath dependencies. @ComponentScan - Scans for Spring components (@Component, @Service, @Repository, @Controller) in specified packages. @Configuration - Marks class as source of bean definitions, replacing XML configuration.'
+          explanation: '@SpringBootApplication - Combines @Configuration, @EnableAutoConfiguration, and @ComponentScan. Entry point for Spring Boot apps. @EnableAutoConfiguration - Tells Spring Boot to automatically configure beans based on classpath dependencies. @ComponentScan - Scans for Spring components (@Component, @Service, @Repository, @Controller) in specified packages. @Configuration - Marks class as source of bean definitions, replacing XML configuration.',
+          codeExample: `@SpringBootApplication
+// Equivalent to all three:
+// @Configuration
+// @EnableAutoConfiguration
+// @ComponentScan(basePackages = "com.myapp")
+public class Application {
+    public static void main(String[] args) {
+        ApplicationContext ctx = SpringApplication.run(Application.class, args);
+        // ctx now contains all auto-configured and scanned beans
+    }
+}
+
+@Configuration
+public class AppConfig {
+    @Bean  // Explicitly declares a Spring-managed bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+}`
         },
         {
           name: 'Stereotype Annotations',
-          explanation: '@Component - Generic Spring-managed component, base annotation for all stereotypes. @Service - Business logic layer, semantic marker for service classes. @Repository - Data access layer, enables exception translation for persistence exceptions. @Controller - Web layer for MVC controllers returning views. @RestController - Combines @Controller + @ResponseBody for REST APIs returning JSON/XML.'
+          explanation: '@Component - Generic Spring-managed component, base annotation for all stereotypes. @Service - Business logic layer, semantic marker for service classes. @Repository - Data access layer, enables exception translation for persistence exceptions. @Controller - Web layer for MVC controllers returning views. @RestController - Combines @Controller + @ResponseBody for REST APIs returning JSON/XML.',
+          codeExample: `// Layered architecture with stereotype annotations
+@RestController  // = @Controller + @ResponseBody
+@RequestMapping("/api/orders")
+public class OrderController {
+    @Autowired private OrderService orderService;
+
+    @GetMapping("/{id}")
+    public Order getOrder(@PathVariable Long id) {
+        return orderService.findById(id);
+    }
+}
+
+@Service  // Business logic layer
+public class OrderService {
+    @Autowired private OrderRepository orderRepo;
+
+    @Transactional
+    public Order findById(Long id) {
+        return orderRepo.findById(id)
+            .orElseThrow(() -> new OrderNotFoundException(id));
+    }
+}
+
+@Repository  // Data access + exception translation
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    List<Order> findByCustomerId(Long customerId);
+}`
         },
         {
           name: 'Dependency Injection',
-          explanation: '@Autowired - Injects dependencies automatically by type (constructor, field, or setter injection). @Qualifier - Disambiguates when multiple beans of same type exist. @Primary - Marks bean as primary candidate when multiple beans qualify. @Value - Injects values from properties files or SpEL expressions. @Bean - Declares a method as a bean producer in @Configuration classes.'
+          explanation: '@Autowired - Injects dependencies automatically by type (constructor, field, or setter injection). @Qualifier - Disambiguates when multiple beans of same type exist. @Primary - Marks bean as primary candidate when multiple beans qualify. @Value - Injects values from properties files or SpEL expressions. @Bean - Declares a method as a bean producer in @Configuration classes.',
+          codeExample: `// Constructor injection (recommended - immutable, testable)
+@Service
+public class NotificationService {
+
+    private final EmailSender emailSender;
+    private final SmsSender smsSender;
+
+    // @Autowired optional with single constructor
+    public NotificationService(EmailSender emailSender,
+                                SmsSender smsSender) {
+        this.emailSender = emailSender;
+        this.smsSender = smsSender;
+    }
+}
+
+// @Qualifier for multiple implementations
+@Configuration
+public class SenderConfig {
+    @Bean @Primary
+    public EmailSender defaultSender() { return new SmtpSender(); }
+
+    @Bean("ses")
+    public EmailSender sesSender() { return new AwsSesSender(); }
+}
+
+@Service
+public class BulkMailService {
+    public BulkMailService(@Qualifier("ses") EmailSender sender) {
+        // Uses AWS SES instead of default SMTP
+    }
+}`
         },
         {
           name: 'Web/REST Annotations',
-          explanation: '@RequestMapping - Maps HTTP requests to handler methods (class or method level). @GetMapping, @PostMapping, @PutMapping, @DeleteMapping, @PatchMapping - Shortcuts for specific HTTP methods. @PathVariable - Extracts values from URI path (e.g., /users/{id}). @RequestParam - Extracts query parameters from URL. @RequestBody - Binds HTTP request body to method parameter (JSON to object). @ResponseBody - Writes return value directly to HTTP response body. @ResponseStatus - Sets HTTP status code for response.'
+          explanation: '@RequestMapping - Maps HTTP requests to handler methods (class or method level). @GetMapping, @PostMapping, @PutMapping, @DeleteMapping, @PatchMapping - Shortcuts for specific HTTP methods. @PathVariable - Extracts values from URI path (e.g., /users/{id}). @RequestParam - Extracts query parameters from URL. @RequestBody - Binds HTTP request body to method parameter (JSON to object). @ResponseBody - Writes return value directly to HTTP response body. @ResponseStatus - Sets HTTP status code for response.',
+          codeExample: `@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @GetMapping                    // GET /api/users?page=0&size=20
+    public Page<User> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return userService.findAll(PageRequest.of(page, size));
+    }
+
+    @GetMapping("/{id}")           // GET /api/users/42
+    public User getById(@PathVariable Long id) {
+        return userService.findById(id);
+    }
+
+    @PostMapping                   // POST /api/users (JSON body)
+    @ResponseStatus(HttpStatus.CREATED)
+    public User create(@Valid @RequestBody CreateUserRequest request) {
+        return userService.create(request);
+    }
+
+    @DeleteMapping("/{id}")        // DELETE /api/users/42
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        userService.delete(id);
+    }
+}`
         },
         {
           name: 'JPA/Data Annotations',
-          explanation: '@Entity - Marks class as JPA entity mapped to database table. @Table - Specifies table name and schema. @Id - Marks primary key field. @GeneratedValue - Configures primary key generation strategy. @Column - Customizes column mapping (name, nullable, length). @Transactional - Manages transaction boundaries. @Query - Custom JPQL or native SQL queries in repositories.'
+          explanation: '@Entity - Marks class as JPA entity mapped to database table. @Table - Specifies table name and schema. @Id - Marks primary key field. @GeneratedValue - Configures primary key generation strategy. @Column - Customizes column mapping (name, nullable, length). @Transactional - Manages transaction boundaries. @Query - Custom JPQL or native SQL queries in repositories.',
+          codeExample: `@Entity
+@Table(name = "products")
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 200)
+    private String name;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+}
+
+@Service
+public class ProductService {
+    @Transactional(readOnly = true) // Read-only optimizations
+    public Product findById(Long id) {
+        return repo.findById(id).orElseThrow();
+    }
+
+    @Transactional // Write transaction - rollback on exception
+    public Product create(Product product) {
+        return repo.save(product);
+    }
+}`
         },
         {
           name: 'Conditional Annotations',
-          explanation: '@ConditionalOnClass - Applies configuration only if specified class is on classpath. @ConditionalOnMissingBean - Applies only if specified bean doesn\'t exist. @ConditionalOnProperty - Applies based on property value. @Profile - Activates beans only for specific profiles (dev, prod, test). These annotations enable selective configuration based on runtime conditions.'
+          explanation: '@ConditionalOnClass - Applies configuration only if specified class is on classpath. @ConditionalOnMissingBean - Applies only if specified bean doesn\'t exist. @ConditionalOnProperty - Applies based on property value. @Profile - Activates beans only for specific profiles (dev, prod, test). These annotations enable selective configuration based on runtime conditions.',
+          codeExample: `// Profile-specific beans
+@Configuration
+public class StorageConfig {
+
+    @Bean
+    @Profile("dev")
+    public FileStorage localStorage() {
+        return new LocalFileStorage("/tmp/uploads");
+    }
+
+    @Bean
+    @Profile("prod")
+    public FileStorage s3Storage() {
+        return new S3FileStorage("my-bucket");
+    }
+}
+
+// Conditional auto-configuration
+@Configuration
+@ConditionalOnClass(RedisTemplate.class) // Only if Redis on classpath
+public class CacheConfig {
+
+    @Bean
+    @ConditionalOnMissingBean(CacheManager.class)
+    @ConditionalOnProperty(name = "app.cache.type", havingValue = "redis")
+    public CacheManager redisCacheManager(RedisConnectionFactory cf) {
+        return RedisCacheManager.builder(cf)
+            .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30)))
+            .build();
+    }
+}`
         }
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
@@ -724,6 +1732,18 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      borderLeft: `4px solid ${selectedConcept.color}`,
+                      overflow: 'auto',
+                      marginTop: '1rem'
+                    }}>
+                      <SyntaxHighlighter code={detail.codeExample} />
+                    </div>
+                  )}
                 </div>
               )
             })()}

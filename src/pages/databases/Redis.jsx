@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -195,6 +196,59 @@ const UseCasesDiagram = () => (
   </svg>
 )
 
+const SyntaxHighlighter = ({ code }) => {
+  const highlightCode = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(\/\/.*$|#.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(SET|GET|DEL|MSET|MGET|INCR|DECR|INCRBY|DECRBY|EXPIRE|TTL|PERSIST|KEYS|SCAN|TYPE|RENAME|EXISTS|HSET|HGET|HDEL|HGETALL|HMSET|HMGET|HKEYS|HVALS|HINCRBY|HEXISTS|LPUSH|RPUSH|LPOP|RPOP|LRANGE|LLEN|LINDEX|LSET|LREM|SADD|SREM|SMEMBERS|SISMEMBER|SCARD|SUNION|SINTER|SDIFF|ZADD|ZREM|ZRANGE|ZRANGEBYSCORE|ZRANK|ZSCORE|ZCARD|PUBLISH|SUBSCRIBE|PSUBSCRIBE|UNSUBSCRIBE|MULTI|EXEC|DISCARD|WATCH|EVAL|EVALSHA|SCRIPT|CONFIG|INFO|DBSIZE|FLUSHDB|FLUSHALL|SLAVEOF|SENTINEL|CLUSTER|XADD|XREAD|XRANGE|XLEN|XGROUP|XACK|CLIENT|AUTH|SELECT|PING|ECHO|WAIT|DUMP|RESTORE|OBJECT|SORT|GEORADIUSBYMEMBER|GEOADD|GEODIST|GEOHASH|GEOPOS|GEORADIUS|PFADD|PFCOUNT|PFMERGE|APPEND|GETRANGE|SETRANGE|STRLEN|SETNX|SETEX|PSETEX|GETSET|RPOPLPUSH|BRPOP|BLPOP)\b/g, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(public|private|protected|static|final|class|interface|new|return|if|else|for|while|try|catch|void|import|package|this|null|true|false)\b/g, '<span style="color: #c586c0;">$1</span>')
+      .replace(/\b(String|Jedis|JedisPool|JedisPoolConfig|RedisTemplate|StringRedisTemplate|ValueOperations|HashOperations|ListOperations|SetOperations|ZSetOperations|Pipeline|Transaction|Map|List|Set|Long|Integer|Double)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
+    </pre>
+  )
+}
+
 function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -210,31 +264,126 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Strings',
-          explanation: 'Most basic Redis data type, can store text or binary data up to 512 MB. Use GET/SET commands. Supports atomic operations like INCR, DECR for counters. APPEND for string concatenation. Perfect for caching, session storage, and simple values.'
+          explanation: 'Most basic Redis data type, can store text or binary data up to 512 MB. Use GET/SET commands. Supports atomic operations like INCR, DECR for counters. APPEND for string concatenation. Perfect for caching, session storage, and simple values.',
+          codeExample: `// Redis CLI - String commands
+SET user:1001:name "Alice"
+GET user:1001:name           // "Alice"
+SET page:views 0
+INCR page:views              // 1
+INCRBY page:views 10         // 11
+SETEX session:abc123 3600 "user-data"  // expires in 1 hour
+MSET key1 "val1" key2 "val2" key3 "val3"
+MGET key1 key2 key3
+
+// Java - Jedis client
+Jedis jedis = new Jedis("localhost", 6379);
+jedis.set("user:1001:name", "Alice");
+String name = jedis.get("user:1001:name");
+jedis.incr("page:views");
+jedis.setex("session:abc", 3600, "data");`
         },
         {
           name: 'Hashes',
-          explanation: 'Maps between string fields and string values. Like mini Redis instances inside a key. Use HGET, HSET, HMGET, HMSET. Perfect for representing objects (e.g., user:1000 → {name, email, age}). More memory efficient than multiple string keys. Can increment fields with HINCRBY.'
+          explanation: 'Maps between string fields and string values. Like mini Redis instances inside a key. Use HGET, HSET, HMGET, HMSET. Perfect for representing objects (e.g., user:1000 → {name, email, age}). More memory efficient than multiple string keys. Can increment fields with HINCRBY.',
+          codeExample: `// Redis CLI - Hash commands
+HSET user:1000 name "Bob" email "bob@test.com" age "30"
+HGET user:1000 name          // "Bob"
+HGETALL user:1000            // returns all fields and values
+HINCRBY user:1000 age 1      // 31
+HDEL user:1000 email
+HEXISTS user:1000 name       // 1 (true)
+
+// Java - Spring RedisTemplate
+HashOperations<String, String, String> ops = redisTemplate.opsForHash();
+Map<String, String> user = new HashMap<>();
+user.put("name", "Bob");
+user.put("email", "bob@test.com");
+ops.putAll("user:1000", user);
+String name = ops.get("user:1000", "name");
+Map<String, String> all = ops.entries("user:1000");`
         },
         {
           name: 'Lists',
-          explanation: 'Linked lists of string elements. LPUSH/RPUSH to add elements at head/tail. LPOP/RPOP to remove and return elements. Blocking operations with BLPOP/BRPOP for queue implementations. Use LRANGE to get a range. Perfect for message queues, activity feeds, recent items.'
+          explanation: 'Linked lists of string elements. LPUSH/RPUSH to add elements at head/tail. LPOP/RPOP to remove and return elements. Blocking operations with BLPOP/BRPOP for queue implementations. Use LRANGE to get a range. Perfect for message queues, activity feeds, recent items.',
+          codeExample: `// Redis CLI - List commands
+LPUSH queue:tasks "task1" "task2" "task3"
+RPUSH queue:tasks "task4"
+LRANGE queue:tasks 0 -1      // all elements
+RPOP queue:tasks              // "task4" (dequeue)
+LLEN queue:tasks              // length
+BRPOP queue:tasks 30          // blocking pop, 30s timeout
+
+// Java - Jedis as a message queue
+Jedis jedis = new Jedis("localhost", 6379);
+jedis.lpush("queue:emails", "msg1", "msg2");
+String task = jedis.rpop("queue:emails");
+// Blocking consumer
+List<String> result = jedis.brpop(30, "queue:emails");`
         },
         {
           name: 'Sets',
-          explanation: 'Unordered collection of unique strings. SADD to add members, SISMEMBER to check membership. Set operations: SUNION, SINTER, SDIFF for union, intersection, difference. SPOP for random element removal. Perfect for unique visitors, tags, and relationships.'
+          explanation: 'Unordered collection of unique strings. SADD to add members, SISMEMBER to check membership. Set operations: SUNION, SINTER, SDIFF for union, intersection, difference. SPOP for random element removal. Perfect for unique visitors, tags, and relationships.',
+          codeExample: `// Redis CLI - Set commands
+SADD tags:post:101 "java" "redis" "backend"
+SADD tags:post:102 "redis" "docker" "devops"
+SMEMBERS tags:post:101       // {"java", "redis", "backend"}
+SISMEMBER tags:post:101 "java"  // 1 (true)
+SINTER tags:post:101 tags:post:102   // {"redis"}
+SUNION tags:post:101 tags:post:102   // all unique tags
+SCARD tags:post:101           // 3
+
+// Java - Spring RedisTemplate
+SetOperations<String, String> ops = redisTemplate.opsForSet();
+ops.add("online:users", "user1", "user2", "user3");
+Boolean isMember = ops.isMember("online:users", "user1");
+Set<String> common = ops.intersect("group:a", "group:b");`
         },
         {
           name: 'Sorted Sets',
-          explanation: 'Sets where every member has an associated score for ordering. ZADD to add with score. ZRANGE/ZREVRANGE for range queries by rank. ZRANGEBYSCORE for score-based queries. Atomic increment with ZINCRBY. Perfect for leaderboards, priority queues, time series.'
+          explanation: 'Sets where every member has an associated score for ordering. ZADD to add with score. ZRANGE/ZREVRANGE for range queries by rank. ZRANGEBYSCORE for score-based queries. Atomic increment with ZINCRBY. Perfect for leaderboards, priority queues, time series.',
+          codeExample: `// Redis CLI - Sorted Set for leaderboard
+ZADD leaderboard 1500 "alice" 1200 "bob" 1800 "charlie"
+ZREVRANGE leaderboard 0 2 WITHSCORES  // top 3 players
+ZRANK leaderboard "alice"              // rank (0-based)
+ZINCRBY leaderboard 100 "bob"          // bob now 1300
+ZRANGEBYSCORE leaderboard 1300 1900    // score range query
+
+// Java - Jedis leaderboard
+Jedis jedis = new Jedis("localhost", 6379);
+jedis.zadd("leaderboard", 1500, "alice");
+jedis.zincrby("leaderboard", 100, "alice");
+Set<String> top3 = jedis.zrevrange("leaderboard", 0, 2);
+Long rank = jedis.zrank("leaderboard", "alice");`
         },
         {
           name: 'Bitmaps & HyperLogLog',
-          explanation: 'Bitmaps for bit-level operations on strings. SETBIT/GETBIT for individual bits. BITCOUNT for counting set bits. HyperLogLog for cardinality estimation using minimal memory. PFADD to add elements, PFCOUNT for approximate count. Perfect for analytics and unique counting.'
+          explanation: 'Bitmaps for bit-level operations on strings. SETBIT/GETBIT for individual bits. BITCOUNT for counting set bits. HyperLogLog for cardinality estimation using minimal memory. PFADD to add elements, PFCOUNT for approximate count. Perfect for analytics and unique counting.',
+          codeExample: `// Redis CLI - Bitmap for daily active users
+SETBIT daily:active:2025-01-15 1001 1   // user 1001 active
+SETBIT daily:active:2025-01-15 1002 1   // user 1002 active
+GETBIT daily:active:2025-01-15 1001     // 1 (active)
+BITCOUNT daily:active:2025-01-15        // total active users
+
+// HyperLogLog for unique visitor counting
+PFADD visitors:page:home "user1" "user2" "user3"
+PFADD visitors:page:home "user1" "user4"  // user1 not re-counted
+PFCOUNT visitors:page:home               // ~4 (approximate)
+PFMERGE visitors:total visitors:page:home visitors:page:about`
         },
         {
           name: 'Streams',
-          explanation: 'Append-only log data structure. XADD to add entries, XREAD to read. Consumer groups for distributed processing. XACK for acknowledging processed messages. Time-based or ID-based queries. Perfect for event sourcing, activity streams, and message brokers.'
+          explanation: 'Append-only log data structure. XADD to add entries, XREAD to read. Consumer groups for distributed processing. XACK for acknowledging processed messages. Time-based or ID-based queries. Perfect for event sourcing, activity streams, and message brokers.',
+          codeExample: `// Redis CLI - Stream for event processing
+XADD orders * user "alice" product "book" amount "29.99"
+XADD orders * user "bob" product "laptop" amount "999"
+XLEN orders                              // 2
+XRANGE orders - +                        // read all entries
+XREAD COUNT 10 STREAMS orders 0          // read from start
+
+// Consumer groups for distributed processing
+XGROUP CREATE orders grp1 0
+XREADGROUP GROUP grp1 consumer1 COUNT 1 STREAMS orders >
+XACK orders grp1 "1234567890-0"          // acknowledge`
         }
       ]
     },
@@ -248,19 +397,73 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'RDB Snapshots',
-          explanation: 'Point-in-time snapshots of entire dataset saved to disk. Compact binary format. Configured with "save" directives (e.g., save after 900 seconds if 1 key changed). BGSAVE for manual snapshot. Fast restarts from snapshot. Minimal impact on performance. Good for backups and disaster recovery.'
+          explanation: 'Point-in-time snapshots of entire dataset saved to disk. Compact binary format. Configured with "save" directives (e.g., save after 900 seconds if 1 key changed). BGSAVE for manual snapshot. Fast restarts from snapshot. Minimal impact on performance. Good for backups and disaster recovery.',
+          codeExample: `# redis.conf - RDB configuration
+save 900 1        # snapshot if 1 key changed in 900 sec
+save 300 10       # snapshot if 10 keys changed in 300 sec
+save 60 10000     # snapshot if 10000 keys changed in 60 sec
+dbfilename dump.rdb
+dir /var/lib/redis
+
+# Manual snapshot commands
+BGSAVE              # background save (non-blocking)
+SAVE                # foreground save (blocks all clients)
+LASTSAVE            # timestamp of last successful save
+CONFIG SET save ""  # disable RDB snapshots`
         },
         {
           name: 'AOF (Append Only File)',
-          explanation: 'Logs every write operation. Can replay the log to reconstruct dataset. More durable than RDB. Three fsync policies: always (slow, most durable), everysec (good balance), no (fast, less durable). AOF rewrite compacts the log. Better for minimizing data loss.'
+          explanation: 'Logs every write operation. Can replay the log to reconstruct dataset. More durable than RDB. Three fsync policies: always (slow, most durable), everysec (good balance), no (fast, less durable). AOF rewrite compacts the log. Better for minimizing data loss.',
+          codeExample: `# redis.conf - AOF configuration
+appendonly yes
+appendfilename "appendonly.aof"
+
+# fsync policies
+appendfsync always     # fsync after every write (safest)
+appendfsync everysec   # fsync once per second (recommended)
+appendfsync no         # let the OS handle it (fastest)
+
+# AOF rewrite to compact the log
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+
+# Manual rewrite
+BGREWRITEAOF           # trigger AOF rewrite in background`
         },
         {
           name: 'Hybrid Persistence',
-          explanation: 'Combine RDB and AOF for best of both. Use RDB for fast restarts and AOF for durability. On restart, AOF is preferred for recovery. RDB as fallback. Configurable with "aof-use-rdb-preamble" directive. Balances performance and data safety.'
+          explanation: 'Combine RDB and AOF for best of both. Use RDB for fast restarts and AOF for durability. On restart, AOF is preferred for recovery. RDB as fallback. Configurable with "aof-use-rdb-preamble" directive. Balances performance and data safety.',
+          codeExample: `# redis.conf - Hybrid persistence (recommended)
+appendonly yes
+aof-use-rdb-preamble yes   # RDB preamble in AOF file
+
+# How it works:
+# 1. AOF rewrite creates RDB snapshot as preamble
+# 2. New writes appended as AOF commands after preamble
+# 3. On restart: load RDB preamble, replay AOF tail
+# 4. Combines fast RDB loading with AOF durability
+
+# Verify persistence status
+INFO persistence
+# aof_enabled: 1
+# rdb_last_save_time: 1705123456
+# aof_last_rewrite_status: ok`
         },
         {
           name: 'No Persistence',
-          explanation: 'Pure in-memory mode for maximum performance. No disk writes. Data lost on restart. Perfect for pure caching where source data exists elsewhere. Disable with save "" and appendonly no. Useful for session stores with short TTLs.'
+          explanation: 'Pure in-memory mode for maximum performance. No disk writes. Data lost on restart. Perfect for pure caching where source data exists elsewhere. Disable with save "" and appendonly no. Useful for session stores with short TTLs.',
+          codeExample: `# redis.conf - Pure cache mode (no persistence)
+save ""              # disable RDB snapshots
+appendonly no        # disable AOF logging
+
+# Recommended cache settings
+maxmemory 2gb
+maxmemory-policy allkeys-lru  # evict least recently used
+
+# Verify no persistence
+CONFIG GET save           # ""
+CONFIG GET appendonly     # "no"
+INFO persistence          # no RDB or AOF activity`
         }
       ]
     },
@@ -274,19 +477,86 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Cache-Aside',
-          explanation: 'Application checks cache first. On miss, fetch from database and populate cache. SET with TTL to avoid stale data. Simple and widely used. Application controls caching logic. Best for read-heavy workloads. Lazy loading pattern.'
+          explanation: 'Application checks cache first. On miss, fetch from database and populate cache. SET with TTL to avoid stale data. Simple and widely used. Application controls caching logic. Best for read-heavy workloads. Lazy loading pattern.',
+          codeExample: `// Java - Cache-aside pattern with Spring RedisTemplate
+public User getUser(Long userId) {
+    String key = "user:" + userId;
+    // 1. Check cache first
+    String cached = redisTemplate.opsForValue().get(key);
+    if (cached != null) {
+        return deserialize(cached);  // Cache HIT
+    }
+    // 2. Cache MISS - query database
+    User user = userRepository.findById(userId);
+    // 3. Populate cache with TTL
+    redisTemplate.opsForValue()
+        .set(key, serialize(user), 30, TimeUnit.MINUTES);
+    return user;
+}`
         },
         {
           name: 'Write-Through',
-          explanation: 'On write, update both cache and database. Cache always in sync with database. Higher write latency. No cache misses for recently written data. Ensures consistency. Good for write-heavy workloads where reads must be fast.'
+          explanation: 'On write, update both cache and database. Cache always in sync with database. Higher write latency. No cache misses for recently written data. Ensures consistency. Good for write-heavy workloads where reads must be fast.',
+          codeExample: `// Java - Write-through caching pattern
+public User updateUser(Long userId, User updated) {
+    String key = "user:" + userId;
+    // 1. Write to database first
+    User saved = userRepository.save(updated);
+    // 2. Update cache immediately
+    redisTemplate.opsForValue()
+        .set(key, serialize(saved), 30, TimeUnit.MINUTES);
+    return saved;
+}
+
+public User createUser(User user) {
+    User saved = userRepository.save(user);
+    String key = "user:" + saved.getId();
+    redisTemplate.opsForValue()
+        .set(key, serialize(saved), 30, TimeUnit.MINUTES);
+    return saved;
+}`
         },
         {
           name: 'Write-Behind',
-          explanation: 'Write to cache immediately, asynchronously write to database. Lower write latency. Risk of data loss if cache fails before DB write. Batch database writes for efficiency. Complex to implement correctly. Best for very high write throughput.'
+          explanation: 'Write to cache immediately, asynchronously write to database. Lower write latency. Risk of data loss if cache fails before DB write. Batch database writes for efficiency. Complex to implement correctly. Best for very high write throughput.',
+          codeExample: `// Java - Write-behind with async DB flush
+public void updateCounter(String metricKey, long value) {
+    String key = "metric:" + metricKey;
+    // 1. Write to Redis immediately (fast)
+    redisTemplate.opsForValue().increment(key, value);
+
+    // 2. Queue async database write
+    asyncExecutor.submit(() -> {
+        metricsRepository.upsert(metricKey, value);
+    });
+}
+
+// Batch flush - periodically sync to database
+@Scheduled(fixedRate = 60000)
+public void flushMetricsToDB() {
+    Set<String> keys = redisTemplate.keys("metric:*");
+    // batch write all dirty keys to database
+}`
         },
         {
           name: 'Eviction Policies',
-          explanation: 'When max memory reached, Redis can evict keys. Policies: noeviction (error on memory limit), allkeys-lru (evict least recently used), volatile-lru (only keys with TTL), allkeys-random, volatile-ttl (evict soonest TTL). Configure with maxmemory-policy. Choose based on access patterns.'
+          explanation: 'When max memory reached, Redis can evict keys. Policies: noeviction (error on memory limit), allkeys-lru (evict least recently used), volatile-lru (only keys with TTL), allkeys-random, volatile-ttl (evict soonest TTL). Configure with maxmemory-policy. Choose based on access patterns.',
+          codeExample: `# Redis eviction policy configuration
+CONFIG SET maxmemory 2gb
+CONFIG SET maxmemory-policy allkeys-lru
+
+# Available policies:
+# noeviction     - return error when memory limit reached
+# allkeys-lru    - evict least recently used (recommended)
+# allkeys-lfu    - evict least frequently used
+# volatile-lru   - evict LRU among keys with TTL
+# volatile-lfu   - evict LFU among keys with TTL
+# volatile-ttl   - evict keys with nearest expiry
+# allkeys-random - evict random keys
+# volatile-random - evict random keys with TTL
+
+INFO memory         # check current memory usage
+DBSIZE              # total number of keys`
         }
       ]
     },
@@ -300,19 +570,84 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Replication',
-          explanation: 'Master-slave replication for data redundancy. Master handles writes, slaves handle reads. Asynchronous replication. REPLICAOF command to make a server a replica. Read scaling by adding replicas. Automatic reconnection and partial resync.'
+          explanation: 'Master-slave replication for data redundancy. Master handles writes, slaves handle reads. Asynchronous replication. REPLICAOF command to make a server a replica. Read scaling by adding replicas. Automatic reconnection and partial resync.',
+          codeExample: `# Configure replication
+REPLICAOF 192.168.1.100 6379   # make this a replica
+REPLICAOF NO ONE               # promote to master
+INFO replication               # check replication status
+
+# redis.conf for replica
+replicaof 192.168.1.100 6379
+masterauth "secret-password"
+replica-read-only yes          # replicas are read-only
+
+# Verify replication
+# master: connected_slaves:2
+# slave0: ip=192.168.1.101,port=6379,state=online
+# slave1: ip=192.168.1.102,port=6379,state=online`
         },
         {
           name: 'Redis Sentinel',
-          explanation: 'Automated monitoring, notification, and failover. Monitors master and replicas. Automatic failover when master fails. Promotes replica to master. Service discovery for clients. Quorum-based decisions. High availability without Redis Cluster.'
+          explanation: 'Automated monitoring, notification, and failover. Monitors master and replicas. Automatic failover when master fails. Promotes replica to master. Service discovery for clients. Quorum-based decisions. High availability without Redis Cluster.',
+          codeExample: `# sentinel.conf
+sentinel monitor mymaster 192.168.1.100 6379 2
+sentinel down-after-milliseconds mymaster 5000
+sentinel failover-timeout mymaster 60000
+sentinel auth-pass mymaster "secret"
+
+# Java - Jedis with Sentinel
+Set<String> sentinels = new HashSet<>();
+sentinels.add("sentinel1:26379");
+sentinels.add("sentinel2:26379");
+sentinels.add("sentinel3:26379");
+JedisPool pool = new JedisSentinelPool(
+    "mymaster", sentinels);
+try (Jedis jedis = pool.getResource()) {
+    jedis.set("key", "value");
+}`
         },
         {
           name: 'Redis Cluster',
-          explanation: 'Automatic sharding across multiple nodes. 16384 hash slots distributed across nodes. No single point of failure. Automatic rebalancing. Each node has replicas. Horizontal scalability. CRC16 hash of key for slot assignment. Multi-key operations limited to same slot.'
+          explanation: 'Automatic sharding across multiple nodes. 16384 hash slots distributed across nodes. No single point of failure. Automatic rebalancing. Each node has replicas. Horizontal scalability. CRC16 hash of key for slot assignment. Multi-key operations limited to same slot.',
+          codeExample: `# Create a Redis Cluster
+redis-cli --cluster create \\
+  node1:6379 node2:6379 node3:6379 \\
+  node4:6379 node5:6379 node6:6379 \\
+  --cluster-replicas 1
+
+# Cluster commands
+CLUSTER INFO            # cluster state and stats
+CLUSTER NODES           # list all nodes
+CLUSTER SLOTS           # slot-to-node mapping
+
+# Hash tags for multi-key operations on same slot
+SET {user:1000}.name "Alice"
+SET {user:1000}.email "alice@test.com"
+# Both keys hash to same slot due to {user:1000}`
         },
         {
           name: 'Connection Handling',
-          explanation: 'Use connection pooling in applications. Pipelining for batching commands. Pub/Sub for event-driven architecture. Connection multiplexing. RESP protocol for client-server communication. Client libraries handle reconnection.'
+          explanation: 'Use connection pooling in applications. Pipelining for batching commands. Pub/Sub for event-driven architecture. Connection multiplexing. RESP protocol for client-server communication. Client libraries handle reconnection.',
+          codeExample: `// Java - Connection pooling with Jedis
+JedisPoolConfig config = new JedisPoolConfig();
+config.setMaxTotal(128);
+config.setMaxIdle(16);
+config.setMinIdle(4);
+config.setTestOnBorrow(true);
+
+JedisPool pool = new JedisPool(config, "localhost", 6379);
+
+// Always return connections to pool
+try (Jedis jedis = pool.getResource()) {
+    jedis.set("key", "value");
+    String val = jedis.get("key");
+} // auto-closed and returned to pool
+
+// Spring Boot - auto-configured pool
+// application.properties
+// spring.redis.host=localhost
+// spring.redis.port=6379
+// spring.redis.jedis.pool.max-active=128`
         }
       ]
     },
@@ -326,19 +661,92 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'MULTI/EXEC',
-          explanation: 'Queue commands with MULTI, execute atomically with EXEC. All commands executed serially. No other commands interleave. DISCARD to abort transaction. Errors don\'t rollback executed commands. Use for ensuring consistency of multiple operations.'
+          explanation: 'Queue commands with MULTI, execute atomically with EXEC. All commands executed serially. No other commands interleave. DISCARD to abort transaction. Errors don\'t rollback executed commands. Use for ensuring consistency of multiple operations.',
+          codeExample: `// Redis CLI - Atomic transfer between accounts
+MULTI
+DECRBY account:alice 100
+INCRBY account:bob 100
+EXEC                     // both commands execute atomically
+
+// Java - Jedis transaction
+Jedis jedis = new Jedis("localhost", 6379);
+Transaction tx = jedis.multi();
+tx.decrBy("account:alice", 100);
+tx.incrBy("account:bob", 100);
+List<Object> results = tx.exec();  // atomic execution
+// results: [newAliceBalance, newBobBalance]`
         },
         {
           name: 'WATCH',
-          explanation: 'Optimistic locking mechanism. WATCH keys before MULTI. Transaction aborts if watched keys change. Check-and-set pattern. UNWATCH to clear watches. Prevents race conditions. Retry transaction on conflict.'
+          explanation: 'Optimistic locking mechanism. WATCH keys before MULTI. Transaction aborts if watched keys change. Check-and-set pattern. UNWATCH to clear watches. Prevents race conditions. Retry transaction on conflict.',
+          codeExample: `// Redis CLI - Optimistic locking
+WATCH account:alice
+GET account:alice         // "500"
+MULTI
+DECRBY account:alice 100  // only if unchanged
+EXEC                      // null if key was modified
+
+// Java - WATCH with retry loop
+public void safeTransfer(Jedis jedis, String from, long amt) {
+    while (true) {
+        jedis.watch(from);
+        long balance = Long.parseLong(jedis.get(from));
+        if (balance < amt) throw new RuntimeException("Low balance");
+        Transaction tx = jedis.multi();
+        tx.decrBy(from, amt);
+        List<Object> result = tx.exec();
+        if (result != null) break;  // success
+        // otherwise retry - key was modified
+    }
+}`
         },
         {
           name: 'Lua Scripting',
-          explanation: 'Execute scripts atomically on server side. EVAL command to run Lua scripts. Scripts cached with SCRIPT LOAD. Access Redis commands via redis.call() and redis.pcall(). Complex atomic operations. Reduces network round trips. Can return structured data.'
+          explanation: 'Execute scripts atomically on server side. EVAL command to run Lua scripts. Scripts cached with SCRIPT LOAD. Access Redis commands via redis.call() and redis.pcall(). Complex atomic operations. Reduces network round trips. Can return structured data.',
+          codeExample: `// Redis CLI - Lua script for atomic rate limiting
+EVAL "
+  local current = redis.call('INCR', KEYS[1])
+  if current == 1 then
+    redis.call('EXPIRE', KEYS[1], ARGV[1])
+  end
+  return current
+" 1 ratelimit:user:1001 60
+
+// Java - Jedis Lua scripting
+String script = "local val = redis.call('GET', KEYS[1]) " +
+    "if val == false then return 0 " +
+    "else return tonumber(val) end";
+Object result = jedis.eval(script, 1, "counter:page");
+
+// Load script for reuse (avoids resending script)
+String sha = jedis.scriptLoad(script);
+Object result2 = jedis.evalsha(sha, 1, "counter:page");`
         },
         {
           name: 'Pipelining',
-          explanation: 'Send multiple commands without waiting for responses. Reduces network latency. Responses returned in order. Not atomic like transactions. Significantly improves throughput. Use client libraries\' pipeline APIs. Perfect for batch operations.'
+          explanation: 'Send multiple commands without waiting for responses. Reduces network latency. Responses returned in order. Not atomic like transactions. Significantly improves throughput. Use client libraries\' pipeline APIs. Perfect for batch operations.',
+          codeExample: `// Java - Jedis pipelining for batch operations
+Jedis jedis = new Jedis("localhost", 6379);
+Pipeline pipe = jedis.pipelined();
+
+// Queue 1000 commands without waiting
+for (int i = 0; i < 1000; i++) {
+    pipe.set("key:" + i, "value:" + i);
+    pipe.expire("key:" + i, 3600);
+}
+
+// Execute all at once - single network round trip
+List<Object> results = pipe.syncAndReturnAll();
+
+// Spring RedisTemplate pipelining
+List<Object> results = redisTemplate.executePipelined(
+    (RedisCallback<Object>) connection -> {
+        for (int i = 0; i < 1000; i++) {
+            connection.set(("key:" + i).getBytes(),
+                          ("val:" + i).getBytes());
+        }
+        return null;
+    });`
         }
       ]
     },
@@ -352,15 +760,68 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Publish/Subscribe',
-          explanation: 'Pub/Sub messaging pattern. Publishers send messages to channels. Subscribers receive messages from channels. PUBLISH to send message. SUBSCRIBE to receive. Pattern-based subscriptions with PSUBSCRIBE. Fire-and-forget delivery. Messages not persisted.'
+          explanation: 'Pub/Sub messaging pattern. Publishers send messages to channels. Subscribers receive messages from channels. PUBLISH to send message. SUBSCRIBE to receive. Pattern-based subscriptions with PSUBSCRIBE. Fire-and-forget delivery. Messages not persisted.',
+          codeExample: `// Redis CLI - Pub/Sub
+SUBSCRIBE orders notifications    // subscribe to channels
+PSUBSCRIBE user:*                 // pattern subscribe
+PUBLISH orders "new-order:12345"  // returns subscriber count
+
+// Java - Jedis Pub/Sub
+// Subscriber (runs in separate thread)
+jedis.subscribe(new JedisPubSub() {
+    @Override
+    public void onMessage(String channel, String msg) {
+        System.out.println(channel + ": " + msg);
+    }
+}, "orders", "notifications");
+
+// Publisher
+jedis.publish("orders", "new-order:12345");`
         },
         {
           name: 'Redis Streams',
-          explanation: 'Persistent message queue. Messages have IDs. XADD to append. XREAD to consume. Consumer groups for distributed processing. XACK to acknowledge. Claiming pending messages. Perfect for reliable message queues. Time-based or ID-based range queries.'
+          explanation: 'Persistent message queue. Messages have IDs. XADD to append. XREAD to consume. Consumer groups for distributed processing. XACK to acknowledge. Claiming pending messages. Perfect for reliable message queues. Time-based or ID-based range queries.',
+          codeExample: `// Java - Spring RedisTemplate with Streams
+// Producer
+MapRecord<String, String, String> record =
+    StreamRecords.mapBacked(Map.of(
+        "event", "order_placed",
+        "orderId", "12345"))
+    .withStreamKey("stream:orders");
+redisTemplate.opsForStream().add(record);
+
+// Consumer group setup
+redisTemplate.opsForStream()
+    .createGroup("stream:orders", "order-processors");
+
+// Read messages
+List<MapRecord<String, String, String>> messages =
+    redisTemplate.opsForStream().read(
+        Consumer.from("order-processors", "worker-1"),
+        StreamReadOptions.empty().count(10),
+        StreamOffset.create("stream:orders", ReadOffset.lastConsumed()));`
         },
         {
           name: 'Message Patterns',
-          explanation: 'Fan-out: one publisher, many subscribers. Work queue: multiple consumers competing for messages. Priority queue using sorted sets. Delayed messages with TTL. Request-response using blocking lists. Event sourcing with streams.'
+          explanation: 'Fan-out: one publisher, many subscribers. Work queue: multiple consumers competing for messages. Priority queue using sorted sets. Delayed messages with TTL. Request-response using blocking lists. Event sourcing with streams.',
+          codeExample: `// Work queue pattern using Lists
+// Producer
+LPUSH queue:tasks "task-data-json"
+
+// Consumer (blocking, waits for work)
+BRPOP queue:tasks 0            // 0 = wait forever
+
+// Priority queue using Sorted Sets
+ZADD queue:priority 1 "low-priority-task"
+ZADD queue:priority 10 "high-priority-task"
+// Consumer picks highest priority
+ZPOPMAX queue:priority         // "high-priority-task"
+
+// Delayed queue
+ZADD queue:delayed 1705000000 "future-task"  // Unix timestamp
+// Consumer checks for due tasks
+ZRANGEBYSCORE queue:delayed 0 <current_timestamp>
+ZPOPMIN queue:delayed`
         }
       ]
     },
@@ -374,19 +835,98 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Session Store',
-          explanation: 'Store user sessions with TTL. Fast read/write for every request. Scale sessions independently. Shared sessions across app servers. Automatic expiration with EXPIRE. Hash data type for session attributes.'
+          explanation: 'Store user sessions with TTL. Fast read/write for every request. Scale sessions independently. Shared sessions across app servers. Automatic expiration with EXPIRE. Hash data type for session attributes.',
+          codeExample: `// Redis CLI - Session management
+HSET session:abc123 userId "1001" role "admin" cart "[]"
+EXPIRE session:abc123 1800     // 30-minute session
+HGETALL session:abc123         // retrieve full session
+TTL session:abc123             // time remaining
+
+// Java - Spring Session with Redis
+// application.properties
+// spring.session.store-type=redis
+// spring.session.redis.namespace=myapp:sessions
+// server.servlet.session.timeout=30m
+
+// Automatically stores HttpSession in Redis
+@GetMapping("/profile")
+public String profile(HttpSession session) {
+    String userId = (String) session.getAttribute("userId");
+    return "Welcome user: " + userId;
+}`
         },
         {
           name: 'Leaderboards',
-          explanation: 'Sorted sets perfect for rankings. ZADD to update scores. ZREVRANGE for top N. ZRANK for user\'s rank. Atomic score updates with ZINCRBY. Real-time leaderboards at scale. Use in gaming, social media, analytics.'
+          explanation: 'Sorted sets perfect for rankings. ZADD to update scores. ZREVRANGE for top N. ZRANK for user\'s rank. Atomic score updates with ZINCRBY. Real-time leaderboards at scale. Use in gaming, social media, analytics.',
+          codeExample: `// Java - Real-time leaderboard with Spring RedisTemplate
+ZSetOperations<String, String> zOps = redisTemplate.opsForZSet();
+
+// Add or update player scores
+zOps.add("leaderboard:daily", "player:alice", 1500);
+zOps.incrementScore("leaderboard:daily", "player:alice", 50);
+
+// Get top 10 players with scores
+Set<ZSetOperations.TypedTuple<String>> top10 =
+    zOps.reverseRangeWithScores("leaderboard:daily", 0, 9);
+
+// Get a player's rank (0-based)
+Long rank = zOps.reverseRank("leaderboard:daily", "player:alice");
+
+// Get players in score range
+Set<String> elites =
+    zOps.rangeByScore("leaderboard:daily", 1000, 2000);`
         },
         {
           name: 'Rate Limiting',
-          explanation: 'Track request counts per time window. Sliding window with sorted sets. Fixed window with INCR and EXPIRE. Distributed rate limiting across servers. Protect APIs from abuse. Token bucket algorithm implementation.'
+          explanation: 'Track request counts per time window. Sliding window with sorted sets. Fixed window with INCR and EXPIRE. Distributed rate limiting across servers. Protect APIs from abuse. Token bucket algorithm implementation.',
+          codeExample: `// Java - Fixed window rate limiter
+public boolean isAllowed(String clientId, int limit) {
+    String key = "ratelimit:" + clientId + ":" +
+        (System.currentTimeMillis() / 60000); // per-minute window
+    Long count = redisTemplate.opsForValue().increment(key);
+    if (count == 1) {
+        redisTemplate.expire(key, 60, TimeUnit.SECONDS);
+    }
+    return count <= limit;
+}
+
+// Sliding window with Lua (atomic)
+// EVAL "
+//   local key = KEYS[1]
+//   local now = tonumber(ARGV[1])
+//   local window = tonumber(ARGV[2])
+//   local limit = tonumber(ARGV[3])
+//   redis.call('ZREMRANGEBYSCORE', key, 0, now - window)
+//   local count = redis.call('ZCARD', key)
+//   if count < limit then redis.call('ZADD', key, now, now)
+//     return 1 else return 0 end
+// " 1 ratelimit:user1 <now_ms> 60000 100`
         },
         {
           name: 'Caching',
-          explanation: 'Cache database query results. API response caching. Computed values and aggregations. Session data. Static content. Set TTL to prevent stale data. Dramatic performance improvement. Reduce database load.'
+          explanation: 'Cache database query results. API response caching. Computed values and aggregations. Session data. Static content. Set TTL to prevent stale data. Dramatic performance improvement. Reduce database load.',
+          codeExample: `// Java - Spring @Cacheable with Redis
+@Configuration
+@EnableCaching
+public class CacheConfig {
+    @Bean
+    public RedisCacheManager cacheManager(
+            RedisConnectionFactory factory) {
+        RedisCacheConfiguration config =
+            RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30))
+                .serializeValuesWith(
+                    SerializationPair.fromSerializer(
+                        new GenericJackson2JsonRedisSerializer()));
+        return RedisCacheManager.builder(factory)
+            .cacheDefaults(config).build();
+    }
+}
+
+@Cacheable(value = "products", key = "#id")
+public Product getProduct(Long id) {
+    return productRepository.findById(id);  // only on miss
+}`
         },
         {
           name: 'Real-time Analytics',
@@ -407,19 +947,89 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       details: [
         {
           name: 'Memory Optimization',
-          explanation: 'Use hashes for small objects. Compression with Redis encoding. Monitor memory with INFO memory. Set maxmemory limit. Configure eviction policies. Use smaller data types when possible. Remove debugging/DEV data.'
+          explanation: 'Use hashes for small objects. Compression with Redis encoding. Monitor memory with INFO memory. Set maxmemory limit. Configure eviction policies. Use smaller data types when possible. Remove debugging/DEV data.',
+          codeExample: `# Check memory usage
+INFO memory
+# used_memory_human: 1.5G
+# mem_fragmentation_ratio: 1.03
+
+# Memory usage per key
+MEMORY USAGE user:1001       # bytes used by key
+
+# Optimize small hashes (use ziplist encoding)
+# redis.conf
+hash-max-ziplist-entries 512
+hash-max-ziplist-value 64
+
+# Use OBJECT ENCODING to check encoding
+OBJECT ENCODING mykey        # "ziplist" or "hashtable"
+
+# Set memory limit
+CONFIG SET maxmemory 4gb
+CONFIG SET maxmemory-policy allkeys-lfu`
         },
         {
           name: 'Key Design',
-          explanation: 'Use consistent naming convention (e.g., object:id:field). Avoid very long key names. Use namespaces. Set appropriate TTLs. Use hashes for related data. Avoid Big Keys (>10KB). Plan for key distribution in cluster.'
+          explanation: 'Use consistent naming convention (e.g., object:id:field). Avoid very long key names. Use namespaces. Set appropriate TTLs. Use hashes for related data. Avoid Big Keys (>10KB). Plan for key distribution in cluster.',
+          codeExample: `# Good key naming conventions
+SET user:1001:name "Alice"           # object:id:field
+SET cache:api:products:list "..."    # namespace:scope:entity
+HSET user:1001 name "Alice" email "a@b.com"  # hash for objects
+
+# Scan for big keys (never use KEYS in production)
+redis-cli --bigkeys               # find largest keys
+SCAN 0 MATCH user:* COUNT 100     # iterate safely
+
+# Key expiration patterns
+SET session:abc "data" EX 1800     # 30 min TTL on SET
+EXPIRE cache:result:42 300         # add TTL to existing key
+TTL cache:result:42                # check remaining time
+PERSIST cache:result:42            # remove TTL`
         },
         {
           name: 'Monitoring',
-          explanation: 'Use MONITOR for debugging (not in production). INFO command for metrics. SLOWLOG for slow queries. Track memory usage, CPU, network. Use Redis monitoring tools: RedisInsight, Prometheus exporter. Alert on latency spikes.'
+          explanation: 'Use MONITOR for debugging (not in production). INFO command for metrics. SLOWLOG for slow queries. Track memory usage, CPU, network. Use Redis monitoring tools: RedisInsight, Prometheus exporter. Alert on latency spikes.',
+          codeExample: `# Essential monitoring commands
+INFO all                     # full server info
+INFO stats                   # command statistics
+INFO clients                 # connected clients
+CLIENT LIST                  # detailed client info
+
+# Slow query log
+CONFIG SET slowlog-log-slower-than 10000  # 10ms
+CONFIG SET slowlog-max-len 128
+SLOWLOG GET 10               # last 10 slow queries
+SLOWLOG RESET                # clear log
+
+# Latency monitoring
+CONFIG SET latency-monitor-threshold 5  # 5ms
+LATENCY LATEST               # latest latency events
+LATENCY HISTORY command      # command latency history
+DEBUG SLEEP 0.5              # test latency (dev only)`
         },
         {
           name: 'Security',
-          explanation: 'Enable AUTH with strong password. Bind to specific interfaces. Use TLS for encryption. Rename dangerous commands (FLUSHDB, FLUSHALL, CONFIG). Disable dangerous commands in production. Network isolation. Regular security updates.'
+          explanation: 'Enable AUTH with strong password. Bind to specific interfaces. Use TLS for encryption. Rename dangerous commands (FLUSHDB, FLUSHALL, CONFIG). Disable dangerous commands in production. Network isolation. Regular security updates.',
+          codeExample: `# redis.conf - Security configuration
+requirepass "strong-random-password-here"
+bind 127.0.0.1 10.0.0.1     # bind to specific interfaces
+
+# Disable dangerous commands
+rename-command FLUSHDB ""
+rename-command FLUSHALL ""
+rename-command CONFIG "CONFIG_b83a2f"
+rename-command DEBUG ""
+
+# TLS configuration
+tls-port 6380
+tls-cert-file /path/to/redis.crt
+tls-key-file /path/to/redis.key
+tls-ca-cert-file /path/to/ca.crt
+
+# Client authentication
+AUTH "strong-random-password-here"
+# ACL (Redis 6+)
+ACL SETUSER appuser on >password ~cache:* +GET +SET`
         },
         {
           name: 'Connection Management',
@@ -428,6 +1038,8 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
@@ -727,6 +1339,18 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      borderLeft: `4px solid ${selectedConcept.color}`,
+                      overflow: 'auto',
+                      marginTop: '1rem'
+                    }}>
+                      <SyntaxHighlighter code={detail.codeExample} />
+                    </div>
+                  )}
                 </div>
               )
             })()}

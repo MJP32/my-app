@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -203,6 +204,58 @@ const DebuggingDiagram = () => (
   </svg>
 )
 
+// SQL/PL-SQL syntax highlighter
+const SyntaxHighlighter = ({ code }) => {
+  const highlightCode = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    highlighted = highlighted.replace(/(--.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    highlighted = highlighted
+      .replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|ON|AND|OR|NOT|IN|EXISTS|BETWEEN|LIKE|IS|NULL|AS|ORDER|BY|GROUP|HAVING|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|ALTER|DROP|INDEX|PRIMARY|KEY|FOREIGN|REFERENCES|UNIQUE|CONSTRAINT|DEFAULT|CASCADE|DISTINCT|UNION|ALL|CASE|WHEN|THEN|ELSE|END|WITH|OVER|PARTITION|BEGIN|DECLARE|EXCEPTION|RAISE|LOOP|EXIT|CURSOR|OPEN|CLOSE|FETCH|FOR|IF|ELSIF|PROCEDURE|FUNCTION|PACKAGE|BODY|RETURN|RETURNS|TYPE|RECORD|BULK|COLLECT|FORALL|EXECUTE|IMMEDIATE|TRIGGER|BEFORE|AFTER|EACH|ROW|PRAGMA|AUTONOMOUS_TRANSACTION|COMMIT|ROLLBACK|SAVEPOINT|OUT|INOUT|REPLACE|OR|RAISE_APPLICATION_ERROR|DBMS_OUTPUT|PUT_LINE|NO_DATA_FOUND|TOO_MANY_ROWS|DUP_VAL_ON_INDEX|OTHERS|SQLCODE|SQLERRM|ROWTYPE|NOTFOUND|FOUND|ISOPEN|ROWCOUNT|WHILE|CONTINUE|GOTO|LANGUAGE|PLPGSQL|VOLATILE|STABLE|IMMUTABLE|SECURITY|DEFINER|INVOKER|PERFORM|CALL|SIGNAL|SQLSTATE|DELIMITER|DETERMINISTIC|READS|SQL|DATA|MODIFIES|CONTAINS|LEAVE|ITERATE|HANDLER|CONDITION|REPEAT|UNTIL)\b/gi, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(NUMBER|VARCHAR2|VARCHAR|CHAR|DATE|TIMESTAMP|CLOB|BLOB|BOOLEAN|PLS_INTEGER|BINARY_INTEGER|SYS_REFCURSOR|INTEGER|INT|BIGINT|SMALLINT|NUMERIC|DECIMAL|REAL|FLOAT|DOUBLE|TEXT|SERIAL|BYTEA|JSON|JSONB|VOID|RECORD|SETOF|REGCLASS|INTERVAL)\b/gi, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
+    </pre>
+  )
+}
+
 function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -218,19 +271,96 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'Basic Syntax',
-          explanation: 'CREATE PROCEDURE defines reusable SQL code blocks. Parameters can be IN (input), OUT (output), or INOUT (both). DELIMITER changes statement terminator for procedure body. BEGIN...END wraps multiple statements. CALL executes procedures. DROP PROCEDURE removes them.'
+          explanation: 'CREATE PROCEDURE defines reusable SQL code blocks. Parameters can be IN (input), OUT (output), or INOUT (both). DELIMITER changes statement terminator for procedure body. BEGIN...END wraps multiple statements. CALL executes procedures. DROP PROCEDURE removes them.',
+          codeExample: `-- Oracle stored procedure
+CREATE OR REPLACE PROCEDURE update_salary(
+  p_emp_id  IN  NUMBER,
+  p_new_sal IN  NUMBER
+) AS
+BEGIN
+  UPDATE employees
+    SET salary = p_new_sal
+    WHERE employee_id = p_emp_id;
+
+  IF SQL%ROWCOUNT = 0 THEN
+    RAISE_APPLICATION_ERROR(-20001,
+      'Employee not found');
+  END IF;
+  COMMIT;
+END update_salary;
+
+-- Execute: CALL update_salary(101, 85000);`
         },
         {
           name: 'Parameter Types',
-          explanation: 'IN parameters pass values into procedure (default). OUT parameters return values to caller. INOUT parameters both receive and return values. Use appropriate data types matching table columns. Default values provide flexibility. Named parameters improve readability.'
+          explanation: 'IN parameters pass values into procedure (default). OUT parameters return values to caller. INOUT parameters both receive and return values. Use appropriate data types matching table columns. Default values provide flexibility. Named parameters improve readability.',
+          codeExample: `-- PostgreSQL: IN, OUT, INOUT parameters
+CREATE OR REPLACE PROCEDURE transfer_funds(
+  IN  p_from_acct  INT,
+  IN  p_to_acct    INT,
+  IN  p_amount     NUMERIC,
+  INOUT p_status   TEXT DEFAULT 'PENDING'
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+  UPDATE accounts SET balance = balance - p_amount
+    WHERE id = p_from_acct AND balance >= p_amount;
+  IF NOT FOUND THEN
+    p_status := 'FAILED: insufficient funds';
+    RETURN;
+  END IF;
+  UPDATE accounts SET balance = balance + p_amount
+    WHERE id = p_to_acct;
+  p_status := 'SUCCESS';
+END;
+$$;`
         },
         {
           name: 'Control Flow',
-          explanation: 'IF...THEN...ELSE for conditional logic. CASE statements for multiple conditions. WHILE, REPEAT, and LOOP for iteration. LEAVE exits loops early. ITERATE continues to next iteration. DECLARE defines local variables within procedures.'
+          explanation: 'IF...THEN...ELSE for conditional logic. CASE statements for multiple conditions. WHILE, REPEAT, and LOOP for iteration. LEAVE exits loops early. ITERATE continues to next iteration. DECLARE defines local variables within procedures.',
+          codeExample: `-- Oracle: control flow in a procedure
+CREATE OR REPLACE PROCEDURE categorize_employees AS
+  v_category VARCHAR2(20);
+BEGIN
+  FOR emp IN (SELECT employee_id, salary
+              FROM employees) LOOP
+    CASE
+      WHEN emp.salary > 100000 THEN
+        v_category := 'Senior';
+      WHEN emp.salary > 60000 THEN
+        v_category := 'Mid-Level';
+      ELSE
+        v_category := 'Junior';
+    END CASE;
+
+    UPDATE employees SET job_category = v_category
+      WHERE employee_id = emp.employee_id;
+  END LOOP;
+  COMMIT;
+END;`
         },
         {
           name: 'Error Handling',
-          explanation: 'DECLARE HANDLER catches exceptions. SQLSTATE codes identify error types. CONTINUE handler proceeds after error. EXIT handler terminates procedure. SIGNAL raises custom errors. RESIGNAL re-throws exceptions. Use GET DIAGNOSTICS for error details.'
+          explanation: 'DECLARE HANDLER catches exceptions. SQLSTATE codes identify error types. CONTINUE handler proceeds after error. EXIT handler terminates procedure. SIGNAL raises custom errors. RESIGNAL re-throws exceptions. Use GET DIAGNOSTICS for error details.',
+          codeExample: `-- PostgreSQL: exception handling
+CREATE OR REPLACE PROCEDURE safe_insert_user(
+  p_name  TEXT,
+  p_email TEXT
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+  INSERT INTO users(name, email)
+    VALUES(p_name, p_email);
+
+  RAISE NOTICE 'User % created', p_name;
+EXCEPTION
+  WHEN unique_violation THEN
+    RAISE NOTICE 'Email % already exists', p_email;
+  WHEN OTHERS THEN
+    RAISE NOTICE 'Error: % %', SQLSTATE, SQLERRM;
+    RAISE;  -- re-throw
+END;
+$$;`
         },
         {
           name: 'Performance Benefits',
@@ -252,19 +382,95 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'Scalar Functions',
-          explanation: 'Return single value of any data type. Can be used in SELECT, WHERE, and expressions. DETERMINISTIC keyword indicates same input always gives same output. RETURNS clause specifies return type. Must contain RETURN statement. No side effects allowed in some databases.'
+          explanation: 'Return single value of any data type. Can be used in SELECT, WHERE, and expressions. DETERMINISTIC keyword indicates same input always gives same output. RETURNS clause specifies return type. Must contain RETURN statement. No side effects allowed in some databases.',
+          codeExample: `-- Oracle: scalar function
+CREATE OR REPLACE FUNCTION calc_tax(
+  p_salary NUMBER
+) RETURN NUMBER DETERMINISTIC AS
+BEGIN
+  RETURN CASE
+    WHEN p_salary > 100000 THEN p_salary * 0.30
+    WHEN p_salary > 50000  THEN p_salary * 0.20
+    ELSE p_salary * 0.10
+  END;
+END;
+
+-- Use in queries:
+-- SELECT name, salary, calc_tax(salary) AS tax
+--   FROM employees;`
         },
         {
           name: 'Table-Valued Functions',
-          explanation: 'Return result sets as virtual tables. Inline TVFs contain single SELECT statement. Multi-statement TVFs build result in table variable. Can be used in FROM clause like regular tables. Enable parameterized views. Useful for complex data transformations.'
+          explanation: 'Return result sets as virtual tables. Inline TVFs contain single SELECT statement. Multi-statement TVFs build result in table variable. Can be used in FROM clause like regular tables. Enable parameterized views. Useful for complex data transformations.',
+          codeExample: `-- PostgreSQL: table-returning function
+CREATE OR REPLACE FUNCTION get_dept_report(
+  p_dept_id INT
+) RETURNS TABLE (
+  emp_name  TEXT,
+  salary    NUMERIC,
+  rank_num  BIGINT
+)
+LANGUAGE plpgsql STABLE AS $$
+BEGIN
+  RETURN QUERY
+    SELECT e.name, e.salary,
+      RANK() OVER (ORDER BY e.salary DESC)
+    FROM employees e
+    WHERE e.department_id = p_dept_id;
+END;
+$$;
+-- SELECT * FROM get_dept_report(60);`
         },
         {
           name: 'Aggregate Functions',
-          explanation: 'Custom aggregations beyond built-in SUM, AVG, etc. Implement init, iterate, merge, and terminate methods. Process groups of rows to produce single value. Can be used with GROUP BY. Consider memory usage for large datasets. Window function compatibility varies.'
+          explanation: 'Custom aggregations beyond built-in SUM, AVG, etc. Implement init, iterate, merge, and terminate methods. Process groups of rows to produce single value. Can be used with GROUP BY. Consider memory usage for large datasets. Window function compatibility varies.',
+          codeExample: `-- PostgreSQL: custom aggregate function
+CREATE OR REPLACE FUNCTION concat_agg_fn(
+  state TEXT, val TEXT
+) RETURNS TEXT
+LANGUAGE plpgsql IMMUTABLE AS $$
+BEGIN
+  IF state IS NULL OR state = '' THEN
+    RETURN val;
+  ELSE
+    RETURN state || ', ' || val;
+  END IF;
+END;
+$$;
+
+CREATE AGGREGATE string_agg_custom(TEXT) (
+  SFUNC = concat_agg_fn,
+  STYPE = TEXT,
+  INITCOND = ''
+);
+-- SELECT dept, string_agg_custom(name)
+--   FROM employees GROUP BY dept;`
         },
         {
           name: 'Function vs Procedure',
-          explanation: 'Functions return values, procedures execute actions. Functions callable in SQL expressions, procedures via CALL. Functions typically read-only, procedures can modify data. Functions must have RETURN, procedures optional OUT params. Choose based on use case and database constraints.'
+          explanation: 'Functions return values, procedures execute actions. Functions callable in SQL expressions, procedures via CALL. Functions typically read-only, procedures can modify data. Functions must have RETURN, procedures optional OUT params. Choose based on use case and database constraints.',
+          codeExample: `-- Oracle FUNCTION: returns a value, used in SQL
+CREATE OR REPLACE FUNCTION get_full_name(
+  p_emp_id NUMBER
+) RETURN VARCHAR2 AS
+  v_name VARCHAR2(100);
+BEGIN
+  SELECT first_name || ' ' || last_name INTO v_name
+    FROM employees WHERE employee_id = p_emp_id;
+  RETURN v_name;
+END;
+-- SELECT get_full_name(101) FROM dual;
+
+-- Oracle PROCEDURE: performs action, uses OUT
+CREATE OR REPLACE PROCEDURE delete_old_orders(
+  p_days IN NUMBER, p_count OUT NUMBER
+) AS
+BEGIN
+  DELETE FROM orders
+    WHERE order_date < SYSDATE - p_days;
+  p_count := SQL%ROWCOUNT;
+  COMMIT;
+END;`
         },
         {
           name: 'Built-in Function Types',
@@ -286,19 +492,103 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'Trigger Types',
-          explanation: 'BEFORE triggers execute before the operation. AFTER triggers execute after the operation. INSTEAD OF triggers replace the operation (views). Row-level triggers fire for each row. Statement-level triggers fire once per statement. Choose based on timing requirements.'
+          explanation: 'BEFORE triggers execute before the operation. AFTER triggers execute after the operation. INSTEAD OF triggers replace the operation (views). Row-level triggers fire for each row. Statement-level triggers fire once per statement. Choose based on timing requirements.',
+          codeExample: `-- Oracle BEFORE trigger: auto-set timestamps
+CREATE OR REPLACE TRIGGER trg_orders_before
+  BEFORE INSERT OR UPDATE ON orders
+  FOR EACH ROW
+BEGIN
+  IF INSERTING THEN
+    :NEW.created_at := SYSDATE;
+  END IF;
+  :NEW.updated_at := SYSDATE;
+END;
+
+-- PostgreSQL equivalent:
+-- CREATE OR REPLACE FUNCTION set_timestamp()
+-- RETURNS TRIGGER LANGUAGE plpgsql AS $$
+-- BEGIN
+--   NEW.updated_at := NOW();
+--   RETURN NEW;
+-- END; $$;
+-- CREATE TRIGGER trg_timestamp BEFORE UPDATE
+--   ON orders FOR EACH ROW
+--   EXECUTE FUNCTION set_timestamp();`
         },
         {
           name: 'DML Triggers',
-          explanation: 'INSERT triggers capture new data. UPDATE triggers access OLD and NEW values. DELETE triggers preserve deleted data. Combine multiple events: INSERT OR UPDATE. Access affected rows via special references. Useful for auditing and validation.'
+          explanation: 'INSERT triggers capture new data. UPDATE triggers access OLD and NEW values. DELETE triggers preserve deleted data. Combine multiple events: INSERT OR UPDATE. Access affected rows via special references. Useful for auditing and validation.',
+          codeExample: `-- PostgreSQL: audit trigger with OLD/NEW
+CREATE OR REPLACE FUNCTION audit_changes()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'UPDATE' THEN
+    INSERT INTO audit_log(table_name, operation,
+      old_data, new_data, changed_by)
+    VALUES(TG_TABLE_NAME, 'UPDATE',
+      row_to_json(OLD), row_to_json(NEW),
+      current_user);
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    INSERT INTO audit_log(table_name, operation,
+      old_data, changed_by)
+    VALUES(TG_TABLE_NAME, 'DELETE',
+      row_to_json(OLD), current_user);
+    RETURN OLD;
+  END IF;
+END; $$;
+
+CREATE TRIGGER trg_emp_audit
+  AFTER UPDATE OR DELETE ON employees
+  FOR EACH ROW EXECUTE FUNCTION audit_changes();`
         },
         {
           name: 'DDL Triggers',
-          explanation: 'Fire on schema changes: CREATE, ALTER, DROP. Prevent unauthorized structural changes. Log schema modifications for compliance. Database-level vs server-level scope. Useful for change management and governance. Cannot be INSTEAD OF type.'
+          explanation: 'Fire on schema changes: CREATE, ALTER, DROP. Prevent unauthorized structural changes. Log schema modifications for compliance. Database-level vs server-level scope. Useful for change management and governance. Cannot be INSTEAD OF type.',
+          codeExample: `-- PostgreSQL: event trigger for DDL auditing
+CREATE OR REPLACE FUNCTION log_ddl_event()
+RETURNS event_trigger LANGUAGE plpgsql AS $$
+DECLARE
+  obj RECORD;
+BEGIN
+  FOR obj IN SELECT * FROM
+    pg_event_trigger_ddl_commands() LOOP
+    INSERT INTO ddl_log(
+      event, object_type, schema_name,
+      object_name, command_tag
+    ) VALUES (
+      TG_EVENT, obj.object_type,
+      obj.schema_name,
+      obj.object_identity, obj.command_tag
+    );
+  END LOOP;
+END; $$;
+
+CREATE EVENT TRIGGER trg_ddl_audit
+  ON ddl_command_end
+  EXECUTE FUNCTION log_ddl_event();`
         },
         {
           name: 'Audit Triggers',
-          explanation: 'Capture who, what, when for all changes. Store OLD and NEW values in audit tables. Include session info: user, timestamp, client. Implement soft deletes instead of hard deletes. Create audit trail for compliance (SOX, HIPAA). Consider performance impact of comprehensive logging.'
+          explanation: 'Capture who, what, when for all changes. Store OLD and NEW values in audit tables. Include session info: user, timestamp, client. Implement soft deletes instead of hard deletes. Create audit trail for compliance (SOX, HIPAA). Consider performance impact of comprehensive logging.',
+          codeExample: `-- Oracle: comprehensive audit trigger
+CREATE OR REPLACE TRIGGER trg_salary_audit
+  AFTER UPDATE OF salary ON employees
+  FOR EACH ROW
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+  INSERT INTO salary_audit(
+    employee_id, old_salary, new_salary,
+    changed_by, changed_at, ip_address
+  ) VALUES (
+    :OLD.employee_id,
+    :OLD.salary, :NEW.salary,
+    USER, SYSDATE,
+    SYS_CONTEXT('USERENV', 'IP_ADDRESS')
+  );
+  COMMIT;
+END;`
         },
         {
           name: 'Cascading Actions',
@@ -320,15 +610,73 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'Cursor Basics',
-          explanation: 'DECLARE cursor defines SELECT statement. OPEN executes the query. FETCH retrieves rows one at a time. CLOSE releases resources. DEALLOCATE removes cursor definition. Use loop with NOT FOUND handler for iteration.'
+          explanation: 'DECLARE cursor defines SELECT statement. OPEN executes the query. FETCH retrieves rows one at a time. CLOSE releases resources. DEALLOCATE removes cursor definition. Use loop with NOT FOUND handler for iteration.',
+          codeExample: `-- Oracle: explicit cursor lifecycle
+DECLARE
+  CURSOR c_orders IS
+    SELECT order_id, total_amount
+      FROM orders WHERE status = 'PENDING';
+  v_rec c_orders%ROWTYPE;
+BEGIN
+  OPEN c_orders;
+  LOOP
+    FETCH c_orders INTO v_rec;
+    EXIT WHEN c_orders%NOTFOUND;
+    -- Process each pending order
+    UPDATE orders SET status = 'PROCESSING'
+      WHERE order_id = v_rec.order_id;
+  END LOOP;
+  CLOSE c_orders;
+  COMMIT;
+END;`
         },
         {
           name: 'Cursor Types',
-          explanation: 'STATIC cursors work on snapshot (insensitive to changes). DYNAMIC cursors reflect concurrent changes. KEYSET cursors detect updates but not inserts. FORWARD_ONLY cannot scroll backward. SCROLL cursors support FIRST, LAST, PRIOR, NEXT, ABSOLUTE, RELATIVE.'
+          explanation: 'STATIC cursors work on snapshot (insensitive to changes). DYNAMIC cursors reflect concurrent changes. KEYSET cursors detect updates but not inserts. FORWARD_ONLY cannot scroll backward. SCROLL cursors support FIRST, LAST, PRIOR, NEXT, ABSOLUTE, RELATIVE.',
+          codeExample: `-- PostgreSQL: SCROLL cursor with navigation
+CREATE OR REPLACE FUNCTION browse_products()
+RETURNS VOID LANGUAGE plpgsql AS $$
+DECLARE
+  cur SCROLL CURSOR FOR
+    SELECT name, price FROM products
+    ORDER BY price DESC;
+  v_name TEXT; v_price NUMERIC;
+BEGIN
+  OPEN cur;
+  -- Move to first row
+  FETCH FIRST FROM cur INTO v_name, v_price;
+  RAISE NOTICE 'Most expensive: % ($%)', v_name, v_price;
+  -- Jump to last row
+  FETCH LAST FROM cur INTO v_name, v_price;
+  RAISE NOTICE 'Cheapest: % ($%)', v_name, v_price;
+  CLOSE cur;
+END; $$;`
         },
         {
           name: 'Cursor Attributes',
-          explanation: 'FOUND indicates successful fetch. NOT FOUND signals end of result set. ROW_COUNT shows affected rows. ISOPEN checks cursor state. Use attributes in CONTINUE/EXIT handlers. Different syntax across database systems.'
+          explanation: 'FOUND indicates successful fetch. NOT FOUND signals end of result set. ROW_COUNT shows affected rows. ISOPEN checks cursor state. Use attributes in CONTINUE/EXIT handlers. Different syntax across database systems.',
+          codeExample: `-- Oracle: using cursor attributes
+DECLARE
+  CURSOR c_emps IS
+    SELECT employee_id, salary FROM employees
+      WHERE department_id = 60;
+  v_id  NUMBER;
+  v_sal NUMBER;
+BEGIN
+  OPEN c_emps;
+  IF c_emps%ISOPEN THEN
+    DBMS_OUTPUT.PUT_LINE('Cursor is open');
+  END IF;
+
+  LOOP
+    FETCH c_emps INTO v_id, v_sal;
+    EXIT WHEN c_emps%NOTFOUND;
+  END LOOP;
+
+  DBMS_OUTPUT.PUT_LINE(
+    'Processed ' || c_emps%ROWCOUNT || ' rows');
+  CLOSE c_emps;
+END;`
         },
         {
           name: 'Performance Considerations',
@@ -354,15 +702,83 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'EXECUTE IMMEDIATE',
-          explanation: 'Runs SQL string directly. No result set handling. Good for DDL and simple DML. String concatenation builds statement. Variable substitution with placeholders. Different syntax: EXEC, EXECUTE, sp_executesql.'
+          explanation: 'Runs SQL string directly. No result set handling. Good for DDL and simple DML. String concatenation builds statement. Variable substitution with placeholders. Different syntax: EXEC, EXECUTE, sp_executesql.',
+          codeExample: `-- Oracle: EXECUTE IMMEDIATE with bind vars
+DECLARE
+  v_table VARCHAR2(30) := 'temp_report';
+  v_count NUMBER;
+BEGIN
+  -- DDL: no bind variables possible
+  EXECUTE IMMEDIATE
+    'CREATE TABLE ' || v_table
+    || ' (id NUMBER, val VARCHAR2(100))';
+
+  -- DML with USING for bind variables
+  EXECUTE IMMEDIATE
+    'INSERT INTO ' || v_table
+    || ' VALUES (:1, :2)'
+    USING 1, 'Hello World';
+
+  -- Query with INTO
+  EXECUTE IMMEDIATE
+    'SELECT COUNT(*) FROM ' || v_table
+    INTO v_count;
+
+  DBMS_OUTPUT.PUT_LINE('Rows: ' || v_count);
+  EXECUTE IMMEDIATE 'DROP TABLE ' || v_table;
+END;`
         },
         {
           name: 'Parameterized Dynamic SQL',
-          explanation: 'Use parameters instead of string concatenation. Prevents SQL injection attacks. Enables plan caching and reuse. sp_executesql in SQL Server, USING in Oracle. Named vs positional parameters. Type safety with explicit declarations.'
+          explanation: 'Use parameters instead of string concatenation. Prevents SQL injection attacks. Enables plan caching and reuse. sp_executesql in SQL Server, USING in Oracle. Named vs positional parameters. Type safety with explicit declarations.',
+          codeExample: `-- PostgreSQL: parameterized dynamic SQL
+CREATE OR REPLACE FUNCTION search_employees(
+  p_column TEXT,
+  p_value  TEXT
+) RETURNS SETOF employees
+LANGUAGE plpgsql STABLE AS $$
+BEGIN
+  -- Safe: column validated against whitelist
+  IF p_column NOT IN ('name', 'email', 'dept') THEN
+    RAISE EXCEPTION 'Invalid column: %', p_column;
+  END IF;
+
+  -- $1 is a bind parameter (safe from injection)
+  RETURN QUERY EXECUTE
+    format('SELECT * FROM employees WHERE %I = $1',
+           p_column)
+    USING p_value;
+END;
+$$;`
         },
         {
           name: 'Dynamic Pivoting',
-          explanation: 'Build PIVOT columns from data values. Query metadata for column list. Generate column aliases dynamically. Useful for reporting with variable dimensions. Combine with temporary tables. Handle NULL values in pivot columns.'
+          explanation: 'Build PIVOT columns from data values. Query metadata for column list. Generate column aliases dynamically. Useful for reporting with variable dimensions. Combine with temporary tables. Handle NULL values in pivot columns.',
+          codeExample: `-- PostgreSQL: dynamic pivot with crosstab
+CREATE OR REPLACE FUNCTION pivot_sales_report()
+RETURNS TEXT LANGUAGE plpgsql AS $$
+DECLARE
+  v_columns TEXT;
+  v_sql     TEXT;
+BEGIN
+  -- Build dynamic column list from data
+  SELECT string_agg(
+    DISTINCT format('SUM(CASE WHEN month = %L
+      THEN amount END) AS %I', month, month),
+    ', ')
+    INTO v_columns
+    FROM monthly_sales;
+
+  v_sql := format(
+    'SELECT product, %s FROM monthly_sales
+     GROUP BY product ORDER BY product',
+    v_columns);
+
+  -- Execute or return the SQL
+  RAISE NOTICE '%', v_sql;
+  RETURN v_sql;
+END;
+$$;`
         },
         {
           name: 'Dynamic Table Names',
@@ -388,15 +804,84 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'Package Structure',
-          explanation: 'Specification declares public interface. Body contains implementation. Separation enables information hiding. Compile specification and body separately. Forward declarations for mutual recursion. Package state persists for session duration.'
+          explanation: 'Specification declares public interface. Body contains implementation. Separation enables information hiding. Compile specification and body separately. Forward declarations for mutual recursion. Package state persists for session duration.',
+          codeExample: `-- Oracle Package: spec + body
+CREATE OR REPLACE PACKAGE inventory_pkg AS
+  -- Public constants
+  c_low_stock CONSTANT NUMBER := 10;
+  -- Public procedures
+  PROCEDURE restock(p_product_id NUMBER, p_qty NUMBER);
+  FUNCTION check_stock(p_product_id NUMBER)
+    RETURN NUMBER;
+END inventory_pkg;
+
+CREATE OR REPLACE PACKAGE BODY inventory_pkg AS
+  PROCEDURE restock(p_product_id NUMBER,
+                    p_qty NUMBER) IS
+  BEGIN
+    UPDATE products SET quantity = quantity + p_qty
+      WHERE product_id = p_product_id;
+    COMMIT;
+  END;
+
+  FUNCTION check_stock(p_product_id NUMBER)
+    RETURN NUMBER IS v_qty NUMBER;
+  BEGIN
+    SELECT quantity INTO v_qty FROM products
+      WHERE product_id = p_product_id;
+    RETURN v_qty;
+  END;
+END inventory_pkg;`
         },
         {
           name: 'Package Specification',
-          explanation: 'Declares public procedures and functions. Defines public types and constants. Exposes cursor declarations. Acts as API contract. Changes require recompilation of dependents. Keep specification stable when possible.'
+          explanation: 'Declares public procedures and functions. Defines public types and constants. Exposes cursor declarations. Acts as API contract. Changes require recompilation of dependents. Keep specification stable when possible.',
+          codeExample: `CREATE OR REPLACE PACKAGE user_mgmt AS
+  -- Public type
+  TYPE user_rec IS RECORD (
+    user_id   NUMBER,
+    username  VARCHAR2(50),
+    email     VARCHAR2(100)
+  );
+  TYPE user_list IS TABLE OF user_rec;
+
+  -- Public API
+  PROCEDURE create_user(
+    p_name VARCHAR2, p_email VARCHAR2);
+  PROCEDURE deactivate_user(p_user_id NUMBER);
+  FUNCTION find_by_email(p_email VARCHAR2)
+    RETURN user_rec;
+  FUNCTION get_active_count RETURN NUMBER;
+END user_mgmt;`
         },
         {
           name: 'Package Body',
-          explanation: 'Implements declared subprograms. Contains private helper procedures. Initialization section runs once per session. Private variables maintain state. Can be recompiled without affecting specification. Implementation changes are transparent to callers.'
+          explanation: 'Implements declared subprograms. Contains private helper procedures. Initialization section runs once per session. Private variables maintain state. Can be recompiled without affecting specification. Implementation changes are transparent to callers.',
+          codeExample: `CREATE OR REPLACE PACKAGE BODY user_mgmt AS
+  -- Private: not visible outside package
+  v_cache_count NUMBER := NULL;
+
+  PROCEDURE log_action(p_msg VARCHAR2) IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+    INSERT INTO activity_log(msg, ts)
+      VALUES(p_msg, SYSDATE);
+    COMMIT;
+  END;
+
+  -- Public implementations
+  PROCEDURE create_user(
+    p_name VARCHAR2, p_email VARCHAR2
+  ) IS
+  BEGIN
+    INSERT INTO users(username, email, active)
+      VALUES(p_name, p_email, 'Y');
+    log_action('Created user: ' || p_name);
+    v_cache_count := NULL; -- invalidate cache
+    COMMIT;
+  END;
+  -- ... other implementations
+END user_mgmt;`
         },
         {
           name: 'Package Variables',
@@ -422,15 +907,75 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'Transaction Control',
-          explanation: 'BEGIN TRANSACTION starts explicit transaction. COMMIT saves changes permanently. ROLLBACK undoes all changes. SAVEPOINT creates intermediate restore point. ROLLBACK TO SAVEPOINT partial rollback. Auto-commit behavior varies by database.'
+          explanation: 'BEGIN TRANSACTION starts explicit transaction. COMMIT saves changes permanently. ROLLBACK undoes all changes. SAVEPOINT creates intermediate restore point. ROLLBACK TO SAVEPOINT partial rollback. Auto-commit behavior varies by database.',
+          codeExample: `-- Oracle: transaction with savepoints
+BEGIN
+  INSERT INTO orders(id, customer_id, total)
+    VALUES(1001, 42, 250.00);
+  SAVEPOINT after_order;
+
+  INSERT INTO order_items(order_id, product_id, qty)
+    VALUES(1001, 10, 2);
+  INSERT INTO order_items(order_id, product_id, qty)
+    VALUES(1001, 20, 1);
+
+  -- Problem with last item? Partial rollback
+  -- ROLLBACK TO after_order;
+
+  COMMIT;
+END;`
         },
         {
           name: 'Nested Transactions',
-          explanation: 'Some databases support true nesting. SQL Server uses @@TRANCOUNT. Oracle savepoints simulate nesting. Inner commit may not persist until outer commits. Understand your database behavior. Test rollback scenarios thoroughly.'
+          explanation: 'Some databases support true nesting. SQL Server uses @@TRANCOUNT. Oracle savepoints simulate nesting. Inner commit may not persist until outer commits. Understand your database behavior. Test rollback scenarios thoroughly.',
+          codeExample: `-- PostgreSQL: savepoints simulate nesting
+CREATE OR REPLACE PROCEDURE process_batch()
+LANGUAGE plpgsql AS $$
+BEGIN
+  -- Outer operation
+  INSERT INTO batch_log(msg) VALUES('Start');
+
+  -- Inner "transaction" via savepoint
+  BEGIN
+    SAVEPOINT inner_work;
+    INSERT INTO results(val) VALUES('data1');
+    -- If this fails, only inner work undone
+  EXCEPTION WHEN OTHERS THEN
+    ROLLBACK TO SAVEPOINT inner_work;
+    INSERT INTO batch_log(msg)
+      VALUES('Inner failed: ' || SQLERRM);
+  END;
+
+  INSERT INTO batch_log(msg) VALUES('Done');
+  COMMIT;
+END; $$;`
         },
         {
           name: 'Error Handling with Transactions',
-          explanation: 'Wrap transaction in TRY...CATCH. Rollback in exception handler. Check @@TRANCOUNT before rollback. Avoid orphaned transactions. Log errors before rollback. Re-raise or return error information.'
+          explanation: 'Wrap transaction in TRY...CATCH. Rollback in exception handler. Check @@TRANCOUNT before rollback. Avoid orphaned transactions. Log errors before rollback. Re-raise or return error information.',
+          codeExample: `-- Oracle: exception handling with rollback
+CREATE OR REPLACE PROCEDURE place_order(
+  p_cust_id NUMBER, p_product_id NUMBER
+) AS
+  v_stock NUMBER;
+BEGIN
+  SELECT quantity INTO v_stock FROM products
+    WHERE product_id = p_product_id FOR UPDATE;
+
+  IF v_stock < 1 THEN
+    RAISE_APPLICATION_ERROR(-20010, 'Out of stock');
+  END IF;
+
+  UPDATE products SET quantity = quantity - 1
+    WHERE product_id = p_product_id;
+  INSERT INTO orders(customer_id, product_id)
+    VALUES(p_cust_id, p_product_id);
+  COMMIT;
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    RAISE;  -- re-throw to caller
+END;`
         },
         {
           name: 'Isolation Levels',
@@ -456,7 +1001,28 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       details: [
         {
           name: 'Print Debugging',
-          explanation: 'PRINT/DBMS_OUTPUT for trace messages. Output variable values at checkpoints. Show execution flow through procedure. Conditional debugging with debug flag. Remember to remove before production. Capture output in log tables for async review.'
+          explanation: 'PRINT/DBMS_OUTPUT for trace messages. Output variable values at checkpoints. Show execution flow through procedure. Conditional debugging with debug flag. Remember to remove before production. Capture output in log tables for async review.',
+          codeExample: `-- Oracle: DBMS_OUTPUT for tracing
+CREATE OR REPLACE PROCEDURE debug_example(
+  p_dept_id NUMBER
+) AS
+  v_count NUMBER;
+  v_debug BOOLEAN := TRUE;
+BEGIN
+  IF v_debug THEN
+    DBMS_OUTPUT.PUT_LINE(
+      'START: dept=' || p_dept_id
+      || ' time=' || TO_CHAR(SYSDATE, 'HH24:MI:SS'));
+  END IF;
+
+  SELECT COUNT(*) INTO v_count FROM employees
+    WHERE department_id = p_dept_id;
+
+  IF v_debug THEN
+    DBMS_OUTPUT.PUT_LINE('Found ' || v_count || ' emps');
+  END IF;
+END;
+-- SET SERVEROUTPUT ON; EXEC debug_example(60);`
         },
         {
           name: 'IDE Debugging',
@@ -464,7 +1030,35 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
         },
         {
           name: 'Unit Testing',
-          explanation: 'tSQLt framework for SQL Server. utPLSQL for Oracle. Create test procedures with assertions. Setup and teardown for test data. Mock external dependencies. Integrate with CI/CD pipelines.'
+          explanation: 'tSQLt framework for SQL Server. utPLSQL for Oracle. Create test procedures with assertions. Setup and teardown for test data. Mock external dependencies. Integrate with CI/CD pipelines.',
+          codeExample: `-- Oracle utPLSQL: unit test example
+CREATE OR REPLACE PACKAGE test_inventory AS
+  -- %suite(Inventory Tests)
+  -- %test(Restock increases quantity)
+  PROCEDURE test_restock;
+END;
+
+CREATE OR REPLACE PACKAGE BODY test_inventory AS
+  PROCEDURE test_restock IS
+    v_before NUMBER;
+    v_after  NUMBER;
+  BEGIN
+    SELECT quantity INTO v_before FROM products
+      WHERE product_id = 1;
+
+    inventory_pkg.restock(1, 10);
+
+    SELECT quantity INTO v_after FROM products
+      WHERE product_id = 1;
+    -- Assert new qty = old + 10
+    IF v_after != v_before + 10 THEN
+      RAISE_APPLICATION_ERROR(-20999,
+        'Expected ' || (v_before+10)
+        || ' got ' || v_after);
+    END IF;
+    ROLLBACK; -- cleanup test data
+  END;
+END;`
         },
         {
           name: 'Execution Plans',
@@ -481,6 +1075,8 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       ]
     }
   ]
+
+  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
 
   const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
@@ -780,6 +1376,18 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
                     </div>
                   )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      borderLeft: `4px solid ${selectedConcept.color}`,
+                      overflow: 'auto',
+                      marginTop: '1rem'
+                    }}>
+                      <SyntaxHighlighter code={detail.codeExample} />
+                    </div>
+                  )}
                 </div>
               )
             })()}

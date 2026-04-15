@@ -15,11 +15,27 @@ const PRACTICE_COLORS = {
   topicBg: 'rgba(59, 130, 246, 0.2)'
 }
 
-function Practice({ onBack, onSelectItem, breadcrumb }) {
+const tabCategories = {
+  all: { label: 'All', ids: null },
+  fundamentals: { label: 'Core Fundamentals', ids: ['Data Structures', 'Algorithms'] },
+  languages: { label: 'Programming Languages', ids: ['Java Features', 'Core Java Fundamentals', 'Concurrency', 'Python Operations'] },
+  design: { label: 'System Design', ids: ['System Design'] },
+  interview: { label: 'Interview Prep', ids: ['AI Interview'] }
+}
+
+function Practice({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
   const { isDark } = useTheme()
+  const [activeCategory, setActiveCategory] = useState(initialCategory || 'all')
   const [selectedSubcategory, setSelectedSubcategory] = useState(null)
   const [itemProgress, setItemProgress] = useState({})
   const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    if (initialCategory) {
+      setActiveCategory(initialCategory)
+      onInitialCategoryUsed?.()
+    }
+  }, [initialCategory])
 
   // Map of subcategory items to their problem counts
   const problemCounts = {
@@ -77,6 +93,8 @@ function Practice({ onBack, onSelectItem, breadcrumb }) {
     'LRU Cache': 4,
     'Rate Limiter': 4,
     'Design Problems': 5,
+    'File Uploader': 4,
+    'Spring Batch Process': 8,
     // Python Operations
     'Set Operations': 8,
     'Map Operations': 10
@@ -211,8 +229,8 @@ function Practice({ onBack, onSelectItem, breadcrumb }) {
           name: 'System Design',
           icon: '🛠️',
           color: '#ec4899',
-          count: 17,
-          items: ['Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems']
+          count: 29,
+          items: ['Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems', 'File Uploader', 'Spring Batch Process']
         }
       ]
     },
@@ -236,6 +254,10 @@ function Practice({ onBack, onSelectItem, breadcrumb }) {
   // Flatten for navigation
   const subcategories = categoryGroups.flatMap(group => group.categories)
 
+  const filteredSubcategories = activeCategory === 'all'
+    ? subcategories
+    : subcategories.filter(sub => tabCategories[activeCategory].ids.includes(sub.id))
+
   // Build breadcrumb stack based on current navigation state
   const buildBreadcrumbStack = () => {
     const stack = [{ name: 'Practice', icon: '💪' }]
@@ -254,7 +276,7 @@ function Practice({ onBack, onSelectItem, breadcrumb }) {
 
   // Hook for subcategories view
   const { focusedIndex: focusedSubcategoryIndex, itemRefs: subcategoryRefs } = useKeyboardNavigation({
-    items: subcategories,
+    items: filteredSubcategories,
     onSelect: (subcategory) => setSelectedSubcategory(subcategory),
     onBack,
     enabled: !selectedSubcategory,
@@ -293,9 +315,9 @@ function Practice({ onBack, onSelectItem, breadcrumb }) {
 
         {/* Collapsible Sidebar for quick topic navigation */}
         <CollapsibleSidebar
-          items={subcategories}
-          selectedIndex={selectedSubcategory ? subcategories.findIndex(s => s.name === selectedSubcategory.name) : -1}
-          onSelect={(index) => setSelectedSubcategory(subcategories[index])}
+          items={filteredSubcategories}
+          selectedIndex={selectedSubcategory ? filteredSubcategories.findIndex(s => s.name === selectedSubcategory.name) : -1}
+          onSelect={(index) => setSelectedSubcategory(filteredSubcategories[index])}
           title="Topics"
           getItemLabel={(item) => item.name}
           getItemIcon={(item) => item.icon}
@@ -315,188 +337,193 @@ function Practice({ onBack, onSelectItem, breadcrumb }) {
               and build your programming skills with real-world challenges.
             </p>
 
-            {categoryGroups.map((group, groupIndex) => {
-              const groupStartIndex = categoryGroups
-                .slice(0, groupIndex)
-                .reduce((sum, g) => sum + g.categories.length, 0)
+            {/* Category Tabs */}
+            <div style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginBottom: '2rem',
+              borderBottom: '2px solid #374151',
+              overflowX: 'auto'
+            }}>
+              {Object.entries(tabCategories).map(([key, cat]) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveCategory(key)}
+                  style={{
+                    padding: '1rem 1.5rem',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    backgroundColor: activeCategory === key ? '#3b82f6' : 'transparent',
+                    color: activeCategory === key ? 'white' : '#9ca3af',
+                    border: 'none',
+                    borderRadius: '8px 8px 0 0',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeCategory !== key) {
+                      e.target.style.backgroundColor = '#374151'
+                      e.target.style.color = '#d1d5db'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeCategory !== key) {
+                      e.target.style.backgroundColor = 'transparent'
+                      e.target.style.color = '#9ca3af'
+                    }
+                  }}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
 
-              return (
-                <div key={group.title} style={{ marginBottom: '2rem' }}>
-                  {/* Group Header */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+              gap: '1.5rem'
+            }}>
+              {filteredSubcategories.map((subcategory, index) => (
+                <button
+                  key={subcategory.id}
+                  ref={(el) => subcategoryRefs.current[index] = el}
+                  onClick={() => setSelectedSubcategory(subcategory)}
+                  tabIndex={focusedSubcategoryIndex === index ? 0 : -1}
+                  role="link"
+                  aria-label={`${subcategory.name} category. ${subcategory.count} practice problems.`}
+                  style={{
+                    background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
+                    padding: '1.5rem',
+                    borderRadius: '0.75rem',
+                    border: `2px solid ${subcategory.color}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    transform: focusedSubcategoryIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
+                    boxShadow: focusedSubcategoryIndex === index
+                      ? `0 25px 50px -12px ${subcategory.color}50`
+                      : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px ${subcategory.color}50`
+                  }}
+                  onMouseLeave={(e) => {
+                    if (focusedSubcategoryIndex !== index) {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }
+                  }}
+                >
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.75rem',
-                    marginBottom: '1rem',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: isDark ? 'rgba(31, 41, 55, 0.8)' : 'rgba(241, 245, 249, 0.9)',
-                    borderRadius: '10px',
-                    borderLeft: `5px solid ${group.color}`,
-                    boxShadow: isDark ? '0 2px 6px rgba(0,0,0,0.2)' : '0 2px 6px rgba(0,0,0,0.08)'
+                    marginBottom: '1rem'
                   }}>
-                    <span style={{ fontSize: '1.5rem' }}>{group.icon}</span>
-                    <h2 style={{
-                      fontSize: '1.4rem',
-                      fontWeight: '700',
-                      color: isDark ? '#e2e8f0' : '#1f2937',
-                      margin: 0
+                    <span style={{ fontSize: '2.5rem' }}>{subcategory.icon}</span>
+                    <h3 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      color: '#93c5fd',
+                      marginBottom: '0.25rem'
                     }}>
-                      {group.title}
-                    </h2>
+                      {subcategory.name}
+                    </h3>
                   </div>
 
-                  {/* Category Cards */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-                    gap: '1.5rem'
-                  }}>
-                    {group.categories.map((subcategory, catIndex) => {
-                      const index = groupStartIndex + catIndex
-                      return (
-                        <button
-                          key={subcategory.id}
-                          ref={(el) => subcategoryRefs.current[index] = el}
-                          onClick={() => setSelectedSubcategory(subcategory)}
-                          tabIndex={focusedSubcategoryIndex === index ? 0 : -1}
-                          role="link"
-                          aria-label={`${subcategory.name} category. ${subcategory.count} practice problems.`}
-                          style={{
-                            background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
-                            padding: '1.5rem',
-                            borderRadius: '0.75rem',
-                            border: `2px solid ${subcategory.color}`,
-                            cursor: 'pointer',
-                            transition: 'all 0.3s',
-                            transform: focusedSubcategoryIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
-                            boxShadow: focusedSubcategoryIndex === index
-                              ? `0 25px 50px -12px ${subcategory.color}50`
-                              : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                            textAlign: 'left',
-                            width: '100%'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-0.5rem)'
-                            e.currentTarget.style.boxShadow = `0 25px 50px -12px ${subcategory.color}50`
-                          }}
-                          onMouseLeave={(e) => {
-                            if (focusedSubcategoryIndex !== index) {
-                              e.currentTarget.style.transform = 'translateY(0)'
-                              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                            }
-                          }}
-                        >
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.75rem',
-                            marginBottom: '1rem'
-                          }}>
-                            <span style={{ fontSize: '2.5rem' }}>{subcategory.icon}</span>
-                            <h3 style={{
-                              fontSize: '1.25rem',
-                              fontWeight: 'bold',
-                              color: '#93c5fd',
-                              marginBottom: '0.25rem'
-                            }}>
-                              {subcategory.name}
-                            </h3>
-                          </div>
-
-                          {/* Category progress */}
-                          {Object.keys(itemProgress).length > 0 && subcategory.count > 0 && (() => {
-                            const progress = getCategoryProgress(subcategory)
-                            return (
-                              <div style={{ margin: '0.75rem 0' }}>
-                                <div style={{
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  marginBottom: '0.5rem'
-                                }}>
-                                  <span style={{
-                                    fontSize: '0.9rem',
-                                    fontWeight: '700',
-                                    color: subcategory.color
-                                  }}>
-                                    {progress.completed}/{progress.total} Complete
-                                  </span>
-                                  <span style={{
-                                    fontSize: '0.8rem',
-                                    color: '#9ca3af',
-                                    fontWeight: '600'
-                                  }}>
-                                    ({progress.percentage}%)
-                                  </span>
-                                </div>
-                                <div style={{
-                                  width: '100%',
-                                  height: '8px',
-                                  backgroundColor: '#374151',
-                                  borderRadius: '4px',
-                                  overflow: 'hidden'
-                                }}>
-                                  <div style={{
-                                    width: `${progress.percentage}%`,
-                                    height: '100%',
-                                    backgroundColor: subcategory.color,
-                                    borderRadius: '4px',
-                                    transition: 'width 0.3s ease'
-                                  }}></div>
-                                </div>
-                              </div>
-                            )
-                          })()}
-
-                          <p style={{
+                  {/* Category progress */}
+                  {Object.keys(itemProgress).length > 0 && subcategory.count > 0 && (() => {
+                    const progress = getCategoryProgress(subcategory)
+                    return (
+                      <div style={{ margin: '0.75rem 0' }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '0.5rem'
+                        }}>
+                          <span style={{
                             fontSize: '0.9rem',
-                            fontWeight: '600',
-                            color: '#d1d5db',
-                            margin: '0.5rem 0'
+                            fontWeight: '700',
+                            color: subcategory.color
                           }}>
-                            {subcategory.count} Total Problems
-                          </p>
-
-                          <div style={{
-                            fontSize: '0.85rem',
+                            {progress.completed}/{progress.total} Complete
+                          </span>
+                          <span style={{
+                            fontSize: '0.8rem',
                             color: '#9ca3af',
-                            lineHeight: '1.5',
-                            marginTop: '0.75rem'
+                            fontWeight: '600'
                           }}>
-                            {subcategory.items.slice(0, 3).map((item, idx) => (
-                              <div key={idx} style={{ marginBottom: '0.2rem' }}>
-                                • {item}
-                              </div>
-                            ))}
-                            {subcategory.items.length > 3 && (
-                              <div style={{ fontStyle: 'italic', color: '#6b7280' }}>
-                                + {subcategory.items.length - 3} more
-                              </div>
-                            )}
-                          </div>
-
+                            ({progress.percentage}%)
+                          </span>
+                        </div>
+                        <div style={{
+                          width: '100%',
+                          height: '8px',
+                          backgroundColor: '#374151',
+                          borderRadius: '4px',
+                          overflow: 'hidden'
+                        }}>
                           <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-end',
-                            gap: '0.5rem',
-                            fontSize: '0.9rem',
-                            color: subcategory.color,
-                            fontWeight: '600',
-                            paddingTop: '0.75rem',
-                            marginTop: '0.75rem',
-                            borderTop: '1px solid #374151'
-                          }}>
-                            <span>Explore Topic</span>
-                            <span>→</span>
-                          </div>
-                        </button>
-                      )
-                    })}
+                            width: `${progress.percentage}%`,
+                            height: '100%',
+                            backgroundColor: subcategory.color,
+                            borderRadius: '4px',
+                            transition: 'width 0.3s ease'
+                          }}></div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  <p style={{
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#d1d5db',
+                    margin: '0.5rem 0'
+                  }}>
+                    {subcategory.count} Total Problems
+                  </p>
+
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: '#9ca3af',
+                    lineHeight: '1.5',
+                    marginTop: '0.75rem'
+                  }}>
+                    {subcategory.items.slice(0, 3).map((item, idx) => (
+                      <div key={idx} style={{ marginBottom: '0.2rem' }}>
+                        • {item}
+                      </div>
+                    ))}
+                    {subcategory.items.length > 3 && (
+                      <div style={{ fontStyle: 'italic', color: '#6b7280' }}>
+                        + {subcategory.items.length - 3} more
+                      </div>
+                    )}
                   </div>
-                </div>
-              )
-            })}
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: '0.5rem',
+                    fontSize: '0.9rem',
+                    color: subcategory.color,
+                    fontWeight: '600',
+                    paddingTop: '0.75rem',
+                    marginTop: '0.75rem',
+                    borderTop: '1px solid #374151'
+                  }}>
+                    <span>Explore Topic</span>
+                    <span>→</span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </>
         ) : (
           <>
