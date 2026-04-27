@@ -128,6 +128,7 @@ const KeyboardShortcutsDialog = ({ isOpen, onClose, triggerElement = null }) => 
         { keys: ['Ctrl', 'K'], description: 'Open global search' },
         { keys: ['B'], description: 'Focus Back button' },
         { keys: ['H', '?'], description: 'Show this help dialog' },
+        { keys: ['Space'], description: 'Toggle voice navigation (listen)' },
         { keys: ['M'], description: 'Return to main menu' }
       ]
     },

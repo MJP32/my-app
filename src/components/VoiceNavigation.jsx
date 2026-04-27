@@ -179,7 +179,8 @@ function VoiceNavigation({ onNavigate }) {
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
       <button
         onClick={toggleListening}
-        aria-label={isListening ? 'Stop voice navigation' : 'Start voice navigation'}
+        aria-label={isListening ? 'Stop voice navigation (Space)' : 'Start voice navigation (Space)'}
+        title={isListening ? 'Stop listening (Space)' : 'Start listening (Space)'}
         style={{
           width: '32px',
           height: '32px',
