@@ -2163,6 +2163,408 @@ docker history --no-trunc myapp:latest
 docker build --progress=plain -t myapp .`
         }
       ]
+    },
+    {
+      id: 'docker-aws',
+      name: 'Docker to AWS',
+      icon: '☁️',
+      color: '#f59e0b',
+      description: 'Deploy Docker containers to AWS using ECR, ECS (Fargate & EC2), EKS, and App Runner. CI/CD pipelines with CodePipeline, blue/green deployments, auto-scaling, and production-grade container orchestration on AWS.',
+      details: [
+        {
+          name: 'ECR (Elastic Container Registry)',
+          explanation: 'Amazon ECR is a fully managed Docker container registry. Push images from local Docker, pull from ECS/EKS/Lambda. Supports image scanning for vulnerabilities, lifecycle policies to clean old images, cross-region replication, and OCI-compatible artifacts. Private repos by default with IAM-based access control.',
+          codeExample: `# Create ECR Repository
+aws ecr create-repository \\
+  --repository-name my-app \\
+  --image-scanning-configuration scanOnPush=true \\
+  --encryption-configuration encryptionType=KMS
+
+# Authenticate Docker to ECR
+aws ecr get-login-password --region us-east-1 | \\
+  docker login --username AWS --password-stdin \\
+  123456789.dkr.ecr.us-east-1.amazonaws.com
+
+# Tag and Push Image
+docker build -t my-app:v1.0.0 .
+docker tag my-app:v1.0.0 \\
+  123456789.dkr.ecr.us-east-1.amazonaws.com/my-app:v1.0.0
+docker push \\
+  123456789.dkr.ecr.us-east-1.amazonaws.com/my-app:v1.0.0
+
+# Lifecycle Policy (keep last 10 images)
+aws ecr put-lifecycle-policy \\
+  --repository-name my-app \\
+  --lifecycle-policy-text '{
+    "rules": [{
+      "rulePriority": 1,
+      "description": "Keep last 10 images",
+      "selection": {
+        "tagStatus": "any",
+        "countType": "imageCountMoreThan",
+        "countNumber": 10
+      },
+      "action": { "type": "expire" }
+    }]
+  }'
+
+# Scan image for vulnerabilities
+aws ecr describe-image-scan-findings \\
+  --repository-name my-app \\
+  --image-id imageTag=v1.0.0`
+        },
+        {
+          name: 'ECS with Fargate (Serverless)',
+          explanation: 'ECS Fargate runs containers without managing EC2 instances. You define a Task Definition (container config), create a Service (desired count, load balancer), and Fargate handles provisioning. Best for microservices, APIs, and batch jobs. Pay only for vCPU and memory used per second. Supports auto-scaling, ALB integration, and service discovery.',
+          codeExample: `# Task Definition (task-definition.json)
+{
+  "family": "my-app",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::role/ecsTaskRole",
+  "containerDefinitions": [{
+    "name": "my-app",
+    "image": "123456789.dkr.ecr.us-east-1.amazonaws.com/my-app:v1.0.0",
+    "portMappings": [{
+      "containerPort": 8080,
+      "protocol": "tcp"
+    }],
+    "environment": [
+      { "name": "SPRING_PROFILES_ACTIVE", "value": "prod" }
+    ],
+    "secrets": [
+      { "name": "DB_PASSWORD",
+        "valueFrom": "arn:aws:secretsmanager:us-east-1::secret:db-pass" }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/my-app",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    },
+    "healthCheck": {
+      "command": ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"],
+      "interval": 30,
+      "timeout": 5,
+      "retries": 3
+    }
+  }]
+}
+
+# Register Task Definition
+aws ecs register-task-definition \\
+  --cli-input-json file://task-definition.json
+
+# Create ECS Cluster
+aws ecs create-cluster --cluster-name my-cluster
+
+# Create Fargate Service with ALB
+aws ecs create-service \\
+  --cluster my-cluster \\
+  --service-name my-app-service \\
+  --task-definition my-app:1 \\
+  --desired-count 2 \\
+  --launch-type FARGATE \\
+  --network-configuration '{
+    "awsvpcConfiguration": {
+      "subnets": ["subnet-abc123", "subnet-def456"],
+      "securityGroups": ["sg-xyz789"],
+      "assignPublicIp": "ENABLED"
+    }
+  }' \\
+  --load-balancers '[{
+    "targetGroupArn": "arn:aws:elasticloadbalancing:...",
+    "containerName": "my-app",
+    "containerPort": 8080
+  }]'`
+        },
+        {
+          name: 'ECS with EC2 Launch Type',
+          explanation: 'ECS on EC2 gives you control over the underlying instances. Use for GPU workloads, large memory requirements, or when you need host-level access. EC2 instances join an ECS cluster and the ECS agent manages container placement. Supports Spot instances for 60-90% cost savings. Use capacity providers for auto-scaling EC2 instances based on container demand.',
+          codeExample: `# Create ECS-optimized EC2 instances (User Data)
+#!/bin/bash
+echo "ECS_CLUSTER=my-cluster" >> /etc/ecs/ecs.config
+echo "ECS_ENABLE_CONTAINER_METADATA=true" >> /etc/ecs/ecs.config
+
+# Capacity Provider with Auto Scaling
+aws ecs create-capacity-provider \\
+  --name my-capacity-provider \\
+  --auto-scaling-group-provider '{
+    "autoScalingGroupArn": "arn:aws:autoscaling:...",
+    "managedScaling": {
+      "status": "ENABLED",
+      "targetCapacity": 80,
+      "minimumScalingStepSize": 1,
+      "maximumScalingStepSize": 10
+    },
+    "managedTerminationProtection": "ENABLED"
+  }'
+
+# Service with EC2 + Spot instances
+aws ecs create-service \\
+  --cluster my-cluster \\
+  --service-name my-app \\
+  --task-definition my-app:1 \\
+  --desired-count 3 \\
+  --capacity-provider-strategy '[
+    { "capacityProvider": "my-ondemand-cp", "weight": 1, "base": 1 },
+    { "capacityProvider": "my-spot-cp", "weight": 3, "base": 0 }
+  ]'
+
+# ECS Exec for debugging (SSH into container)
+aws ecs execute-command \\
+  --cluster my-cluster \\
+  --task abc123 \\
+  --container my-app \\
+  --interactive \\
+  --command "/bin/sh"`
+        },
+        {
+          name: 'EKS (Elastic Kubernetes Service)',
+          explanation: 'EKS is managed Kubernetes on AWS. Use when you need Kubernetes features: Helm charts, custom operators, service mesh (Istio), or multi-cloud portability. EKS manages the control plane; you manage worker nodes (EC2 or Fargate). Supports managed node groups with automatic AMI updates, Karpenter for intelligent auto-scaling, and AWS Load Balancer Controller for ALB/NLB integration.',
+          codeExample: `# Create EKS Cluster
+eksctl create cluster \\
+  --name my-cluster \\
+  --region us-east-1 \\
+  --version 1.29 \\
+  --nodegroup-name workers \\
+  --node-type t3.medium \\
+  --nodes 3 \\
+  --nodes-min 2 \\
+  --nodes-max 5 \\
+  --managed
+
+# Deploy Docker image to EKS
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app
+        image: 123456789.dkr.ecr.us-east-1.amazonaws.com/my-app:v1.0.0
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: my-app
+
+# Apply and verify
+kubectl apply -f deployment.yaml
+kubectl get pods -w
+kubectl logs -f deployment/my-app`
+        },
+        {
+          name: 'App Runner & Lambda Containers',
+          explanation: 'App Runner is the simplest way to deploy containers on AWS - just point to an ECR image and it handles everything (build, deploy, scale, TLS, load balancing). For event-driven workloads, Lambda supports container images up to 10GB. Both are fully managed with no infrastructure to configure.',
+          codeExample: `# AWS App Runner - Simplest deployment option
+aws apprunner create-service \\
+  --service-name my-app \\
+  --source-configuration '{
+    "imageRepository": {
+      "imageIdentifier": "123456789.dkr.ecr.us-east-1.amazonaws.com/my-app:latest",
+      "imageRepositoryType": "ECR",
+      "imageConfiguration": {
+        "port": "8080",
+        "runtimeEnvironmentVariables": {
+          "SPRING_PROFILES_ACTIVE": "prod"
+        }
+      }
+    },
+    "autoDeploymentsEnabled": true,
+    "authenticationConfiguration": {
+      "accessRoleArn": "arn:aws:iam::role/AppRunnerECRAccess"
+    }
+  }' \\
+  --instance-configuration '{
+    "cpu": "1024",
+    "memory": "2048"
+  }' \\
+  --auto-scaling-configuration-arn "arn:aws:apprunner:...:autoscaling/default"
+
+# Lambda with Container Image
+# Dockerfile for Lambda
+FROM public.ecr.aws/lambda/java:17
+COPY target/my-app.jar \${LAMBDA_TASK_ROOT}/lib/
+CMD ["com.example.Handler::handleRequest"]
+
+# Deploy Lambda container
+aws lambda create-function \\
+  --function-name my-function \\
+  --package-type Image \\
+  --code ImageUri=123456789.dkr.ecr.us-east-1.amazonaws.com/my-lambda:v1 \\
+  --role arn:aws:iam::role/lambda-role \\
+  --memory-size 512 \\
+  --timeout 30`
+        },
+        {
+          name: 'CI/CD Pipeline to AWS',
+          explanation: 'Automate Docker builds and deployments using AWS CodePipeline + CodeBuild, or GitHub Actions. Pipeline stages: Source (GitHub/CodeCommit) -> Build (docker build, push to ECR) -> Deploy (update ECS service). Use blue/green deployments with CodeDeploy for zero-downtime releases. Image tags should use git SHA for traceability.',
+          codeExample: `# GitHub Actions - Build and Deploy to ECS
+# .github/workflows/deploy.yml
+name: Deploy to ECS
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: \${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image
+      env:
+        ECR_REGISTRY: \${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: \${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/my-app:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/my-app:$IMAGE_TAG
+
+    - name: Update ECS service
+      run: |
+        # Update task definition with new image
+        TASK_DEF=$(aws ecs describe-task-definition \\
+          --task-definition my-app --query taskDefinition)
+        NEW_TASK_DEF=$(echo $TASK_DEF | jq \\
+          --arg IMAGE "$ECR_REGISTRY/my-app:$IMAGE_TAG" \\
+          '.containerDefinitions[0].image = $IMAGE |
+           del(.taskDefinitionArn, .revision, .status,
+               .requiresAttributes, .compatibilities,
+               .registeredAt, .registeredBy)')
+        aws ecs register-task-definition \\
+          --cli-input-json "$NEW_TASK_DEF"
+        aws ecs update-service \\
+          --cluster my-cluster \\
+          --service my-app-service \\
+          --force-new-deployment
+
+# AWS CodeBuild (buildspec.yml)
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+  build:
+    commands:
+      - docker build -t $ECR_URI/my-app:$IMAGE_TAG .
+      - docker push $ECR_URI/my-app:$IMAGE_TAG
+  post_build:
+    commands:
+      - printf '{"ImageURI":"%s"}' $ECR_URI/my-app:$IMAGE_TAG > imageDetail.json
+artifacts:
+  files:
+    - imageDetail.json
+    - taskdef.json
+    - appspec.yaml`
+        },
+        {
+          name: 'Auto-Scaling & Monitoring',
+          explanation: 'ECS supports target tracking auto-scaling based on CPU, memory, or custom CloudWatch metrics. Use Application Auto Scaling to scale between min and max task count. Monitor containers with CloudWatch Container Insights for CPU, memory, network, and disk metrics. Set up alarms for high CPU or unhealthy task count. Use X-Ray for distributed tracing across containerized microservices.',
+          codeExample: `# ECS Service Auto-Scaling
+aws application-autoscaling register-scalable-target \\
+  --service-namespace ecs \\
+  --resource-id service/my-cluster/my-app-service \\
+  --scalable-dimension ecs:service:DesiredCount \\
+  --min-capacity 2 \\
+  --max-capacity 20
+
+# Scale on CPU utilization (target: 60%)
+aws application-autoscaling put-scaling-policy \\
+  --service-namespace ecs \\
+  --resource-id service/my-cluster/my-app-service \\
+  --scalable-dimension ecs:service:DesiredCount \\
+  --policy-name cpu-tracking \\
+  --policy-type TargetTrackingScaling \\
+  --target-tracking-scaling-policy-configuration '{
+    "targetValue": 60.0,
+    "predefinedMetricSpecification": {
+      "predefinedMetricType": "ECSServiceAverageCPUUtilization"
+    },
+    "scaleInCooldown": 300,
+    "scaleOutCooldown": 60
+  }'
+
+# Enable Container Insights
+aws ecs update-cluster-settings \\
+  --cluster my-cluster \\
+  --settings name=containerInsights,value=enabled
+
+# CloudWatch Alarm for unhealthy tasks
+aws cloudwatch put-metric-alarm \\
+  --alarm-name ecs-unhealthy-tasks \\
+  --namespace AWS/ECS \\
+  --metric-name CPUUtilization \\
+  --dimensions Name=ClusterName,Value=my-cluster \\
+               Name=ServiceName,Value=my-app-service \\
+  --statistic Average \\
+  --period 300 \\
+  --threshold 85 \\
+  --comparison-operator GreaterThanThreshold \\
+  --evaluation-periods 2 \\
+  --alarm-actions "arn:aws:sns:us-east-1::my-alerts"
+
+# View running tasks and logs
+aws ecs list-tasks --cluster my-cluster --service-name my-app-service
+aws logs tail /ecs/my-app --follow`
+        }
+      ]
     }
   ]
 

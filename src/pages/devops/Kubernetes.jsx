@@ -2425,6 +2425,454 @@ velero backup create prod-backup --include-namespaces production
 velero restore create --from-backup prod-backup`
         }
       ]
+    },
+    {
+      id: 'kubernetes-aws',
+      name: 'Kubernetes on AWS (EKS)',
+      icon: '☁️',
+      color: '#f59e0b',
+      description: 'Deploy and manage Kubernetes on AWS with EKS. Managed control plane, node groups (managed/self-managed/Fargate), Karpenter auto-scaling, IAM Roles for Service Accounts (IRSA), ALB/NLB ingress, EBS/EFS storage, and production-grade cluster operations.',
+      details: [
+        {
+          name: 'EKS Cluster Setup',
+          explanation: 'Amazon EKS provides a managed Kubernetes control plane across multiple AZs. Use eksctl for quick cluster creation or Terraform/CloudFormation for infrastructure-as-code. EKS manages etcd, API server, and scheduler. You choose worker node strategy: Managed Node Groups (AWS manages EC2), Self-Managed Nodes (you manage EC2), or Fargate (serverless pods). EKS supports Kubernetes versions with 14-month support window.',
+          codeExample: `# eksctl - Create production cluster
+eksctl create cluster \\
+  --name my-cluster \\
+  --region us-east-1 \\
+  --version 1.29 \\
+  --vpc-cidr 10.0.0.0/16 \\
+  --with-oidc \\
+  --managed \\
+  --nodegroup-name workers \\
+  --node-type t3.large \\
+  --nodes 3 \\
+  --nodes-min 2 \\
+  --nodes-max 10 \\
+  --node-volume-size 50 \\
+  --ssh-access \\
+  --ssh-public-key my-key \\
+  --asg-access \\
+  --full-ecr-access
+
+# Or with cluster config file (cluster.yaml)
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: my-cluster
+  region: us-east-1
+  version: "1.29"
+vpc:
+  cidr: 10.0.0.0/16
+  nat:
+    gateway: Single
+managedNodeGroups:
+  - name: workers
+    instanceType: t3.large
+    desiredCapacity: 3
+    minSize: 2
+    maxSize: 10
+    volumeSize: 50
+    labels:
+      role: worker
+    tags:
+      Environment: production
+    iam:
+      withAddonPolicies:
+        albIngress: true
+        cloudWatch: true
+        ebs: true
+        efs: true
+  - name: spot-workers
+    instanceTypes: ["t3.large", "t3.xlarge", "m5.large"]
+    spot: true
+    desiredCapacity: 2
+    minSize: 0
+    maxSize: 20
+    labels:
+      role: spot-worker
+      lifecycle: spot
+
+# Apply config
+eksctl create cluster -f cluster.yaml
+
+# Update kubeconfig
+aws eks update-kubeconfig --name my-cluster --region us-east-1
+
+# Verify
+kubectl get nodes
+kubectl cluster-info`
+        },
+        {
+          name: 'Fargate Profiles',
+          explanation: 'EKS Fargate runs pods without EC2 instances. Define Fargate profiles with namespace and label selectors - matching pods run on Fargate automatically. Each pod gets its own micro-VM (Firecracker). Best for batch jobs, dev/test, or workloads with variable demand. Limitations: no DaemonSets, no privileged containers, no GPUs, max 4 vCPU / 30GB memory per pod.',
+          codeExample: `# Create Fargate Profile
+eksctl create fargateprofile \\
+  --cluster my-cluster \\
+  --name app-profile \\
+  --namespace my-app \\
+  --labels app=my-service
+
+# Or via cluster config
+fargateProfiles:
+  - name: app-profile
+    selectors:
+      - namespace: my-app
+        labels:
+          app: my-service
+      - namespace: batch-jobs
+  - name: coredns
+    selectors:
+      - namespace: kube-system
+        labels:
+          k8s-app: kube-dns
+
+# Deploy pod that matches Fargate profile
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-service
+  namespace: my-app       # matches profile namespace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-service     # matches profile label
+  template:
+    metadata:
+      labels:
+        app: my-service
+    spec:
+      containers:
+      - name: my-service
+        image: 123456789.dkr.ecr.us-east-1.amazonaws.com/my-service:v1
+        resources:
+          requests:        # Fargate uses these for sizing
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+
+# Verify pod runs on Fargate
+kubectl get pods -n my-app -o wide
+# NODE column shows fargate-ip-xxx`
+        },
+        {
+          name: 'Karpenter Auto-Scaling',
+          explanation: 'Karpenter is an open-source Kubernetes node autoscaler built for AWS. Unlike Cluster Autoscaler (which scales node groups), Karpenter provisions right-sized EC2 instances directly based on pending pod requirements. It selects optimal instance types, supports Spot and On-Demand, consolidates underutilized nodes, and responds in seconds vs minutes. Recommended over Cluster Autoscaler for new EKS clusters.',
+          codeExample: `# Install Karpenter
+helm install karpenter oci://public.ecr.aws/karpenter/karpenter \\
+  --version v0.33.0 \\
+  --namespace karpenter --create-namespace \\
+  --set "settings.clusterName=my-cluster" \\
+  --set "settings.interruptionQueue=my-cluster"
+
+# NodePool - defines what instances Karpenter can launch
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand", "spot"]
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["c", "m", "r", "t"]
+        - key: karpenter.k8s.aws/instance-generation
+          operator: Gt
+          values: ["4"]
+      nodeClassRef:
+        name: default
+  limits:
+    cpu: 100
+    memory: 400Gi
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 720h       # Rotate nodes every 30 days
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  amiFamily: AL2
+  subnetSelectorTerms:
+    - tags:
+        kubernetes.io/role/internal-elb: "1"
+  securityGroupSelectorTerms:
+    - tags:
+        kubernetes.io/cluster/my-cluster: owned
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 100Gi
+        volumeType: gp3
+        iops: 3000
+        throughput: 125
+
+# Karpenter automatically:
+# 1. Detects pending pods
+# 2. Picks optimal instance type (e.g., c5.xlarge for CPU-heavy)
+# 3. Launches instance in <60 seconds
+# 4. Consolidates when nodes are underutilized`
+        },
+        {
+          name: 'IAM Roles for Service Accounts (IRSA)',
+          explanation: 'IRSA lets Kubernetes pods assume IAM roles without embedding AWS credentials. Each ServiceAccount is mapped to an IAM role via OIDC federation. Pods get temporary credentials automatically via the AWS SDK. This is the recommended way to grant AWS permissions to pods - follows least privilege, no shared node-level roles, and credentials rotate automatically.',
+          codeExample: `# 1. Create IAM policy
+aws iam create-policy \\
+  --policy-name S3ReadPolicy \\
+  --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [{
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::my-bucket",
+        "arn:aws:s3:::my-bucket/*"
+      ]
+    }]
+  }'
+
+# 2. Create ServiceAccount with IAM role (eksctl)
+eksctl create iamserviceaccount \\
+  --cluster my-cluster \\
+  --namespace my-app \\
+  --name my-app-sa \\
+  --attach-policy-arn arn:aws:iam::123456789:policy/S3ReadPolicy \\
+  --approve
+
+# 3. Use ServiceAccount in deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: my-app
+spec:
+  template:
+    spec:
+      serviceAccountName: my-app-sa   # Uses IRSA
+      containers:
+      - name: my-app
+        image: my-app:v1
+        # AWS SDK automatically uses IRSA credentials
+        # No AWS_ACCESS_KEY_ID needed!
+
+# Verify - pod has AWS_ROLE_ARN and AWS_WEB_IDENTITY_TOKEN_FILE
+kubectl exec -it my-app-pod -- env | grep AWS
+
+# Common IRSA use cases:
+# - Pods reading from S3
+# - Pods writing to DynamoDB/SQS
+# - Pods pushing to ECR
+# - External Secrets Operator reading from Secrets Manager
+# - AWS Load Balancer Controller managing ALBs`
+        },
+        {
+          name: 'ALB Ingress & Load Balancing',
+          explanation: 'The AWS Load Balancer Controller provisions ALBs (Layer 7) and NLBs (Layer 4) from Kubernetes Ingress and Service resources. ALB supports path-based routing, host-based routing, SSL termination, WAF integration, and authentication with Cognito/OIDC. Use IngressClass to separate internal vs external load balancers. Supports target type IP (pods directly) for Fargate.',
+          codeExample: `# Install AWS Load Balancer Controller
+helm install aws-load-balancer-controller \\
+  eks/aws-load-balancer-controller \\
+  --namespace kube-system \\
+  --set clusterName=my-cluster \\
+  --set serviceAccount.create=false \\
+  --set serviceAccount.name=aws-load-balancer-controller
+
+# ALB Ingress with path-based routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  namespace: my-app
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:...:certificate/xxx
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:...:webacl/xxx
+    alb.ingress.kubernetes.io/group.name: my-app
+spec:
+  rules:
+  - host: api.example.com
+    http:
+      paths:
+      - path: /api/users
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 80
+      - path: /api/orders
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port:
+              number: 80
+---
+# NLB for gRPC / TCP services
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: external
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 50051
+    targetPort: 50051
+    protocol: TCP
+  selector:
+    app: grpc-service`
+        },
+        {
+          name: 'EBS & EFS Storage',
+          explanation: 'EKS supports persistent storage via EBS CSI Driver (block storage, single-AZ, ReadWriteOnce) and EFS CSI Driver (NFS file system, multi-AZ, ReadWriteMany). EBS is best for databases and stateful apps. EFS is best for shared storage across pods and AZs. Use StorageClasses to define volume types (gp3, io2) and reclaim policies.',
+          codeExample: `# Install EBS CSI Driver
+eksctl create addon --cluster my-cluster --name aws-ebs-csi-driver
+
+# EBS StorageClass (gp3)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-gp3
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+  iops: "3000"
+  throughput: "125"
+  encrypted: "true"
+reclaimPolicy: Retain
+
+# PVC for database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ebs-gp3
+  resources:
+    requests:
+      storage: 100Gi
+---
+# Install EFS CSI Driver
+eksctl create addon --cluster my-cluster --name aws-efs-csi-driver
+
+# EFS StorageClass (shared across pods/AZs)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: efs-sc
+provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: fs-abc123
+  directoryPerms: "700"
+
+# Shared PVC (ReadWriteMany)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-files
+spec:
+  accessModes: [ReadWriteMany]
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 50Gi
+
+# Use in deployment (multiple pods can mount)
+volumes:
+  - name: shared
+    persistentVolumeClaim:
+      claimName: shared-files
+containers:
+  - volumeMounts:
+    - name: shared
+      mountPath: /data`
+        },
+        {
+          name: 'CI/CD & GitOps on EKS',
+          explanation: 'Use GitOps (ArgoCD or Flux) for declarative, git-driven deployments to EKS. Pipeline: push code -> CI builds image, pushes to ECR -> update manifest in git -> ArgoCD syncs to cluster. ArgoCD watches a Git repo and reconciles cluster state automatically. Supports canary and blue/green deployments with Argo Rollouts. Alternative: AWS CodePipeline with CodeBuild for AWS-native CI/CD.',
+          codeExample: `# Install ArgoCD on EKS
+kubectl create namespace argocd
+kubectl apply -n argocd -f \\
+  https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Expose ArgoCD via ALB
+kubectl patch svc argocd-server -n argocd \\
+  -p '{"spec": {"type": "LoadBalancer"}}'
+
+# Get initial admin password
+kubectl -n argocd get secret argocd-initial-admin-secret \\
+  -o jsonpath="{.data.password}" | base64 -d
+
+# ArgoCD Application manifest
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/my-org/k8s-manifests.git
+    targetRevision: main
+    path: environments/production/my-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: my-app
+  syncPolicy:
+    automated:
+      prune: true          # Delete removed resources
+      selfHeal: true       # Fix manual changes
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+
+# GitHub Actions -> ECR -> Update manifest -> ArgoCD syncs
+# .github/workflows/deploy.yml
+name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build and push to ECR
+      run: |
+        docker build -t $ECR_URI/my-app:$GITHUB_SHA .
+        docker push $ECR_URI/my-app:$GITHUB_SHA
+    - name: Update Kubernetes manifest
+      run: |
+        git clone https://github.com/my-org/k8s-manifests.git
+        cd k8s-manifests/environments/production/my-app
+        kustomize edit set image my-app=$ECR_URI/my-app:$GITHUB_SHA
+        git commit -am "deploy: my-app $GITHUB_SHA"
+        git push
+    # ArgoCD detects change and deploys automatically`
+        }
+      ]
     }
   ]
 

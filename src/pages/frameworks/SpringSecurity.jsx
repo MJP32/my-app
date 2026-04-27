@@ -331,7 +331,7 @@ const SpringSecurityArchitectureDiagram = () => (
 )
 
 function SpringSecurity({ onBack, breadcrumb }) {
-  const [activeSection, setActiveSection] = useState('overview')
+  const [activeSection, setActiveSection] = useState('basic')
 
   return (
     <div style={{
@@ -408,13 +408,16 @@ function SpringSecurity({ onBack, breadcrumb }) {
         flexWrap: 'nowrap'
       }}>
         {[
+          { id: 'basic', label: 'Basic' },
           { id: 'overview', label: 'Overview' },
           { id: 'authentication', label: 'Authentication' },
           { id: 'authorization', label: 'Authorization' },
           { id: 'jwt', label: 'JWT' },
           { id: 'oauth2', label: 'OAuth2' },
           { id: 'csrf-cors', label: 'CSRF & CORS' },
-          { id: 'method-security', label: 'Method Security' }
+          { id: 'method-security', label: 'Method Security' },
+          { id: 'stateless-stateful', label: 'Stateless vs Stateful' },
+          { id: 'custom-overrides', label: 'Custom Overrides' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -449,29 +452,422 @@ function SpringSecurity({ onBack, breadcrumb }) {
         ))}
       </div>
 
-      {/* Key Concepts */}
-      <div style={{
-        background: 'rgba(15, 23, 42, 0.6)',
-        borderRadius: '0.75rem',
-        padding: '1.25rem 1.5rem',
-        marginBottom: '2rem',
-        border: '1px solid #374151'
-      }}>
-        {[
-          { label: 'Filter Chain', text: 'Every request passes through an ordered list of security filters before hitting your code.' },
-          { label: 'Authentication', text: 'Loads user from DB, verifies password, stores result in SecurityContextHolder.' },
-          { label: 'Authorization', text: 'Checks roles/permissions against URL rules or method annotations.' },
-          { label: 'JWT', text: 'Stateless auth where a filter validates a token on every request instead of using sessions.' },
-          { label: 'CSRF', text: 'Token-based protection against cross-site attacks; disable for stateless APIs.' },
-          { label: 'OAuth2', text: 'Delegate login to an external provider like Google; Spring handles the handshake.' }
-        ].map((item, i) => (
-          <div key={i} style={{ display: 'flex', gap: '0.5rem', padding: '0.4rem 0', lineHeight: '1.6' }}>
-            <span style={{ color: '#ef4444', fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>{item.label}</span>
-            <span style={{ color: '#64748b' }}>&rarr;</span>
-            <span style={{ color: '#d1d5db', fontSize: '0.9rem' }}>{item.text}</span>
+      {/* Basic Tab */}
+      {activeSection === 'basic' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+          {/* Step 1: Add Dependencies */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#fbbf24', marginBottom: '0.5rem', fontSize: '1.3rem' }}>Step 1: Add Dependencies</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8', marginBottom: '1rem' }}>
+              Adding <code style={{ color: '#fca5a5' }}>spring-boot-starter-security</code> immediately secures your entire application. Every endpoint requires authentication, a default login form appears, and a random password is printed to the console.
+            </p>
+            <div style={{ backgroundColor: '#0d1117', padding: '1.5rem', borderRadius: '8px', border: '1px solid #1e3a5f', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`<!-- pom.xml -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+<!-- For JWT support (optional) -->
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.12.5</version>
+</dependency>
+
+// What happens immediately after adding the dependency:
+// 1. ALL endpoints require authentication
+// 2. A default login form appears at /login
+// 3. Default user: "user", password: printed in console
+//    Using generated security password: 8f4e2b1a-...
+// 4. CSRF protection is enabled
+// 5. Session fixation protection is enabled
+// 6. Security headers (X-Frame-Options, etc.) are added`} />
+            </div>
           </div>
-        ))}
-      </div>
+
+          {/* Step 2: How Authentication Works */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#fbbf24', marginBottom: '0.5rem', fontSize: '1.3rem' }}>Step 2: How Authentication Works</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8', marginBottom: '1rem' }}>
+              Authentication answers <strong style={{ color: '#fca5a5' }}>&quot;Who are you?&quot;</strong> &mdash; The user provides credentials (username + password), Spring verifies them against a <code style={{ color: '#fca5a5' }}>UserDetailsService</code>, and if valid, stores the authenticated principal in the <code style={{ color: '#fca5a5' }}>SecurityContextHolder</code>.
+            </p>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1rem',
+              marginBottom: '1rem'
+            }}>
+              {[
+                { step: '1', title: 'User submits credentials', desc: 'Login form or API sends username + password' },
+                { step: '2', title: 'AuthenticationFilter intercepts', desc: 'UsernamePasswordAuthenticationFilter extracts credentials' },
+                { step: '3', title: 'AuthenticationManager delegates', desc: 'Passes to AuthenticationProvider for verification' },
+                { step: '4', title: 'UserDetailsService loads user', desc: 'Fetches user from DB, LDAP, or in-memory store' },
+                { step: '5', title: 'Password verification', desc: 'PasswordEncoder.matches() compares hashed passwords' },
+                { step: '6', title: 'SecurityContext stored', desc: 'Authenticated principal available for the request' }
+              ].map((item, i) => (
+                <div key={i} style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '8px',
+                  padding: '1rem'
+                }}>
+                  <div style={{ color: '#ef4444', fontWeight: 700, fontSize: '1.5rem', marginBottom: '0.25rem' }}>{item.step}</div>
+                  <div style={{ color: '#fbbf24', fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.25rem' }}>{item.title}</div>
+                  <div style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{item.desc}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ backgroundColor: '#0d1117', padding: '1.5rem', borderRadius: '8px', border: '1px solid #1e3a5f', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`// Step 2a: Define how users are loaded
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+        // Load user from your database
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException(
+                "User not found: " + username));
+
+        // Convert your User entity to Spring's UserDetails
+        return org.springframework.security.core.userdetails.User
+            .withUsername(user.getUsername())
+            .password(user.getPassword())     // already hashed
+            .roles(user.getRoles().toArray(new String[0]))
+            .build();
+    }
+}
+
+// Step 2b: Configure password encoder
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();  // industry standard
+    }
+}
+
+// Step 2c: When registering a new user, hash the password
+@Service
+public class UserRegistrationService {
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private UserRepository userRepository;
+
+    public User register(String username, String rawPassword) {
+        User user = new User();
+        user.setUsername(username);
+        // NEVER store plain text — always hash
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRoles(Set.of("USER"));
+        return userRepository.save(user);
+    }
+}`} />
+            </div>
+          </div>
+
+          {/* Step 3: How Authorization Works */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#fbbf24', marginBottom: '0.5rem', fontSize: '1.3rem' }}>Step 3: How Authorization Works</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8', marginBottom: '1rem' }}>
+              Authorization answers <strong style={{ color: '#fca5a5' }}>&quot;What are you allowed to do?&quot;</strong> &mdash; After authentication succeeds, Spring checks if the user has the required role or authority to access a URL or method. This is configured in two places: URL-based rules in <code style={{ color: '#fca5a5' }}>SecurityFilterChain</code> and method-level annotations.
+            </p>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '1rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', padding: '1rem' }}>
+                <h4 style={{ color: '#60a5fa', marginBottom: '0.5rem' }}>URL-Based (SecurityFilterChain)</h4>
+                <ul style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: '1.8', paddingLeft: '1.2rem', margin: 0 }}>
+                  <li><code style={{ color: '#fca5a5' }}>permitAll()</code> &mdash; no auth needed</li>
+                  <li><code style={{ color: '#fca5a5' }}>authenticated()</code> &mdash; any logged-in user</li>
+                  <li><code style={{ color: '#fca5a5' }}>hasRole(&quot;ADMIN&quot;)</code> &mdash; specific role</li>
+                  <li><code style={{ color: '#fca5a5' }}>hasAuthority(&quot;WRITE&quot;)</code> &mdash; specific permission</li>
+                </ul>
+              </div>
+              <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', padding: '1rem' }}>
+                <h4 style={{ color: '#34d399', marginBottom: '0.5rem' }}>Method-Based (Annotations)</h4>
+                <ul style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: '1.8', paddingLeft: '1.2rem', margin: 0 }}>
+                  <li><code style={{ color: '#fca5a5' }}>@PreAuthorize</code> &mdash; check before method</li>
+                  <li><code style={{ color: '#fca5a5' }}>@PostAuthorize</code> &mdash; check after method</li>
+                  <li><code style={{ color: '#fca5a5' }}>@Secured</code> &mdash; simple role check</li>
+                  <li><code style={{ color: '#fca5a5' }}>@RolesAllowed</code> &mdash; JSR-250 standard</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ backgroundColor: '#0d1117', padding: '1.5rem', borderRadius: '8px', border: '1px solid #1e3a5f', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`// URL-based authorization rules
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http)
+            throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                // Public endpoints — no login required
+                .requestMatchers("/", "/login", "/register",
+                    "/api/public/**").permitAll()
+                // Static resources
+                .requestMatchers("/css/**", "/js/**",
+                    "/images/**").permitAll()
+                // Role-based access
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/orders/**")
+                    .hasAnyRole("TRADER", "ADMIN")
+                // Authority-based (finer-grained)
+                .requestMatchers(HttpMethod.DELETE, "/api/**")
+                    .hasAuthority("DELETE_PRIVILEGE")
+                // Everything else requires authentication
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")         // custom login page
+                .defaultSuccessUrl("/dashboard")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .deleteCookies("JSESSIONID")
+            );
+
+        return http.build();
+    }
+}
+
+// Method-level authorization
+@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
+
+    @GetMapping
+    @PreAuthorize("hasRole('TRADER') or hasRole('ADMIN')")
+    public List<Order> getOrders() {
+        return orderService.findAll();
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteOrder(@PathVariable Long id) {
+        orderService.delete(id);
+    }
+
+    // Access method arguments in authorization
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("#userId == authentication.principal.id")
+    public List<Order> getUserOrders(@PathVariable Long userId) {
+        return orderService.findByUserId(userId);
+    }
+}`} />
+            </div>
+          </div>
+
+          {/* Step 4: Complete Minimal Setup */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#fbbf24', marginBottom: '0.5rem', fontSize: '1.3rem' }}>Step 4: Complete Minimal Setup</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8', marginBottom: '1rem' }}>
+              Here&apos;s the minimum you need to get Spring Security working with a database-backed login. This example uses form-based login with BCrypt password hashing.
+            </p>
+            <div style={{ backgroundColor: '#0d1117', padding: '1.5rem', borderRadius: '8px', border: '1px solid #1e3a5f', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`// 1. User entity
+@Entity
+@Table(name = "users")
+public class User {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;  // BCrypt hash
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> roles = new HashSet<>();
+
+    // getters, setters...
+}
+
+// 2. Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
+}
+
+// 3. UserDetailsService (loads user from DB)
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+    @Autowired private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException(username));
+        return org.springframework.security.core.userdetails.User
+            .withUsername(user.getUsername())
+            .password(user.getPassword())
+            .roles(user.getRoles().toArray(new String[0]))
+            .build();
+    }
+}
+
+// 4. Security configuration (ties it all together)
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity  // enables @PreAuthorize
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http)
+            throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/register",
+                    "/css/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/dashboard", true)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+            );
+        return http.build();
+    }
+}
+
+// 5. Registration endpoint
+@RestController
+public class AuthController {
+    @Autowired private UserRepository userRepo;
+    @Autowired private PasswordEncoder encoder;
+
+    @PostMapping("/register")
+    public String register(@RequestBody RegisterRequest req) {
+        User user = new User();
+        user.setUsername(req.getUsername());
+        user.setPassword(encoder.encode(req.getPassword()));
+        user.setRoles(Set.of("USER"));
+        userRepo.save(user);
+        return "User registered successfully";
+    }
+}
+
+// That's it! Spring Security now:
+// ✓ Shows login form at /login
+// ✓ Authenticates against your database
+// ✓ Hashes passwords with BCrypt
+// ✓ Protects all endpoints (except /login, /register)
+// ✓ Restricts /admin/** to ADMIN role
+// ✓ Manages sessions and logout`} />
+            </div>
+          </div>
+
+          {/* Step 5: Authentication vs Authorization Summary */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#fbbf24', marginBottom: '0.5rem', fontSize: '1.3rem' }}>Authentication vs Authorization</h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', padding: '1.25rem' }}>
+                <h3 style={{ color: '#fca5a5', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Authentication (AuthN)</h3>
+                <ul style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: '2', paddingLeft: '1.2rem', margin: 0 }}>
+                  <li><strong style={{ color: '#fbbf24' }}>What:</strong> Verifying identity (&quot;Who are you?&quot;)</li>
+                  <li><strong style={{ color: '#fbbf24' }}>When:</strong> First &mdash; happens before authorization</li>
+                  <li><strong style={{ color: '#fbbf24' }}>How:</strong> Username/password, JWT token, OAuth2, LDAP</li>
+                  <li><strong style={{ color: '#fbbf24' }}>Key class:</strong> <code style={{ color: '#fca5a5' }}>AuthenticationManager</code></li>
+                  <li><strong style={{ color: '#fbbf24' }}>Stores in:</strong> <code style={{ color: '#fca5a5' }}>SecurityContextHolder</code></li>
+                  <li><strong style={{ color: '#fbbf24' }}>HTTP code:</strong> 401 Unauthorized</li>
+                </ul>
+              </div>
+              <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', padding: '1.25rem' }}>
+                <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Authorization (AuthZ)</h3>
+                <ul style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: '2', paddingLeft: '1.2rem', margin: 0 }}>
+                  <li><strong style={{ color: '#fbbf24' }}>What:</strong> Checking permissions (&quot;Can you do this?&quot;)</li>
+                  <li><strong style={{ color: '#fbbf24' }}>When:</strong> Second &mdash; happens after authentication</li>
+                  <li><strong style={{ color: '#fbbf24' }}>How:</strong> Roles, authorities, SpEL expressions</li>
+                  <li><strong style={{ color: '#fbbf24' }}>Key class:</strong> <code style={{ color: '#fca5a5' }}>AuthorizationManager</code></li>
+                  <li><strong style={{ color: '#fbbf24' }}>Configured in:</strong> <code style={{ color: '#fca5a5' }}>SecurityFilterChain</code> + annotations</li>
+                  <li><strong style={{ color: '#fbbf24' }}>HTTP code:</strong> 403 Forbidden</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ backgroundColor: '#0d1117', padding: '1.5rem', borderRadius: '8px', border: '1px solid #1e3a5f', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`// The flow for every request:
+//
+// Request → [Filter Chain]
+//   │
+//   ├─ 1. AuthenticationFilter
+//   │     └─ Is there a valid session/token?
+//   │        ├─ NO  → 401 Unauthorized (redirect to /login)
+//   │        └─ YES → Store in SecurityContextHolder
+//   │
+//   ├─ 2. AuthorizationFilter
+//   │     └─ Does the user have the required role/authority?
+//   │        ├─ NO  → 403 Forbidden
+//   │        └─ YES → Continue
+//   │
+//   └─ 3. Your Controller
+//         └─ @PreAuthorize checks (if any)
+//            └─ Business logic executes
+
+// Accessing the authenticated user in your code:
+@GetMapping("/me")
+public String whoAmI() {
+    // Option 1: SecurityContextHolder (works anywhere)
+    Authentication auth = SecurityContextHolder
+        .getContext().getAuthentication();
+    String username = auth.getName();
+    Collection<? extends GrantedAuthority> roles =
+        auth.getAuthorities();
+
+    return "User: " + username + ", Roles: " + roles;
+}
+
+// Option 2: Method parameter injection (in controllers)
+@GetMapping("/profile")
+public UserProfile getProfile(
+        @AuthenticationPrincipal UserDetails user) {
+    return userService.getProfile(user.getUsername());
+}
+
+// Option 3: Principal parameter
+@GetMapping("/dashboard")
+public String dashboard(Principal principal) {
+    return "Welcome, " + principal.getName();
+}
+
+// Role vs Authority:
+// ROLE = high-level group  (ROLE_ADMIN, ROLE_TRADER)
+//   - hasRole("ADMIN") → checks for ROLE_ADMIN
+// AUTHORITY = fine-grained  (READ, WRITE, DELETE)
+//   - hasAuthority("WRITE") → checks for exact string`} />
+            </div>
+          </div>
+
+        </div>
+      )}
 
       {/* Overview Tab */}
       {activeSection === 'overview' && (
@@ -2028,6 +2424,575 @@ public void deleteDocuments(List<Document> docs) {
           </div>
         </div>
       )}
+
+      {/* Stateless vs Stateful Tab */}
+      {activeSection === 'stateless-stateful' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#60a5fa', marginBottom: '1rem', fontSize: '1.3rem' }}>Stateful (Session-Based) vs Stateless (Token-Based)</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Spring Security supports both models. <strong style={{ color: '#fca5a5' }}>Stateful</strong> stores a session on the server and sends a <code style={{ color: '#fbbf24', background: '#1e1e2e', padding: '0.1rem 0.3rem', borderRadius: '0.25rem' }}>JSESSIONID</code> cookie to the browser. <strong style={{ color: '#fca5a5' }}>Stateless</strong> sends a signed JWT with every request and the server keeps nothing between calls.
+            </p>
+          </div>
+
+          {/* Comparison Table */}
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #374151' }}>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#94a3b8', fontWeight: 600 }}>Aspect</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#8b5cf6', fontWeight: 600 }}>Stateful (Session)</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#10b981', fontWeight: 600 }}>Stateless (JWT)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Storage', 'Server-side HttpSession', 'Client-side token (header/cookie)'],
+                  ['Scalability', 'Sticky sessions or shared session store (Redis)', 'Any server can handle any request'],
+                  ['Logout', 'Invalidate session on server', 'Token lives until expiry; needs blocklist for forced revoke'],
+                  ['CSRF', 'Vulnerable (cookie auto-sent) &mdash; needs CSRF token', 'Not vulnerable if token is in Authorization header'],
+                  ['Authentication', 'Login once, session cookie auto-sent', 'Token sent explicitly on every request'],
+                  ['Session Hijacking', 'Possible if cookie stolen', 'Possible if token stolen; mitigate with short expiry + refresh tokens'],
+                  ['Spring Config', 'Default &mdash; no extra config', 'SessionCreationPolicy.STATELESS + JWT filter'],
+                  ['Best For', 'Server-rendered apps (Thymeleaf, JSP)', 'REST APIs, microservices, SPAs']
+                ].map(([aspect, stateful, stateless], i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #374151' }}>
+                    <td style={{ padding: '0.75rem', color: '#fbbf24', fontWeight: 600 }}>{aspect}</td>
+                    <td style={{ padding: '0.75rem', color: '#d1d5db' }} dangerouslySetInnerHTML={{ __html: stateful }} />
+                    <td style={{ padding: '0.75rem', color: '#d1d5db' }} dangerouslySetInnerHTML={{ __html: stateless }} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Stateful Config */}
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#8b5cf6', fontWeight: 600, fontSize: '0.95rem' }}>Stateful &mdash; Session-Based Config</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Configuration
+@EnableWebSecurity
+public class StatefulSecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http)
+            throws Exception {
+        http
+            // Session is created and used (default)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(
+                    SessionCreationPolicy.IF_REQUIRED)
+                .maximumSessions(1)          // one session per user
+                .maxSessionsPreventsLogin(true))
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(
+                    CookieCsrfTokenRepository
+                        .withHttpOnlyFalse()))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/register")
+                    .permitAll()
+                .anyRequest().authenticated())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/dashboard"));
+
+        return http.build();
+    }
+}`} />
+          </div>
+
+          {/* Stateless Config */}
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#10b981', fontWeight: 600, fontSize: '0.95rem' }}>Stateless &mdash; JWT-Based Config</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Configuration
+@EnableWebSecurity
+public class StatelessSecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationFilter jwtFilter;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http)
+            throws Exception {
+        http
+            // No session at all
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS))
+            .csrf(csrf -> csrf.disable()) // no cookies = no CSRF
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
+                .anyRequest().authenticated())
+            // JWT filter runs before UsernamePasswordAuthenticationFilter
+            .addFilterBefore(jwtFilter,
+                UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+}`} />
+          </div>
+
+          {/* When to use which */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#fbbf24', marginBottom: '0.75rem', fontSize: '1.1rem' }}>When to Use Which</h3>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#8b5cf6', marginBottom: '0.5rem' }}>Choose Stateful When</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Server-rendered pages (Thymeleaf, JSP)</li>
+                  <li>Simple monolith with one server</li>
+                  <li>Need instant logout / session revocation</li>
+                  <li>Already using Spring Session with Redis</li>
+                </ul>
+              </div>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Choose Stateless When</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>REST APIs consumed by SPAs or mobile</li>
+                  <li>Microservices behind a gateway</li>
+                  <li>Horizontal scaling without shared state</li>
+                  <li>Cross-domain / cross-service authentication</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Overrides Tab */}
+      {activeSection === 'custom-overrides' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#60a5fa', marginBottom: '1rem', fontSize: '1.3rem' }}>Why Override Spring Security Defaults?</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Spring Security ships sensible defaults, but real applications almost always need to replace them. Overriding lets you control <strong style={{ color: '#fca5a5' }}>where users come from</strong>, <strong style={{ color: '#fca5a5' }}>how errors look</strong>, <strong style={{ color: '#fca5a5' }}>what happens after login</strong>, and <strong style={{ color: '#fca5a5' }}>how permissions are evaluated</strong> &mdash; without forking the framework.
+            </p>
+          </div>
+
+          {/* UserDetailsService */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#ef4444', marginBottom: '0.25rem', fontSize: '1.1rem' }}>UserDetailsService</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>Default: in-memory user with a random password printed to console</p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Why Override</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Load users from your database, LDAP, or external API</li>
+                  <li>Include custom fields (department, permissions, tenant ID)</li>
+                  <li>Enforce account rules (locked, expired, disabled)</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`@Service
+public class CustomUserDetailsService
+        implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+
+        User user = userRepository.findByEmail(username)
+            .orElseThrow(() -> new UsernameNotFoundException(
+                "No account for " + username));
+
+        return org.springframework.security.core.userdetails.User
+            .builder()
+            .username(user.getEmail())
+            .password(user.getPasswordHash())
+            .authorities(user.getRoles().stream()
+                .map(r -> new SimpleGrantedAuthority(r.getName()))
+                .toList())
+            .accountLocked(user.isLocked())
+            .disabled(!user.isEmailVerified())
+            .build();
+    }
+}`} />
+            </div>
+          </div>
+
+          {/* AuthenticationProvider */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#ef4444', marginBottom: '0.25rem', fontSize: '1.1rem' }}>AuthenticationProvider</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>Default: DaoAuthenticationProvider that calls UserDetailsService + PasswordEncoder</p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Why Override</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Add multi-factor authentication (OTP, TOTP)</li>
+                  <li>Authenticate against external systems (LDAP, SSO, legacy DB)</li>
+                  <li>Support multiple credential types in one app</li>
+                  <li>Add login throttling or IP-based blocking</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`@Component
+public class MfaAuthenticationProvider
+        implements AuthenticationProvider {
+
+    @Autowired private UserDetailsService userDetailsService;
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private TotpService totpService;
+
+    @Override
+    public Authentication authenticate(Authentication auth)
+            throws AuthenticationException {
+
+        String username = auth.getName();
+        String password = auth.getCredentials().toString();
+
+        // Extract OTP from custom token details
+        MfaAuthDetails details = (MfaAuthDetails) auth.getDetails();
+        String otp = details.getOtp();
+
+        UserDetails user = userDetailsService
+            .loadUserByUsername(username);
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BadCredentialsException("Bad password");
+        }
+
+        if (!totpService.verify(username, otp)) {
+            throw new BadCredentialsException("Invalid OTP");
+        }
+
+        return new UsernamePasswordAuthenticationToken(
+            user, null, user.getAuthorities());
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return UsernamePasswordAuthenticationToken.class
+            .isAssignableFrom(authentication);
+    }
+}`} />
+            </div>
+          </div>
+
+          {/* AuthenticationEntryPoint */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#ef4444', marginBottom: '0.25rem', fontSize: '1.1rem' }}>AuthenticationEntryPoint</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>Default: redirects to /login page (or returns basic WWW-Authenticate header)</p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Why Override</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Return JSON 401 instead of an HTML redirect for APIs</li>
+                  <li>Include error codes your frontend can parse</li>
+                  <li>Log unauthorized access attempts for security monitoring</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`@Component
+public class JsonAuthEntryPoint
+        implements AuthenticationEntryPoint {
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public void commence(HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException ex) throws IOException {
+
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        response.getWriter().write(mapper.writeValueAsString(Map.of(
+            "status", 401,
+            "error", "Unauthorized",
+            "message", "Authentication required",
+            "path", request.getRequestURI()
+        )));
+    }
+}
+
+// Register it
+http.exceptionHandling(ex -> ex
+    .authenticationEntryPoint(new JsonAuthEntryPoint()));`} />
+            </div>
+          </div>
+
+          {/* AccessDeniedHandler */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#ef4444', marginBottom: '0.25rem', fontSize: '1.1rem' }}>AccessDeniedHandler</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>Default: returns a plain 403 Forbidden page</p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Why Override</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Return structured JSON for API consumers</li>
+                  <li>Log which user attempted to access which resource</li>
+                  <li>Trigger security alerts for suspicious access patterns</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`@Component
+public class JsonAccessDeniedHandler
+        implements AccessDeniedHandler {
+
+    @Autowired private SecurityAuditService auditService;
+
+    @Override
+    public void handle(HttpServletRequest request,
+            HttpServletResponse response,
+            AccessDeniedException ex) throws IOException {
+
+        Authentication auth = SecurityContextHolder
+            .getContext().getAuthentication();
+
+        // Audit the forbidden attempt
+        auditService.logForbidden(auth.getName(),
+            request.getRequestURI());
+
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+        response.getWriter().write(new ObjectMapper()
+            .writeValueAsString(Map.of(
+                "status", 403,
+                "error", "Forbidden",
+                "message", "Insufficient permissions",
+                "user", auth.getName(),
+                "path", request.getRequestURI()
+            )));
+    }
+}
+
+// Register it
+http.exceptionHandling(ex -> ex
+    .accessDeniedHandler(new JsonAccessDeniedHandler()));`} />
+            </div>
+          </div>
+
+          {/* OncePerRequestFilter */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#ef4444', marginBottom: '0.25rem', fontSize: '1.1rem' }}>OncePerRequestFilter (Custom Filters)</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>Default: no custom filters in the chain</p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Why Override</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Add JWT validation filter for stateless APIs</li>
+                  <li>Inject tenant context for multi-tenant apps</li>
+                  <li>Add rate limiting, request logging, or API key validation</li>
+                  <li>Sanitize or validate headers before they reach controllers</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`@Component
+public class TenantFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain)
+            throws ServletException, IOException {
+
+        String tenantId = request.getHeader("X-Tenant-Id");
+
+        if (tenantId == null) {
+            response.sendError(400, "Missing X-Tenant-Id header");
+            return;
+        }
+
+        TenantContext.setCurrentTenant(tenantId);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // Skip for public endpoints
+        return request.getRequestURI().startsWith("/public");
+    }
+}
+
+// Register in filter chain
+http.addFilterAfter(tenantFilter,
+    UsernamePasswordAuthenticationFilter.class);`} />
+            </div>
+          </div>
+
+          {/* PermissionEvaluator */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#ef4444', marginBottom: '0.25rem', fontSize: '1.1rem' }}>PermissionEvaluator</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>Default: always returns false for hasPermission() calls</p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Why Override</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Domain-level access control (user owns this document?)</li>
+                  <li>Go beyond simple roles to object-level permissions</li>
+                  <li>Centralize authorization logic instead of scattering if-checks</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`@Component
+public class DomainPermissionEvaluator
+        implements PermissionEvaluator {
+
+    @Autowired private DocumentRepository docRepo;
+
+    @Override
+    public boolean hasPermission(Authentication auth,
+            Object target, Object permission) {
+
+        if (target instanceof Document doc) {
+            String user = auth.getName();
+            return switch ((String) permission) {
+                case "READ"   -> doc.isPublic()
+                                 || doc.getOwner().equals(user);
+                case "WRITE"  -> doc.getOwner().equals(user);
+                case "DELETE" -> doc.getOwner().equals(user)
+                                 || hasRole(auth, "ADMIN");
+                default       -> false;
+            };
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasPermission(Authentication auth,
+            Serializable id, String type, Object perm) {
+        Document doc = docRepo.findById((Long) id).orElse(null);
+        return doc != null && hasPermission(auth, doc, perm);
+    }
+
+    private boolean hasRole(Authentication a, String role) {
+        return a.getAuthorities().stream()
+            .anyMatch(g -> g.getAuthority().equals("ROLE_" + role));
+    }
+}
+
+// Usage with @PreAuthorize
+@PreAuthorize("hasPermission(#docId, 'Document', 'READ')")
+public Document getDocument(Long docId) { ... }`} />
+            </div>
+          </div>
+
+          {/* SuccessHandler / FailureHandler */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#ef4444', marginBottom: '0.25rem', fontSize: '1.1rem' }}>AuthenticationSuccessHandler &amp; FailureHandler</h3>
+            <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>Default: redirect to / on success, redirect to /login?error on failure</p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h4 style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Why Override</h4>
+                <ul style={{ color: '#d1d5db', lineHeight: '2', paddingLeft: '1.25rem', margin: 0 }}>
+                  <li>Return a JWT in the response body instead of redirecting</li>
+                  <li>Record last-login timestamp, IP address, login count</li>
+                  <li>Redirect users to role-specific dashboards</li>
+                  <li>Lock accounts after N failed attempts</li>
+                </ul>
+              </div>
+            </div>
+            <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+              <SyntaxHighlighter code={`@Component
+public class CustomSuccessHandler
+        implements AuthenticationSuccessHandler {
+
+    @Autowired private UserRepository userRepo;
+    @Autowired private JwtTokenProvider jwtProvider;
+
+    @Override
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication auth) throws IOException {
+
+        // Update last login
+        User user = userRepo.findByEmail(auth.getName()).get();
+        user.setLastLogin(Instant.now());
+        user.setLoginCount(user.getLoginCount() + 1);
+        userRepo.save(user);
+
+        // Return JWT
+        String token = jwtProvider.generateToken(auth);
+        response.setContentType("application/json");
+        response.getWriter().write(
+            new ObjectMapper().writeValueAsString(
+                Map.of("token", token)));
+    }
+}
+
+@Component
+public class CustomFailureHandler
+        implements AuthenticationFailureHandler {
+
+    @Autowired private LoginAttemptService attemptService;
+
+    @Override
+    public void onAuthenticationFailure(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException ex) throws IOException {
+
+        String username = request.getParameter("username");
+        attemptService.recordFailure(username);
+
+        if (attemptService.isBlocked(username)) {
+            response.setStatus(429);
+            response.getWriter().write("Account locked for 15 min");
+            return;
+        }
+
+        response.setStatus(401);
+        response.getWriter().write("Invalid credentials");
+    }
+}`} />
+            </div>
+          </div>
+
+          {/* Summary table */}
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <h3 style={{ color: '#60a5fa', marginBottom: '1rem', fontSize: '1.1rem' }}>Quick Reference</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #374151' }}>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#94a3b8', fontWeight: 600 }}>Class to Override</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#94a3b8', fontWeight: 600 }}>Default Behavior</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#94a3b8', fontWeight: 600 }}>Override When You Need</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['UserDetailsService', 'In-memory user, random password', 'Database / LDAP / external user store'],
+                  ['AuthenticationProvider', 'Password-only via DaoAuthProvider', 'MFA, OTP, external SSO, multiple auth methods'],
+                  ['AuthenticationEntryPoint', 'Redirect to /login or WWW-Authenticate', 'JSON 401 responses for REST APIs'],
+                  ['AccessDeniedHandler', 'Plain 403 HTML page', 'JSON 403 responses, audit logging'],
+                  ['OncePerRequestFilter', 'No custom filters', 'JWT filter, tenant context, rate limiting'],
+                  ['PermissionEvaluator', 'Always returns false', 'Object-level permissions (owner checks)'],
+                  ['SuccessHandler', 'Redirect to /', 'Return JWT, record login, role-based redirect'],
+                  ['FailureHandler', 'Redirect to /login?error', 'Account lockout, JSON error, audit trail']
+                ].map(([cls, def, override], i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #374151' }}>
+                    <td style={{ padding: '0.75rem', color: '#fbbf24', fontWeight: 600, fontFamily: 'monospace', fontSize: '0.85rem' }}>{cls}</td>
+                    <td style={{ padding: '0.75rem', color: '#94a3b8' }}>{def}</td>
+                    <td style={{ padding: '0.75rem', color: '#d1d5db' }}>{override}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       </div>
     </div>
   )

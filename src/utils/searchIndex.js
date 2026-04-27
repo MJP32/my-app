@@ -26,12 +26,12 @@ const categoryGroups = {
   'Frameworks': {
     icon: '🌱',
     color: '#ec4899',
-    items: ['Spring', 'Spring Boot', 'REST API', 'Dependency Injection', 'gRPC', 'SOAP', 'React', 'Angular', 'GraphQL', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Security', 'Ehcache']
+    items: ['Spring', 'Spring Boot', 'REST API', 'Dependency Injection', 'gRPC', 'SOAP', 'React', 'Angular', 'GraphQL', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Security', 'Ehcache', 'Shell Scripting', 'BFF']
   },
   'DevOps': {
     icon: '🛠️',
     color: '#0ea5e9',
-    items: ['DevOps', 'Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'Ansible', 'Unix Scripting', 'Java Flight Recorder', 'JMeter', 'Dynatrace']
+    items: ['DevOps', 'Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Maven', 'Prometheus', 'Grafana', 'Ansible', 'Unix Scripting', 'Java Flight Recorder', 'JMeter', 'Dynatrace']
   },
   'Messaging': {
     icon: '📨',
@@ -41,7 +41,7 @@ const categoryGroups = {
   'Security': {
     icon: '🔒',
     color: '#ef4444',
-    items: ['Security OWASP', 'JWT', 'OAuth', 'OAuth2']
+    items: ['Security OWASP', 'JWT', 'OAuth', 'OAuth2', 'PingFederate']
   },
   'Cloud': {
     icon: '☁️',
@@ -51,7 +51,7 @@ const categoryGroups = {
   'Python': {
     icon: '🐍',
     color: '#3b82f6',
-    items: ['Python', 'Core Python', 'Python OOP', 'Index Slicing', 'Bitwise Operations', 'List Comprehension', 'Lambda', 'Bisect Functions', 'Python Advanced', 'Data Science', 'Machine Learning', 'Web Frameworks', 'Async Python', 'Python Set Operations', 'Python Dict Operations', 'Python Tuples', 'Python Map Functions', 'Python String Methods', 'Python Heaps', 'Python Pitfalls', 'Python Regex', 'Python Combinations', 'Itertools', 'Collections Module', 'Python Deque', 'Python Counter', 'Python DefaultDict', 'Python NamedTuple', 'Python ChainMap', 'Sorting Functions', 'LeetCode Patterns', 'DP Patterns', 'Sorting Algorithms', 'String Algorithms', 'Math Functions', 'Builtin Functions', 'Functools', 'Copy Module', 'Decorators', 'Generators']
+    items: ['Python', 'Core Python', 'Python OOP', 'Index Slicing', 'Bitwise Operations', 'List Comprehension', 'Lambda', 'Bisect Functions', 'Python Advanced', 'Data Science', 'Machine Learning', 'Web Frameworks', 'Async Python', 'Python Set Operations', 'Python Dict Operations', 'Python Tuples', 'Python Map Functions', 'Python String Methods', 'Python Heaps', 'Python Pitfalls', 'Python Regex', 'Python Combinations', 'Itertools', 'Collections Module', 'Python Deque', 'Python Counter', 'Python DefaultDict', 'Python NamedTuple', 'Python ChainMap', 'Sorting Functions', 'LeetCode Patterns', 'DP Patterns', 'Sorting Algorithms', 'String Algorithms', 'Graph Algorithms', 'Math Functions', 'Builtin Functions', 'Functools', 'Copy Module', 'Decorators', 'Generators', 'Python vs Java']
   },
   'eTrading': {
     icon: '💹',
@@ -193,6 +193,8 @@ export const createSearchIndex = () => {
     { value: 'Spring Batch', title: 'Spring Batch', description: 'Batch processing framework for enterprise jobs with chunk-oriented processing.', keywords: ['spring batch', 'batch', 'chunk', 'job', 'step', 'reader', 'processor', 'writer', 'itemreader', 'itemwriter', 'tasklet', 'scheduling'] },
     { value: 'Spring Security', title: 'Spring Security', description: 'Authentication and authorization framework for securing Spring applications with JWT, OAuth2, and CSRF protection.', keywords: ['spring security', 'authentication', 'authorization', 'jwt', 'oauth2', 'csrf', 'cors', 'filter chain', 'password encoder', 'bcrypt', 'role', 'permission', 'method security', 'preauthorize'] },
     { value: 'Ehcache', title: 'Ehcache', description: 'Java-based caching library with tiered storage, Spring Cache integration, and Hibernate L2 cache support.', keywords: ['ehcache', 'cache', 'caching', 'jcache', 'jsr-107', 'tiered', 'heap', 'offheap', 'disk', 'ttl', 'tti', 'eviction', 'spring cache', 'cacheable', 'hibernate l2', 'second level cache', 'terracotta', 'distributed cache'] },
+    { value: 'Shell Scripting', title: 'Unix/Shell Scripting', description: 'Bash scripting essentials: variables, control flow, text processing with grep/sed/awk, pipes, process management, and automation.', keywords: ['shell', 'bash', 'unix', 'linux', 'scripting', 'grep', 'sed', 'awk', 'pipe', 'redirect', 'cron', 'chmod', 'find', 'curl', 'ssh', 'process', 'terminal', 'command line', 'cli'] },
+    { value: 'BFF', title: 'Backend for Frontend (BFF)', description: 'Dedicated backend per client type that aggregates microservices, shapes responses, and optimizes payloads for each frontend.', keywords: ['bff', 'backend for frontend', 'api gateway', 'aggregation', 'microservices', 'api layer', 'client-specific', 'mobile bff', 'web bff', 'response shaping', 'api composition'] },
     // Databases
     { value: 'SQL', title: 'SQL', description: 'Structured Query Language for database operations, joins, indexing, and optimization.', keywords: ['sql', 'database', 'query', 'joins', 'indexing', 'optimization'] },
     { value: 'NoSQL', title: 'NoSQL', description: 'NoSQL databases including MongoDB, Cassandra, and document/key-value stores.', keywords: ['nosql', 'mongodb', 'cassandra', 'document', 'keyvalue', 'database'] },
@@ -210,6 +212,7 @@ export const createSearchIndex = () => {
     { value: 'Grafana', title: 'Grafana', description: 'Grafana dashboards for visualizing metrics, logs, and monitoring data.', keywords: ['grafana', 'dashboard', 'visualization', 'monitoring', 'metrics', 'panels'] },
     { value: 'TeamCity', title: 'TeamCity', description: 'TeamCity CI/CD server for build automation and continuous integration.', keywords: ['teamcity', 'ci', 'cd', 'build', 'automation', 'jetbrains'] },
     { value: 'Jenkins', title: 'Jenkins', description: 'Jenkins automation server for continuous integration and delivery pipelines.', keywords: ['jenkins', 'ci', 'cd', 'pipeline', 'automation', 'build'] },
+    { value: 'Maven', title: 'Apache Maven', description: 'Build automation and dependency management for Java projects with POM model and lifecycle phases.', keywords: ['maven', 'pom', 'build', 'dependency', 'lifecycle', 'plugin', 'mvn', 'artifact', 'repository', 'multi-module', 'gradle'] },
     { value: 'Ansible', title: 'Ansible', description: 'Ansible automation for configuration management, provisioning, and deployment.', keywords: ['ansible', 'automation', 'configuration', 'management', 'provisioning', 'playbook'] },
     { value: 'Unix Scripting', title: 'Unix Scripting', description: 'Unix shell scripting with bash, command-line tools, and system administration.', keywords: ['unix', 'scripting', 'bash', 'shell', 'linux', 'command', 'line'] },
     { value: 'Java Flight Recorder', title: 'Java Flight Recorder', description: 'Java Flight Recorder for profiling, diagnostics, and performance monitoring.', keywords: ['jfr', 'flight', 'recorder', 'profiling', 'diagnostics', 'performance', 'java'] },
@@ -225,6 +228,7 @@ export const createSearchIndex = () => {
     { value: 'JWT', title: 'JWT', description: 'JSON Web Tokens for stateless authentication and authorization.', keywords: ['jwt', 'json', 'web', 'token', 'authentication', 'authorization', 'bearer'] },
     { value: 'OAuth', title: 'OAuth', description: 'OAuth authentication and authorization framework for secure API access.', keywords: ['oauth', 'authentication', 'authorization', 'token', 'openid', 'connect'] },
     { value: 'OAuth2', title: 'OAuth2', description: 'OAuth 2.0 authorization framework with grant types and token management.', keywords: ['oauth2', 'authorization', 'code', 'grant', 'client', 'credentials', 'pkce'] },
+    { value: 'PingFederate', title: 'PingFederate', description: 'Enterprise identity federation server for SSO, SAML, OAuth/OIDC, and centralized authentication.', keywords: ['pingfederate', 'ping', 'identity', 'federation', 'sso', 'single sign-on', 'saml', 'idp', 'service provider', 'scim', 'ws-federation', 'ping identity'] },
     // Cloud
     { value: 'AWS', title: 'Amazon Web Services', description: 'AWS cloud services including EC2, S3, Lambda, RDS, and cloud architecture.', keywords: ['aws', 'amazon', 'cloud', 'ec2', 's3', 'lambda', 'rds', 'architecture'] },
     { value: 'GCP', title: 'Google Cloud Platform', description: 'Google Cloud services including Compute Engine, BigQuery, GKE, and Cloud Functions.', keywords: ['gcp', 'google', 'cloud', 'bigquery', 'gke', 'compute', 'engine'] },

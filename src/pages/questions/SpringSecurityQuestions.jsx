@@ -668,6 +668,997 @@ public class UserController {
 - **Password**: Trusted applications only
 - **Client Credentials**: Service-to-service
 - **Refresh Token**: Get new access token`
+    },
+    {
+      id: 4,
+      category: 'Filter Chain',
+      difficulty: 'Medium',
+      question: 'How does the Spring Security Filter Chain work?',
+      answer: `**Spring Security Filter Chain:**
+
+**1. DelegatingFilterProxy:**
+Servlet container bridge that delegates to Spring-managed filter bean
+\`\`\`java
+// Registered automatically by Spring Boot
+// Delegates to "springSecurityFilterChain" bean
+// Lives in servlet container, delegates to Spring context
+\`\`\`
+
+**2. FilterChainProxy:**
+Main entry point that holds one or more SecurityFilterChain instances
+\`\`\`java
+// Spring Boot auto-configures this
+// Iterates through filter chains to find matching one
+// Only the FIRST matching chain processes the request
+\`\`\`
+
+**3. Default Filter Ordering:**
+\`\`\`java
+// Filters execute in this order:
+// 1. ChannelProcessingFilter       - HTTP/HTTPS redirect
+// 2. SecurityContextPersistenceFilter - Load SecurityContext
+// 3. ConcurrentSessionFilter       - Track active sessions
+// 4. LogoutFilter                  - Process /logout
+// 5. UsernamePasswordAuthenticationFilter - Form login
+// 6. BasicAuthenticationFilter     - HTTP Basic auth
+// 7. BearerTokenAuthenticationFilter - OAuth2/JWT
+// 8. RequestCacheAwareFilter       - Restore saved request
+// 9. SecurityContextHolderAwareRequestFilter
+// 10. AnonymousAuthenticationFilter - Set anonymous auth
+// 11. SessionManagementFilter      - Session fixation
+// 12. ExceptionTranslationFilter   - Convert exceptions
+// 13. FilterSecurityInterceptor    - URL authorization
+\`\`\`
+
+**4. Custom Filter Example:**
+\`\`\`java
+@Component
+public class RequestLoggingFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
+
+        long start = System.currentTimeMillis();
+        String path = request.getRequestURI();
+
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            long duration = System.currentTimeMillis() - start;
+            logger.info("{} {} - {}ms - status {}",
+                request.getMethod(), path, duration,
+                response.getStatus());
+        }
+    }
+}
+\`\`\`
+
+**5. Registering Custom Filter:**
+\`\`\`java
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http)
+        throws Exception {
+    http
+        // Add BEFORE a specific filter
+        .addFilterBefore(new RequestLoggingFilter(),
+            UsernamePasswordAuthenticationFilter.class)
+        // Add AFTER a specific filter
+        .addFilterAfter(new AuditFilter(),
+            FilterSecurityInterceptor.class)
+        // Add AT the position of a filter (replaces it)
+        .addFilterAt(new CustomAuthFilter(),
+            UsernamePasswordAuthenticationFilter.class)
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().authenticated());
+
+    return http.build();
+}
+\`\`\`
+
+**Key Points:**
+- Filters execute in a fixed order regardless of registration order
+- Each filter can short-circuit the chain (e.g., return 401)
+- \`OncePerRequestFilter\` guarantees single execution per request
+- Multiple SecurityFilterChain beans can coexist for different URL patterns`
+    },
+    {
+      id: 5,
+      category: 'CSRF',
+      difficulty: 'Medium',
+      question: 'What is CSRF and how does Spring Security protect against it?',
+      answer: `**CSRF (Cross-Site Request Forgery):**
+
+**1. The Attack:**
+A malicious site tricks a logged-in user's browser into sending requests to your app
+\`\`\`html
+<!-- Attacker's site: evil.com -->
+<form action="https://bank.com/transfer" method="POST">
+    <input type="hidden" name="to" value="attacker" />
+    <input type="hidden" name="amount" value="10000" />
+</form>
+<script>document.forms[0].submit();</script>
+<!-- Browser auto-sends the bank's session cookie -->
+\`\`\`
+
+**2. Spring's Defense - Synchronizer Token:**
+\`\`\`java
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http)
+        throws Exception {
+    http
+        .csrf(csrf -> csrf
+            // Default: HttpSessionCsrfTokenRepository
+            // Stores token in session, expects _csrf param
+            .csrfTokenRepository(
+                CookieCsrfTokenRepository.withHttpOnlyFalse())
+            // Ignore specific paths
+            .ignoringRequestMatchers("/api/webhooks/**")
+        );
+
+    return http.build();
+}
+\`\`\`
+
+**3. How It Works:**
+\`\`\`java
+// 1. Server generates a random token per session
+// 2. Token embedded in forms as hidden field:
+//    <input type="hidden" name="_csrf" value="abc123..." />
+// 3. Token also sent as header: X-CSRF-TOKEN
+// 4. Server validates token on every state-changing request
+//    (POST, PUT, DELETE, PATCH)
+// 5. GET requests are NOT checked (should be idempotent)
+\`\`\`
+
+**4. Thymeleaf Auto-Includes Token:**
+\`\`\`html
+<!-- Thymeleaf automatically adds the hidden field -->
+<form th:action="@{/transfer}" method="post">
+    <!-- _csrf hidden input auto-generated -->
+    <input type="text" name="amount" />
+    <button type="submit">Transfer</button>
+</form>
+\`\`\`
+
+**5. JavaScript SPA with Cookie Approach:**
+\`\`\`javascript
+// CookieCsrfTokenRepository sets XSRF-TOKEN cookie
+// JavaScript reads cookie and sends as X-XSRF-TOKEN header
+
+fetch('/api/transfer', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+    },
+    body: JSON.stringify({ to: 'user2', amount: 100 })
+});
+\`\`\`
+
+**6. When to Disable CSRF:**
+\`\`\`java
+// Stateless APIs using JWT (no cookies = no CSRF risk)
+http.csrf(csrf -> csrf.disable());
+// Only safe when NOT using cookie-based auth
+\`\`\``
+    },
+    {
+      id: 6,
+      category: 'Password Encoding',
+      difficulty: 'Easy',
+      question: 'How does password encoding work in Spring Security?',
+      answer: `**Password Encoding in Spring Security:**
+
+**1. PasswordEncoder Interface:**
+\`\`\`java
+public interface PasswordEncoder {
+    String encode(CharSequence rawPassword);
+    boolean matches(CharSequence rawPassword,
+                    String encodedPassword);
+    default boolean upgradeEncoding(String encodedPassword) {
+        return false;
+    }
+}
+\`\`\`
+
+**2. BCryptPasswordEncoder (Recommended):**
+\`\`\`java
+@Bean
+public PasswordEncoder passwordEncoder() {
+    // Strength 10 is default (4-31), higher = slower
+    return new BCryptPasswordEncoder(12);
+}
+
+// Usage
+PasswordEncoder encoder = new BCryptPasswordEncoder(12);
+String hashed = encoder.encode("myPassword");
+// $2a$12$LJ3m4ys3... (includes salt automatically)
+
+boolean matches = encoder.matches("myPassword", hashed);
+// true
+\`\`\`
+
+**3. DelegatingPasswordEncoder (Flexible):**
+\`\`\`java
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return PasswordEncoderFactories
+        .createDelegatingPasswordEncoder();
+    // Default: bcrypt
+    // Supports: {bcrypt}, {scrypt}, {argon2},
+    //           {pbkdf2}, {noop}, {sha256}
+}
+
+// Stored format: {bcrypt}$2a$10$abc...
+// Allows migrating from old hash algorithms
+\`\`\`
+
+**4. Registration Flow:**
+\`\`\`java
+@Service
+public class UserService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public User registerUser(String username,
+                             String rawPassword) {
+        User user = new User();
+        user.setUsername(username);
+        // ALWAYS encode before storing
+        user.setPassword(
+            passwordEncoder.encode(rawPassword));
+        return userRepository.save(user);
+    }
+}
+\`\`\`
+
+**5. Why BCrypt?**
+- Includes salt automatically (no separate salt column)
+- Adaptive: increase strength as hardware gets faster
+- Intentionally slow: ~100ms per hash at strength 10
+- Same password produces different hashes each time
+
+**Never do this:**
+\`\`\`java
+// WRONG - plain text
+user.setPassword("myPassword");
+
+// WRONG - fast hash, easily cracked
+user.setPassword(DigestUtils.md5Hex("myPassword"));
+user.setPassword(DigestUtils.sha256Hex("myPassword"));
+
+// RIGHT
+user.setPassword(passwordEncoder.encode("myPassword"));
+\`\`\``
+    },
+    {
+      id: 7,
+      category: 'SecurityContext',
+      difficulty: 'Medium',
+      question: 'How does SecurityContextHolder work and how is it stored across requests?',
+      answer: `**SecurityContextHolder:**
+
+**1. What It Holds:**
+\`\`\`java
+// SecurityContextHolder -> SecurityContext -> Authentication
+Authentication auth = SecurityContextHolder
+    .getContext().getAuthentication();
+
+String username = auth.getName();
+Object principal = auth.getPrincipal();     // UserDetails
+Object credentials = auth.getCredentials(); // password (usually null after auth)
+Collection<? extends GrantedAuthority> roles =
+    auth.getAuthorities();
+boolean authenticated = auth.isAuthenticated();
+\`\`\`
+
+**2. Storage Strategies:**
+\`\`\`java
+// MODE_THREADLOCAL (default)
+// Each thread has its own SecurityContext
+// Perfect for servlet-per-request model
+SecurityContextHolder.setStrategyName(
+    SecurityContextHolder.MODE_THREADLOCAL);
+
+// MODE_INHERITABLETHREADLOCAL
+// Child threads inherit parent's SecurityContext
+// Useful for @Async methods
+SecurityContextHolder.setStrategyName(
+    SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+
+// MODE_GLOBAL
+// Single context shared across all threads
+// Rarely used (standalone apps)
+SecurityContextHolder.setStrategyName(
+    SecurityContextHolder.MODE_GLOBAL);
+\`\`\`
+
+**3. How It Persists Across Requests (Stateful):**
+\`\`\`java
+// SecurityContextPersistenceFilter (deprecated in 6.x)
+// or SecurityContextHolderFilter (new)
+
+// Request arrives:
+// 1. Load SecurityContext from HttpSession
+// 2. Set it on SecurityContextHolder (ThreadLocal)
+// 3. Request processed with auth available
+// 4. After response, save SecurityContext back to session
+// 5. Clear ThreadLocal
+
+// Session attribute key:
+// SPRING_SECURITY_CONTEXT
+\`\`\`
+
+**4. Stateless (JWT) - No Persistence:**
+\`\`\`java
+// With SessionCreationPolicy.STATELESS:
+// 1. JwtAuthenticationFilter reads token from header
+// 2. Validates and creates Authentication object
+// 3. Sets it on SecurityContextHolder
+// 4. Request processed
+// 5. SecurityContext cleared (not saved to session)
+// 6. Next request: repeat from step 1
+\`\`\`
+
+**5. Accessing in Controller:**
+\`\`\`java
+@RestController
+public class UserController {
+
+    // Option 1: SecurityContextHolder directly
+    @GetMapping("/me")
+    public String currentUser() {
+        Authentication auth = SecurityContextHolder
+            .getContext().getAuthentication();
+        return auth.getName();
+    }
+
+    // Option 2: Inject Principal
+    @GetMapping("/me2")
+    public String currentUser(Principal principal) {
+        return principal.getName();
+    }
+
+    // Option 3: @AuthenticationPrincipal
+    @GetMapping("/me3")
+    public String currentUser(
+            @AuthenticationPrincipal UserDetails user) {
+        return user.getUsername();
+    }
+
+    // Option 4: Authentication parameter
+    @GetMapping("/me4")
+    public String currentUser(Authentication auth) {
+        return auth.getName();
+    }
+}
+\`\`\`
+
+**6. @Async and SecurityContext:**
+\`\`\`java
+@Configuration
+@EnableAsync
+public class AsyncConfig {
+
+    @Bean
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor =
+            new ThreadPoolTaskExecutor();
+        // Propagate SecurityContext to async threads
+        executor.setTaskDecorator(
+            new DelegatingSecurityContextTaskDecorator());
+        executor.initialize();
+        return executor;
+    }
+}
+\`\`\``
+    },
+    {
+      id: 8,
+      category: 'CORS',
+      difficulty: 'Easy',
+      question: 'How do you configure CORS in Spring Security?',
+      answer: `**CORS Configuration in Spring Security:**
+
+**1. Why CORS Matters:**
+Browsers block requests from a different origin (domain, port, or protocol). Your React app on localhost:3000 calling your API on localhost:8080 is cross-origin.
+
+**2. Spring Security CORS Config:**
+\`\`\`java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http)
+            throws Exception {
+        http
+            .cors(cors -> cors
+                .configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().authenticated());
+
+        return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+            "https://myapp.com",
+            "http://localhost:3000"
+        ));
+        config.setAllowedMethods(List.of(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS"
+        ));
+        config.setAllowedHeaders(List.of(
+            "Authorization", "Content-Type", "X-Requested-With"
+        ));
+        config.setExposedHeaders(List.of(
+            "Authorization"
+        ));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // Cache preflight 1 hour
+
+        UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+}
+\`\`\`
+
+**3. Per-Controller CORS:**
+\`\`\`java
+@RestController
+@CrossOrigin(
+    origins = "https://myapp.com",
+    maxAge = 3600)
+public class ApiController {
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/api/data")
+    public ResponseEntity<?> getData() {
+        return ResponseEntity.ok(data);
+    }
+}
+\`\`\`
+
+**4. Common Mistakes:**
+\`\`\`java
+// WRONG: allowCredentials + wildcard origin
+config.setAllowedOrigins(List.of("*"));
+config.setAllowCredentials(true); // ERROR!
+
+// RIGHT: use allowedOriginPatterns for wildcards
+config.setAllowedOriginPatterns(List.of("https://*.myapp.com"));
+config.setAllowCredentials(true); // OK
+\`\`\`
+
+**Key Points:**
+- Spring Security's CORS filter must run BEFORE security filters
+- Always configure CORS in SecurityFilterChain, not just @CrossOrigin
+- Preflight (OPTIONS) requests must be permitted
+- \`allowCredentials(true)\` needed for cookies/Authorization headers`
+    },
+    {
+      id: 9,
+      category: 'Session Management',
+      difficulty: 'Medium',
+      question: 'How do you prevent session fixation and manage concurrent sessions?',
+      answer: `**Session Security in Spring Security:**
+
+**1. Session Fixation Protection:**
+\`\`\`java
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http)
+        throws Exception {
+    http
+        .sessionManagement(session -> session
+            // migrateSession (default) - create new session,
+            // copy attributes from old session
+            .sessionFixation().migrateSession()
+
+            // changeSessionId - Servlet 3.1+, keeps same
+            // session but changes ID (most efficient)
+            // .sessionFixation().changeSessionId()
+
+            // newSession - create brand new session,
+            // old attributes NOT copied
+            // .sessionFixation().newSession()
+
+            // none - DANGEROUS: no protection
+            // .sessionFixation().none()
+        );
+
+    return http.build();
+}
+\`\`\`
+
+**2. What Is Session Fixation?**
+\`\`\`java
+// Attack scenario:
+// 1. Attacker gets a valid session ID from your app
+// 2. Tricks victim into using that session ID
+//    (e.g., link with JSESSIONID in URL)
+// 3. Victim logs in with attacker's session ID
+// 4. Attacker now has an authenticated session
+//
+// Fix: Change session ID after login (migrateSession)
+\`\`\`
+
+**3. Concurrent Session Control:**
+\`\`\`java
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http)
+        throws Exception {
+    http
+        .sessionManagement(session -> session
+            .maximumSessions(1)
+            // true = block new login
+            // false (default) = expire old session
+            .maxSessionsPreventsLogin(false)
+            .expiredSessionStrategy(event -> {
+                HttpServletResponse response =
+                    event.getResponse();
+                response.setStatus(401);
+                response.getWriter().write(
+                    "Session expired: logged in elsewhere");
+            })
+        );
+
+    return http.build();
+}
+
+// REQUIRED: register HttpSessionEventPublisher
+@Bean
+public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
+}
+\`\`\`
+
+**4. Session Cookie Configuration:**
+\`\`\`yaml
+server:
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        http-only: true    # JS cannot read cookie
+        secure: true       # Only sent over HTTPS
+        same-site: strict  # No cross-site requests
+        name: SESSIONID    # Custom cookie name
+        max-age: 1800      # Cookie lifetime in seconds
+\`\`\`
+
+**5. Stateless for REST APIs:**
+\`\`\`java
+http
+    .sessionManagement(session -> session
+        .sessionCreationPolicy(
+            SessionCreationPolicy.STATELESS))
+    // STATELESS: never create or use HttpSession
+    // No session fixation risk
+    // No concurrent session issue
+    // Must authenticate every request (JWT/API key)
+\`\`\``
+    },
+    {
+      id: 10,
+      category: 'Exception Handling',
+      difficulty: 'Medium',
+      question: 'How do you handle security exceptions (401/403) in Spring Security?',
+      answer: `**Security Exception Handling:**
+
+**1. Two Types of Security Exceptions:**
+\`\`\`java
+// AuthenticationException -> 401 Unauthorized
+//   User is not authenticated (no credentials or invalid)
+
+// AccessDeniedException -> 403 Forbidden
+//   User is authenticated but lacks permission
+\`\`\`
+
+**2. Custom Handlers:**
+\`\`\`java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http)
+            throws Exception {
+        http
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(
+                    new CustomAuthEntryPoint())
+                .accessDeniedHandler(
+                    new CustomAccessDeniedHandler())
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated());
+
+        return http.build();
+    }
+}
+\`\`\`
+
+**3. AuthenticationEntryPoint (401):**
+\`\`\`java
+@Component
+public class CustomAuthEntryPoint
+        implements AuthenticationEntryPoint {
+
+    @Override
+    public void commence(HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException)
+            throws IOException {
+
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write(
+            new ObjectMapper().writeValueAsString(Map.of(
+                "status", 401,
+                "error", "Unauthorized",
+                "message", "Authentication required",
+                "path", request.getRequestURI(),
+                "timestamp", Instant.now().toString()
+            ))
+        );
+    }
+}
+\`\`\`
+
+**4. AccessDeniedHandler (403):**
+\`\`\`java
+@Component
+public class CustomAccessDeniedHandler
+        implements AccessDeniedHandler {
+
+    @Override
+    public void handle(HttpServletRequest request,
+            HttpServletResponse response,
+            AccessDeniedException accessDeniedException)
+            throws IOException {
+
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+        Authentication auth = SecurityContextHolder
+            .getContext().getAuthentication();
+
+        response.getWriter().write(
+            new ObjectMapper().writeValueAsString(Map.of(
+                "status", 403,
+                "error", "Forbidden",
+                "message", "You do not have permission",
+                "user", auth != null ? auth.getName() : "unknown",
+                "path", request.getRequestURI()
+            ))
+        );
+    }
+}
+\`\`\`
+
+**5. ExceptionTranslationFilter Flow:**
+\`\`\`java
+// How Spring Security handles exceptions internally:
+//
+// 1. ExceptionTranslationFilter wraps the filter chain
+//    in a try-catch
+//
+// 2. If AuthenticationException:
+//    a. Clear SecurityContext
+//    b. Save current request (for redirect after login)
+//    c. Call AuthenticationEntryPoint.commence()
+//
+// 3. If AccessDeniedException:
+//    a. If user is anonymous -> treat as AuthenticationException
+//    b. If user is authenticated -> call AccessDeniedHandler
+//
+// The filter sits AFTER authorization filters so it catches
+// exceptions from FilterSecurityInterceptor
+\`\`\``
+    },
+    {
+      id: 11,
+      category: 'Method Security',
+      difficulty: 'Hard',
+      question: 'Explain @PreAuthorize vs @Secured vs @RolesAllowed with custom permission evaluators',
+      answer: `**Method Security Annotations:**
+
+**1. Comparison:**
+\`\`\`java
+// @PreAuthorize - Most powerful, SpEL expressions
+// @PostAuthorize - Check AFTER method runs
+// @Secured - Simple role list, Spring-specific
+// @RolesAllowed - Simple role list, JSR-250 standard
+\`\`\`
+
+**2. Enable All Three:**
+\`\`\`java
+@Configuration
+@EnableMethodSecurity(
+    prePostEnabled = true,   // @PreAuthorize, @PostAuthorize
+    securedEnabled = true,   // @Secured
+    jsr250Enabled = true     // @RolesAllowed
+)
+public class MethodSecurityConfig { }
+\`\`\`
+
+**3. @PreAuthorize - Full SpEL Power:**
+\`\`\`java
+@Service
+public class OrderService {
+
+    // Simple role check
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteOrder(Long id) { }
+
+    // Multiple roles
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public void approveOrder(Long id) { }
+
+    // Access method parameters
+    @PreAuthorize("#order.customerId == authentication.principal.id")
+    public void updateOrder(Order order) { }
+
+    // Complex logic
+    @PreAuthorize(
+        "hasRole('ADMIN') or " +
+        "(hasRole('USER') and #userId == authentication.principal.id)")
+    public Order getOrder(Long userId, Long orderId) { }
+
+    // Custom permission
+    @PreAuthorize("hasPermission(#id, 'Order', 'DELETE')")
+    public void cancelOrder(Long id) { }
+}
+\`\`\`
+
+**4. @Secured vs @RolesAllowed:**
+\`\`\`java
+@Service
+public class ProductService {
+
+    // @Secured: Spring-specific, needs ROLE_ prefix
+    @Secured("ROLE_ADMIN")
+    public void deleteProduct(Long id) { }
+
+    @Secured({"ROLE_ADMIN", "ROLE_MANAGER"})
+    public void updatePrice(Long id, BigDecimal price) { }
+
+    // @RolesAllowed: JSR-250, no ROLE_ prefix needed
+    @RolesAllowed("ADMIN")
+    public void deleteCategory(Long id) { }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public void updateStock(Long id, int quantity) { }
+}
+// Note: @Secured and @RolesAllowed do NOT support SpEL
+// They only support simple role-based checks
+\`\`\`
+
+**5. Custom PermissionEvaluator:**
+\`\`\`java
+@Component
+public class OrderPermissionEvaluator
+        implements PermissionEvaluator {
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Override
+    public boolean hasPermission(
+            Authentication auth,
+            Object target, Object permission) {
+
+        if (target instanceof Order order) {
+            String perm = (String) permission;
+            Long userId = ((CustomUser) auth.getPrincipal()).getId();
+
+            return switch (perm) {
+                case "READ" -> order.getCustomerId().equals(userId)
+                    || hasRole(auth, "ADMIN");
+                case "UPDATE" -> order.getCustomerId().equals(userId)
+                    && order.getStatus() == Status.DRAFT;
+                case "DELETE" -> hasRole(auth, "ADMIN");
+                default -> false;
+            };
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasPermission(
+            Authentication auth,
+            Serializable targetId, String targetType,
+            Object permission) {
+
+        if ("Order".equals(targetType)) {
+            Order order = orderRepository
+                .findById((Long) targetId).orElse(null);
+            return order != null &&
+                hasPermission(auth, order, permission);
+        }
+        return false;
+    }
+
+    private boolean hasRole(Authentication auth, String role) {
+        return auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority()
+                .equals("ROLE_" + role));
+    }
+}
+\`\`\`
+
+**6. Register and Use:**
+\`\`\`java
+@Configuration
+@EnableMethodSecurity
+public class MethodSecurityConfig {
+
+    @Bean
+    public DefaultMethodSecurityExpressionHandler
+            expressionHandler(
+                OrderPermissionEvaluator evaluator) {
+        DefaultMethodSecurityExpressionHandler handler =
+            new DefaultMethodSecurityExpressionHandler();
+        handler.setPermissionEvaluator(evaluator);
+        return handler;
+    }
+}
+
+@Service
+public class OrderService {
+
+    // Uses hasPermission with target ID and type
+    @PreAuthorize("hasPermission(#orderId, 'Order', 'READ')")
+    public Order getOrder(Long orderId) {
+        return orderRepository.findById(orderId)
+            .orElseThrow();
+    }
+
+    // Uses hasPermission with object
+    @PreAuthorize("hasPermission(#order, 'UPDATE')")
+    public Order updateOrder(Order order) {
+        return orderRepository.save(order);
+    }
+}
+\`\`\``
+    },
+    {
+      id: 12,
+      category: 'Stateless vs Stateful',
+      difficulty: 'Medium',
+      question: 'When should you use stateless (JWT) vs stateful (session) authentication?',
+      answer: `**Stateless vs Stateful Authentication:**
+
+**1. Stateful (Session-Based):**
+\`\`\`java
+@Bean
+public SecurityFilterChain sessionBased(HttpSecurity http)
+        throws Exception {
+    http
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(
+                SessionCreationPolicy.IF_REQUIRED)
+            .maximumSessions(1))
+        .csrf(csrf -> csrf
+            .csrfTokenRepository(
+                CookieCsrfTokenRepository.withHttpOnlyFalse()))
+        .formLogin(form -> form
+            .loginPage("/login")
+            .defaultSuccessUrl("/dashboard"));
+
+    return http.build();
+}
+// Flow: Login -> Server creates session -> JSESSIONID cookie
+// Every request: browser sends cookie automatically
+\`\`\`
+
+**2. Stateless (JWT-Based):**
+\`\`\`java
+@Bean
+public SecurityFilterChain jwtBased(HttpSecurity http)
+        throws Exception {
+    http
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(
+                SessionCreationPolicy.STATELESS))
+        .csrf(csrf -> csrf.disable())
+        .addFilterBefore(jwtFilter,
+            UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
+// Flow: Login -> Server returns JWT -> Client stores token
+// Every request: client sends Authorization: Bearer <token>
+\`\`\`
+
+**3. Comparison:**
+
+**Scalability:**
+- Session: Needs sticky sessions or shared store (Redis)
+- JWT: Any server handles any request (no shared state)
+
+**Logout:**
+- Session: server.invalidateSession() - instant
+- JWT: Token valid until expiry; need a blocklist for forced revoke
+
+**Security:**
+- Session: CSRF vulnerable (cookie auto-sent) - need CSRF token
+- JWT: No CSRF if using Authorization header (not cookie)
+
+**Performance:**
+- Session: DB/Redis lookup per request to load session
+- JWT: CPU cost to validate signature (no I/O)
+
+**Size:**
+- Session: Small cookie (~32 bytes)
+- JWT: Large token (~800+ bytes with claims)
+
+**4. When to Use Stateful:**
+\`\`\`java
+// - Server-rendered apps (Thymeleaf, JSP)
+// - Monolith with single server
+// - Need instant logout / revocation
+// - Admin portals with tight session control
+// - Already have Redis for session sharing
+\`\`\`
+
+**5. When to Use Stateless:**
+\`\`\`java
+// - REST APIs consumed by SPA / mobile
+// - Microservices (pass JWT between services)
+// - Horizontal scaling without shared state
+// - Cross-domain authentication needed
+// - Third-party API access
+\`\`\`
+
+**6. Hybrid Approach:**
+\`\`\`java
+// Use BOTH in the same app
+@Bean
+@Order(1)
+public SecurityFilterChain apiChain(HttpSecurity http)
+        throws Exception {
+    http
+        .securityMatcher("/api/**")
+        .sessionManagement(s -> s.sessionCreationPolicy(
+            SessionCreationPolicy.STATELESS))
+        .csrf(csrf -> csrf.disable())
+        .addFilterBefore(jwtFilter,
+            UsernamePasswordAuthenticationFilter.class)
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().authenticated());
+    return http.build();
+}
+
+@Bean
+@Order(2)
+public SecurityFilterChain webChain(HttpSecurity http)
+        throws Exception {
+    http
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/login").permitAll()
+            .anyRequest().authenticated())
+        .formLogin(form -> form.loginPage("/login"));
+    return http.build();
+}
+// /api/** uses JWT, everything else uses sessions
+\`\`\``
     }
   ]
 

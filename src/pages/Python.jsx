@@ -18,13 +18,14 @@ const tabCategories = {
   all: { label: 'All', ids: null },
   fundamentals: { label: 'Fundamentals', ids: ['Core Python', 'Python OOP', 'Index Slicing', 'Bitwise Operations'] },
   'data-structures': { label: 'Data Structures', ids: ['Python Set Operations', 'Python Dict Operations', 'Python Tuples', 'List Comprehension', 'Python Deque', 'Python Counter', 'Python DefaultDict', 'Python NamedTuple', 'Python ChainMap'] },
-  algorithms: { label: 'Algorithms', ids: ['Sorting Algorithms', 'String Algorithms', 'DP Patterns'] },
+  algorithms: { label: 'Algorithms', ids: ['Sorting Algorithms', 'String Algorithms', 'DP Patterns', 'Graph Algorithms'] },
   functional: { label: 'Functional', ids: ['Lambda', 'Python Map Functions', 'Python Combinations'] },
   modules: { label: 'Modules & Utilities', ids: ['Itertools', 'Collections Module', 'Sorting Functions', 'Bisect Functions', 'Python String Methods', 'Math Functions', 'Builtin Functions', 'Functools', 'Copy Module'] },
   advanced: { label: 'Advanced', ids: ['Python Advanced', 'Decorators', 'Generators', 'Async Python'] },
   web: { label: 'Web & Data', ids: ['Web Frameworks', 'Data Science', 'Machine Learning'] },
   reference: { label: 'Reference', ids: ['Python Heaps', 'Python Pitfalls', 'Python Regex'] },
-  interview: { label: 'Interview', ids: ['LeetCode Patterns'] }
+  interview: { label: 'Interview', ids: ['LeetCode Patterns'] },
+  comparison: { label: 'Python vs Java', ids: ['Python vs Java'] }
 }
 
 function Python({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
@@ -169,6 +170,14 @@ function Python({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCa
       color: '#3b82f6',
       complexity: 'All Levels',
       description: 'Master 13 essential Dynamic Programming patterns: Linear DP, LIS, Knapsack, Grid DP, String DP, Interval DP, State Machine, Tree DP, and more.'
+    },
+    {
+      id: 'Graph Algorithms',
+      name: 'Graph Algorithms',
+      icon: '\u{1F578}\uFE0F',
+      color: '#14b8a6',
+      complexity: 'Medium-Hard',
+      description: 'Master 12 essential graph algorithms: BFS, DFS, Dijkstra, Bellman-Ford, Topological Sort, Union-Find, Kruskal, Prim, Floyd-Warshall, A*, Tarjan SCC, and Bipartite Check.'
     },
     // Functional Programming
     {
@@ -360,6 +369,15 @@ function Python({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCa
       color: '#ef4444',
       complexity: 'All Levels',
       description: 'Master 31 essential problem-solving patterns for coding interviews: Two Pointers, Sliding Window, DFS/BFS, DP, Backtracking, and more with Python examples.'
+    },
+    // Comparison
+    {
+      id: 'Python vs Java',
+      name: 'Python vs Java',
+      icon: '\u2694\uFE0F',
+      color: '#f97316',
+      complexity: 'All Levels',
+      description: 'Side-by-side comparison of Python and Java: syntax, data types, collections, OOP, error handling, concurrency, and ecosystem differences.'
     }
   ]
 

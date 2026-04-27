@@ -18,6 +18,7 @@ import SecurityOWASP from './pages/projects/SecurityOWASP.jsx'
 import JWT from './pages/security/JWT.jsx'
 import OAuth from './pages/security/OAuth.jsx'
 import OAuth2 from './pages/security/OAuth2.jsx'
+import PingFederate from './pages/security/PingFederate.jsx'
 import Testing from './pages/projects/Testing.jsx'
 import AIInterview from './pages/AIInterview.jsx'
 import Settings from './pages/Settings.jsx'
@@ -69,6 +70,8 @@ import SpringSecurity from './pages/frameworks/SpringSecurity.jsx'
 import Ehcache from './pages/frameworks/Ehcache.jsx'
 import Angular from './pages/frameworks/Angular.jsx'
 import GraphQL from './pages/frameworks/GraphQL.jsx'
+import ShellScripting from './pages/frameworks/ShellScripting.jsx'
+import BFF from './pages/frameworks/BFF.jsx'
 import GRPC from './pages/spring/GRPC.jsx'
 import SOAP from './pages/spring/SOAP.jsx'
 import ReactFramework from './pages/spring/ReactFramework.jsx'
@@ -142,6 +145,7 @@ import UnixScripting from './pages/devops/UnixScripting.jsx'
 import JavaFlightRecorder from './pages/devops/JavaFlightRecorder.jsx'
 import JMeter from './pages/devops/JMeter.jsx'
 import Dynatrace from './pages/devops/Dynatrace.jsx'
+import Maven from './pages/devops/Maven.jsx'
 
 // Security pages
 import SecurityPage from './pages/SecurityPage.jsx'
@@ -270,6 +274,8 @@ import SortingFunctions from './pages/python/SortingFunctions.jsx'
 import LeetCodePatterns from './pages/python/LeetCodePatterns.jsx'
 import SortingAlgorithms from './pages/python/SortingAlgorithms.jsx'
 import StringAlgorithms from './pages/python/StringAlgorithms.jsx'
+import GraphAlgorithms from './pages/python/GraphAlgorithms.jsx'
+import PythonVsJava from './pages/python/PythonVsJava.jsx'
 import MathFunctions from './pages/python/MathFunctions.jsx'
 import BuiltinFunctions from './pages/python/BuiltinFunctions.jsx'
 import Functools from './pages/python/Functools.jsx'
@@ -551,7 +557,7 @@ const getFrameworksComponentIndex = (componentName) => {
   return FRAMEWORKS_COMPONENTS_ORDER.indexOf(componentName)
 }
 
-const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'Ansible', 'UnixScripting', 'JavaFlightRecorder', 'JMeter', 'Dynatrace', 'SecurityOWASP', 'JWT', 'OAuth', 'OAuth2', 'Kafka', 'ApacheFlink', 'RabbitMQ', 'Solace', 'MuleSoft']
+const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Maven', 'Prometheus', 'Grafana', 'Ansible', 'UnixScripting', 'JavaFlightRecorder', 'JMeter', 'Dynatrace', 'SecurityOWASP', 'JWT', 'OAuth', 'OAuth2', 'PingFederate', 'Kafka', 'ApacheFlink', 'RabbitMQ', 'Solace', 'MuleSoft']
 
 // Display names for devops components
 const DEVOPS_DISPLAY_NAMES = {
@@ -564,6 +570,7 @@ const DEVOPS_DISPLAY_NAMES = {
   'ProductionSupport': 'Production Support',
   'TeamCity': 'TeamCity',
   'Jenkins': 'Jenkins',
+  'Maven': 'Maven',
   'Prometheus': 'Prometheus',
   'Grafana': 'Grafana',
   'Ansible': 'Ansible',
@@ -575,6 +582,7 @@ const DEVOPS_DISPLAY_NAMES = {
   'JWT': 'JWT',
   'OAuth': 'OAuth',
   'OAuth2': 'OAuth 2.0',
+  'PingFederate': 'PingFederate',
   'Kafka': 'Apache Kafka',
   'ApacheFlink': 'Apache Flink',
   'RabbitMQ': 'RabbitMQ',
@@ -843,6 +851,7 @@ function App() {
   const [showProductionSupportModal, setShowProductionSupportModal] = useState(false)
   const [showTeamCityModal, setShowTeamCityModal] = useState(false)
   const [showJenkinsModal, setShowJenkinsModal] = useState(false)
+  const [showMavenModal, setShowMavenModal] = useState(false)
   const [showPrometheusModal, setShowPrometheusModal] = useState(false)
   const [showGrafanaModal, setShowGrafanaModal] = useState(false)
   const [showAnsibleModal, setShowAnsibleModal] = useState(false)
@@ -911,6 +920,8 @@ function App() {
   const [showEhcacheModal, setShowEhcacheModal] = useState(false)
   const [showAngularModal, setShowAngularModal] = useState(false)
   const [showGraphQLModal, setShowGraphQLModal] = useState(false)
+  const [showShellScriptingModal, setShowShellScriptingModal] = useState(false)
+  const [showBFFModal, setShowBFFModal] = useState(false)
   const [showGRPCModal, setShowGRPCModal] = useState(false)
   const [showSOAPModal, setShowSOAPModal] = useState(false)
   const [showReactModal, setShowReactModal] = useState(false)
@@ -1258,6 +1269,7 @@ function App() {
       'Production Support': setShowProductionSupportModal,
       'TeamCity': setShowTeamCityModal,
       'Jenkins': setShowJenkinsModal,
+      'Maven': setShowMavenModal,
       'Prometheus': setShowPrometheusModal,
       'Grafana': setShowGrafanaModal,
       'Ansible': setShowAnsibleModal,
@@ -1283,6 +1295,7 @@ function App() {
       setShowProductionSupportModal(false)
       setShowTeamCityModal(false)
       setShowJenkinsModal(false)
+      setShowMavenModal(false)
       setShowPrometheusModal(false)
       setShowGrafanaModal(false)
       setShowAnsibleModal(false)
@@ -1996,6 +2009,7 @@ function App() {
       setShowProductionSupportModal(false)
       setShowTeamCityModal(false)
       setShowJenkinsModal(false)
+      setShowMavenModal(false)
       setShowPrometheusModal(false)
       setShowGrafanaModal(false)
       setShowAnsibleModal(false)
@@ -2029,6 +2043,8 @@ function App() {
         setShowTeamCityModal(true)
       } else if (componentName === 'Jenkins') {
         setShowJenkinsModal(true)
+      } else if (componentName === 'Maven') {
+        setShowMavenModal(true)
       } else if (componentName === 'Prometheus') {
         setShowPrometheusModal(true)
       } else if (componentName === 'Grafana') {
@@ -3030,6 +3046,7 @@ function App() {
             [showProductionSupportModal, setShowProductionSupportModal],
             [showTeamCityModal, setShowTeamCityModal],
             [showJenkinsModal, setShowJenkinsModal],
+            [showMavenModal, setShowMavenModal],
             [showPrometheusModal, setShowPrometheusModal],
             [showGrafanaModal, setShowGrafanaModal],
             [showAnsibleModal, setShowAnsibleModal],
@@ -3098,6 +3115,8 @@ function App() {
             [showReactModal, setShowReactModal],
             [showAngularModal, setShowAngularModal],
             [showGraphQLModal, setShowGraphQLModal],
+            [showShellScriptingModal, setShowShellScriptingModal],
+            [showBFFModal, setShowBFFModal],
           ];
 
           // Question modals that should use handleQuestionModalBack for proper Learning Path navigation
@@ -3319,6 +3338,7 @@ function App() {
     showProductionSupportModal,
     showTeamCityModal,
     showJenkinsModal,
+    showMavenModal,
     showPrometheusModal,
     showGrafanaModal,
     showAnsibleModal,
@@ -3382,6 +3402,8 @@ function App() {
     showSpringBatchModal,
     showSpringSecurityModal,
     showEhcacheModal,
+    showShellScriptingModal,
+    showBFFModal,
     showGRPCModal,
     showSOAPModal,
     showReactModal,
@@ -3455,7 +3477,8 @@ function App() {
   const securityTopicCategories = {
     'JWT': { name: 'Authentication', id: 'authentication' },
     'OAuth': { name: 'Authentication', id: 'authentication' },
-    'OAuth2': { name: 'Authentication', id: 'authentication' }
+    'OAuth2': { name: 'Authentication', id: 'authentication' },
+    'PingFederate': { name: 'Identity Management', id: 'identity-management' }
   }
 
   // Helper function to navigate to Security with a specific category
@@ -3499,7 +3522,9 @@ function App() {
     'SOAP': { name: 'API Development', id: 'api' },
     'React': { name: 'Frontend', id: 'frontend' },
     'Angular': { name: 'Frontend', id: 'frontend' },
-    'GraphQL': { name: 'API Development', id: 'api' }
+    'GraphQL': { name: 'API Development', id: 'api' },
+    'BFF': { name: 'API Development', id: 'api' },
+    'ShellScripting': { name: 'Tools', id: 'tools' }
   }
 
   // Helper function to navigate to Frameworks with a specific category
@@ -3516,6 +3541,7 @@ function App() {
     'CICD': { name: 'CI/CD & Build Tools', id: 'cicd' },
     'TeamCity': { name: 'CI/CD & Build Tools', id: 'cicd' },
     'Jenkins': { name: 'CI/CD & Build Tools', id: 'cicd' },
+    'Maven': { name: 'CI/CD & Build Tools', id: 'cicd' },
     'Testing': { name: 'Methodology & Quality', id: 'methodology' },
     'AgileScrum': { name: 'Methodology & Quality', id: 'methodology' },
     'ProductionSupport': { name: 'Monitoring & Observability', id: 'monitoring' },
@@ -3696,6 +3722,12 @@ function App() {
     }
     if (selectedOption === 'String Algorithms') {
       return <StringAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'String Algorithms' }} />
+    }
+    if (selectedOption === 'Graph Algorithms') {
+      return <GraphAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Graph Algorithms' }} />
+    }
+    if (selectedOption === 'Python vs Java') {
+      return <PythonVsJava onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Python vs Java' }} />
     }
     if (selectedOption === 'Math Functions') {
       return <MathFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Math Functions' }} />
@@ -3930,6 +3962,17 @@ function App() {
         }}
         initialCategory={etradingInitialCategory}
         onInitialCategoryUsed={() => setEtradingInitialCategory(null)}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
+      />
+    }
+    if (selectedOption === 'Security') {
+      return <SecurityPage
+        onBack={() => setSelectedOptionAndRef('')}
+        onSelectItem={(item) => {
+          setSelectedOptionAndRef(item)
+        }}
+        initialCategory={securityInitialCategory}
+        onInitialCategoryUsed={() => setSecurityInitialCategory(null)}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -4252,6 +4295,16 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
+    if (selectedOption === 'Shell Scripting') {
+      setShowShellScriptingModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'BFF') {
+      setShowBFFModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
     if (selectedOption === 'gRPC') {
       setShowGRPCModal(true)
       setSelectedOptionAndRef('')
@@ -4296,6 +4349,13 @@ function App() {
       return <OAuth2 onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('OAuth2')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
         category: { name: securityTopicCategories['OAuth2'].name, onClick: () => goToSecurityCategory(securityTopicCategories['OAuth2'].id) },
         topic: 'OAuth 2.0',
+        colors: BREADCRUMB_COLORS.Security
+      }} />
+    }
+    if (selectedOption === 'PingFederate') {
+      return <PingFederate onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('PingFederate')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
+        category: { name: securityTopicCategories['PingFederate'].name, onClick: () => goToSecurityCategory(securityTopicCategories['PingFederate'].id) },
+        topic: 'PingFederate',
         colors: BREADCRUMB_COLORS.Security
       }} />
     }
@@ -5373,6 +5433,44 @@ function App() {
         </div>
       )}
 
+      {/* Shell Scripting Modal */}
+      {showShellScriptingModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowShellScriptingModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <ShellScripting onBack={() => { setShowShellScriptingModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowShellScriptingModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['ShellScripting'].name, onClick: () => { setShowShellScriptingModal(false); goToFrameworksCategory(frameworksTopicCategories['ShellScripting'].id) } },
+              topic: 'Shell Scripting',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* BFF Modal */}
+      {showBFFModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowBFFModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <BFF onBack={() => { setShowBFFModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowBFFModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['BFF'].name, onClick: () => { setShowBFFModal(false); goToFrameworksCategory(frameworksTopicCategories['BFF'].id) } },
+              topic: 'Backend for Frontend',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
       {/* gRPC Modal */}
       {showGRPCModal && (
         <div
@@ -5633,6 +5731,25 @@ function App() {
             <Jenkins onBack={() => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Jenkins')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Jenkins'].name, onClick: () => { setShowJenkinsModal(false); goToDevopsCategory(devopsTopicCategories['Jenkins'].id) } },
               topic: 'Jenkins',
+              colors: BREADCRUMB_COLORS.DevOps
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Maven Modal */}
+      {showMavenModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowMavenModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <Maven onBack={() => { setShowMavenModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Maven')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowMavenModal(false); setSelectedOptionAndRef('DevOps') } },
+              category: { name: devopsTopicCategories['Maven'].name, onClick: () => { setShowMavenModal(false); goToDevopsCategory(devopsTopicCategories['Maven'].id) } },
+              topic: 'Maven',
               colors: BREADCRUMB_COLORS.DevOps
             }} />
           </div>

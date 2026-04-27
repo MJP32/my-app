@@ -117,7 +117,12 @@
       "Bash(python transform_agile.py:*)",
       "Bash(python complete_transform.py:*)",
       "Bash(python fix_jsx_text.py:*)",
-      "Bash(npm run build:no-snap:*)"
+      "Bash(npm run build:no-snap:*)",
+      "Bash(dir:*)",
+      "Bash(npx vite build)",
+      "Bash(npx vitest:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -c \"\\(Get-Content ''C:\\\\Users\\\\micha\\\\Documents\\\\2026\\\\apr\\\\my-app\\\\src\\\\pages\\\\devops\\\\Maven.jsx'' | Measure-Object -Line\\).Lines\")"
     ],
     "deny": [],
     "ask": []

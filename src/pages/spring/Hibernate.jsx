@@ -1,29 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
-import CollapsibleSidebar from '../../components/CollapsibleSidebar'
-import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
-
-const FRAMEWORK_COLORS = {
-  primary: '#4ade80',
-  primaryHover: '#86efac',
-  bg: 'rgba(74, 222, 128, 0.1)',
-  border: 'rgba(74, 222, 128, 0.3)',
-  arrow: '#22c55e',
-  hoverBg: 'rgba(74, 222, 128, 0.2)',
-  topicBg: 'rgba(74, 222, 128, 0.2)'
-}
-
-// Background colors for subtopic descriptions
-const SUBTOPIC_COLORS = [
-  { bg: 'rgba(74, 222, 128, 0.15)', border: 'rgba(74, 222, 128, 0.3)' },
-  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
-  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
-  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
-  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
-  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
-  { bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.3)' },
-  { bg: 'rgba(234, 179, 8, 0.15)', border: 'rgba(234, 179, 8, 0.3)' },
-]
 
 // ORM Mapping Diagram
 const ORMDiagram = () => (
@@ -201,23 +177,160 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Hibernate({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
-  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+function Hibernate({ onBack, breadcrumb }) {
+  const [activeSection, setActiveSection] = useState('basics')
 
-  const concepts = [
-    {
-      id: 'hibernate-basics',
-      name: 'Hibernate Basics & ORM',
-      icon: '🔧',
-      color: '#8b5cf6',
-      description: 'Object-Relational Mapping fundamentals',
-      diagram: ORMDiagram,
-      details: [
-        {
-          name: 'ORM Overview',
-          explanation: 'Hibernate is an Object-Relational Mapping (ORM) framework that maps Java objects to database tables. It eliminates boilerplate JDBC code, provides automatic table creation, caching mechanisms, and supports database independence. Hibernate implements JPA (Java Persistence API) specification and simplifies database operations through entity management.',
-          codeExample: `// Entity Class
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #064e3b, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Back button */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem'
+        }}>
+          <button
+            onClick={onBack}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              background: 'rgba(74, 222, 128, 0.2)',
+              color: '#4ade80',
+              border: '1px solid rgba(74, 222, 128, 0.4)',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'rgba(74, 222, 128, 0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'rgba(74, 222, 128, 0.2)'
+            }}
+          >
+            Back
+          </button>
+        </div>
+
+        {/* Breadcrumb */}
+        {breadcrumb && (
+          <Breadcrumb
+            breadcrumbStack={[
+              breadcrumb.section && { name: breadcrumb.section.name, icon: breadcrumb.section.icon, onClick: breadcrumb.section.onClick },
+              breadcrumb.category && { name: breadcrumb.category.name, onClick: breadcrumb.category.onClick },
+              breadcrumb.topic && { name: breadcrumb.topic }
+            ].filter(Boolean)}
+            colors={breadcrumb.colors}
+            onMainMenu={breadcrumb.onMainMenu}
+          />
+        )}
+
+        {/* Centered title */}
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          marginBottom: '0.5rem',
+          background: 'linear-gradient(to right, #86efac, #4ade80)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
+          Hibernate ORM
+        </h1>
+        <p style={{ color: '#d1d5db', textAlign: 'center', marginBottom: '2rem', fontSize: '1.1rem' }}>
+          Object-Relational Mapping framework for Java with caching, lazy loading, and database independence
+        </p>
+
+        {/* Tab Navigation */}
+        <div style={{
+          display: 'flex',
+          gap: '0.25rem',
+          marginBottom: '2rem',
+          borderBottom: '2px solid #374151',
+          overflowX: 'auto',
+          flexWrap: 'nowrap'
+        }}>
+          {[
+            { id: 'basics', label: 'Basics & ORM' },
+            { id: 'relationships', label: 'Relationships' },
+            { id: 'session', label: 'Session Management' },
+            { id: 'caching', label: 'Caching' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSection(tab.id)}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                backgroundColor: activeSection === tab.id ? '#22c55e' : 'transparent',
+                color: activeSection === tab.id ? 'white' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                if (activeSection !== tab.id) {
+                  e.target.style.backgroundColor = '#374151'
+                  e.target.style.color = '#d1d5db'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeSection !== tab.id) {
+                  e.target.style.backgroundColor = 'transparent'
+                  e.target.style.color = '#9ca3af'
+                }
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab 1: Basics & ORM */}
+        {activeSection === 'basics' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* ORM Diagram */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              <ORMDiagram />
+            </div>
+
+            {/* ORM Overview */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                ORM Overview
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Hibernate is an Object-Relational Mapping (ORM) framework that maps Java objects to database tables. It eliminates boilerplate JDBC code, provides automatic table creation, caching mechanisms, and supports database independence. Hibernate implements JPA (Java Persistence API) specification and simplifies database operations through entity management.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// Entity Class
 @Entity
 @Table(name = "users")
 public class User {
@@ -232,12 +345,30 @@ public class User {
     private String email;
 
     // Constructors, getters, setters
-}`
-        },
-        {
-          name: 'SessionFactory Setup',
-          explanation: 'SessionFactory is a heavyweight, thread-safe object created once per application. It reads hibernate.cfg.xml configuration, registers entity classes, and provides Session instances. Creating SessionFactory is expensive, so it should be done once at application startup and reused throughout.',
-          codeExample: `// SessionFactory setup
+}`} />
+              </div>
+            </div>
+
+            {/* SessionFactory Setup */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                SessionFactory Setup
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                SessionFactory is a heavyweight, thread-safe object created once per application. It reads hibernate.cfg.xml configuration, registers entity classes, and provides Session instances. Creating SessionFactory is expensive, so it should be done once at application startup and reused throughout.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// SessionFactory setup
 SessionFactory factory = new Configuration()
     .configure("hibernate.cfg.xml")
     .addAnnotatedClass(User.class)
@@ -249,12 +380,30 @@ Transaction tx = session.beginTransaction();
 // CRUD operations here
 
 tx.commit();
-session.close();`
-        },
-        {
-          name: 'Basic CRUD Operations',
-          explanation: 'Hibernate provides simple methods for Create, Read, Update, and Delete operations. save() persists new entities, get() retrieves by ID, update() modifies existing entities, and delete() removes entities. All operations should be wrapped in transactions for data consistency.',
-          codeExample: `Session session = factory.openSession();
+session.close();`} />
+              </div>
+            </div>
+
+            {/* Basic CRUD Operations */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Basic CRUD Operations
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Hibernate provides simple methods for Create, Read, Update, and Delete operations. save() persists new entities, get() retrieves by ID, update() modifies existing entities, and delete() removes entities. All operations should be wrapped in transactions for data consistency.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`Session session = factory.openSession();
 Transaction tx = session.beginTransaction();
 
 // Create
@@ -272,12 +421,30 @@ session.update(foundUser);
 session.delete(foundUser);
 
 tx.commit();
-session.close();`
-        },
-        {
-          name: 'Key Points',
-          explanation: 'ORM maps Java objects to database tables automatically. Eliminates boilerplate JDBC code - no manual SQL queries needed. Database independence - change database by changing configuration. Automatic table creation from entity classes. Built-in caching (first-level and second-level cache). Lazy loading for better performance. HQL (Hibernate Query Language) - object-oriented query language. Criteria API for type-safe queries.',
-          codeExample: `// HQL - Hibernate Query Language
+session.close();`} />
+              </div>
+            </div>
+
+            {/* Key Points */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Key Points
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                ORM maps Java objects to database tables automatically. Eliminates boilerplate JDBC code - no manual SQL queries needed. Database independence - change database by changing configuration. Automatic table creation from entity classes. Built-in caching (first-level and second-level cache). Lazy loading for better performance. HQL (Hibernate Query Language) - object-oriented query language. Criteria API for type-safe queries.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// HQL - Hibernate Query Language
 List<User> users = session.createQuery(
     "FROM User u WHERE u.email LIKE :domain", User.class)
     .setParameter("domain", "%@example.com")
@@ -294,22 +461,47 @@ List<User> result = session.createQuery(cq).getResultList();
 // hibernate.cfg.xml key properties
 // hibernate.dialect = org.hibernate.dialect.MySQLDialect
 // hibernate.hbm2ddl.auto = update  (auto table creation)
-// hibernate.show_sql = true`
-        }
-      ]
-    },
-    {
-      id: 'entity-relationships',
-      name: 'Entity Relationships',
-      icon: '🔗',
-      color: '#10b981',
-      description: 'OneToMany, ManyToOne, ManyToMany mappings',
-      diagram: RelationshipsDiagram,
-      details: [
-        {
-          name: 'One-to-Many / Many-to-One',
-          explanation: '@OneToMany represents a parent entity having a collection of child entities. @ManyToOne represents a child entity referencing its parent. The mappedBy attribute defines the owning side of the relationship. Use cascade types to control operation propagation.',
-          codeExample: `@Entity
+// hibernate.show_sql = true`} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Relationships */}
+        {activeSection === 'relationships' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Relationships Diagram */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              <RelationshipsDiagram />
+            </div>
+
+            {/* One-to-Many / Many-to-One */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                One-to-Many / Many-to-One
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                @OneToMany represents a parent entity having a collection of child entities. @ManyToOne represents a child entity referencing its parent. The mappedBy attribute defines the owning side of the relationship. Use cascade types to control operation propagation.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`@Entity
 public class Department {
     @Id
     @GeneratedValue
@@ -328,12 +520,30 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
-}`
-        },
-        {
-          name: 'Many-to-Many',
-          explanation: '@ManyToMany represents multiple entities on both sides of the relationship. Requires a join table to store the associations. Use @JoinTable to specify the join table name and column mappings. The mappedBy attribute indicates the inverse side.',
-          codeExample: `@Entity
+}`} />
+              </div>
+            </div>
+
+            {/* Many-to-Many */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Many-to-Many
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                @ManyToMany represents multiple entities on both sides of the relationship. Requires a join table to store the associations. Use @JoinTable to specify the join table name and column mappings. The mappedBy attribute indicates the inverse side.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`@Entity
 public class Student {
     @Id
     @GeneratedValue
@@ -356,12 +566,30 @@ public class Course {
 
     @ManyToMany(mappedBy = "courses")
     private Set<Student> students;
-}`
-        },
-        {
-          name: 'Cascade & Fetch Types',
-          explanation: 'Cascade types control how operations propagate: PERSIST, MERGE, REMOVE, REFRESH, DETACH, ALL. Fetch types control when data is loaded: LAZY (load when accessed) vs EAGER (load immediately). Choose LAZY for better performance unless eager loading is needed.',
-          codeExample: `@Entity
+}`} />
+              </div>
+            </div>
+
+            {/* Cascade & Fetch Types */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Cascade & Fetch Types
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Cascade types control how operations propagate: PERSIST, MERGE, REMOVE, REFRESH, DETACH, ALL. Fetch types control when data is loaded: LAZY (load when accessed) vs EAGER (load immediately). Choose LAZY for better performance unless eager loading is needed.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`@Entity
 public class Order {
     @Id
     @GeneratedValue
@@ -376,12 +604,30 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;
-}`
-        },
-        {
-          name: 'Key Points',
-          explanation: '@OneToMany: Parent entity has collection of child entities. @ManyToOne: Child entity references parent entity. @OneToOne: One entity associated with exactly one other entity. @ManyToMany: Multiple entities on both sides, requires join table. Cascade types control operations propagation (PERSIST, MERGE, REMOVE, etc.). Fetch types: LAZY (load when accessed) vs EAGER (load immediately). mappedBy attribute defines bidirectional relationship owner. @JoinColumn specifies foreign key column.',
-          codeExample: `// @OneToOne with shared primary key
+}`} />
+              </div>
+            </div>
+
+            {/* Key Points */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Key Points
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                @OneToMany: Parent entity has collection of child entities. @ManyToOne: Child entity references parent entity. @OneToOne: One entity associated with exactly one other entity. @ManyToMany: Multiple entities on both sides, requires join table. Cascade types control operations propagation (PERSIST, MERGE, REMOVE, etc.). Fetch types: LAZY (load when accessed) vs EAGER (load immediately). mappedBy attribute defines bidirectional relationship owner. @JoinColumn specifies foreign key column.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// @OneToOne with shared primary key
 @Entity
 public class User {
     @Id @GeneratedValue
@@ -410,22 +656,50 @@ public void addEmployee(Employee emp) {
 public void removeEmployee(Employee emp) {
     employees.remove(emp);
     emp.setDepartment(null);
-}`
-        }
-      ]
-    },
-    {
-      id: 'session-management',
-      name: 'Session Management',
-      icon: '⚙️',
-      color: '#3b82f6',
-      description: 'SessionFactory, Session, and Transaction handling',
-      diagram: SessionDiagram,
-      details: [
-        {
-          name: 'Session Lifecycle',
-          explanation: 'Session is a lightweight, non-thread-safe object representing a single unit of work. It contains first-level cache and manages entity lifecycle. Sessions should be opened for each request/transaction and closed when done. Use try-with-resources for automatic cleanup.',
-          codeExample: `// Session usage (per request)
+}`} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Session Management */}
+        {activeSection === 'session' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Session Diagram */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem'
+            }}>
+              <SessionDiagram />
+              <EntityStatesDiagram />
+            </div>
+
+            {/* Session Lifecycle */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Session Lifecycle
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Session is a lightweight, non-thread-safe object representing a single unit of work. It contains first-level cache and manages entity lifecycle. Sessions should be opened for each request/transaction and closed when done. Use try-with-resources for automatic cleanup.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// Session usage (per request)
 Session session = factory.openSession();
 try {
     Transaction tx = session.beginTransaction();
@@ -444,12 +718,30 @@ try (Session session = factory.openSession()) {
     Transaction tx = session.beginTransaction();
     // operations
     tx.commit();
-}`
-        },
-        {
-          name: 'save() vs persist()',
-          explanation: 'save() returns the generated identifier immediately and can be used outside a transaction (though not recommended). persist() is void and requires a transaction context. Both make an object persistent, but persist() is the JPA standard method.',
-          codeExample: `Session session = factory.openSession();
+}`} />
+              </div>
+            </div>
+
+            {/* save() vs persist() */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                save() vs persist()
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                save() returns the generated identifier immediately and can be used outside a transaction (though not recommended). persist() is void and requires a transaction context. Both make an object persistent, but persist() is the JPA standard method.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`Session session = factory.openSession();
 Transaction tx = session.beginTransaction();
 
 // save() - returns generated ID
@@ -463,12 +755,30 @@ session.persist(jane);
 session.flush();
 System.out.println("Jane's ID: " + jane.getId());
 
-tx.commit();`
-        },
-        {
-          name: 'get() vs load()',
-          explanation: 'get() hits the database immediately and returns null if entity not found. load() returns a proxy object and only hits the database when a property is accessed (lazy loading). load() throws ObjectNotFoundException if entity not found when accessed.',
-          codeExample: `Session session = factory.openSession();
+tx.commit();`} />
+              </div>
+            </div>
+
+            {/* get() vs load() */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                get() vs load()
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                get() hits the database immediately and returns null if entity not found. load() returns a proxy object and only hits the database when a property is accessed (lazy loading). load() throws ObjectNotFoundException if entity not found when accessed.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`Session session = factory.openSession();
 
 // get() - immediate DB hit, returns null if not found
 User user1 = session.get(User.class, 1L);
@@ -480,12 +790,30 @@ if (user1 != null) {
 // throws exception if not found when accessed
 User user2 = session.load(User.class, 2L);
 // DB hit happens here when accessing property
-System.out.println(user2.getName());`
-        },
-        {
-          name: 'Entity States',
-          explanation: 'Transient: newly created object, not associated with Session or database. Persistent: associated with a Session, changes are tracked and synchronized. Detached: was persistent but Session is closed, changes not tracked. Use merge() to re-attach detached entities.',
-          codeExample: `// Transient state
+System.out.println(user2.getName());`} />
+              </div>
+            </div>
+
+            {/* Entity States */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Entity States
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Transient: newly created object, not associated with Session or database. Persistent: associated with a Session, changes are tracked and synchronized. Detached: was persistent but Session is closed, changes not tracked. Use merge() to re-attach detached entities.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// Transient state
 User transient = new User("bob");
 
 // Persistent state - after save()
@@ -500,12 +828,30 @@ session.close();
 
 // Re-attach with merge()
 Session newSession = factory.openSession();
-User managed = (User) newSession.merge(transient);`
-        },
-        {
-          name: 'Key Points',
-          explanation: 'SessionFactory: Heavy object, thread-safe, created once per application. Session: Light object, not thread-safe, one per request/transaction. First-level cache: Automatic, associated with Session. Entity states: Transient (not in DB), Persistent (managed), Detached (was persistent). save() vs persist(): save() returns ID immediately. get() vs load(): get() hits DB immediately, load() returns proxy. update() vs merge(): update() for detached entities, merge() creates copy. Always close Session in finally block or use try-with-resources.',
-          codeExample: `// update() vs merge() comparison
+User managed = (User) newSession.merge(transient);`} />
+              </div>
+            </div>
+
+            {/* Key Points */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Key Points
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                SessionFactory: Heavy object, thread-safe, created once per application. Session: Light object, not thread-safe, one per request/transaction. First-level cache: Automatic, associated with Session. Entity states: Transient (not in DB), Persistent (managed), Detached (was persistent). save() vs persist(): save() returns ID immediately. get() vs load(): get() hits DB immediately, load() returns proxy. update() vs merge(): update() for detached entities, merge() creates copy. Always close Session in finally block or use try-with-resources.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// update() vs merge() comparison
 Session session1 = factory.openSession();
 Transaction tx1 = session1.beginTransaction();
 User user = session1.get(User.class, 1L);
@@ -527,22 +873,47 @@ user.setName("Merged");
 User managed = (User) session3.merge(user);
 // 'managed' is persistent, 'user' is still detached
 tx3.commit();
-session3.close();`
-        }
-      ]
-    },
-    {
-      id: 'caching-strategies',
-      name: 'Caching Strategies',
-      icon: '💾',
-      color: '#ef4444',
-      diagram: CachingDiagram,
-      description: 'First-level, second-level, and query cache',
-      details: [
-        {
-          name: 'First-Level Cache',
-          explanation: 'First-level cache is enabled by default and associated with the Session. It caches entities within the same session - multiple get() calls for the same ID return the same object instance. Cache is cleared when session is closed.',
-          codeExample: `Session session = factory.openSession();
+session3.close();`} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Caching */}
+        {activeSection === 'caching' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Caching Diagram */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              <CachingDiagram />
+            </div>
+
+            {/* First-Level Cache */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                First-Level Cache
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                First-level cache is enabled by default and associated with the Session. It caches entities within the same session - multiple get() calls for the same ID return the same object instance. Cache is cleared when session is closed.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`Session session = factory.openSession();
 
 // First load - hits database
 User user1 = session.get(User.class, 1L);
@@ -557,12 +928,30 @@ System.out.println(user1 == user2); // true
 session.clear();
 
 // This will hit database again
-User user3 = session.get(User.class, 1L);`
-        },
-        {
-          name: 'Second-Level Cache',
-          explanation: 'Second-level cache is optional and SessionFactory-scoped, shared across sessions. Requires third-party providers like EhCache, Infinispan, or Hazelcast. Enable with @Cacheable annotation and configure cache concurrency strategy.',
-          codeExample: `// Enable entity for second-level cache
+User user3 = session.get(User.class, 1L);`} />
+              </div>
+            </div>
+
+            {/* Second-Level Cache */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Second-Level Cache
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Second-level cache is optional and SessionFactory-scoped, shared across sessions. Requires third-party providers like EhCache, Infinispan, or Hazelcast. Enable with @Cacheable annotation and configure cache concurrency strategy.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// Enable entity for second-level cache
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -579,12 +968,30 @@ public class Product {
 </property>
 <property name="hibernate.cache.region.factory_class">
     org.hibernate.cache.jcache.JCacheRegionFactory
-</property>`
-        },
-        {
-          name: 'Query Cache',
-          explanation: 'Query cache stores query results and must be enabled explicitly. Useful for queries that are run frequently with the same parameters. Results are invalidated when underlying tables are modified.',
-          codeExample: `// Enable query cache in configuration
+</property>`} />
+              </div>
+            </div>
+
+            {/* Query Cache */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Query Cache
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Query cache stores query results and must be enabled explicitly. Useful for queries that are run frequently with the same parameters. Results are invalidated when underlying tables are modified.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// Enable query cache in configuration
 <property name="hibernate.cache.use_query_cache">
     true
 </property>
@@ -602,12 +1009,30 @@ List<Product> cachedProducts = session
     .createQuery("FROM Product WHERE price < :maxPrice")
     .setParameter("maxPrice", 100.0)
     .setCacheable(true)
-    .list();`
-        },
-        {
-          name: 'Cache Eviction',
-          explanation: 'Evict specific entities or entire regions from cache when data becomes stale. Use SessionFactory.getCache() methods for second-level cache eviction. First-level cache uses Session.evict() or Session.clear().',
-          codeExample: `// First-level cache eviction
+    .list();`} />
+              </div>
+            </div>
+
+            {/* Cache Eviction */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Cache Eviction
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Evict specific entities or entire regions from cache when data becomes stale. Use SessionFactory.getCache() methods for second-level cache eviction. First-level cache uses Session.evict() or Session.clear().
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// First-level cache eviction
 session.evict(product);  // Evict specific entity
 session.clear();          // Clear entire session cache
 
@@ -624,12 +1049,30 @@ cache.evictEntityRegion(Product.class);
 cache.evictQueryRegion("productQueries");
 
 // Evict all caches
-cache.evictAllRegions();`
-        },
-        {
-          name: 'Batch Fetching',
-          explanation: 'Use @BatchSize to fetch multiple entities in batches, avoiding N+1 query problems. When accessing a lazy collection, Hibernate fetches multiple collections in a single query based on the batch size.',
-          codeExample: `@Entity
+cache.evictAllRegions();`} />
+              </div>
+            </div>
+
+            {/* Batch Fetching */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Batch Fetching
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                Use @BatchSize to fetch multiple entities in batches, avoiding N+1 query problems. When accessing a lazy collection, Hibernate fetches multiple collections in a single query based on the batch size.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`@Entity
 public class Department {
     @OneToMany(mappedBy = "department")
     @BatchSize(size = 10)  // Fetch in batches of 10
@@ -644,12 +1087,30 @@ List<Department> depts = session
     .createQuery(
         "FROM Department d JOIN FETCH d.employees",
         Department.class)
-    .getResultList();`
-        },
-        {
-          name: 'Key Points',
-          explanation: 'First-level cache: Enabled by default, Session-scoped, cannot be disabled. Second-level cache: Optional, SessionFactory-scoped, requires configuration. Cache providers: EhCache, Infinispan, Hazelcast, Redis. Cache concurrency strategies: READ_ONLY, NONSTRICT_READ_WRITE, READ_WRITE, TRANSACTIONAL. Query cache: Caches query results, must enable explicitly. Cache eviction methods: evict(), clear(), evictAll(). Use @Cacheable and @Cache annotations. Cache only read-mostly entities to avoid stale data.',
-          codeExample: `// Cache concurrency strategies
+    .getResultList();`} />
+              </div>
+            </div>
+
+            {/* Key Points */}
+            <div style={{
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '2rem',
+              borderRadius: '12px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+                Key Points
+              </h2>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+                First-level cache: Enabled by default, Session-scoped, cannot be disabled. Second-level cache: Optional, SessionFactory-scoped, requires configuration. Cache providers: EhCache, Infinispan, Hazelcast, Redis. Cache concurrency strategies: READ_ONLY, NONSTRICT_READ_WRITE, READ_WRITE, TRANSACTIONAL. Query cache: Caches query results, must enable explicitly. Cache eviction methods: evict(), clear(), evictAll(). Use @Cacheable and @Cache annotations. Cache only read-mostly entities to avoid stale data.
+              </p>
+              <div style={{
+                backgroundColor: '#1e1e1e',
+                padding: '1.25rem',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+              }}>
+                <SyntaxHighlighter code={`// Cache concurrency strategies
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class Country { /* immutable reference data */ }
@@ -669,331 +1130,13 @@ stats.setStatisticsEnabled(true);
 long hitCount = stats.getSecondLevelCacheHitCount();
 long missCount = stats.getSecondLevelCacheMissCount();
 double hitRatio = (double) hitCount / (hitCount + missCount);
-System.out.println("L2 Cache hit ratio: " + hitRatio);`
-        }
-      ]
-    }
-  ]
-
-  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
-
-  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation()
-        if (selectedConceptIndex !== null) {
-          setSelectedConceptIndex(null)
-          setSelectedDetailIndex(0)
-        } else {
-          onBack()
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [selectedConceptIndex, onBack])
-
-  const handlePreviousConcept = () => {
-    if (selectedConceptIndex > 0) {
-      setSelectedConceptIndex(selectedConceptIndex - 1)
-      setSelectedDetailIndex(0)
-    }
-  }
-
-  const handleNextConcept = () => {
-    if (selectedConceptIndex < concepts.length - 1) {
-      setSelectedConceptIndex(selectedConceptIndex + 1)
-      setSelectedDetailIndex(0)
-    }
-  }
-
-  const buildBreadcrumbStack = () => {
-    const stack = [
-      { name: 'Frameworks', icon: '🛠️', onClick: onBack }
-    ]
-
-    if (selectedConcept) {
-      stack.push({ name: 'Hibernate ORM', icon: '🗃️', onClick: () => { setSelectedConceptIndex(null); setSelectedDetailIndex(0) } })
-      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
-    } else {
-      stack.push({ name: 'Hibernate ORM', icon: '🗃️' })
-    }
-
-    return stack
-  }
-
-  const handleBreadcrumbClick = (index) => {
-    const stack = buildBreadcrumbStack()
-    if (stack[index].onClick) {
-      stack[index].onClick()
-    }
-  }
-
-  const containerStyle = {
-    minHeight: '100vh',
-    background: 'var(--bg-primary)',
-    padding: '2rem',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
-  }
-
-  const headerStyle = {
-    maxWidth: '1400px',
-    margin: '0 auto 2rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem'
-  }
-
-  const titleStyle = {
-    fontSize: '2.5rem',
-    fontWeight: '700',
-    background: 'linear-gradient(135deg, #86efac, #4ade80)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    margin: 0
-  }
-
-  const backButtonStyle = {
-    padding: '0.75rem 1.5rem',
-    background: 'rgba(74, 222, 128, 0.2)',
-    border: '1px solid rgba(74, 222, 128, 0.3)',
-    borderRadius: '0.5rem',
-    color: '#4ade80',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    transition: 'all 0.2s'
-  }
-
-  const navButtonStyle = {
-    padding: '0.75rem 1.25rem',
-    background: 'rgba(16, 185, 129, 0.2)',
-    border: '1px solid rgba(16, 185, 129, 0.3)',
-    borderRadius: '0.5rem',
-    color: '#4ade80',
-    cursor: 'pointer',
-    fontSize: '0.95rem',
-    transition: 'all 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem'
-  }
-
-  return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            style={backButtonStyle}
-            onClick={onBack}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = 'rgba(74, 222, 128, 0.3)'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = 'rgba(74, 222, 128, 0.2)'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            ← Back to Frameworks
-          </button>
-          <h1 style={titleStyle}>Hibernate ORM</h1>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {onPrevious && (
-            <button
-              style={navButtonStyle}
-              onClick={onPrevious}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              ← {previousName}
-            </button>
-          )}
-          {onNext && (
-            <button
-              style={navButtonStyle}
-              onClick={onNext}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              {nextName} →
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
-        <Breadcrumb
-          breadcrumbStack={buildBreadcrumbStack()}
-          onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu || onBack}
-          colors={FRAMEWORK_COLORS}
-        />
-      </div>
-
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        {concepts.map((concept, index) => (
-          <div
-            key={concept.id}
-            onClick={() => setSelectedConceptIndex(index)}
-            style={{
-              background: 'rgba(15, 23, 42, 0.8)',
-              borderRadius: '1rem',
-              padding: '1.5rem',
-              border: `1px solid ${concept.color}40`,
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
-              e.currentTarget.style.borderColor = concept.color
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'none'
-              e.currentTarget.style.borderColor = `${concept.color}40`
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
-              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
-            </div>
-            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
-            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
-              {concept.details.length} topics - Click to explore
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Collapsible Sidebar for quick concept navigation */}
-      <CollapsibleSidebar
-        items={concepts}
-        selectedIndex={selectedConceptIndex ?? -1}
-        onSelect={(index) => {
-          setSelectedConceptIndex(index)
-          setSelectedDetailIndex(0)
-        }}
-        title="Concepts"
-        getItemLabel={(item) => item.name}
-        getItemIcon={(item) => item.icon}
-        primaryColor={FRAMEWORK_COLORS.primary}
-      />
-
-
-      {/* Concept Detail Modal */}
-      {selectedConcept && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '2rem'
-          }}
-          onClick={() => setSelectedConceptIndex(null)}
-        >
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-              borderRadius: '1rem',
-              padding: '2rem',
-              width: '95vw', maxWidth: '1400px', height: '90vh',
-              overflow: 'auto',
-              border: `1px solid ${selectedConcept.color}40`
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Breadcrumb */}
-            <Breadcrumb
-              breadcrumbStack={buildBreadcrumbStack()}
-              onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu || onBack}
-              colors={FRAMEWORK_COLORS}
-            />
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #334155' }}>
-              <h2 style={{ color: selectedConcept.color, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem' }}>
-                <span>{selectedConcept.icon}</span>
-                {selectedConcept.name}
-              </h2>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <button onClick={handlePreviousConcept} disabled={selectedConceptIndex === 0} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>←</button>
-                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>{selectedConceptIndex + 1}/{concepts.length}</span>
-                <button onClick={handleNextConcept} disabled={selectedConceptIndex === concepts.length - 1} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>→</button>
-                <button onClick={() => setSelectedConceptIndex(null)} style={{ padding: '0.4rem 0.75rem', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0.375rem', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem', marginLeft: '0.5rem' }}>✕</button>
+System.out.println("L2 Cache hit ratio: " + hitRatio);`} />
               </div>
             </div>
-
-            {/* Subtopic Tabs */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {selectedConcept.details.map((detail, i) => (
-                <button key={i} onClick={() => setSelectedDetailIndex(i)} style={{ padding: '0.5rem 1rem', background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)', border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`, borderRadius: '0.5rem', color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8', cursor: 'pointer', fontSize: '0.85rem', fontWeight: selectedDetailIndex === i ? '600' : '400', transition: 'all 0.2s' }}>{detail.name}</button>
-              ))}
-            </div>
-
-            {/* Selected Subtopic Content */}
-            {(() => {
-              const detail = selectedConcept.details[selectedDetailIndex]
-              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
-              const DiagramComponent = detail.diagram || selectedConcept.diagram
-              return (
-                <div>
-                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
-                  {DiagramComponent && (
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-                      <DiagramComponent />
-                    </div>
-                  )}
-                  <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
-                  {detail.codeExample && (
-                    <div style={{
-                      backgroundColor: '#1e293b',
-                      padding: '1.5rem',
-                      borderRadius: '0.5rem',
-                      borderLeft: `4px solid ${selectedConcept.color}`,
-                      overflow: 'auto',
-                      marginTop: '1rem'
-                    }}>
-                      <SyntaxHighlighter code={detail.codeExample} />
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
-
           </div>
-        </div>
-      )}
+        )}
+
+      </div>
     </div>
   )
 }

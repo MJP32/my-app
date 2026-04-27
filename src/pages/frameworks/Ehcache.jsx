@@ -58,16 +58,6 @@ const SyntaxHighlighter = ({ code }) => {
 function Ehcache({ onBack, breadcrumb }) {
   const [activeSection, setActiveSection] = useState('overview')
 
-  const tabs = [
-    { key: 'overview', label: 'Overview' },
-    { key: 'configuration', label: 'Configuration' },
-    { key: 'spring-cache', label: 'Spring Cache' },
-    { key: 'hibernate-l2', label: 'Hibernate L2 Cache' },
-    { key: 'tiering', label: 'Tiered Storage' },
-    { key: 'expiry-eviction', label: 'Expiry & Eviction' },
-    { key: 'clustering', label: 'Clustering' }
-  ]
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -88,61 +78,78 @@ function Ehcache({ onBack, breadcrumb }) {
             padding: '0.75rem 1.5rem',
             fontSize: '1rem',
             fontWeight: '600',
-            backgroundColor: '#10b981',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
+            background: 'rgba(16, 185, 129, 0.2)',
+            color: '#6ee7b7',
+            border: '1px solid rgba(16, 185, 129, 0.4)',
+            borderRadius: '0.5rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
+          onMouseEnter={(e) => {
+            e.target.style.background = 'rgba(16, 185, 129, 0.4)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = 'rgba(16, 185, 129, 0.2)'
+          }}
         >
-          Back to Frameworks
+          Back
         </button>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          background: 'linear-gradient(to right, #6ee7b7, #34d399)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          margin: 0
-        }}>
-          Ehcache
-        </h1>
-        <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+      {breadcrumb && (
+        <Breadcrumb
+          breadcrumbStack={[
+            breadcrumb.section && { name: breadcrumb.section.name, icon: breadcrumb.section.icon, onClick: breadcrumb.section.onClick },
+            breadcrumb.category && { name: breadcrumb.category.name, onClick: breadcrumb.category.onClick },
+            breadcrumb.topic && { name: breadcrumb.topic }
+          ].filter(Boolean)}
+          colors={breadcrumb.colors}
+          onMainMenu={breadcrumb.onMainMenu}
+        />
+      )}
 
-      <p style={{
-        fontSize: '1.1rem',
-        color: '#d1d5db',
-        marginBottom: '2rem',
-        lineHeight: '1.6'
+      <h1 style={{
+        fontSize: '2.5rem',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: '0.5rem',
+        background: 'linear-gradient(to right, #6ee7b7, #34d399)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent'
       }}>
+        Ehcache
+      </h1>
+      <p style={{ color: '#d1d5db', textAlign: 'center', marginBottom: '2rem', fontSize: '1.1rem' }}>
         A robust, standards-based Java caching library with tiered storage, Spring and Hibernate integration
       </p>
 
       {/* Tab Navigation */}
       <div style={{
         display: 'flex',
-        gap: '0.5rem',
+        gap: '0.25rem',
         marginBottom: '2rem',
         borderBottom: '2px solid #374151',
-        overflowX: 'auto'
+        overflowX: 'auto',
+        flexWrap: 'nowrap'
       }}>
-        {tabs.map((tab) => (
+        {[
+          { id: 'overview', label: 'Overview' },
+          { id: 'configuration', label: 'Configuration' },
+          { id: 'spring-cache', label: 'Spring Cache' },
+          { id: 'hibernate-l2', label: 'Hibernate L2 Cache' },
+          { id: 'tiering', label: 'Tiered Storage' },
+          { id: 'expiry-eviction', label: 'Expiry & Eviction' },
+          { id: 'clustering', label: 'Clustering' }
+        ].map(tab => (
           <button
-            key={tab.key}
-            onClick={() => setActiveSection(tab.key)}
+            key={tab.id}
+            onClick={() => setActiveSection(tab.id)}
             style={{
-              padding: '1rem 1.5rem',
-              fontSize: '1rem',
+              padding: '0.75rem 1.25rem',
+              fontSize: '0.95rem',
               fontWeight: '600',
-              backgroundColor: activeSection === tab.key ? '#10b981' : 'transparent',
-              color: activeSection === tab.key ? 'white' : '#9ca3af',
+              backgroundColor: activeSection === tab.id ? '#10b981' : 'transparent',
+              color: activeSection === tab.id ? 'white' : '#9ca3af',
               border: 'none',
               borderRadius: '8px 8px 0 0',
               cursor: 'pointer',
@@ -150,13 +157,13 @@ function Ehcache({ onBack, breadcrumb }) {
               whiteSpace: 'nowrap'
             }}
             onMouseEnter={(e) => {
-              if (activeSection !== tab.key) {
+              if (activeSection !== tab.id) {
                 e.target.style.backgroundColor = '#374151'
                 e.target.style.color = '#d1d5db'
               }
             }}
             onMouseLeave={(e) => {
-              if (activeSection !== tab.key) {
+              if (activeSection !== tab.id) {
                 e.target.style.backgroundColor = 'transparent'
                 e.target.style.color = '#9ca3af'
               }

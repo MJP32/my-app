@@ -88,13 +88,13 @@ function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: pr
         )}
         {breadcrumbStack.map((item, index) => {
           const isLast = index === breadcrumbStack.length - 1
-          const isClickable = !isLast && onBreadcrumbClick
+          const isClickable = !isLast && (item.onClick || onBreadcrumbClick)
 
           return (
             <span key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {isClickable ? (
                 <button
-                  onClick={() => onBreadcrumbClick(index, item)}
+                  onClick={() => item.onClick ? item.onClick() : onBreadcrumbClick(index, item)}
                   style={linkStyle}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}

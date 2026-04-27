@@ -17,8 +17,9 @@ const FRAMEWORK_COLORS = {
 const categories = {
   all: { label: 'All', ids: null },
   spring: { label: 'Spring Ecosystem', ids: ['Spring', 'Spring Boot', 'Hibernate', 'Dependency Injection', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Security', 'Ehcache'] },
-  api: { label: 'API Development', ids: ['REST API', 'gRPC', 'SOAP', 'GraphQL'] },
-  frontend: { label: 'Frontend', ids: ['React', 'Angular'] }
+  api: { label: 'API Development', ids: ['REST API', 'gRPC', 'SOAP', 'GraphQL', 'BFF'] },
+  frontend: { label: 'Frontend', ids: ['React', 'Angular'] },
+  tools: { label: 'Tools', ids: ['Shell Scripting'] }
 }
 
 function Frameworks({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
@@ -126,6 +127,13 @@ function Frameworks({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       color: '#e535ab',
       description: 'Query language for APIs that lets clients request exactly the data they need, with strong typing, introspection, and real-time subscriptions.'
     },
+    {
+      id: 'BFF',
+      name: 'Backend for Frontend',
+      icon: '🔀',
+      color: '#8b5cf6',
+      description: 'Dedicated backend per client type that aggregates microservice calls, shapes responses, and optimizes payloads for each frontend experience.'
+    },
     // Frontend
     {
       id: 'React',
@@ -140,6 +148,14 @@ function Frameworks({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       icon: '🅰️',
       color: '#dd0031',
       description: 'Full-featured TypeScript framework for building scalable single-page applications with components, services, and dependency injection.'
+    },
+    // Tools
+    {
+      id: 'Shell Scripting',
+      name: 'Unix/Shell Scripting',
+      icon: '🐚',
+      color: '#84cc16',
+      description: 'Bash scripting essentials: variables, control flow, text processing with grep/sed/awk, pipes, process management, and automation patterns.'
     }
   ]
 

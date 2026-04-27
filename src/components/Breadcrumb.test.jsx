@@ -127,6 +127,28 @@ describe('Breadcrumb', () => {
       const arrows = screen.getAllByText('→')
       expect(arrows.length).toBe(2) // Not after the last item
     })
+
+    it('uses item.onClick when available (no onBreadcrumbClick needed)', () => {
+      const sectionClick = vi.fn()
+      const categoryClick = vi.fn()
+      const stack = [
+        { name: 'Frameworks', icon: '🌱', onClick: sectionClick },
+        { name: 'Spring Ecosystem', onClick: categoryClick },
+        { name: 'Hibernate ORM' }
+      ]
+      render(<Breadcrumb breadcrumbStack={stack} />)
+
+      // First and second items should be clickable buttons
+      fireEvent.click(screen.getByText('Frameworks'))
+      expect(sectionClick).toHaveBeenCalledTimes(1)
+
+      fireEvent.click(screen.getByText('Spring Ecosystem'))
+      expect(categoryClick).toHaveBeenCalledTimes(1)
+
+      // Last item should be a non-clickable span
+      const lastItem = screen.getByText('Hibernate ORM')
+      expect(lastItem.tagName).toBe('SPAN')
+    })
   })
 
   describe('custom colors', () => {

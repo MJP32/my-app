@@ -16,9 +16,9 @@ const DEVOPS_COLORS = {
 const categories = {
   all: { label: 'All', ids: null },
   containerization: { label: 'Containers & Orchestration', ids: ['Docker', 'Kubernetes'] },
-  cicd: { label: 'CI/CD & Build Tools', ids: ['CI/CD', 'Deployment', 'Jenkins', 'TeamCity'] },
+  cicd: { label: 'CI/CD & Build Tools', ids: ['CI/CD', 'Deployment', 'Jenkins', 'TeamCity', 'Maven'] },
   monitoring: { label: 'Monitoring & Observability', ids: ['Prometheus', 'Grafana', 'Production Support', 'JavaFlightRecorder', 'JMeter', 'Dynatrace'] },
-  security: { label: 'Security & Auth', ids: ['Security OWASP', 'JWT', 'OAuth', 'OAuth2'] },
+  security: { label: 'Security & Auth', ids: ['Security OWASP', 'JWT', 'OAuth', 'OAuth2', 'PingFederate'] },
   methodology: { label: 'Methodology & Quality', ids: ['Agile Scrum', 'Testing', 'Ansible', 'UnixScripting'] },
   messaging: { label: 'Messaging & Streaming', ids: ['Kafka', 'Apache Flink', 'RabbitMQ', 'Solace', 'MuleSoft'] }
 }
@@ -77,6 +77,13 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       icon: '🏗️',
       color: '#3b82f6',
       description: 'Continuous Integration and Deployment with TeamCity by JetBrains. Build configurations, pipelines, and testing.'
+    },
+    {
+      id: 'Maven',
+      name: 'Apache Maven',
+      icon: '\u{1F4E6}',
+      color: '#f97316',
+      description: 'Build automation and dependency management for Java projects. POM model, lifecycle phases, plugins, and multi-module builds.'
     },
     // Monitoring & Observability
     {
@@ -149,6 +156,13 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       icon: '🛡️',
       color: '#10b981',
       description: 'OAuth 2.0 framework, authorization flows (authorization code, implicit, client credentials, password), access tokens, refresh tokens, and PKCE.'
+    },
+    {
+      id: 'PingFederate',
+      name: 'PingFederate',
+      icon: '\u{1F510}',
+      color: '#f97316',
+      description: 'Enterprise identity federation server for SSO, SAML 2.0, OAuth/OIDC, WS-Federation, SCIM provisioning, and centralized authentication hub.'
     },
     // Methodology & Quality
     {

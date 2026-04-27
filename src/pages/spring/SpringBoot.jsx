@@ -1,27 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
-import CollapsibleSidebar from '../../components/CollapsibleSidebar'
-import useVoiceConceptNavigation from '../../hooks/useVoiceConceptNavigation'
-
-const FRAMEWORK_COLORS = {
-  primary: '#4ade80',
-  primaryHover: '#86efac',
-  bg: 'rgba(74, 222, 128, 0.1)',
-  border: 'rgba(74, 222, 128, 0.3)',
-  arrow: '#22c55e',
-  hoverBg: 'rgba(74, 222, 128, 0.2)',
-  topicBg: 'rgba(74, 222, 128, 0.2)'
-}
-
-// Background colors for subtopic descriptions
-const SUBTOPIC_COLORS = [
-  { bg: 'rgba(74, 222, 128, 0.15)', border: 'rgba(74, 222, 128, 0.3)' },
-  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
-  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
-  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
-  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
-  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
-]
 
 // Auto-Configuration Flow Diagram
 const AutoConfigDiagram = () => (
@@ -45,7 +23,7 @@ const AutoConfigDiagram = () => (
     <line x1="255" y1="75" x2="275" y2="75" stroke="#4ade80" strokeWidth="2"/>
     <line x1="380" y1="75" x2="400" y2="75" stroke="#4ade80" strokeWidth="2"/>
     <line x1="505" y1="75" x2="525" y2="75" stroke="#4ade80" strokeWidth="2"/>
-    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Classpath scanning → Conditional checks → Auto-configured beans</text>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Classpath scanning &rarr; Conditional checks &rarr; Auto-configured beans</text>
   </svg>
 )
 
@@ -67,7 +45,7 @@ const StarterDependenciesDiagram = () => (
     <line x1="300" y1="80" x2="250" y2="95" stroke="#64748b" strokeWidth="1"/>
     <line x1="400" y1="80" x2="390" y2="95" stroke="#64748b" strokeWidth="1"/>
     <line x1="450" y1="80" x2="530" y2="95" stroke="#64748b" strokeWidth="1"/>
-    <text x="350" y="160" textAnchor="middle" fill="#64748b" fontSize="9">One declaration → All compatible dependencies included</text>
+    <text x="350" y="160" textAnchor="middle" fill="#64748b" fontSize="9">One declaration &rarr; All compatible dependencies included</text>
   </svg>
 )
 
@@ -90,7 +68,7 @@ const EmbeddedServerDiagram = () => (
     <text x="620" y="95" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">JRE</text>
     <text x="620" y="110" textAnchor="middle" fill="#67e8f9" fontSize="8">java -jar</text>
     <line x1="550" y1="97" x2="575" y2="97" stroke="#22d3ee" strokeWidth="2"/>
-    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">Self-contained JAR • No external server needed • Simple deployment</text>
+    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">Self-contained JAR &bull; No external server needed &bull; Simple deployment</text>
   </svg>
 )
 
@@ -124,7 +102,7 @@ const ActuatorDiagram = () => (
     <line x1="400" y1="75" x2="410" y2="90" stroke="#64748b" strokeWidth="1"/>
     <line x1="450" y1="75" x2="515" y2="90" stroke="#64748b" strokeWidth="1"/>
     <line x1="450" y1="75" x2="620" y2="90" stroke="#64748b" strokeWidth="1"/>
-    <text x="350" y="165" textAnchor="middle" fill="#64748b" fontSize="9">Production-ready monitoring • Kubernetes probes • Observability</text>
+    <text x="350" y="165" textAnchor="middle" fill="#64748b" fontSize="9">Production-ready monitoring &bull; Kubernetes probes &bull; Observability</text>
   </svg>
 )
 
@@ -148,7 +126,7 @@ const DevToolsDiagram = () => (
     <text x="600" y="92" textAnchor="middle" fill="#f9a8d4" fontSize="8">Browser refresh</text>
     <text x="600" y="106" textAnchor="middle" fill="#f9a8d4" fontSize="8">on change</text>
     <path d="M 400 85 Q 340 130 290 120" stroke="#f59e0b" strokeWidth="2" fill="none" strokeDasharray="5"/>
-    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Code change → 5-10s restart (vs 30-60s full restart)</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Code change &rarr; 5-10s restart (vs 30-60s full restart)</text>
   </svg>
 )
 
@@ -177,9 +155,9 @@ const ConfigPropertiesDiagram = () => (
     <line x1="445" y1="90" x2="445" y2="105" stroke="#3b82f6" strokeWidth="2"/>
     <line x1="560" y1="90" x2="560" y2="105" stroke="#8b5cf6" strokeWidth="2"/>
     <rect x="150" y="110" width="400" height="45" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="350" y="130" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">@ConfigurationProperties(prefix = "app")</text>
+    <text x="350" y="130" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">@ConfigurationProperties(prefix = &quot;app&quot;)</text>
     <text x="350" y="145" textAnchor="middle" fill="#c4b5fd" fontSize="8">Type-safe binding with validation</text>
-    <text x="350" y="170" textAnchor="middle" fill="#64748b" fontSize="9">Same binary → Different environments via configuration</text>
+    <text x="350" y="170" textAnchor="middle" fill="#64748b" fontSize="9">Same binary &rarr; Different environments via configuration</text>
   </svg>
 )
 
@@ -237,23 +215,124 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
-  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, breadcrumb }) {
+  const [activeSection, setActiveSection] = useState('auto-config')
 
-  const concepts = [
-    {
-      id: 'auto-configuration',
-      name: 'Auto-Configuration',
-      icon: '⚙️',
-      color: '#4ade80',
-      description: 'Intelligent bean configuration based on classpath dependencies and conditional logic',
-      diagram: AutoConfigDiagram,
-      details: [
-        {
-          name: 'How It Works',
-          explanation: 'Spring Boot\'s auto-configuration dramatically reduces boilerplate by intelligently configuring your application based on classpath dependencies. Conditional annotations (@ConditionalOnClass, @ConditionalOnMissingBean, @ConditionalOnProperty) apply configuration only when conditions are met. @SpringBootApplication combines @Configuration, @EnableAutoConfiguration, and @ComponentScan in one annotation. Uses spring.factories file to discover auto-configuration classes.',
-          codeExample: `@SpringBootApplication
+  const tabs = [
+    { id: 'auto-config', label: 'Auto-Configuration' },
+    { id: 'starters', label: 'Starters' },
+    { id: 'embedded-servers', label: 'Embedded Servers' },
+    { id: 'actuator', label: 'Actuator' },
+    { id: 'devtools', label: 'DevTools' },
+    { id: 'config-properties', label: 'Config Properties' },
+    { id: 'annotations', label: 'Annotations' }
+  ]
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={onBack}
+            style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#16a34a'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#22c55e'}
+          >
+            &larr; Back
+          </button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              style={{ padding: '0.75rem 1.25rem', background: 'rgba(74, 222, 128, 0.2)', border: '1px solid rgba(74, 222, 128, 0.3)', borderRadius: '0.5rem', color: '#4ade80', cursor: 'pointer', fontSize: '0.95rem' }}
+            >
+              &larr; {previousName}
+            </button>
+          )}
+          {onNext && (
+            <button
+              onClick={onNext}
+              style={{ padding: '0.75rem 1.25rem', background: 'rgba(74, 222, 128, 0.2)', border: '1px solid rgba(74, 222, 128, 0.3)', borderRadius: '0.5rem', color: '#4ade80', cursor: 'pointer', fontSize: '0.95rem' }}
+            >
+              {nextName} &rarr;
+            </button>
+          )}
+        </div>
+      </div>
+
+      {breadcrumb && (
+        <Breadcrumb
+          breadcrumbStack={[
+            breadcrumb.section && { name: breadcrumb.section.name, icon: breadcrumb.section.icon, onClick: breadcrumb.section.onClick },
+            breadcrumb.category && { name: breadcrumb.category.name, onClick: breadcrumb.category.onClick },
+            breadcrumb.topic && { name: breadcrumb.topic }
+          ].filter(Boolean)}
+          colors={breadcrumb.colors}
+          onMainMenu={breadcrumb.onMainMenu}
+        />
+      )}
+
+      <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', textAlign: 'center', marginBottom: '0.5rem', background: 'linear-gradient(to right, #4ade80, #22c55e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        Spring Boot
+      </h1>
+      <p style={{ color: '#d1d5db', textAlign: 'center', marginBottom: '2rem', fontSize: '1.1rem' }}>
+        Opinionated framework for building production-ready Spring applications with minimal configuration
+      </p>
+
+      {/* Tab Navigation */}
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '2rem', borderBottom: '2px solid #374151', overflowX: 'auto', flexWrap: 'nowrap' }}>
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveSection(tab.id)}
+            style={{
+              padding: '0.75rem 1.25rem',
+              fontSize: '0.95rem',
+              fontWeight: '600',
+              backgroundColor: activeSection === tab.id ? '#22c55e' : 'transparent',
+              color: activeSection === tab.id ? 'white' : '#9ca3af',
+              border: 'none',
+              borderRadius: '8px 8px 0 0',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={(e) => {
+              if (activeSection !== tab.id) {
+                e.target.style.backgroundColor = '#374151'
+                e.target.style.color = '#d1d5db'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeSection !== tab.id) {
+                e.target.style.backgroundColor = 'transparent'
+                e.target.style.color = '#9ca3af'
+              }
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Auto-Configuration Tab */}
+      {activeSection === 'auto-config' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#4ade80', marginBottom: '1rem', fontSize: '1.3rem' }}>Auto-Configuration</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Spring Boot&apos;s auto-configuration dramatically reduces boilerplate by intelligently configuring your application based on classpath dependencies. <strong style={{ color: '#86efac' }}>@SpringBootApplication</strong> combines @Configuration, @EnableAutoConfiguration, and @ComponentScan. Conditional annotations apply configuration only when conditions are met.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}><AutoConfigDiagram /></div>
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#22c55e', fontWeight: 600, fontSize: '0.95rem' }}>How It Works</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@SpringBootApplication
 // Equivalent to: @Configuration + @EnableAutoConfiguration + @ComponentScan
 public class MyApplication {
     public static void main(String[] args) {
@@ -270,12 +349,15 @@ public class LightweightApp {
     public static void main(String[] args) {
         SpringApplication.run(LightweightApp.class, args);
     }
-}`
-        },
-        {
-          name: 'Key Features',
-          explanation: 'Intelligent bean creation based on classpath scanning and conditional logic. Sensible defaults eliminating manual configuration for common patterns. Selective exclusion of auto-configurations via exclude attribute. Integration with Actuator\'s conditions endpoint to inspect applied configurations. Support for custom auto-configuration classes following same patterns.',
-          codeExample: `// Custom auto-configuration class
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#22c55e', fontWeight: 600, fontSize: '0.95rem' }}>Custom Auto-Configuration</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// Custom auto-configuration class
 @Configuration
 @ConditionalOnClass(DataSource.class)
 @ConditionalOnProperty(prefix = "app.cache", name = "enabled", havingValue = "true")
@@ -289,36 +371,15 @@ public class CacheAutoConfiguration {
 }
 
 // Run with --debug to see auto-configuration report
-// java -jar app.jar --debug`
-        },
-        {
-          name: 'Real-World Use Cases',
-          explanation: 'Microservices architectures: Quickly spinning up multiple services with consistent configurations. REST APIs: Automatic configuration of web server, JSON processing, validation. Database access: Auto-configuring data sources, JPA, transaction management. Security: Setting up authentication, authorization with minimal configuration. Messaging: Configuring message brokers, templates, and listeners.',
-          codeExample: `// REST API - just add spring-boot-starter-web
-@RestController
-@RequestMapping("/api/users")
-public class UserController {
+// java -jar app.jar --debug`} />
+          </div>
 
-    @Autowired
-    private UserService userService;
-
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.findById(id));
-    }
-
-    @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(userService.save(user));
-    }
-}`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Understand what\'s being configured using --debug flag or Actuator\'s conditions endpoint. Selectively exclude unwanted auto-configurations using exclude attribute. Create custom auto-configuration classes for organization-specific patterns. Document deviations from auto-configuration defaults. Use @ConditionalOnProperty for feature toggles in custom configurations.',
-          codeExample: `// Feature toggle via @ConditionalOnProperty
-@Configuration
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#22c55e', fontWeight: 600, fontSize: '0.95rem' }}>Feature Toggle via @ConditionalOnProperty</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Configuration
 @ConditionalOnProperty(
     prefix = "app.notifications",
     name = "enabled",
@@ -338,68 +399,28 @@ public class NotificationConfig {
     public NotificationService smsNotificationService() {
         return new SmsNotificationService();
     }
-}`
-        },
-        {
-          name: 'Common Pitfalls',
-          explanation: 'Over-relying on auto-configuration without understanding underlying Spring concepts causes debugging confusion. Conflicting configurations between auto-configuration and explicit configuration. Not understanding order of precedence leading to unexpected behavior. Assuming all dependencies will auto-configure when conditions aren\'t met. Forgetting to exclude auto-configurations when providing custom implementations.',
-          codeExample: `// PITFALL: Conflicting configurations
-// Auto-configured DataSource conflicts with custom one
-@Configuration
-public class DatabaseConfig {
+}`} />
+          </div>
+        </div>
+      )}
 
-    // This REPLACES auto-configured DataSource
-    @Bean
-    public DataSource dataSource() {
-        HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:postgresql://localhost/mydb");
-        ds.setUsername("admin");
-        return ds;
-    }
-}
+      {/* Starters Tab */}
+      {activeSection === 'starters' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#3b82f6', marginBottom: '1rem', fontSize: '1.3rem' }}>Starter Dependencies</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Curated dependency sets providing everything needed for specific use cases in one package. The <strong style={{ color: '#93c5fd' }}>Bill of Materials (BOM)</strong> manages compatible versions across all included libraries. One declaration pulls in server, serialization, validation, and more.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}><StarterDependenciesDiagram /></div>
+          </div>
 
-// FIX: Use @ConditionalOnMissingBean in custom configs
-// or exclude: @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)`
-        },
-        {
-          name: 'When to Use',
-          explanation: 'Use auto-configuration for rapid application development, microservices, and standard patterns. Essential for reducing boilerplate in REST APIs, data access, security, and messaging. Most valuable when following Spring Boot conventions. Order of precedence: explicit configuration > property overrides > auto-configuration.',
-          codeExample: `// Customizing auto-configuration via properties
-// application.yml
-// server:
-//   port: 8080
-//   servlet:
-//     context-path: /api
-// spring:
-//   datasource:
-//     url: jdbc:postgresql://localhost/mydb
-//     username: admin
-//   jpa:
-//     hibernate:
-//       ddl-auto: validate
-//     show-sql: false
-
-// Precedence order (highest to lowest):
-// 1. Command line args:  --server.port=9090
-// 2. Environment vars:   SERVER_PORT=9090
-// 3. application-{profile}.yml
-// 4. application.yml
-// 5. Auto-configuration defaults`
-        }
-      ]
-    },
-    {
-      id: 'starter-dependencies',
-      name: 'Starter Dependencies',
-      icon: '📦',
-      color: '#3b82f6',
-      description: 'Curated dependency sets providing everything needed for specific use cases in one package',
-      diagram: StarterDependenciesDiagram,
-      details: [
-        {
-          name: 'How It Works',
-          explanation: 'Spring Boot starters are carefully curated dependency sets providing everything needed for specific use cases. Each starter bundles related dependencies for a specific technical capability or pattern. Bill of Materials (BOM) manages compatible versions across all included libraries. Transitive dependencies automatically include everything needed (server, serialization, validation). Version upgrades happen together when upgrading Spring Boot version.',
-          codeExample: `<!-- pom.xml - Starter Dependencies -->
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>Basic Starter Setup</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>XML</span>
+            </div>
+            <SyntaxHighlighter code={`<!-- pom.xml - Starter Dependencies -->
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
@@ -413,12 +434,15 @@ public class DatabaseConfig {
         <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <!-- No version needed - managed by parent BOM -->
-</dependencies>`
-        },
-        {
-          name: 'Key Features',
-          explanation: '"Batteries included" approach with all necessary dependencies in one declaration. Automatic version compatibility eliminating dependency conflict resolution. Modular composition allowing mixing starters for needed functionality. Transitive dependency management including servers, libraries, and utilities. Support for exclusions and customization when needed.',
-          codeExample: `<!-- Exclude Tomcat and use Jetty instead -->
+</dependencies>`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>Swap Tomcat for Jetty</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>XML</span>
+            </div>
+            <SyntaxHighlighter code={`<!-- Exclude Tomcat and use Jetty instead -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -432,13 +456,15 @@ public class DatabaseConfig {
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-jetty</artifactId>
-</dependency>`
-        },
-        {
-          name: 'Common Starters',
-          explanation: 'spring-boot-starter-web: REST APIs (Tomcat, Spring MVC, Jackson, Validation). spring-boot-starter-data-jpa: Relational DB (Hibernate, Spring Data JPA, JDBC). spring-boot-starter-security: Authentication and authorization. spring-boot-starter-test: Testing (JUnit 5, Mockito, AssertJ, Spring Test). spring-boot-starter-actuator: Monitoring (metrics, health checks, endpoints). spring-boot-starter-webflux: Reactive web (Reactor Netty, Spring WebFlux).',
-          codeExample: `<!-- Typical microservice dependency set -->
-<dependencies>
+</dependency>`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>Typical Microservice Dependencies</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>XML</span>
+            </div>
+            <SyntaxHighlighter code={`<dependencies>
     <!-- REST API -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -465,12 +491,15 @@ public class DatabaseConfig {
         <artifactId>spring-boot-starter-test</artifactId>
         <scope>test</scope>
     </dependency>
-</dependencies>`
-        },
-        {
-          name: 'Real-World Use Cases',
-          explanation: 'Microservices: Quickly composing web, data, security, and actuator starters for complete service. REST APIs: spring-boot-starter-web provides server, MVC, JSON, and validation instantly. Data access: spring-boot-starter-data-jpa for relational or spring-boot-starter-data-mongodb for NoSQL. Messaging: spring-boot-starter-kafka or spring-boot-starter-amqp for event-driven architectures. Testing: spring-boot-starter-test bundles JUnit, Mockito, AssertJ for comprehensive test support.',
-          codeExample: `// With spring-boot-starter-data-jpa, this just works:
+</dependencies>`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#3b82f6', fontWeight: 600, fontSize: '0.95rem' }}>Spring Data JPA &mdash; Zero Implementation</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// With spring-boot-starter-data-jpa, this just works:
 @Entity
 public class Product {
     @Id @GeneratedValue
@@ -487,73 +516,28 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.price BETWEEN :min AND :max")
     List<Product> findInPriceRange(@Param("min") BigDecimal min,
                                    @Param("max") BigDecimal max);
-}`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Include only starters actually needed to keep application lean and focused. Review transitive dependencies to understand what\'s being included. Use exclusion mechanisms when swapping implementations (e.g., Tomcat to Jetty). Consider creating custom starters for organization-specific patterns. Check Spring Boot documentation for specific library versions in each starter.',
-          codeExample: `// Custom starter for your organization
-// my-company-starter/pom.xml
-// <artifactId>my-company-spring-boot-starter</artifactId>
-// Bundles: logging config, security defaults, health checks
+}`} />
+          </div>
+        </div>
+      )}
 
-// Auto-configuration class in the custom starter
-@Configuration
-@ConditionalOnClass(SecurityFilterChain.class)
-public class CompanySecurityAutoConfiguration {
+      {/* Embedded Servers Tab */}
+      {activeSection === 'embedded-servers' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#8b5cf6', marginBottom: '1rem', fontSize: '1.3rem' }}>Embedded Servers</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Spring Boot packages the web server directly in your application JAR. Run with a simple <code style={{ color: '#fbbf24', background: '#1e1e2e', padding: '0.1rem 0.3rem', borderRadius: '0.25rem' }}>java -jar</code> command &mdash; no separate server installation needed. Choose from <strong style={{ color: '#a78bfa' }}>Tomcat</strong> (default), <strong style={{ color: '#a78bfa' }}>Jetty</strong>, <strong style={{ color: '#a78bfa' }}>Undertow</strong>, or <strong style={{ color: '#a78bfa' }}>Reactor Netty</strong>.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}><EmbeddedServerDiagram /></div>
+          </div>
 
-    @Bean
-    @ConditionalOnMissingBean
-    public SecurityFilterChain companySecurityChain(HttpSecurity http)
-            throws Exception {
-        return http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt())
-            .build();
-    }
-}`
-        },
-        {
-          name: 'Common Pitfalls',
-          explanation: 'Adding too many starters bloats application and increases startup time. Starter auto-configurations may conflict with explicit configuration. Not understanding transitive dependencies leading to unexpected libraries. Forgetting to exclude default implementations when providing alternatives. Version conflicts when mixing Spring Boot starters with non-Boot dependencies.',
-          codeExample: `// PITFALL: Mixing managed and unmanaged versions
-<dependencies>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <!-- BAD: Explicit old version conflicts with starter -->
-    <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.13.0</version> <!-- Conflicts! -->
-    </dependency>
-</dependencies>
-
-// FIX: Let the BOM manage versions
-// Remove <version> tag, or override in <properties>:
-// <properties>
-//     <jackson-bom.version>2.16.0</jackson-bom.version>
-// </properties>`
-        }
-      ]
-    },
-    {
-      id: 'embedded-servers',
-      name: 'Embedded Servers',
-      icon: '🌐',
-      color: '#8b5cf6',
-      description: 'Self-contained web servers packaged directly in your application JAR',
-      diagram: EmbeddedServerDiagram,
-      details: [
-        {
-          name: 'How It Works',
-          explanation: 'Spring Boot\'s embedded servers revolutionize deployment by including the web server directly in your application JAR. Web server (Tomcat, Jetty, Undertow, Reactor Netty) packaged inside application JAR. Application runs with simple java -jar command without separate server deployment. Server lifecycle managed by Spring Boot application context. Same server version embedded ensuring consistency across environments.',
-          codeExample: `// Build and run as executable JAR
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#8b5cf6', fontWeight: 600, fontSize: '0.95rem' }}>Executable JAR with SSL</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// Build and run as executable JAR
 // mvn clean package
 // java -jar target/myapp-1.0.0.jar
 
@@ -574,12 +558,15 @@ public class MyApp {
         SpringApplication.run(MyApp.class, args);
         // Embedded Tomcat starts automatically on port 8443
     }
-}`
-        },
-        {
-          name: 'Key Features',
-          explanation: 'Self-contained executable JARs eliminating WAR deployment to external servers. Simplified deployment with no separate server installation or configuration. Consistent server versions across development, testing, and production. Trivial containerization requiring only JRE and application JAR. Instant application startup from IDE or command line.',
-          codeExample: `# Dockerfile - minimal container with embedded server
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#8b5cf6', fontWeight: 600, fontSize: '0.95rem' }}>Docker &mdash; Minimal Container</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Dockerfile</span>
+            </div>
+            <SyntaxHighlighter code={`# Dockerfile - minimal container with embedded server
 FROM eclipse-temurin:21-jre-alpine
 COPY target/myapp-1.0.0.jar app.jar
 EXPOSE 8080
@@ -591,22 +578,15 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 # No Tomcat installation needed!
 # No WAR deployment!
-# No server configuration files!`
-        },
-        {
-          name: 'Available Servers',
-          explanation: 'Tomcat (default): Full Servlet support, extensive documentation, proven production use. Jetty: Lightweight, excellent async I/O, ideal for WebSocket and long-polling. Undertow: High-performance, non-blocking I/O, lowest memory footprint, best for microservices. Reactor Netty: Built for Spring WebFlux, fully non-blocking, optimal for high-concurrency reactive apps.',
-          codeExample: `// Switch from Tomcat to Undertow for better performance
-// pom.xml:
-// <dependency>
-//     <groupId>spring-boot-starter-web</groupId>
-//     <exclusions>
-//         <exclusion>spring-boot-starter-tomcat</exclusion>
-//     </exclusions>
-// </dependency>
-// <dependency>spring-boot-starter-undertow</dependency>
+# No server configuration files!`} />
+          </div>
 
-// Programmatic server customization
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#8b5cf6', fontWeight: 600, fontSize: '0.95rem' }}>Server Customization &amp; Switching</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// Programmatic server customization
 @Bean
 public WebServerFactoryCustomizer<TomcatServletWebServerFactory>
         tomcatCustomizer() {
@@ -616,37 +596,15 @@ public WebServerFactoryCustomizer<TomcatServletWebServerFactory>
             connector.setMaxPostSize(10 * 1024 * 1024); // 10MB
         });
     };
-}`
-        },
-        {
-          name: 'Real-World Use Cases',
-          explanation: 'Microservices: Deploying dozens or hundreds of independent services with embedded servers. Containerization: Docker and Kubernetes deployments with minimal container images. Cloud platforms: AWS Elastic Beanstalk, Google App Engine, Azure App Service compatibility. Standalone tools: Admin utilities and monitoring tools needing HTTP interface. Development: Rapid application testing without external server setup.',
-          codeExample: `// Kubernetes deployment with embedded server
-// k8s-deployment.yml:
-// apiVersion: apps/v1
-// kind: Deployment
-// spec:
-//   replicas: 3
-//   template:
-//     spec:
-//       containers:
-//       - name: myapp
-//         image: myapp:1.0.0
-//         ports:
-//         - containerPort: 8080
-//         readinessProbe:
-//           httpGet:
-//             path: /actuator/health/readiness
-//             port: 8080
-//         livenessProbe:
-//           httpGet:
-//             path: /actuator/health/liveness
-//             port: 8080`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Choose server based on needs: Tomcat (default, broad compatibility), Undertow (performance), Jetty (WebSocket), Reactor Netty (reactive). Configure thread pools, connection limits, and timeouts for production. Use externalized configuration for server settings allowing tuning without rebuild. Consider reverse proxy (Nginx) for SSL termination, load balancing, security in production. Monitor memory usage and resource consumption per server choice.',
-          codeExample: `// Production server tuning in application.yml
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#8b5cf6', fontWeight: 600, fontSize: '0.95rem' }}>Production Tuning</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>YAML</span>
+            </div>
+            <SyntaxHighlighter code={`// Production server tuning in application.yml
 // server:
 //   tomcat:
 //     threads:
@@ -658,55 +616,53 @@ public WebServerFactoryCustomizer<TomcatServletWebServerFactory>
 //   shutdown: graceful     # Wait for active requests
 // spring:
 //   lifecycle:
-//     timeout-per-shutdown-phase: 30s
+//     timeout-per-shutdown-phase: 30s`} />
+          </div>
 
-// Graceful shutdown handler
-@Bean
-public GracefulShutdown gracefulShutdown() {
-    return new GracefulShutdown();
-}`
-        },
-        {
-          name: 'Common Pitfalls',
-          explanation: 'Assuming default settings are production-ready without tuning thread pools and connection limits. High memory overhead when running multiple instances on same host. Blocking I/O operations on server threads in high-concurrency scenarios. Not implementing graceful shutdown in containerized environments. Ignoring resource management since server and application share same JVM.',
-          codeExample: `// PITFALL: Default thread pool exhaustion under load
-// Default Tomcat: 200 threads, each blocking on I/O
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h3 style={{ color: '#fbbf24', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Server Comparison</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #374151' }}>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#94a3b8', fontWeight: 600 }}>Server</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'left', color: '#94a3b8', fontWeight: 600 }}>Best For</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Tomcat (default)', 'Full Servlet support, broad compatibility, proven production use'],
+                  ['Jetty', 'Lightweight, excellent async I/O, ideal for WebSocket and long-polling'],
+                  ['Undertow', 'High-performance, non-blocking I/O, lowest memory footprint'],
+                  ['Reactor Netty', 'Spring WebFlux, fully non-blocking, optimal for reactive apps']
+                ].map(([server, desc], i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #374151' }}>
+                    <td style={{ padding: '0.75rem', color: '#a78bfa', fontWeight: 600 }}>{server}</td>
+                    <td style={{ padding: '0.75rem', color: '#d1d5db' }}>{desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-// BAD: Blocking call on server thread
-@GetMapping("/data")
-public Data getData() {
-    // Blocks a Tomcat thread for entire external call
-    return restTemplate.getForObject("http://slow-service/api", Data.class);
-}
+      {/* Actuator Tab */}
+      {activeSection === 'actuator' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#f59e0b', marginBottom: '1rem', fontSize: '1.3rem' }}>Actuator</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Production-ready monitoring, management, and diagnostics through HTTP endpoints. Built on <strong style={{ color: '#fcd34d' }}>Micrometer</strong> for vendor-neutral metrics. Exports to Prometheus, Grafana, Datadog, and CloudWatch. Provides health checks for Kubernetes liveness and readiness probes.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}><ActuatorDiagram /></div>
+          </div>
 
-// BETTER: Use async or reactive for I/O-bound work
-@GetMapping("/data")
-public CompletableFuture<Data> getDataAsync() {
-    return CompletableFuture.supplyAsync(() ->
-        restTemplate.getForObject("http://slow-service/api", Data.class)
-    );
-}
-
-// BEST: Use WebClient (non-blocking)
-@GetMapping("/data")
-public Mono<Data> getDataReactive() {
-    return webClient.get().uri("/api").retrieve().bodyToMono(Data.class);
-}`
-        }
-      ]
-    },
-    {
-      id: 'actuator',
-      name: 'Actuator',
-      icon: '📊',
-      color: '#f59e0b',
-      description: 'Production-ready monitoring, management, and diagnostic features through HTTP endpoints',
-      diagram: ActuatorDiagram,
-      details: [
-        {
-          name: 'How It Works',
-          explanation: 'Spring Boot Actuator provides production-ready monitoring, management, and diagnostic features. Exposes operational information through HTTP endpoints (/actuator/*) and JMX. Built on Micrometer metrics facade providing vendor-neutral instrumentation. Health check system monitors application components (database, disk, message brokers). Metrics collection includes JVM stats, HTTP requests, database pools, custom metrics. Exports to multiple monitoring systems (Prometheus, Grafana, Datadog, CloudWatch).',
-          codeExample: `// Add actuator dependency
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#f59e0b', fontWeight: 600, fontSize: '0.95rem' }}>Setup &amp; Configuration</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>YAML</span>
+            </div>
+            <SyntaxHighlighter code={`// Add actuator dependency
 // <dependency>
 //     <groupId>org.springframework.boot</groupId>
 //     <artifactId>spring-boot-starter-actuator</artifactId>
@@ -730,13 +686,15 @@ public Mono<Data> getDataReactive() {
 //     "db": { "status": "UP" },
 //     "diskSpace": { "status": "UP" }
 //   }
-// }`
-        },
-        {
-          name: 'Key Features',
-          explanation: 'Comprehensive health checks with detailed component status for orchestration platforms. Vendor-neutral metrics collection exportable to multiple monitoring systems. Dynamic logging level adjustment without application restart. Custom endpoints and health indicators for application-specific monitoring. Thread dumps, heap dumps, and bean inspection for debugging. Auto-configuration visibility showing applied configurations.',
-          codeExample: `// Custom health indicator
-@Component
+// }`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#f59e0b', fontWeight: 600, fontSize: '0.95rem' }}>Custom Health Indicator</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Component
 public class PaymentGatewayHealthIndicator
         implements HealthIndicator {
 
@@ -760,13 +718,15 @@ public class PaymentGatewayHealthIndicator
             return Health.down(e).build();
         }
     }
-}`
-        },
-        {
-          name: 'Common Endpoints',
-          explanation: '/actuator/health: Component health checks for Kubernetes probes. /actuator/metrics: JVM, HTTP, database metrics for performance monitoring. /actuator/prometheus: Prometheus-formatted metrics for scraping. /actuator/info: Version, build, git commit information. /actuator/loggers: Dynamic log level modification without restart. /actuator/env: Environment properties for configuration debugging. /actuator/beans: Spring beans and dependencies for DI understanding. /actuator/threaddump: Thread dump for deadlock troubleshooting.',
-          codeExample: `// Custom metrics with Micrometer
-@Service
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#f59e0b', fontWeight: 600, fontSize: '0.95rem' }}>Custom Metrics with Micrometer</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Service
 public class OrderService {
 
     private final Counter orderCounter;
@@ -789,37 +749,15 @@ public class OrderService {
             return order;
         });
     }
-}`
-        },
-        {
-          name: 'Real-World Use Cases',
-          explanation: 'Microservices: Centralized monitoring across dozens of services with Prometheus/Grafana integration. Kubernetes: Health endpoints for liveness and readiness probes. Production debugging: Adjusting log levels, capturing heap dumps, analyzing thread states. Performance monitoring: Tracking HTTP requests, database connections, JVM metrics. Observability: Foundation for monitoring, logging, and tracing practices. SLI/SLO implementation: Tracking Service Level Indicators and Objectives.',
-          codeExample: `// Dynamic log level change at runtime (no restart!)
-// POST /actuator/loggers/com.myapp.service
-// { "configuredLevel": "DEBUG" }
+}`} />
+          </div>
 
-// Kubernetes readiness/liveness probes
-// spec:
-//   containers:
-//   - name: myapp
-//     livenessProbe:
-//       httpGet:
-//         path: /actuator/health/liveness
-//         port: 8080
-//       initialDelaySeconds: 15
-//       periodSeconds: 10
-//     readinessProbe:
-//       httpGet:
-//         path: /actuator/health/readiness
-//         port: 8080
-//       initialDelaySeconds: 5
-//       periodSeconds: 5`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Secure endpoints with Spring Security requiring authentication for management access. Selectively expose only needed endpoints rather than all endpoints. Integrate with Prometheus for metrics collection and Grafana for visualization. Create custom health indicators for critical external dependencies. Use metric tags for filtering and aggregation in monitoring systems. Cache expensive health check operations to avoid overhead.',
-          codeExample: `// Secure actuator endpoints
-@Configuration
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#f59e0b', fontWeight: 600, fontSize: '0.95rem' }}>Secure Actuator Endpoints</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Configuration
 public class ActuatorSecurityConfig {
 
     @Bean
@@ -843,54 +781,28 @@ public class ActuatorSecurityConfig {
 //     port: 9090    # Different from app port 8080
 //   endpoints:
 //     web:
-//       base-path: /manage`
-        },
-        {
-          name: 'Common Pitfalls',
-          explanation: 'Exposing endpoints publicly without security leaks sensitive information and enables DoS attacks. Relying solely on health checks without proper logging and distributed tracing. Enabling /shutdown endpoint accidentally allowing external termination. Expensive operations in health indicators impacting load balancer health checks. Not considering performance overhead of metrics collection and heap dumps under high load.',
-          codeExample: `// PITFALL: Expensive health check blocks load balancer
-@Component
-public class SlowHealthIndicator implements HealthIndicator {
-    @Override
-    public Health health() {
-        // BAD: 5-second DB query on every health check
-        int count = jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM large_table", Integer.class);
-        return Health.up().withDetail("rows", count).build();
-    }
-}
+//       base-path: /manage`} />
+          </div>
+        </div>
+      )}
 
-// FIX: Cache health check results
-@Component
-public class CachedHealthIndicator extends AbstractHealthIndicator {
-    private Health cachedHealth = Health.up().build();
+      {/* DevTools Tab */}
+      {activeSection === 'devtools' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#ec4899', marginBottom: '1rem', fontSize: '1.3rem' }}>DevTools</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Development productivity features including <strong style={{ color: '#f9a8d4' }}>automatic restart</strong> (5-10s vs 30-60s full restart), <strong style={{ color: '#f9a8d4' }}>LiveReload</strong> browser refresh, and development-optimized property defaults. Uses a two-classloader architecture: stable dependencies stay loaded while only your code reloads.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}><DevToolsDiagram /></div>
+          </div>
 
-    @Scheduled(fixedRate = 30000) // Refresh every 30 seconds
-    public void refreshHealth() {
-        // Expensive check runs in background, not on probe
-        cachedHealth = checkDatabaseHealth();
-    }
-
-    @Override
-    protected void doHealthCheck(Health.Builder builder) {
-        builder.status(cachedHealth.getStatus());
-    }
-}`
-        }
-      ]
-    },
-    {
-      id: 'devtools',
-      name: 'DevTools',
-      icon: '🛠️',
-      color: '#ec4899',
-      description: 'Development productivity features including automatic restart and LiveReload',
-      diagram: DevToolsDiagram,
-      details: [
-        {
-          name: 'How It Works',
-          explanation: 'Spring Boot DevTools accelerates development with automatic application restart, LiveReload browser refresh, and development-optimized property defaults. Two-classloader architecture: application code (frequently changing) and dependencies (stable). Monitors classpath for changes and restarts only application classloader (5-10 seconds vs 30-60 seconds full restart). LiveReload integration automatically refreshes browser on static resource changes. Automatically disabled when application is packaged and deployed to production.',
-          codeExample: `<!-- Add DevTools as optional dependency -->
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#ec4899', fontWeight: 600, fontSize: '0.95rem' }}>Setup</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>XML</span>
+            </div>
+            <SyntaxHighlighter code={`<!-- Add DevTools as optional dependency -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-devtools</artifactId>
@@ -904,57 +816,15 @@ public class CachedHealthIndicator extends AbstractHealthIndicator {
 // 3. Development-friendly defaults:
 //    - Template caching disabled
 //    - H2 console enabled
-//    - Detailed error pages shown`
-        },
-        {
-          name: 'Key Features',
-          explanation: 'Intelligent fast restart reloading only changed application code, not dependencies. LiveReload browser extension integration for instant frontend feedback. Development-optimized defaults (disabled caching, H2 console, detailed errors). Configurable exclusion patterns for resources that shouldn\'t trigger restarts. Remote DevTools support for cloud development with security configuration.',
-          codeExample: `// DevTools automatically applies these dev defaults:
-// spring.thymeleaf.cache=false
-// spring.freemarker.cache=false
-// spring.h2.console.enabled=true
-// server.error.include-stacktrace=always
-// logging.level.web=DEBUG
+//    - Detailed error pages shown`} />
+          </div>
 
-// Trigger file - manual restart control
-// Create: src/main/resources/.reloadtrigger
-// spring.devtools.restart.trigger-file=.reloadtrigger
-// Only restarts when trigger file is modified
-
-// Global DevTools settings (~/.config/spring-boot/spring-boot-devtools.yml)
-// spring:
-//   devtools:
-//     restart:
-//       quiet-period: 400ms`
-        },
-        {
-          name: 'Real-World Use Cases',
-          explanation: 'REST API development: Modifying controllers and testing immediately without manual restart. Full-stack development: LiveReload keeping browser synchronized with backend and frontend changes. Rapid prototyping: Fast iteration cycle enabling flow state during active development. Configuration experimentation: Quick testing of property changes without long restart cycles. Debugging: Fast restart for testing theories and fixes.',
-          codeExample: `// Modify controller -> auto-restart -> test immediately
-@RestController
-@RequestMapping("/api/products")
-public class ProductController {
-
-    @GetMapping
-    public List<Product> getAll() {
-        // Change this method -> save -> auto-restart in ~3 seconds
-        return productService.findAll();
-    }
-
-    // Add new endpoint -> save -> available immediately
-    @GetMapping("/featured")
-    public List<Product> getFeatured() {
-        return productService.findFeatured();
-    }
-}
-
-// LiveReload: Install browser extension
-// Changes to src/main/resources/static/* auto-refresh browser`
-        },
-        {
-          name: 'Configuration Options',
-          explanation: 'spring.devtools.restart.enabled=true enables automatic restart. spring.devtools.restart.additional-paths adds extra directories to watch. spring.devtools.restart.exclude specifies patterns to ignore. spring.devtools.livereload.enabled=true enables browser refresh. spring.devtools.livereload.port=35729 configures LiveReload port. Remote DevTools requires spring.devtools.remote.secret configuration.',
-          codeExample: `// application-dev.yml - DevTools configuration
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#ec4899', fontWeight: 600, fontSize: '0.95rem' }}>Configuration Options</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>YAML</span>
+            </div>
+            <SyntaxHighlighter code={`// application-dev.yml - DevTools configuration
 // spring:
 //   devtools:
 //     restart:
@@ -973,37 +843,15 @@ public class ProductController {
 // System.setProperty("spring.devtools.restart.enabled", "false");
 
 // IntelliJ: Enable Build > Build Project Automatically
-// Eclipse: Project > Build Automatically (enabled by default)`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Add as optional dependency ensuring exclusion from production builds. Configure exclusion patterns for static assets that shouldn\'t trigger restarts. Use with IDE\'s build-on-save feature for optimal experience. Set up development profile with additional debugging properties. Configure remote DevTools with security for cloud development scenarios.',
-          codeExample: `// Use profiles to isolate dev configuration
-// application-dev.yml
-// spring:
-//   h2:
-//     console:
-//       enabled: true
-//       path: /h2-console
-//   jpa:
-//     show-sql: true
-//     properties:
-//       hibernate:
-//         format_sql: true
-//   devtools:
-//     restart:
-//       log-condition-evaluation-delta: false
+// Eclipse: Project > Build Automatically (enabled by default)`} />
+          </div>
 
-// Run with dev profile:
-// ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-
-// OR set in IDE run configuration:
-// --spring.profiles.active=dev`
-        },
-        {
-          name: 'Common Pitfalls',
-          explanation: 'Classloader architecture causing issues with libraries using reflection or assuming specific classloader. Automatic restart triggered by irrelevant file changes without proper exclusions. @PostConstruct and lifecycle methods invoked on each restart, not just once. Static field values lost on restart without explicit preservation. Not configuring IDE for automatic build preventing DevTools from working.',
-          codeExample: `// PITFALL: Expensive @PostConstruct runs on every restart
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#ec4899', fontWeight: 600, fontSize: '0.95rem' }}>Common Pitfall &mdash; @PostConstruct on Every Restart</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// PITFALL: Expensive @PostConstruct runs on every restart
 @Service
 public class DataLoader {
     @PostConstruct
@@ -1022,26 +870,28 @@ public class DataLoader implements ApplicationRunner {
             loadReferenceData(); // Only loads when needed
         }
     }
-}
+}`} />
+          </div>
+        </div>
+      )}
 
-// PITFALL: Static state lost on restart
-// BAD: static Map<String, Object> cache = new HashMap<>();
-// FIX: Use Spring-managed @Bean with @Scope("singleton")`
-        }
-      ]
-    },
-    {
-      id: 'configuration-properties',
-      name: 'Configuration Properties',
-      icon: '⚙️',
-      color: '#14b8a6',
-      description: 'Type-safe externalized configuration enabling environment-specific deployments',
-      diagram: ConfigPropertiesDiagram,
-      details: [
-        {
-          name: 'How It Works',
-          explanation: 'Spring Boot\'s configuration properties provide type-safe externalized configuration enabling the same binary to work across environments. @ConfigurationProperties binds external configuration to strongly-typed Java objects. Well-defined precedence: command-line args > environment variables > application.properties/yml > defaults. Profile-specific files (application-dev.yml, application-prod.yml) for per-environment overrides. Bean Validation (JSR-303/JSR-380) integration for declarative configuration validation at startup.',
-          codeExample: `@Configuration
+      {/* Config Properties Tab */}
+      {activeSection === 'config-properties' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#14b8a6', marginBottom: '1rem', fontSize: '1.3rem' }}>Configuration Properties</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Type-safe externalized configuration enabling the same binary to work across environments. <strong style={{ color: '#5eead4' }}>@ConfigurationProperties</strong> binds external config to strongly-typed Java objects with validation. Clear precedence: command-line args &gt; env variables &gt; application.yml &gt; defaults.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}><ConfigPropertiesDiagram /></div>
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.95rem' }}>Type-Safe Config with Validation</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Configuration
 @ConfigurationProperties(prefix = "app")
 @Validated
 public class AppProperties {
@@ -1069,72 +919,15 @@ public class AppProperties {
 //   port: 8080
 //   security:
 //     jwt-secret: \${JWT_SECRET}
-//     token-expiration: 24h`
-        },
-        {
-          name: 'Key Features',
-          explanation: 'Type-safe configuration with compile-time checking and IDE autocomplete. Centralized configuration management avoiding scattered @Value annotations. Multiple configuration sources with clear precedence order. Profile-based environment-specific configuration. Validation support catching misconfiguration at startup with clear error messages. Integration with ConfigMap and Secrets in Kubernetes.',
-          codeExample: `// Type-safe injection - IDE autocomplete works!
-@Service
-public class AuthService {
+//     token-expiration: 24h`} />
+          </div>
 
-    private final AppProperties.Security securityConfig;
-
-    public AuthService(AppProperties appProperties) {
-        this.securityConfig = appProperties.getSecurity();
-    }
-
-    public String generateToken(User user) {
-        return Jwts.builder()
-            .setSubject(user.getEmail())
-            .setExpiration(Date.from(
-                Instant.now().plus(securityConfig.getTokenExpiration())
-            ))
-            .signWith(Keys.hmacShaKeyFor(
-                securityConfig.getJwtSecret().getBytes()
-            ))
-            .compact();
-    }
-}
-
-// vs scattered @Value (harder to maintain):
-// @Value("\${app.security.jwt-secret}") String secret;
-// @Value("\${app.security.token-expiration}") Duration exp;`
-        },
-        {
-          name: 'Real-World Use Cases',
-          explanation: 'Environment-varying values: Database connections, API endpoints, feature flags, rate limits. Microservices configuration: Service discovery endpoints, circuit breaker thresholds, retry policies. Feature toggles: Enabling/disabling functionality without code changes. Security: Externalized credentials, JWT secrets, API keys via environment variables. Cloud-native apps: Kubernetes ConfigMap and Secrets integration. Performance tuning: Cache TTLs, thread pool sizes, timeout values.',
-          codeExample: `// Feature toggles via configuration
-@ConfigurationProperties(prefix = "app.features")
-public class FeatureFlags {
-    private boolean newCheckout = false;
-    private boolean darkMode = false;
-    private boolean betaApi = false;
-    // getters and setters
-}
-
-@RestController
-public class CheckoutController {
-
-    @Autowired
-    private FeatureFlags features;
-
-    @PostMapping("/checkout")
-    public ResponseEntity<?> checkout(@RequestBody Order order) {
-        if (features.isNewCheckout()) {
-            return newCheckoutFlow(order);
-        }
-        return legacyCheckoutFlow(order);
-    }
-}
-
-// Toggle without code change or restart:
-// APP_FEATURES_NEW_CHECKOUT=true docker restart myapp`
-        },
-        {
-          name: 'Property Binding',
-          explanation: '@ConfigurationProperties(prefix = "app") binds properties starting with "app." Nested objects supported with dot notation (app.security.jwt-secret). Lists and maps can be bound from YAML or properties files. Relaxed binding allows different formats (app.jwt-secret, APP_JWT_SECRET, app.jwtSecret). Duration and DataSize types have special parsing (10s, 10MB). Constructor binding with @ConstructorBinding for immutable configuration objects.',
-          codeExample: `// Immutable configuration with constructor binding
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.95rem' }}>Immutable Config with Records</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// Immutable configuration with constructor binding
 @ConfigurationProperties(prefix = "app.cache")
 public record CacheProperties(
     @DefaultValue("true") boolean enabled,
@@ -1158,13 +951,47 @@ public record CacheProperties(
 // app.cache.max-size    (kebab-case - recommended)
 // app.cache.maxSize     (camelCase)
 // APP_CACHE_MAX_SIZE    (env variable)
-// app.cache.max_size    (underscore)`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Group related properties into nested objects for organization (app.security.jwt-secret). Provide sensible defaults where possible for optional configuration. Validate all properties with JSR-303 annotations catching errors early. Use @ConfigurationProperties instead of scattered @Value for maintainability. Document properties with Javadoc or generate metadata for IDE support. Store sensitive values in environment variables or secret managers, never in version control.',
-          codeExample: `// Profile-specific configuration
-// application.yml (shared defaults)
+// app.cache.max_size    (underscore)`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.95rem' }}>Feature Toggles</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@ConfigurationProperties(prefix = "app.features")
+public class FeatureFlags {
+    private boolean newCheckout = false;
+    private boolean darkMode = false;
+    private boolean betaApi = false;
+    // getters and setters
+}
+
+@RestController
+public class CheckoutController {
+
+    @Autowired
+    private FeatureFlags features;
+
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkout(@RequestBody Order order) {
+        if (features.isNewCheckout()) {
+            return newCheckoutFlow(order);
+        }
+        return legacyCheckoutFlow(order);
+    }
+}
+
+// Toggle without code change or restart:
+// APP_FEATURES_NEW_CHECKOUT=true docker restart myapp`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#14b8a6', fontWeight: 600, fontSize: '0.95rem' }}>Profile-Specific Configuration</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>YAML</span>
+            </div>
+            <SyntaxHighlighter code={`// application.yml (shared defaults)
 // app:
 //   name: MyService
 //   cache:
@@ -1188,53 +1015,27 @@ public record CacheProperties(
 
 // Activate profile:
 // java -jar app.jar --spring.profiles.active=prod
-// SPRING_PROFILES_ACTIVE=prod docker run myapp`
-        },
-        {
-          name: 'Common Pitfalls',
-          explanation: 'Committing sensitive configuration to version control instead of using environment variables. Property name binding confusion - understand Spring Boot\'s flexible binding conventions. Over-using profiles creating configuration management complexity. Bypassing validation by making everything optional with defaults - fail fast instead. Mixing @Value and @ConfigurationProperties inconsistently. Not understanding property precedence leading to unexpected values.',
-          codeExample: `// PITFALL: Secrets in version control
-// BAD: application.yml committed to git
-// app:
-//   security:
-//     jwt-secret: myHardcodedSecret123
+// SPRING_PROFILES_ACTIVE=prod docker run myapp`} />
+          </div>
+        </div>
+      )}
 
-// FIX: Use environment variables
-// app:
-//   security:
-//     jwt-secret: \${JWT_SECRET}
+      {/* Annotations Tab */}
+      {activeSection === 'annotations' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ background: 'rgba(15, 23, 42, 0.6)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid #374151' }}>
+            <h2 style={{ color: '#6366f1', marginBottom: '1rem', fontSize: '1.3rem' }}>Spring Boot Annotations</h2>
+            <p style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+              Declarative annotations for application bootstrapping, dependency injection, web endpoints, data access, and conditional configuration.
+            </p>
+          </div>
 
-// PITFALL: No validation - app starts with bad config
-// BAD:
-@ConfigurationProperties(prefix = "app.db")
-public class DbProps {
-    private String url; // Could be null/empty!
-}
-
-// FIX: Validate at startup
-@ConfigurationProperties(prefix = "app.db")
-@Validated
-public class DbProps {
-    @NotBlank(message = "Database URL is required")
-    private String url;
-
-    @Min(value = 1, message = "Pool size must be >= 1")
-    private int poolSize = 10;
-}`
-        }
-      ]
-    },
-    {
-      id: 'spring-boot-annotations',
-      name: 'Spring Boot Annotations',
-      icon: '🏷️',
-      color: '#6366f1',
-      description: 'Declarative configuration annotations for application bootstrapping and component management',
-      details: [
-        {
-          name: 'Core Application',
-          explanation: '@SpringBootApplication - Combines @Configuration, @EnableAutoConfiguration, and @ComponentScan. Entry point for Spring Boot apps. @EnableAutoConfiguration - Tells Spring Boot to automatically configure beans based on classpath dependencies. @ComponentScan - Scans for Spring components (@Component, @Service, @Repository, @Controller) in specified packages. @Configuration - Marks class as source of bean definitions, replacing XML configuration.',
-          codeExample: `@SpringBootApplication
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>Core Application</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@SpringBootApplication
 // Equivalent to all three:
 // @Configuration
 // @EnableAutoConfiguration
@@ -1254,12 +1055,15 @@ public class AppConfig {
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
-}`
-        },
-        {
-          name: 'Stereotype Annotations',
-          explanation: '@Component - Generic Spring-managed component, base annotation for all stereotypes. @Service - Business logic layer, semantic marker for service classes. @Repository - Data access layer, enables exception translation for persistence exceptions. @Controller - Web layer for MVC controllers returning views. @RestController - Combines @Controller + @ResponseBody for REST APIs returning JSON/XML.',
-          codeExample: `// Layered architecture with stereotype annotations
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>Stereotype Annotations</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// Layered architecture with stereotype annotations
 @RestController  // = @Controller + @ResponseBody
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -1285,12 +1089,15 @@ public class OrderService {
 @Repository  // Data access + exception translation
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByCustomerId(Long customerId);
-}`
-        },
-        {
-          name: 'Dependency Injection',
-          explanation: '@Autowired - Injects dependencies automatically by type (constructor, field, or setter injection). @Qualifier - Disambiguates when multiple beans of same type exist. @Primary - Marks bean as primary candidate when multiple beans qualify. @Value - Injects values from properties files or SpEL expressions. @Bean - Declares a method as a bean producer in @Configuration classes.',
-          codeExample: `// Constructor injection (recommended - immutable, testable)
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>Dependency Injection</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// Constructor injection (recommended - immutable, testable)
 @Service
 public class NotificationService {
 
@@ -1320,12 +1127,15 @@ public class BulkMailService {
     public BulkMailService(@Qualifier("ses") EmailSender sender) {
         // Uses AWS SES instead of default SMTP
     }
-}`
-        },
-        {
-          name: 'Web/REST Annotations',
-          explanation: '@RequestMapping - Maps HTTP requests to handler methods (class or method level). @GetMapping, @PostMapping, @PutMapping, @DeleteMapping, @PatchMapping - Shortcuts for specific HTTP methods. @PathVariable - Extracts values from URI path (e.g., /users/{id}). @RequestParam - Extracts query parameters from URL. @RequestBody - Binds HTTP request body to method parameter (JSON to object). @ResponseBody - Writes return value directly to HTTP response body. @ResponseStatus - Sets HTTP status code for response.',
-          codeExample: `@RestController
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>Web/REST Annotations</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@RestController
 @RequestMapping("/api/users")
 public class UserController {
 
@@ -1352,12 +1162,15 @@ public class UserController {
     public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
-}`
-        },
-        {
-          name: 'JPA/Data Annotations',
-          explanation: '@Entity - Marks class as JPA entity mapped to database table. @Table - Specifies table name and schema. @Id - Marks primary key field. @GeneratedValue - Configures primary key generation strategy. @Column - Customizes column mapping (name, nullable, length). @Transactional - Manages transaction boundaries. @Query - Custom JPQL or native SQL queries in repositories.',
-          codeExample: `@Entity
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>JPA/Data Annotations</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`@Entity
 @Table(name = "products")
 public class Product {
 
@@ -1390,12 +1203,15 @@ public class ProductService {
     public Product create(Product product) {
         return repo.save(product);
     }
-}`
-        },
-        {
-          name: 'Conditional Annotations',
-          explanation: '@ConditionalOnClass - Applies configuration only if specified class is on classpath. @ConditionalOnMissingBean - Applies only if specified bean doesn\'t exist. @ConditionalOnProperty - Applies based on property value. @Profile - Activates beans only for specific profiles (dev, prod, test). These annotations enable selective configuration based on runtime conditions.',
-          codeExample: `// Profile-specific beans
+}`} />
+          </div>
+
+          <div style={{ background: '#1e1e2e', borderRadius: '0.75rem', padding: '1.25rem', border: '1px solid #374151', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#6366f1', fontWeight: 600, fontSize: '0.95rem' }}>Conditional Annotations</span>
+              <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Java</span>
+            </div>
+            <SyntaxHighlighter code={`// Profile-specific beans
 @Configuration
 public class StorageConfig {
 
@@ -1426,332 +1242,12 @@ public class CacheConfig {
                 .entryTtl(Duration.ofMinutes(30)))
             .build();
     }
-}`
-        }
-      ]
-    }
-  ]
-
-  useVoiceConceptNavigation(concepts, setSelectedConceptIndex, setSelectedDetailIndex)
-
-  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation()
-        if (selectedConceptIndex !== null) {
-          setSelectedConceptIndex(null)
-          setSelectedDetailIndex(0)
-        } else {
-          onBack()
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [selectedConceptIndex, onBack])
-
-  const handlePreviousConcept = () => {
-    if (selectedConceptIndex > 0) {
-      setSelectedConceptIndex(selectedConceptIndex - 1)
-      setSelectedDetailIndex(0)
-    }
-  }
-
-  const handleNextConcept = () => {
-    if (selectedConceptIndex < concepts.length - 1) {
-      setSelectedConceptIndex(selectedConceptIndex + 1)
-      setSelectedDetailIndex(0)
-    }
-  }
-
-  const buildBreadcrumbStack = () => {
-    const stack = [
-      { name: 'Frameworks', icon: '🌱', onClick: onBack }
-    ]
-
-    if (selectedConcept) {
-      stack.push({ name: 'Spring Boot', icon: '🚀', onClick: () => { setSelectedConceptIndex(null); setSelectedDetailIndex(0) } })
-      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
-    } else {
-      stack.push({ name: 'Spring Boot', icon: '🚀' })
-    }
-
-    return stack
-  }
-
-  const handleBreadcrumbClick = (index) => {
-    const stack = buildBreadcrumbStack()
-    if (stack[index].onClick) {
-      stack[index].onClick()
-    }
-  }
-
-  const containerStyle = {
-    minHeight: '100vh',
-    background: 'var(--bg-primary)',
-    padding: '2rem',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
-  }
-
-  const headerStyle = {
-    maxWidth: '1400px',
-    margin: '0 auto 2rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem'
-  }
-
-  const titleStyle = {
-    fontSize: '2.5rem',
-    fontWeight: '700',
-    background: 'linear-gradient(135deg, #86efac, #4ade80)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    margin: 0
-  }
-
-  const backButtonStyle = {
-    padding: '0.75rem 1.5rem',
-    background: 'rgba(74, 222, 128, 0.2)',
-    border: '1px solid rgba(74, 222, 128, 0.3)',
-    borderRadius: '0.5rem',
-    color: '#4ade80',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    transition: 'all 0.2s'
-  }
-
-  const navButtonStyle = {
-    padding: '0.75rem 1.25rem',
-    background: 'rgba(74, 222, 128, 0.2)',
-    border: '1px solid rgba(74, 222, 128, 0.3)',
-    borderRadius: '0.5rem',
-    color: '#4ade80',
-    cursor: 'pointer',
-    fontSize: '0.95rem',
-    transition: 'all 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem'
-  }
-
-  return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            style={backButtonStyle}
-            onClick={onBack}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = 'rgba(74, 222, 128, 0.3)'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = 'rgba(74, 222, 128, 0.2)'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            ← Back to Frameworks
-          </button>
-          <h1 style={titleStyle}>Spring Boot</h1>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {onPrevious && (
-            <button
-              style={navButtonStyle}
-              onClick={onPrevious}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(74, 222, 128, 0.3)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(74, 222, 128, 0.2)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              ← {previousName}
-            </button>
-          )}
-          {onNext && (
-            <button
-              style={navButtonStyle}
-              onClick={onNext}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(74, 222, 128, 0.3)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(74, 222, 128, 0.2)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              {nextName} →
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
-        <Breadcrumb
-          breadcrumbStack={buildBreadcrumbStack()}
-          onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu || onBack}
-          colors={FRAMEWORK_COLORS}
-        />
-      </div>
-
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        {concepts.map((concept, index) => (
-          <div
-            key={concept.id}
-            onClick={() => setSelectedConceptIndex(index)}
-            style={{
-              background: 'rgba(15, 23, 42, 0.8)',
-              borderRadius: '1rem',
-              padding: '1.5rem',
-              border: `1px solid ${concept.color}40`,
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
-              e.currentTarget.style.borderColor = concept.color
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'none'
-              e.currentTarget.style.borderColor = `${concept.color}40`
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
-              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
-            </div>
-            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
-            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
-              {concept.details.length} topics • Click to explore
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Collapsible Sidebar for quick concept navigation */}
-      <CollapsibleSidebar
-        items={concepts}
-        selectedIndex={selectedConceptIndex ?? -1}
-        onSelect={(index) => {
-          setSelectedConceptIndex(index)
-          setSelectedDetailIndex(0)
-        }}
-        title="Concepts"
-        getItemLabel={(item) => item.name}
-        getItemIcon={(item) => item.icon}
-        primaryColor={FRAMEWORK_COLORS.primary}
-      />
-
-
-      {/* Concept Detail Modal */}
-      {selectedConcept && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '2rem'
-          }}
-          onClick={() => setSelectedConceptIndex(null)}
-        >
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-              borderRadius: '1rem',
-              padding: '2rem',
-              width: '95vw', maxWidth: '1400px', height: '90vh',
-              overflow: 'auto',
-              border: `1px solid ${selectedConcept.color}40`
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Breadcrumb */}
-            <Breadcrumb
-              breadcrumbStack={buildBreadcrumbStack()}
-              onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu || onBack}
-              colors={FRAMEWORK_COLORS}
-            />
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #334155' }}>
-              <h2 style={{ color: selectedConcept.color, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem' }}>
-                <span>{selectedConcept.icon}</span>
-                {selectedConcept.name}
-              </h2>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <button onClick={handlePreviousConcept} disabled={selectedConceptIndex === 0} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>←</button>
-                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>{selectedConceptIndex + 1}/{concepts.length}</span>
-                <button onClick={handleNextConcept} disabled={selectedConceptIndex === concepts.length - 1} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>→</button>
-                <button onClick={() => setSelectedConceptIndex(null)} style={{ padding: '0.4rem 0.75rem', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0.375rem', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem', marginLeft: '0.5rem' }}>✕</button>
-              </div>
-            </div>
-
-            {/* Subtopic Tabs */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {selectedConcept.details.map((detail, i) => (
-                <button key={i} onClick={() => setSelectedDetailIndex(i)} style={{ padding: '0.5rem 1rem', background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)', border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`, borderRadius: '0.5rem', color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8', cursor: 'pointer', fontSize: '0.85rem', fontWeight: selectedDetailIndex === i ? '600' : '400', transition: 'all 0.2s' }}>{detail.name}</button>
-              ))}
-            </div>
-
-            {/* Selected Subtopic Content */}
-            {(() => {
-              const detail = selectedConcept.details[selectedDetailIndex]
-              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
-              const DiagramComponent = detail.diagram || selectedConcept.diagram
-              return (
-                <div>
-                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
-                  {DiagramComponent && (
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-                      <DiagramComponent />
-                    </div>
-                  )}
-                  <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
-                  {detail.codeExample && (
-                    <div style={{
-                      backgroundColor: '#1e293b',
-                      padding: '1.5rem',
-                      borderRadius: '0.5rem',
-                      borderLeft: `4px solid ${selectedConcept.color}`,
-                      overflow: 'auto',
-                      marginTop: '1rem'
-                    }}>
-                      <SyntaxHighlighter code={detail.codeExample} />
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
-
+}`} />
           </div>
         </div>
       )}
-    </div>
+
+      </div>
   )
 }
 

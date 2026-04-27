@@ -16,7 +16,8 @@ const SECURITY_COLORS = {
 const categories = {
   all: { label: 'All', ids: null },
   security: { label: 'Application Security', ids: ['Security OWASP'] },
-  auth: { label: 'Authentication', ids: ['JWT', 'OAuth', 'OAuth2'] }
+  auth: { label: 'Authentication', ids: ['JWT', 'OAuth', 'OAuth2'] },
+  'identity-management': { label: 'Identity Management', ids: ['PingFederate'] }
 }
 
 function SecurityPage({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
@@ -57,6 +58,13 @@ function SecurityPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIni
       icon: '\u{1F6E1}\uFE0F',
       color: '#10b981',
       description: 'OAuth 2.0 framework, authorization flows (authorization code, implicit, client credentials, password), access tokens, refresh tokens, and PKCE.'
+    },
+    {
+      id: 'PingFederate',
+      name: 'PingFederate',
+      icon: '\u{1F510}',
+      color: '#f97316',
+      description: 'Enterprise identity federation server for SSO, SAML 2.0, OAuth/OIDC, WS-Federation, SCIM provisioning, and centralized authentication hub.'
     }
   ]
 

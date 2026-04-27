@@ -2156,6 +2156,418 @@ spec:
           restartPolicy: OnFailure`
         }
       ]
+    },
+    {
+      id: 'spring-to-unix',
+      name: 'Java/Spring to Unix Deployment',
+      icon: '☕',
+      color: '#16a34a',
+      description: 'End-to-end deployment of Spring Boot applications to Unix/Linux servers. JAR/WAR packaging with Maven/Gradle, systemd service management, reverse proxy with Nginx, environment-specific configs, log management, and production hardening.',
+      details: [
+        {
+          name: 'Build & Package',
+          explanation: 'Spring Boot produces a fat JAR with an embedded Tomcat/Netty server - no external app server needed. Use Maven or Gradle to build. The spring-boot-maven-plugin repackages the JAR to be executable (java -jar). For traditional deployments, build a WAR and deploy to an external Tomcat. Use build profiles to inject environment-specific properties at build time.',
+          codeExample: `# Maven - Build executable JAR
+mvn clean package -DskipTests -Pprod
+
+# pom.xml - Spring Boot Maven Plugin
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+      <configuration>
+        <executable>true</executable>  <!-- Makes JAR directly executable -->
+        <layers>
+          <enabled>true</enabled>      <!-- Enables layered JAR for Docker -->
+        </layers>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+
+# Gradle - Build executable JAR
+./gradlew bootJar -Pprod
+
+# Verify JAR contents
+jar tf target/my-app-1.0.0.jar | head -20
+
+# Test locally before deploying
+java -jar target/my-app-1.0.0.jar \\
+  --spring.profiles.active=staging
+
+# Build WAR for external Tomcat (if needed)
+# In pom.xml: <packaging>war</packaging>
+# Add: spring-boot-starter-tomcat with <scope>provided</scope>
+mvn clean package -Pprod
+# Deploy: cp target/my-app.war /opt/tomcat/webapps/`
+        },
+        {
+          name: 'Transfer & Directory Structure',
+          explanation: 'Use SCP or rsync to transfer the JAR to the Unix server. Establish a standard directory layout: /opt/apps/{app-name}/ for the JAR, /etc/{app-name}/ for configs, /var/log/{app-name}/ for logs, /var/run/{app-name}/ for PID files. Create a dedicated non-root service user for security. Set proper file permissions.',
+          codeExample: `# Transfer JAR to server
+scp target/my-app-1.0.0.jar deploy@prod-server:/tmp/
+
+# Or use rsync (faster for updates, shows progress)
+rsync -avz --progress target/my-app-1.0.0.jar \\
+  deploy@prod-server:/tmp/
+
+# On the server - Set up directory structure
+sudo mkdir -p /opt/apps/my-app
+sudo mkdir -p /etc/my-app
+sudo mkdir -p /var/log/my-app
+sudo mkdir -p /var/run/my-app
+
+# Create dedicated service user (no login shell)
+sudo useradd -r -s /usr/sbin/nologin -d /opt/apps/my-app myapp
+
+# Deploy JAR
+sudo cp /tmp/my-app-1.0.0.jar /opt/apps/my-app/my-app.jar
+
+# Copy environment-specific config
+sudo cp application-prod.yml /etc/my-app/application.yml
+
+# Set ownership and permissions
+sudo chown -R myapp:myapp /opt/apps/my-app
+sudo chown -R myapp:myapp /var/log/my-app
+sudo chown -R myapp:myapp /var/run/my-app
+sudo chown -R myapp:myapp /etc/my-app
+sudo chmod 500 /opt/apps/my-app/my-app.jar   # read+execute only
+sudo chmod 400 /etc/my-app/application.yml    # read only
+
+# Final directory layout:
+# /opt/apps/my-app/my-app.jar    (executable JAR)
+# /etc/my-app/application.yml    (config)
+# /var/log/my-app/app.log        (logs)
+# /var/run/my-app/app.pid        (PID file)`
+        },
+        {
+          name: 'Systemd Service',
+          explanation: 'Use systemd to manage the Spring Boot app as a service. Systemd handles start/stop, auto-restart on failure, boot startup, resource limits, and logging. Define JVM memory settings, GC options, and Spring profiles in the service file. Use EnvironmentFile to externalize secrets. The service runs as the dedicated non-root user.',
+          codeExample: `# /etc/systemd/system/my-app.service
+[Unit]
+Description=My Spring Boot Application
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=myapp
+Group=myapp
+WorkingDirectory=/opt/apps/my-app
+
+# JVM and application settings
+Environment=JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+Environment=JAVA_OPTS=-Xms512m -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+Environment=SPRING_PROFILES_ACTIVE=prod
+
+# Load secrets from file (DB passwords, API keys)
+EnvironmentFile=/etc/my-app/env.conf
+
+ExecStart=/usr/bin/java \\
+  \$JAVA_OPTS \\
+  -Djava.security.egd=file:/dev/./urandom \\
+  -Dlogging.file.path=/var/log/my-app \\
+  -jar /opt/apps/my-app/my-app.jar \\
+  --spring.config.additional-location=/etc/my-app/
+
+# Restart policy
+Restart=always
+RestartSec=10
+SuccessExitStatus=143
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadOnlyPaths=/opt/apps/my-app
+ReadWritePaths=/var/log/my-app /var/run/my-app
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
+
+# /etc/my-app/env.conf (permissions: 400)
+DB_PASSWORD=secretpass123
+API_KEY=abc-xyz-123
+
+# Enable and manage service
+sudo systemctl daemon-reload
+sudo systemctl enable my-app
+sudo systemctl start my-app
+sudo systemctl status my-app
+
+# View logs
+sudo journalctl -u my-app -f
+sudo journalctl -u my-app --since "1 hour ago"`
+        },
+        {
+          name: 'Nginx Reverse Proxy',
+          explanation: 'Place Nginx in front of the Spring Boot app to handle SSL termination, static assets, compression, rate limiting, and load balancing. Nginx listens on port 80/443 and proxies requests to the Spring Boot app on localhost:8080. This adds a security layer (no direct access to the Java process) and improves performance with caching and gzip.',
+          codeExample: `# /etc/nginx/sites-available/my-app
+upstream spring_app {
+    server 127.0.0.1:8080;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    server_name myapp.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name myapp.example.com;
+
+    # SSL certificates (Let's Encrypt)
+    ssl_certificate /etc/letsencrypt/live/myapp.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/myapp.example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # Security headers
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Strict-Transport-Security "max-age=31536000";
+
+    # Gzip compression
+    gzip on;
+    gzip_types application/json text/plain text/css application/javascript;
+    gzip_min_length 1000;
+
+    # Proxy to Spring Boot
+    location / {
+        proxy_pass http://spring_app;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 60s;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+
+    # Actuator health (internal only)
+    location /actuator {
+        allow 10.0.0.0/8;
+        deny all;
+        proxy_pass http://spring_app;
+    }
+
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=30r/s;
+    location /api/ {
+        limit_req zone=api burst=50 nodelay;
+        proxy_pass http://spring_app;
+    }
+
+    access_log /var/log/nginx/my-app.access.log;
+    error_log /var/log/nginx/my-app.error.log;
+}
+
+# Enable and test
+sudo ln -s /etc/nginx/sites-available/my-app /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx`
+        },
+        {
+          name: 'Log Management & Rotation',
+          explanation: 'Configure Spring Boot logging to write structured logs to /var/log/{app}/. Use logrotate to prevent disk from filling up. Spring Boot supports Logback (default), Log4j2, and Java Util Logging. Use JSON format for log aggregation tools (ELK, Splunk). Configure separate log files for access logs, error logs, and audit logs.',
+          codeExample: `# application-prod.yml - Logging config
+logging:
+  file:
+    path: /var/log/my-app
+    name: /var/log/my-app/app.log
+  level:
+    root: INFO
+    com.mycompany: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
+      total-size-cap: 3GB
+
+# logback-spring.xml (for JSON structured logging)
+<configuration>
+  <springProfile name="prod">
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <file>/var/log/my-app/app.log</file>
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <fileNamePattern>/var/log/my-app/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+        <maxFileSize>100MB</maxFileSize>
+        <maxHistory>30</maxHistory>
+        <totalSizeCap>3GB</totalSizeCap>
+      </rollingPolicy>
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <root level="INFO">
+      <appender-ref ref="FILE"/>
+    </root>
+  </springProfile>
+</configuration>
+
+# /etc/logrotate.d/my-app (backup rotation)
+/var/log/my-app/*.log {
+    daily
+    missingok
+    rotate 30
+    compress
+    delaycompress
+    notifempty
+    copytruncate
+    maxsize 100M
+}
+
+# Useful log commands
+tail -f /var/log/my-app/app.log                  # Follow live
+grep -i "error\\|exception" /var/log/my-app/app.log  # Find errors
+journalctl -u my-app --since "2024-01-15 10:00"  # Systemd logs
+zgrep "OutOfMemory" /var/log/my-app/app.*.gz     # Search rotated`
+        },
+        {
+          name: 'Health Checks & Monitoring',
+          explanation: 'Use Spring Boot Actuator for health checks, metrics, and info endpoints. Configure the health check in the systemd service or a cron-based watchdog. Expose Prometheus metrics for monitoring with Grafana. Set up alerts for heap usage, thread count, response times, and error rates. Use /actuator/health/readiness and /actuator/health/liveness for load balancer integration.',
+          codeExample: `# application-prod.yml - Actuator config
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  health:
+    diskspace:
+      threshold: 1GB
+    db:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: my-app
+      environment: prod
+server:
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: /var/log/my-app
+      prefix: access
+      suffix: .log
+      pattern: "%h %l %u %t \\"%r\\" %s %b %D"
+
+# Health check script (/opt/apps/my-app/healthcheck.sh)
+#!/bin/bash
+HEALTH_URL="http://localhost:8080/actuator/health"
+RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL)
+if [ "$RESPONSE" != "200" ]; then
+  echo "$(date) - Health check FAILED (HTTP $RESPONSE)" >> /var/log/my-app/health.log
+  systemctl restart my-app
+  echo "$(date) - Service restarted" >> /var/log/my-app/health.log
+fi
+
+# Cron watchdog (every 2 minutes)
+# crontab -e
+*/2 * * * * /opt/apps/my-app/healthcheck.sh
+
+# Prometheus scrape config (prometheus.yml)
+scrape_configs:
+  - job_name: 'my-app'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['prod-server:8080']
+    scrape_interval: 15s`
+        },
+        {
+          name: 'Deployment Script & Zero-Downtime',
+          explanation: 'Automate the full deployment with a shell script: stop service gracefully, backup current JAR, deploy new JAR, start service, verify health. For zero-downtime, use two instances behind Nginx with upstream health checks - deploy one at a time. Spring Boot graceful shutdown (server.shutdown=graceful) drains in-flight requests before stopping.',
+          codeExample: `#!/bin/bash
+# /opt/apps/my-app/deploy.sh
+set -euo pipefail
+
+APP_NAME="my-app"
+APP_DIR="/opt/apps/$APP_NAME"
+BACKUP_DIR="$APP_DIR/backups"
+JAR_FILE="$APP_DIR/$APP_NAME.jar"
+NEW_JAR="$1"
+HEALTH_URL="http://localhost:8080/actuator/health"
+MAX_WAIT=60
+
+echo "=== Deploying $APP_NAME ==="
+
+# Validate new JAR
+if [ ! -f "$NEW_JAR" ]; then
+  echo "ERROR: JAR not found: $NEW_JAR"; exit 1
+fi
+
+# Backup current version
+mkdir -p "$BACKUP_DIR"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+if [ -f "$JAR_FILE" ]; then
+  cp "$JAR_FILE" "$BACKUP_DIR/$APP_NAME-$TIMESTAMP.jar"
+  echo "Backed up to $BACKUP_DIR/$APP_NAME-$TIMESTAMP.jar"
+  # Keep only last 5 backups
+  ls -t "$BACKUP_DIR"/*.jar | tail -n +6 | xargs -r rm
+fi
+
+# application-prod.yml (enable graceful shutdown)
+# server.shutdown=graceful
+# spring.lifecycle.timeout-per-shutdown-phase=30s
+
+# Stop service gracefully
+echo "Stopping $APP_NAME..."
+sudo systemctl stop $APP_NAME
+sleep 3
+
+# Deploy new JAR
+cp "$NEW_JAR" "$JAR_FILE"
+chown myapp:myapp "$JAR_FILE"
+chmod 500 "$JAR_FILE"
+
+# Start service
+echo "Starting $APP_NAME..."
+sudo systemctl start $APP_NAME
+
+# Wait for health check
+echo "Waiting for health check..."
+ELAPSED=0
+while [ $ELAPSED -lt $MAX_WAIT ]; do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" 2>/dev/null || true)
+  if [ "$STATUS" = "200" ]; then
+    echo "Health check PASSED after \${ELAPSED}s"
+    echo "=== Deployment complete ==="
+    exit 0
+  fi
+  sleep 2
+  ELAPSED=$((ELAPSED + 2))
+  echo "  Waiting... (\${ELAPSED}s)"
+done
+
+# Rollback on failure
+echo "ERROR: Health check failed after \${MAX_WAIT}s"
+echo "Rolling back..."
+LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/*.jar | head -1)
+cp "$LATEST_BACKUP" "$JAR_FILE"
+chown myapp:myapp "$JAR_FILE"
+sudo systemctl restart $APP_NAME
+echo "Rolled back to $LATEST_BACKUP"
+exit 1
+
+# Usage:
+# ./deploy.sh /tmp/my-app-1.1.0.jar`
+        }
+      ]
     }
   ]
 
