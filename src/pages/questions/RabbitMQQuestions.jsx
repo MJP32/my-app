@@ -8,6 +8,8 @@ import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 function RabbitMQQuestions({ onBack, breadcrumb, problemLimit }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
+  const [activeCategory, setActiveCategory] = useState('All')
+  const [activeDifficulty, setActiveDifficulty] = useState('All')
   const renderFormattedAnswer = (text) => {
     const lines = text.split('\n')
     const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4']
@@ -1470,8 +1472,28 @@ public class RabbitHealthIndicator implements HealthIndicator {
   ]
 
   // Filter questions based on problemLimit (for Top 100/300 mode)
-  const displayQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
+  const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
+  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+    acc[q.category] = (acc[q.category] || 0) + 1
+    return acc
+  }, {})
+  const availableCategories = ['All', ...Object.keys(categoryCounts).sort((a, b) => {
+    const diff = categoryCounts[b] - categoryCounts[a]
+    return diff !== 0 ? diff : a.localeCompare(b)
+  })]
+
+  const difficultyOrder = ['Easy', 'Medium', 'Hard']
+  const difficultyCounts = limitedQuestions.reduce((acc, q) => {
+    acc[q.difficulty] = (acc[q.difficulty] || 0) + 1
+    return acc
+  }, {})
+  const availableDifficulties = ['All', ...difficultyOrder.filter(d => difficultyCounts[d])]
+
+  const displayQuestions = limitedQuestions.filter(q =>
+    (activeCategory === 'All' || q.category === activeCategory) &&
+    (activeDifficulty === 'All' || q.difficulty === activeDifficulty)
+  )
   const toggleQuestion = (id) => {
     setExpandedQuestion(expandedQuestion === id ? null : id)
   }
@@ -1549,6 +1571,135 @@ public class RabbitHealthIndicator implements HealthIndicator {
       }}>
         Comprehensive RabbitMQ questions covering AMQP protocol, exchanges, queues, bindings, and Spring AMQP integration.
       </p>
+
+
+      {/* Difficulty Filter Tabs */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        marginBottom: '0.75rem',
+        alignItems: 'center'
+      }}>
+        <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: '600', marginRight: '0.25rem' }}>Difficulty:</span>
+        {availableDifficulties.map((diff) => {
+          const isActive = activeDifficulty === diff
+          const count = diff === 'All' ? limitedQuestions.length : (difficultyCounts[diff] || 0)
+          const color = diff === 'Easy' ? '#22c55e' : diff === 'Medium' ? '#f59e0b' : diff === 'Hard' ? '#ef4444' : '#3b82f6'
+          return (
+            <button
+              key={diff}
+              onClick={() => setActiveDifficulty(diff)}
+              style={{
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.8rem',
+                fontWeight: isActive ? '700' : '500',
+                background: isActive ? `${color}25` : 'rgba(31, 41, 55, 0.6)',
+                color: isActive ? color : '#9ca3af',
+                border: `1px solid ${isActive ? color : '#374151'}`,
+                borderRadius: '999px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = `${color}15`
+                  e.currentTarget.style.color = color
+                  e.currentTarget.style.borderColor = `${color}80`
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'rgba(31, 41, 55, 0.6)'
+                  e.currentTarget.style.color = '#9ca3af'
+                  e.currentTarget.style.borderColor = '#374151'
+                }
+              }}
+            >
+              <span>{diff}</span>
+              <span style={{
+                fontSize: '0.7rem',
+                padding: '0.1rem 0.4rem',
+                borderRadius: '999px',
+                background: isActive ? color : '#374151',
+                color: isActive ? '#fff' : '#9ca3af',
+                fontWeight: '700',
+                minWidth: '1.5rem',
+                textAlign: 'center'
+              }}>
+                {count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Category Filter Tabs */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        marginBottom: '1.5rem',
+        paddingBottom: '1rem',
+        borderBottom: '1px solid #374151'
+      }}>
+        {availableCategories.map((cat) => {
+          const isActive = activeCategory === cat
+          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const color = cat === 'All' ? '#3b82f6' : getCategoryColor(cat)
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                padding: '0.5rem 0.9rem',
+                fontSize: '0.85rem',
+                fontWeight: isActive ? '700' : '500',
+                background: isActive ? `${color}25` : 'rgba(31, 41, 55, 0.6)',
+                color: isActive ? color : '#9ca3af',
+                border: `1px solid ${isActive ? color : '#374151'}`,
+                borderRadius: '999px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = `${color}15`
+                  e.currentTarget.style.color = color
+                  e.currentTarget.style.borderColor = `${color}80`
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'rgba(31, 41, 55, 0.6)'
+                  e.currentTarget.style.color = '#9ca3af'
+                  e.currentTarget.style.borderColor = '#374151'
+                }
+              }}
+            >
+              <span>{cat}</span>
+              <span style={{
+                fontSize: '0.7rem',
+                padding: '0.1rem 0.45rem',
+                borderRadius: '999px',
+                background: isActive ? color : '#374151',
+                color: isActive ? '#fff' : '#9ca3af',
+                fontWeight: '700',
+                minWidth: '1.5rem',
+                textAlign: 'center'
+              }}>
+                {count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {displayQuestions.map((q) => (

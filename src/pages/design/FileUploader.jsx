@@ -2581,8 +2581,7 @@ public class UploadLogger {
               padding: '2rem',
               width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
-              border: `1px solid ${selectedConcept.color}40`,
-              width: '100%'
+              border: `1px solid ${selectedConcept.color}40`
             }}
             onClick={(e) => e.stopPropagation()}
           >

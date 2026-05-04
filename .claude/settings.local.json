@@ -122,7 +122,8 @@
       "Bash(npx vite build)",
       "Bash(npx vitest:*)",
       "Bash(powershell -Command:*)",
-      "Bash(powershell -c \"\\(Get-Content ''C:\\\\Users\\\\micha\\\\Documents\\\\2026\\\\apr\\\\my-app\\\\src\\\\pages\\\\devops\\\\Maven.jsx'' | Measure-Object -Line\\).Lines\")"
+      "Bash(powershell -c \"\\(Get-Content ''C:\\\\Users\\\\micha\\\\Documents\\\\2026\\\\apr\\\\my-app\\\\src\\\\pages\\\\devops\\\\Maven.jsx'' | Measure-Object -Line\\).Lines\")",
+      "Bash(npx vite *)"
     ],
     "deny": [],
     "ask": []

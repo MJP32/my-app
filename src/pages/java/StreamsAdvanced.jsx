@@ -446,12 +446,18 @@ function StreamsAdvanced({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
 
   useEffect(() => {
     const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
     window.addEventListener('progressUpdate', handleProgressUpdate)
     return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
   }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
 
   // =============================================================================
   // PRACTICE PROBLEMS
@@ -463,28 +469,192 @@ function StreamsAdvanced({ onBack, breadcrumb }) {
       title: 'Custom Collector',
       difficulty: 'Hard',
       description: 'Implement a custom Collector that collects elements into a comma-separated string.',
-      example: 'Input: Stream.of("a", "b", "c") → Output: "a, b, c"'
+      example: 'Input: Stream.of("a", "b", "c") → Output: "a, b, c"',
+      instructions: `Implement **Collector.of(...)** that joins stream elements into a single comma-separated **String**.
+
+Requirements:
+- **Supplier:** create a new **StringBuilder**
+- **Accumulator:** append each element with ", " separator
+- **Combiner:** merge two StringBuilders for parallel execution
+- **Finisher:** trim the trailing ", " and return the String
+
+Hint: Use \`Collector.of(supplier, accumulator, combiner, finisher)\`.`,
+      starterCode: `import java.util.*;
+import java.util.stream.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        List<String> items = List.of("apple", "banana", "cherry");
+
+        // TODO: implement custom collector that joins with ", "
+        Collector<String, ?, String> joiner = null;
+
+        String result = items.stream().collect(joiner);
+        System.out.println(result); // expect: apple, banana, cherry
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.stream.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        List<String> items = List.of("apple", "banana", "cherry");
+
+        Collector<String, StringBuilder, String> joiner = Collector.of(
+            StringBuilder::new,
+            (sb, s) -> { if (sb.length() > 0) sb.append(", "); sb.append(s); },
+            (a, b) -> { if (a.length() > 0 && b.length() > 0) a.append(", "); return a.append(b); },
+            StringBuilder::toString
+        );
+
+        String result = items.stream().collect(joiner);
+        System.out.println(result); // apple, banana, cherry
+    }
+}`
     },
     {
       id: 2,
       title: 'Parallel Stream Sum',
       difficulty: 'Medium',
       description: 'Use parallel streams to calculate the sum of squares of a large list efficiently.',
-      example: 'Input: [1, 2, 3, ..., 1000000] → Output: Sum of squares'
+      example: 'Input: [1, 2, 3, ..., 1_000_000] → Output: Sum of squares',
+      instructions: `Compute the **sum of squares** for numbers 1 through N using a **parallel stream**.
+
+Requirements:
+- Use **IntStream.rangeClosed(1, N)**
+- Call **.parallel()** to enable parallel execution
+- Map each value to its square
+- Reduce with **.sum()** (sum returns long-safe via .asLongStream() for big N)
+
+Caveat: Avoid shared mutable state inside the stream pipeline.`,
+      starterCode: `import java.util.stream.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        int n = 1_000_000;
+
+        // TODO: parallel stream, square each value, sum them
+        long sum = 0L;
+
+        System.out.println("Sum of squares 1.." + n + " = " + sum);
+    }
+}`,
+      solution: `import java.util.stream.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        int n = 1_000_000;
+
+        long sum = IntStream.rangeClosed(1, n)
+            .parallel()
+            .asLongStream()
+            .map(i -> i * i)
+            .sum();
+
+        System.out.println("Sum of squares 1.." + n + " = " + sum);
+    }
+}`
     },
     {
       id: 3,
       title: 'Grouping with Downstream',
       difficulty: 'Medium',
       description: 'Group employees by department and calculate average salary per department.',
-      example: 'Input: List<Employee> → Output: Map<Department, Double>'
+      example: 'Input: List<Employee> → Output: Map<String, Double>',
+      instructions: `Use **Collectors.groupingBy** with a downstream collector to compute the **average salary** per department.
+
+Requirements:
+- Group by **Employee.department**
+- Downstream: **Collectors.averagingDouble(Employee::getSalary)**
+- Result type: **Map<String, Double>**
+
+Hint: \`groupingBy(classifier, downstream)\` accepts any Collector as its second argument.`,
+      starterCode: `import java.util.*;
+import java.util.stream.*;
+
+public class Solution {
+    record Employee(String name, String department, double salary) {}
+
+    public static void main(String[] args) {
+        List<Employee> employees = List.of(
+            new Employee("Alice", "Engineering", 95000),
+            new Employee("Bob", "Engineering", 85000),
+            new Employee("Carol", "Sales", 70000),
+            new Employee("Dave", "Sales", 75000)
+        );
+
+        // TODO: group by department, compute average salary
+        Map<String, Double> avgByDept = null;
+
+        avgByDept.forEach((dept, avg) -> System.out.println(dept + " -> " + avg));
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.stream.*;
+
+public class Solution {
+    record Employee(String name, String department, double salary) {}
+
+    public static void main(String[] args) {
+        List<Employee> employees = List.of(
+            new Employee("Alice", "Engineering", 95000),
+            new Employee("Bob", "Engineering", 85000),
+            new Employee("Carol", "Sales", 70000),
+            new Employee("Dave", "Sales", 75000)
+        );
+
+        Map<String, Double> avgByDept = employees.stream()
+            .collect(Collectors.groupingBy(
+                Employee::department,
+                Collectors.averagingDouble(Employee::salary)
+            ));
+
+        avgByDept.forEach((dept, avg) -> System.out.println(dept + " -> " + avg));
+    }
+}`
     },
     {
       id: 4,
       title: 'Partitioning Data',
       difficulty: 'Easy',
       description: 'Partition a list of numbers into even and odd using Collectors.partitioningBy().',
-      example: 'Input: [1, 2, 3, 4, 5] → Output: {true: [2, 4], false: [1, 3, 5]}'
+      example: 'Input: [1, 2, 3, 4, 5] → Output: {true: [2, 4], false: [1, 3, 5]}',
+      instructions: `Use **Collectors.partitioningBy** to split a list of integers into **even** and **odd** buckets.
+
+Requirements:
+- Predicate: \`n -> n % 2 == 0\`
+- Result type: **Map<Boolean, List<Integer>>**
+- Key **true** holds evens, **false** holds odds
+
+Note: partitioningBy is more efficient than groupingBy when you only have two buckets.`,
+      starterCode: `import java.util.*;
+import java.util.stream.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        // TODO: partition into even and odd
+        Map<Boolean, List<Integer>> partitioned = null;
+
+        System.out.println("Evens: " + partitioned.get(true));
+        System.out.println("Odds:  " + partitioned.get(false));
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.stream.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        Map<Boolean, List<Integer>> partitioned = numbers.stream()
+            .collect(Collectors.partitioningBy(n -> n % 2 == 0));
+
+        System.out.println("Evens: " + partitioned.get(true));
+        System.out.println("Odds:  " + partitioned.get(false));
+    }
+}`
     }
   ]
 
@@ -1976,7 +2146,7 @@ public class CustomStreamSource {
         <h2 style={{ color: '#8b5cf6', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span>📝</span> Practice Exercises
         </h2>
-        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Try these exercises in your IDE. Mark complete when done.</p>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
           {practiceProblems.map((problem) => {
             const problemId = `StreamsAdvanced-${problem.id}`
@@ -1984,13 +2154,17 @@ public class CustomStreamSource {
             return (
               <div
                 key={problem.id}
+                onClick={() => openProblem(problem)}
                 style={{
                   background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)',
                   borderRadius: '0.75rem',
                   padding: '1rem',
                   border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`,
+                  cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = STREAMS_ADV_COLORS.primary; e.currentTarget.style.boxShadow = '0 4px 12px rgba(6, 182, 212, 0.2)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
                   <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
@@ -2007,14 +2181,50 @@ public class CustomStreamSource {
                 </div>
                 <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
                 <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
-                <div style={{ marginTop: '0.75rem' }}>
-                  <CompletionCheckbox problemId={problemId} />
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: STREAMS_ADV_COLORS.primary, fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
                 </div>
               </div>
             )
           })}
         </div>
       </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: `2px solid ${STREAMS_ADV_COLORS.primary}` }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`StreamsAdvanced-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: STREAMS_ADV_COLORS.primary, marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
