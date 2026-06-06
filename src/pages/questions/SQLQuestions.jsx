@@ -183,6 +183,7 @@ function SQLQuestions({ onBack, breadcrumb, problemLimit }) {
     {
       id: 1,
       category: 'Joins',
+      difficulty: 'Medium',
       question: 'Explain different types of SQL JOINs with examples',
       answer: `**INNER JOIN:**
 - Returns only matching rows from both tables
@@ -257,6 +258,7 @@ JOIN employees e2 ON e1.manager_id = e2.id;
     {
       id: 2,
       category: 'Subqueries',
+      difficulty: 'Easy',
       question: 'What is the difference between WHERE and HAVING clause?',
       answer: `**WHERE Clause:**
 - Filters rows BEFORE grouping
@@ -328,6 +330,7 @@ HAVING AVG(salary) > 50000;  -- Correct
     {
       id: 3,
       category: 'Indexes',
+      difficulty: 'Medium',
       question: 'What is a Database Index and when should you use it?',
       answer: `**What is an Index?**
 - Data structure that improves query performance
@@ -428,6 +431,7 @@ SHOW INDEXES FROM employees;
     {
       id: 4,
       category: 'Normalization',
+      difficulty: 'Medium',
       question: 'Explain Database Normalization and its Normal Forms',
       answer: `**What is Normalization?**
 - Process of organizing database to reduce redundancy and dependency
@@ -546,6 +550,7 @@ CREATE TABLE departments (
     {
       id: 5,
       category: 'Transactions',
+      difficulty: 'Easy',
       question: 'Explain ACID properties of database transactions',
       answer: `**ACID Properties:**
 
@@ -678,6 +683,7 @@ ROLLBACK TO sp1;       -- Rollback to savepoint
     {
       id: 6,
       category: 'Performance',
+      difficulty: 'Hard',
       question: 'How would you optimize a slow SQL query?',
       answer: `**Step-by-Step Optimization Process:**
 
@@ -873,6 +879,7 @@ CREATE TABLE logs (
     {
       id: 7,
       category: 'Advanced',
+      difficulty: 'Hard',
       question: 'Explain Window Functions (OVER clause) with examples',
       answer: `**What are Window Functions?**
 - Perform calculations across set of rows related to current row
@@ -1052,6 +1059,7 @@ WHERE rank <= 3;
     {
       id: 8,
       category: 'Advanced',
+      difficulty: 'Medium',
       question: 'What are CTEs (Common Table Expressions) and when to use them?',
       answer: `**What is a CTE?**
 - Temporary named result set
@@ -1245,6 +1253,7 @@ ORDER BY month;
     {
       id: 9,
       category: 'Stored Procedures',
+      difficulty: 'Medium',
       question: 'What are Stored Procedures and when should you use them?',
       answer: `**What is a Stored Procedure?**
 - Precompiled SQL code stored in database
@@ -1341,6 +1350,7 @@ SELECT @Total;
     {
       id: 10,
       category: 'Triggers',
+      difficulty: 'Medium',
       question: 'What are Database Triggers and when should you use them?',
       answer: `**What is a Trigger?**
 - Automatic SQL code executed in response to events
@@ -1473,6 +1483,7 @@ END;
     {
       id: 11,
       category: 'Views',
+      difficulty: 'Easy',
       question: 'What are SQL Views and Materialized Views?',
       answer: `**What is a View?**
 - Virtual table based on SELECT query
@@ -1590,6 +1601,7 @@ GROUP BY product_id;
     {
       id: 12,
       category: 'Optimization',
+      difficulty: 'Hard',
       question: 'How do you analyze and read an EXPLAIN plan?',
       answer: `**EXPLAIN Plan Analysis:**
 
@@ -1734,6 +1746,7 @@ Merge Join     - Good for sorted data
     {
       id: 13,
       category: 'Constraints',
+      difficulty: 'Easy',
       question: 'Explain different types of SQL constraints',
       answer: `**SQL Constraints:**
 Rules enforced on table columns to ensure data integrity.
@@ -1905,6 +1918,7 @@ WHERE parent_object_id = OBJECT_ID('users');
     {
       id: 14,
       category: 'Locking',
+      difficulty: 'Hard',
       question: 'Explain database locking and how to prevent deadlocks',
       answer: `**Database Locking:**
 
@@ -2066,6 +2080,7 @@ KILL connection_id;
     {
       id: 15,
       category: 'Partitioning',
+      difficulty: 'Hard',
       question: 'What is Table Partitioning and when should you use it?',
       answer: `**Table Partitioning:**
 Dividing a large table into smaller, more manageable pieces while keeping it as a single logical table.
@@ -2213,6 +2228,7 @@ EXPLAIN SELECT * FROM orders WHERE order_date = '2024-06-15';
     {
       id: 16,
       category: 'Functions',
+      difficulty: 'Medium',
       question: 'What are Aggregate Functions vs Window Functions?',
       answer: `**Aggregate Functions:**
 - Compute single value from multiple rows
@@ -2369,13 +2385,401 @@ WITH ranked AS (
 )
 SELECT * FROM ranked WHERE rn <= 3;
 \`\`\``
+    },
+    {
+      id: 17,
+      category: 'DDL/DML',
+      difficulty: 'Easy',
+      question: 'Difference between DELETE, TRUNCATE, and DROP? Can TRUNCATE have a WHERE clause?',
+      answer: `All three remove data, but they operate at very different levels.
+
+**DELETE** — DML, row-by-row, with WHERE
+\`\`\`sql
+DELETE FROM users WHERE active = false;     -- removes matching rows
+DELETE FROM users;                          -- removes ALL rows (table still exists)
+\`\`\`
+
+**TRUNCATE** — DDL, removes all rows at once
+\`\`\`sql
+TRUNCATE TABLE users;                       -- table stays, rows gone
+TRUNCATE TABLE users WHERE active = false;  -- INVALID — TRUNCATE has no WHERE
+\`\`\`
+
+**DROP** — DDL, removes the table itself (schema + data + indexes)
+\`\`\`sql
+DROP TABLE users;                           -- table is gone
+\`\`\`
+
+---
+
+**Comparison:**
+
+| Aspect | DELETE | TRUNCATE | DROP |
+|--------|--------|----------|------|
+| Type | DML | DDL | DDL |
+| WHERE clause | YES | **NO** | NO |
+| Removes rows | Yes | Yes | Yes |
+| Removes table structure | No | No | **Yes** |
+| Speed | Slow (per-row) | **Very fast** | Very fast |
+| Logged per row? | Yes | No (just deallocation) | No |
+| Triggers fire? | Yes (ON DELETE) | No | No |
+| Resets identity / auto-increment? | No | **Yes** | N/A (gone) |
+| Rollback in transaction? | Yes | Depends on DB | Depends on DB |
+| Foreign keys checked? | Yes | Usually blocked if referenced | Blocked if referenced |
+| Indexes / constraints | Kept | Kept | Removed |
+
+---
+
+**Can TRUNCATE use WHERE?**
+**No.** TRUNCATE is all-or-nothing — it deallocates the underlying data pages without scanning rows. There is no row-level predicate, by design. If you need to filter, use \`DELETE\`.
+
+\`\`\`sql
+-- This is an error in every major SQL database:
+TRUNCATE TABLE users WHERE id > 1000;       -- ❌
+
+-- Use DELETE instead:
+DELETE FROM users WHERE id > 1000;          -- ✅
+\`\`\`
+
+---
+
+**Why is TRUNCATE faster than DELETE?**
+
+- **DELETE** scans the table, removes rows one by one, logs each one in the transaction log, fires triggers, and updates indexes per row.
+- **TRUNCATE** simply marks the data pages as free (no row-by-row log entries, no triggers, indexes are reset). For a million-row table, DELETE may take minutes while TRUNCATE finishes in milliseconds.
+
+---
+
+**Rollback behavior by database:**
+
+- **PostgreSQL / SQL Server** — TRUNCATE is transactional; can be rolled back inside a transaction
+- **MySQL (InnoDB)** — TRUNCATE auto-commits, **cannot be rolled back**
+- **Oracle** — TRUNCATE auto-commits
+
+---
+
+**When to use which:**
+- Need partial deletion (WHERE) → **DELETE**
+- Need transactional safety + auditing → **DELETE**
+- Wipe entire table fast (e.g. staging tables) → **TRUNCATE**
+- Remove table permanently → **DROP**
+- Reset auto-increment to 1 → **TRUNCATE**`
+    },
+    {
+      id: 18,
+      category: 'Constraints',
+      difficulty: 'Easy',
+      question: 'Difference between Primary Key, Unique Key, and Composite Key?',
+      answer: `All three enforce uniqueness — they differ in how many, how many columns, and whether NULLs are allowed.
+
+**Primary Key**
+- **Uniquely identifies each row in the table**
+- Exactly **one per table**
+- **NOT NULL** is implicit
+- Automatically gets a unique index (usually clustered in MySQL/SQL Server)
+
+\`\`\`sql
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY,           -- inline
+    email VARCHAR(100)
+);
+
+-- or named constraint
+CREATE TABLE users (
+    id BIGINT,
+    email VARCHAR(100),
+    CONSTRAINT pk_users PRIMARY KEY (id)
+);
+\`\`\`
+
+**Unique Key**
+- Enforces uniqueness on one or more columns
+- **Many allowed per table**
+- **Allows NULL** (most DBs treat NULLs as not equal, so multiple NULLs are permitted — except SQL Server which allows only one NULL)
+
+\`\`\`sql
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY,
+    email VARCHAR(100) UNIQUE,        -- inline
+    phone VARCHAR(20),
+    CONSTRAINT uk_users_phone UNIQUE (phone)
+);
+\`\`\`
+
+**Composite Key**
+- A primary key (or unique key) that spans **multiple columns**
+- The combination must be unique; individual columns can repeat
+
+\`\`\`sql
+-- A student can enroll in many courses, a course has many students,
+-- but (student_id, course_id) pair must be unique
+CREATE TABLE enrollment (
+    student_id BIGINT,
+    course_id BIGINT,
+    enrolled_at TIMESTAMP,
+    PRIMARY KEY (student_id, course_id)     -- composite PK
+);
+\`\`\`
+
+---
+
+**Side-by-side:**
+
+| Aspect | Primary Key | Unique Key | Composite Key |
+|--------|-------------|------------|----------------|
+| Number per table | 1 | Many | A flavor of PK/UK |
+| Allows NULL | **No** | Yes (mostly) | No (if PK) |
+| Identifies a row | Yes | No (just enforces uniqueness) | Yes |
+| Spans columns | Usually 1 | One or more | **Multiple** |
+| Auto index | Yes | Yes | Yes |
+
+---
+
+**JPA mapping examples:**
+
+\`\`\`java
+// Primary Key
+@Id
+@GeneratedValue
+private Long id;
+
+// Unique Key
+@Column(unique = true)
+private String email;
+
+// Composite Key — option 1: @EmbeddedId
+@Embeddable
+public class EnrollmentId implements Serializable {
+    private Long studentId;
+    private Long courseId;
+}
+
+@Entity
+public class Enrollment {
+    @EmbeddedId
+    private EnrollmentId id;
+}
+
+// Composite Key — option 2: @IdClass
+@Entity
+@IdClass(EnrollmentId.class)
+public class Enrollment {
+    @Id private Long studentId;
+    @Id private Long courseId;
+}
+\`\`\`
+
+---
+
+**When to use each:**
+- **Primary Key** — always; every table needs one for identity (typically a surrogate \`id BIGINT\`)
+- **Unique Key** — for business-unique fields you query by but aren't the row identifier (email, slug, SSN)
+- **Composite Key** — join tables (many-to-many), natural composite identity, or temporal/append-only tables`
+    },
+    {
+      id: 19,
+      category: 'NULL Handling',
+      difficulty: 'Easy',
+      question: 'Why does `email = NULL` not work? When to use IS NULL?',
+      answer: `**In SQL, \`NULL\` is "unknown" — and comparing anything to unknown returns unknown, not true.**
+
+\`\`\`sql
+SELECT id FROM student WHERE email = NULL;   -- ❌ returns 0 rows (always)
+SELECT id FROM student WHERE email IS NULL;  -- ✅ returns rows where email is NULL
+\`\`\`
+
+The first query is **syntactically valid** but **logically wrong** — it silently returns nothing. The DB does not throw an error.
+
+---
+
+**Why?**
+SQL uses **three-valued logic**: TRUE, FALSE, UNKNOWN. Any comparison involving NULL produces UNKNOWN, and a WHERE clause only keeps rows where the expression is TRUE.
+
+\`\`\`
+NULL = NULL    → UNKNOWN     (not TRUE, not FALSE)
+NULL = 'x'     → UNKNOWN
+NULL <> NULL   → UNKNOWN
+NULL IS NULL   → TRUE
+NULL IS NOT NULL → FALSE
+\`\`\`
+
+So \`WHERE email = NULL\` becomes \`WHERE UNKNOWN\`, which excludes the row.
+
+---
+
+**The full set of NULL-safe operators:**
+
+\`\`\`sql
+WHERE email IS NULL          -- standard
+WHERE email IS NOT NULL      -- standard
+WHERE email IS DISTINCT FROM 'a@b.com'      -- PostgreSQL/Standard
+WHERE email IS NOT DISTINCT FROM other_col  -- "equal, treating NULL = NULL as true"
+\`\`\`
+
+---
+
+**NULL surprises:**
+
+\`\`\`sql
+-- COUNT(column) ignores NULLs; COUNT(*) does not
+SELECT COUNT(*), COUNT(email) FROM users;
+-- COUNT(*) = 100, COUNT(email) = 87 if 13 users have null email
+
+-- NULL in IN / NOT IN
+SELECT * FROM users WHERE id NOT IN (1, 2, NULL);
+-- returns ZERO rows — NOT IN with a NULL is always unknown
+-- Use NOT EXISTS instead
+
+-- NULL in ORDER BY
+ORDER BY created_at ASC NULLS LAST    -- Postgres
+ORDER BY created_at ASC                -- default varies by DB
+
+-- NULL in aggregates (SUM, AVG)
+SELECT AVG(score) FROM students;       -- NULLs are ignored
+\`\`\`
+
+---
+
+**Replacing NULL — \`COALESCE\` / \`IFNULL\` / \`NVL\`:**
+
+\`\`\`sql
+-- Use first non-NULL value
+SELECT COALESCE(nickname, first_name, 'Anonymous') FROM users;
+
+-- MySQL
+SELECT IFNULL(nickname, 'N/A') FROM users;
+
+-- Oracle
+SELECT NVL(nickname, 'N/A') FROM users;
+\`\`\`
+
+---
+
+**Best practices:**
+- Always use \`IS NULL\` / \`IS NOT NULL\` for NULL checks
+- Be careful with \`NOT IN\` — use \`NOT EXISTS\` if the subquery might return NULL
+- Use \`COALESCE\` to provide defaults
+- Mark columns \`NOT NULL\` at the schema level when a value is required — eliminates the whole class of bug`
+    },
+    {
+      id: 20,
+      category: 'Stored Procedures',
+      difficulty: 'Medium',
+      question: 'Difference between Function and Stored Procedure in SQL?',
+      answer: `Both are named, reusable blocks of SQL stored in the database. The differences are about **return values, where they can be used, and side effects**.
+
+**Function**
+- **Returns a single value** (or a table, in some DBs)
+- Called **inside a SQL expression** — \`SELECT\`, \`WHERE\`, etc.
+- Generally **not allowed to modify data** (no INSERT/UPDATE/DELETE)
+- Deterministic if same inputs always produce same outputs
+
+\`\`\`sql
+CREATE FUNCTION get_full_name(p_id BIGINT)
+RETURNS VARCHAR
+AS $$
+    SELECT first_name || ' ' || last_name FROM users WHERE id = p_id;
+$$ LANGUAGE SQL;
+
+-- Used in queries
+SELECT get_full_name(1);
+SELECT * FROM orders WHERE get_full_name(user_id) = 'John Doe';
+\`\`\`
+
+**Stored Procedure**
+- May return **zero, one, or many result sets** via OUT parameters
+- Called explicitly with \`CALL\` / \`EXEC\`, **not inside a SELECT**
+- **Can modify data** (INSERT/UPDATE/DELETE) and manage transactions
+- Used for business logic, batch jobs, complex multi-statement operations
+
+\`\`\`sql
+CREATE PROCEDURE transfer_funds(
+    IN  from_account BIGINT,
+    IN  to_account   BIGINT,
+    IN  amount       DECIMAL
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+    UPDATE accounts SET balance = balance - amount WHERE id = from_account;
+    UPDATE accounts SET balance = balance + amount WHERE id = to_account;
+    COMMIT;
+END;
+$$;
+
+CALL transfer_funds(1, 2, 100.00);
+\`\`\`
+
+---
+
+**Side-by-side:**
+
+| Aspect | Function | Procedure |
+|--------|----------|-----------|
+| Returns | Single value (or table) | 0..N result sets, OUT params |
+| Called via | \`SELECT fn(...)\` | \`CALL proc(...)\` / \`EXEC\` |
+| Used inside SELECT/WHERE | **Yes** | No |
+| Can modify data | Usually no | **Yes** |
+| Can have transactions | No (runs within caller's tx) | Yes |
+| Try/catch (exception handling) | Limited / depends on DB | **Yes** |
+| OUT parameters | No | Yes |
+
+---
+
+**Can you do exception handling inside a procedure?**
+
+**Yes.** Procedures (and PL/pgSQL functions) support BEGIN/EXCEPTION blocks:
+
+\`\`\`sql
+CREATE PROCEDURE safe_transfer(...)
+LANGUAGE plpgsql AS $$
+BEGIN
+    UPDATE accounts SET balance = balance - amount WHERE id = from_account;
+    UPDATE accounts SET balance = balance + amount WHERE id = to_account;
+EXCEPTION
+    WHEN insufficient_funds THEN
+        ROLLBACK;
+        RAISE NOTICE 'Insufficient funds';
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END;
+$$;
+\`\`\`
+
+\`\`\`sql
+-- SQL Server / T-SQL
+CREATE PROCEDURE safe_transfer AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        UPDATE accounts SET balance = balance - @amount WHERE id = @from;
+        UPDATE accounts SET balance = balance + @amount WHERE id = @to;
+        COMMIT;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK;
+        THROW;
+    END CATCH
+END;
+\`\`\`
+
+Functions in some DBs (PostgreSQL PL/pgSQL) also support EXCEPTION blocks; in pure SQL functions they do not.
+
+---
+
+**When to use which:**
+- **Function** — computation that returns a value, callable inside SELECT (formatting, lookups, calculations)
+- **Procedure** — multi-step business logic, data mutations, batch processing, anything needing transactions or returning multiple result sets`
     }
   ]
 
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -2547,7 +2951,7 @@ SELECT * FROM ranked WHERE rn <= 3;
       }}>
         {availableCategories.map((cat) => {
           const isActive = activeCategory === cat
-          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
           const color = cat === 'All' ? '#3b82f6' : getCategoryColor(cat)
           return (
             <button

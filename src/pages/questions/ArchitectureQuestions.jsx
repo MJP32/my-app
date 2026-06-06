@@ -469,15 +469,15 @@ Example:
 **Implementation:**
 
 \`\`\`
-                    ┌─────────────┐
-    Clients ────────▶   Facade    │
-                    └──────┬──────┘
-                           │
-              ┌────────────┼────────────┐
-              ▼            ▼            ▼
-         ┌────────┐  ┌──────────┐  ┌────────┐
-         │ New μS │  │ Monolith │  │ New μS │
-         └────────┘  └──────────┘  └────────┘
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+    Clients â”€â”€â”€â”€â”€â”€â”€â”€â–¶   Facade    â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+                           â”‚
+              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+              â–¼            â–¼            â–¼
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”
+         â”‚ New Î¼S â”‚  â”‚ Monolith â”‚  â”‚ New Î¼S â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 \`\`\`
 
 **Benefits:**
@@ -547,7 +547,10 @@ if (sem.tryAcquire()) {
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -591,7 +594,7 @@ if (sem.tryAcquire()) {
               marginBottom: '1rem'
             }}
           >
-            ← Back
+            â† Back
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -612,7 +615,7 @@ if (sem.tryAcquire()) {
           onSelect={(index) => setExpandedId(displayQuestions[index].id)}
           title="Questions"
           getItemLabel={(item) => `${item.id}. ${item.category}`}
-          getItemIcon={() => '❓'}
+          getItemIcon={() => 'â“'}
           primaryColor="#3b82f6"
         />
 
@@ -692,7 +695,7 @@ if (sem.tryAcquire()) {
         }}>
           {availableCategories.map((cat) => {
             const isActive = activeCategory === cat
-            const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+            const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
             const color = cat === 'All' ? '#3b82f6' : '#3b82f6'
             return (
               <button
@@ -794,7 +797,7 @@ if (sem.tryAcquire()) {
                     transform: expandedId === q.id ? 'rotate(180deg)' : 'rotate(0)',
                     transition: 'transform 0.2s'
                   }}>
-                    ▼
+                    â–¼
                   </span>
                 </button>
                 {expandedId === q.id && (

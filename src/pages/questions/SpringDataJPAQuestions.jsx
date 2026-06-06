@@ -657,13 +657,973 @@ public int hashCode() {
            orphanRemoval = true)  // Delete child when removed from collection
 private List<Child> children;
 \`\`\``
+    },
+    {
+      id: 4,
+      category: 'Repository',
+      difficulty: 'Medium',
+      question: 'Deep dive into JpaRepository — interface design and customization',
+      answer: `**JpaRepository — the workhorse of Spring Data JPA:**
+
+\`\`\`java
+public interface UserRepository extends JpaRepository<User, Long> { }
+\`\`\`
+
+That single line gives you ~20 ready-made methods: \`save\`, \`findById\`, \`findAll\`, \`delete\`, \`count\`, \`flush\`, \`saveAndFlush\`, batch ops, plus pagination/sorting.
+
+**Repository Hierarchy:**
+
+\`\`\`
+Repository<T, ID>                  (marker — needed for component scan)
+   ↑
+CrudRepository<T, ID>              (CRUD methods)
+   ↑
+PagingAndSortingRepository<T, ID>  (adds Page<T> findAll(Pageable), findAll(Sort))
+   ↑
+JpaRepository<T, ID>               (List instead of Iterable, flush, batch ops)
+\`\`\`
+
+**Why JpaRepository over CrudRepository:**
+
+- Returns \`List<T>\` instead of \`Iterable<T>\` (more useful)
+- Adds \`flush()\` and \`saveAndFlush()\` for explicit DB sync
+- Adds \`getReferenceById()\` (lazy proxy — only hits DB on field access)
+- Batch operations: \`deleteAllInBatch()\`, \`deleteAllByIdInBatch()\`
+
+**Custom Methods (3 ways):**
+
+**1. Method-name derived queries:**
+\`\`\`java
+List<User> findByLastName(String lastName);
+List<User> findByEmailContainingIgnoreCase(String fragment);
+Optional<User> findByEmail(String email);
+boolean existsByUsername(String username);
+long countByActiveTrue();
+List<User> findTop5ByOrderByCreatedAtDesc();
+List<User> findFirst10ByStatusOrderByCreatedAtDesc(Status status);
+\`\`\`
+
+Spring parses the method name, generates the JPQL automatically.
+
+**2. \`@Query\` for custom JPQL or native SQL:**
+\`\`\`java
+@Query("SELECT u FROM User u WHERE u.email = :email AND u.active = true")
+Optional<User> findActiveByEmail(@Param("email") String email);
+
+@Query(value = "SELECT * FROM users WHERE created_at > NOW() - INTERVAL '7 days'",
+       nativeQuery = true)
+List<User> findRecentUsers();
+
+@Modifying
+@Query("UPDATE User u SET u.active = false WHERE u.lastLogin < :cutoff")
+int deactivateInactive(@Param("cutoff") Instant cutoff);
+\`\`\`
+
+**3. Custom Repository Implementation (escape hatch):**
+\`\`\`java
+// Define custom interface
+public interface UserRepositoryCustom {
+    List<User> searchByCustomCriteria(SearchCriteria criteria);
+}
+
+// Implement (must follow naming: <Repo>Impl)
+@Repository
+public class UserRepositoryCustomImpl implements UserRepositoryCustom {
+    @PersistenceContext
+    private EntityManager em;
+
+    @Override
+    public List<User> searchByCustomCriteria(SearchCriteria c) {
+        // Use Criteria API or QueryDSL for type-safe dynamic queries
+        return em.createQuery("...").getResultList();
+    }
+}
+
+// Compose
+public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom { }
+
+userRepository.save(...);                    // from JpaRepository
+userRepository.searchByCustomCriteria(...);  // from custom
+\`\`\`
+
+**Common Patterns:**
+
+**Optional return:** Prefer \`Optional<T>\` over null:
+\`\`\`java
+Optional<User> findByEmail(String email);
+
+Optional<User> u = repo.findByEmail("a@b.com");
+u.ifPresent(this::process);
+u.orElseThrow(() -> new UserNotFoundException("..."));
+\`\`\`
+
+**Projections (DTO instead of entity):**
+\`\`\`java
+public interface UserSummary {              // interface-based projection
+    String getName();
+    String getEmail();
+}
+
+List<UserSummary> findAllProjectedBy();   // returns lightweight projection
+\`\`\`
+
+**Specifications (dynamic queries):**
+\`\`\`java
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> { }
+
+Specification<User> active = (root, q, cb) -> cb.isTrue(root.get("active"));
+Specification<User> recent = (root, q, cb) -> cb.greaterThan(root.get("createdAt"), cutoff);
+
+repo.findAll(active.and(recent));
+\`\`\`
+
+**\`getReferenceById\` vs \`findById\`:**
+\`\`\`java
+User u1 = repo.findById(1L).orElseThrow();   // SELECT — full row loaded
+User u2 = repo.getReferenceById(1L);          // proxy — no SQL until field accessed
+order.setUser(u2);                            // JUST sets foreign key — no SELECT
+repo.save(order);                             // single INSERT, no extra SELECT
+\`\`\`
+
+**Transaction Behavior:**
+
+By default, JpaRepository methods are wrapped in \`@Transactional(readOnly=true)\` for reads, \`@Transactional\` for writes. Custom \`@Query\` UPDATE/DELETE need \`@Modifying\`.
+
+**Naming convention strictness:**
+\`\`\`java
+findByName        ✓
+findUsersByName   ✗ — "Users" must follow domain object structure
+findByName_FirstName   ✓ — for nested properties (User.name.firstName)
+\`\`\`
+
+**Best Practices:**
+- Return \`Optional<T>\` for single-result queries (not null)
+- Use **projections / DTOs** when you don't need the full entity
+- For complex queries, switch to \`@Query\` or **Specifications/QueryDSL**
+- Avoid \`findAll()\` without pagination on large tables
+- Use \`getReferenceById\` for foreign-key associations to avoid wasted SELECTs`
+    },
+    {
+      id: 5,
+      category: 'Pagination',
+      difficulty: 'Medium',
+      question: 'How does pagination work in Spring Data JPA?',
+      answer: `**Pagination = returning a slice of a large result set, not the whole table.**
+
+Spring Data JPA exposes pagination via the **\`Pageable\`** interface and **\`Page<T>\`** result type.
+
+**Basic Usage:**
+
+\`\`\`java
+public interface UserRepository extends JpaRepository<User, Long> {
+    Page<User> findByActiveTrue(Pageable pageable);
+}
+
+// Caller
+Pageable pageable = PageRequest.of(0, 20);                        // page 0, size 20
+Page<User> page = userRepo.findByActiveTrue(pageable);
+
+page.getContent();          // List<User> for this page
+page.getTotalElements();    // total rows in DB matching the query (extra COUNT query)
+page.getTotalPages();        // total pages
+page.getNumber();            // current page (0-indexed)
+page.getSize();              // page size
+page.hasNext();              // boolean
+page.isLast();               // boolean
+\`\`\`
+
+**Spring auto-translates this into 2 SQL queries:**
+\`\`\`sql
+SELECT * FROM users WHERE active = true ORDER BY id LIMIT 20 OFFSET 0;
+SELECT COUNT(*) FROM users WHERE active = true;
+\`\`\`
+
+**With Sorting:**
+
+\`\`\`java
+Pageable pageable = PageRequest.of(0, 20, Sort.by("createdAt").descending());
+
+// Multi-field
+Sort sort = Sort.by(
+    Sort.Order.asc("lastName"),
+    Sort.Order.desc("createdAt").nullsLast()
+);
+Pageable p = PageRequest.of(0, 20, sort);
+\`\`\`
+
+**REST Controller Integration:**
+
+Spring auto-binds query params \`?page=2&size=20&sort=name,asc\`:
+\`\`\`java
+@GetMapping("/users")
+public Page<User> list(Pageable pageable) {     // injected from query params
+    return userRepo.findAll(pageable);
+}
+// GET /users?page=0&size=20&sort=name,asc&sort=age,desc
+\`\`\`
+
+**Slice<T> vs Page<T>:**
+
+| Aspect | \`Page<T>\` | \`Slice<T>\` |
+|--------|-----------|-------------|
+| Total count | YES (extra COUNT query) | NO |
+| hasNext() | Computed from total | Computed from over-fetching by 1 |
+| Performance | Slower (count query) | Faster |
+| Use case | Show "Page X of Y" | Infinite scroll / "Next" only |
+
+\`\`\`java
+Slice<User> slice = userRepo.findByActiveTrue(pageable);
+slice.hasNext();              // true if more pages exist (no total count)
+\`\`\`
+
+**Pagination with @Query:**
+
+\`\`\`java
+// JPQL
+@Query("SELECT u FROM User u WHERE u.email LIKE %:term%")
+Page<User> searchByEmail(@Param("term") String term, Pageable pageable);
+
+// Native — must provide a separate countQuery
+@Query(value = "SELECT * FROM users WHERE email LIKE %:term%",
+       countQuery = "SELECT count(*) FROM users WHERE email LIKE %:term%",
+       nativeQuery = true)
+Page<User> searchByEmailNative(@Param("term") String term, Pageable pageable);
+\`\`\`
+
+**The OFFSET Performance Problem:**
+
+\`LIMIT 20 OFFSET 100000\` — the database still **scans 100,020 rows** and discards the first 100,000. Slow on large tables.
+
+**Solution: Keyset (cursor) Pagination:**
+
+Instead of OFFSET, paginate by remembering the last seen ID:
+\`\`\`java
+@Query("SELECT u FROM User u WHERE u.id > :lastId ORDER BY u.id ASC")
+List<User> findNextBatch(@Param("lastId") Long lastId, Pageable pageable);
+
+// First page: lastId = 0
+// Each subsequent page: lastId = last item's id from previous page
+\`\`\`
+
+Performance is **O(log N)** via index seek, regardless of page depth.
+
+Spring Data 3.1+ adds first-class support:
+\`\`\`java
+@Query("...")
+Window<User> findFirst10By(ScrollPosition position);
+
+ScrollPosition pos = ScrollPosition.offset();
+Window<User> window = repo.findFirst10By(pos);
+\`\`\`
+
+**Counting Pitfalls:**
+
+The COUNT query can be expensive on large tables. Optimizations:
+
+**1. Skip the count when you don't need totals — use \`Slice\`.**
+
+**2. Custom count query:**
+\`\`\`java
+@Query(value  = "SELECT * FROM users WHERE active = true",
+       countQuery = "SELECT COUNT(id) FROM users WHERE active = true",
+       nativeQuery = true)
+Page<User> findActiveUsers(Pageable pageable);
+\`\`\`
+
+**3. Approximate counts (Postgres):**
+\`\`\`sql
+SELECT reltuples::bigint FROM pg_class WHERE relname = 'users';
+\`\`\`
+
+**Sorting with Joined Fields:**
+
+\`\`\`java
+Sort sort = Sort.by("address.city");   // navigate to nested property
+PageRequest.of(0, 20, sort);
+\`\`\`
+
+This generates a JOIN. Beware N+1 issues — use \`@EntityGraph\` for eager loading:
+\`\`\`java
+@EntityGraph(attributePaths = "address")
+Page<User> findAll(Pageable pageable);
+\`\`\`
+
+**Frontend Response Shape:**
+
+\`\`\`json
+{
+  "content": [...],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 20,
+    "sort": { "sorted": true, "unsorted": false }
+  },
+  "totalElements": 1245,
+  "totalPages": 63,
+  "last": false,
+  "first": true,
+  "number": 0,
+  "size": 20,
+  "numberOfElements": 20,
+  "empty": false
+}
+\`\`\`
+
+**Best Practices:**
+- Always paginate large queries (avoid \`findAll()\` without limits)
+- Use \`Slice\` over \`Page\` when you don't need totals — saves a COUNT query
+- Use **keyset pagination** for very large datasets or deep scrolling
+- Always provide a stable \`ORDER BY\` (use a unique column like \`id\` as tiebreaker)
+- Set sensible defaults: \`@PageableDefault(size = 20)\`
+- Cap maximum page size to prevent abuse: \`@PageableDefault(size = 20) Pageable p\`, then validate
+
+**Default Page Limits:**
+\`\`\`java
+@GetMapping
+public Page<User> list(@PageableDefault(size = 20, sort = "id") Pageable p) {
+    return userRepo.findAll(p);
+}
+
+// In application.properties:
+spring.data.web.pageable.default-page-size=20
+spring.data.web.pageable.max-page-size=100
+\`\`\``
+    },
+    {
+      id: 6,
+      category: 'Repository',
+      difficulty: 'Easy',
+      question: 'What is JpaRepository?',
+      answer: `**\`JpaRepository<T, ID>\` is Spring Data's JPA-specific repository interface.** Extend it on an interface and Spring generates a full CRUD implementation at runtime — no implementation class to write.
+
+\`\`\`java
+public interface UserRepository extends JpaRepository<User, Long> {
+}
+
+// That's it — you now have ~30 methods: save, findById, findAll,
+// deleteById, count, existsById, flush, saveAndFlush, etc.
+\`\`\`
+
+**Where it sits in the hierarchy:**
+\`\`\`
+Repository                          (marker — no methods)
+  └── CrudRepository                (save, findById, deleteById, ...)
+       └── PagingAndSortingRepository  (+ findAll(Pageable), findAll(Sort))
+            └── JpaRepository        (+ flush, saveAndFlush, deleteInBatch, getReferenceById)
+\`\`\`
+
+**Built-in methods you get for free:**
+- \`save(entity)\`, \`saveAll(entities)\`
+- \`findById(id)\` → \`Optional<T>\`
+- \`findAll()\`, \`findAll(Pageable)\`, \`findAll(Sort)\`
+- \`existsById(id)\`, \`count()\`
+- \`deleteById(id)\`, \`delete(entity)\`, \`deleteAll()\`
+- \`flush()\`, \`saveAndFlush(entity)\`
+- \`getReferenceById(id)\` — returns a lazy proxy (no SELECT)
+- \`deleteAllInBatch()\` — single \`DELETE FROM\` (no per-entity events)
+
+**Query derivation — Spring builds queries from method names:**
+
+\`\`\`java
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+    List<User> findByActiveTrueOrderByCreatedAtDesc();
+    List<User> findByAgeBetween(int min, int max);
+    long countByActive(boolean active);
+    void deleteByEmail(String email);
+}
+\`\`\`
+
+**Custom queries with @Query:**
+
+\`\`\`java
+@Query("SELECT u FROM User u WHERE u.email LIKE %:term%")
+List<User> search(@Param("term") String term);
+
+@Query(value = "SELECT * FROM users WHERE created_at > NOW() - INTERVAL '7 days'",
+       nativeQuery = true)
+List<User> recentUsers();
+\`\`\`
+
+**JpaRepository vs CrudRepository — what JpaRepository adds:**
+
+| Method | CrudRepository | JpaRepository |
+|--------|----------------|---------------|
+| save | returns S | returns S |
+| findAll | \`Iterable\` | \`List\` |
+| **flush()** | NO | YES |
+| **saveAndFlush()** | NO | YES |
+| **deleteAllInBatch()** | NO | YES |
+| **getReferenceById()** | NO | YES |
+
+**When to use which:**
+- \`CrudRepository\` — minimal CRUD, DB-agnostic
+- \`JpaRepository\` — anything JPA-backed (99% of Spring Boot apps)
+- \`PagingAndSortingRepository\` — when you need pagination but want to limit the API surface
+
+**Best practices:**
+- Default to \`JpaRepository\`
+- Don't expose repositories directly in controllers — wrap in a service
+- Use \`Optional\` return types for single-result finders`
+    },
+    {
+      id: 7,
+      category: 'Repository',
+      difficulty: 'Medium',
+      question: 'Difference between save() and saveAndFlush() in Spring Data JPA?',
+      answer: `Both persist the entity, but they differ in **when the SQL actually hits the database**.
+
+**\`save()\`**
+- Marks the entity as persistent
+- INSERT/UPDATE is **deferred** until the next flush
+- Flush usually happens at **transaction commit** (or before a JPQL query that touches the same table)
+- This is the normal, efficient path
+
+**\`saveAndFlush()\`**
+- Calls \`save()\` then **immediately calls \`flush()\`**
+- SQL is sent to the DB right away (still inside the same transaction — not committed)
+- Useful when you need the DB to see the change before the transaction ends
+
+\`\`\`java
+@Transactional
+public void example() {
+    userRepo.save(user);          // entity is managed; no SQL yet
+    // ... other work ...
+    // SQL runs here at commit  ← deferred
+
+    userRepo.saveAndFlush(user);  // SQL runs IMMEDIATELY (still uncommitted)
+}
+\`\`\`
+
+**When to use \`saveAndFlush\`:**
+
+1. **You need the generated ID right now** and \`save()\` already returns it for \`IDENTITY\`, but for some flows you need other DB-computed columns (defaults, triggers) — \`flush()\` then \`refresh()\`.
+
+2. **You need to run a native query that reads the row you just inserted** — without flush, the row isn't in the DB yet, so the query won't find it.
+
+\`\`\`java
+@Transactional
+public void example(User u) {
+    userRepo.saveAndFlush(u);   // INSERT now
+
+    // Native query that bypasses the persistence context
+    Long count = jdbc.queryForObject("SELECT COUNT(*) FROM users", Long.class);
+}
+\`\`\`
+
+3. **You want validation/constraint violations to surface here**, not at commit time, so you can catch them in a specific try/catch block.
+
+\`\`\`java
+try {
+    userRepo.saveAndFlush(user);  // throws ConstraintViolationException here
+} catch (DataIntegrityViolationException e) {
+    // handle duplicate email, etc.
+}
+\`\`\`
+
+**Why \`save()\` is preferred 99% of the time:**
+
+| Aspect | save() | saveAndFlush() |
+|--------|--------|----------------|
+| SQL timing | Deferred (commit) | Immediate |
+| Batching | Works | Defeats batching |
+| Performance | Better | Slower per call |
+| Visibility to native queries | Only after flush | Right away |
+| Use case | Normal writes | Special cases |
+
+**Common pitfall — calling \`saveAndFlush\` in a loop kills batch performance:**
+
+\`\`\`java
+// BAD — 1000 immediate round-trips, no batching
+for (User u : users) {
+    userRepo.saveAndFlush(u);
+}
+
+// GOOD — batched at commit
+for (User u : users) {
+    userRepo.save(u);
+}
+\`\`\`
+
+**Rule of thumb:**
+- Default to \`save()\`
+- Use \`saveAndFlush()\` only when something downstream in the same transaction needs the row visible in the DB`
+    },
+    {
+      id: 8,
+      category: 'Transactions',
+      difficulty: 'Medium',
+      question: 'Explain the different Transaction Propagation types in Spring',
+      answer: `**Propagation defines how a \`@Transactional\` method behaves when called from another \`@Transactional\` method.**
+
+The question is: when method B is called from inside an existing transaction, should B join that transaction, suspend it, or open a new one?
+
+\`\`\`java
+@Transactional(propagation = Propagation.REQUIRED)
+public void method() { ... }
+\`\`\`
+
+**The 7 propagation types:**
+
+**1. \`REQUIRED\` (default)** — Join the existing transaction, or start a new one.
+- 99% of the time, this is what you want
+- One transaction = all-or-nothing across all REQUIRED methods
+
+\`\`\`
+Tx A: methodA() → methodB() (REQUIRED) → both in same tx
+       (no tx)   → methodB() (REQUIRED) → new tx
+\`\`\`
+
+**2. \`REQUIRES_NEW\`** — Always start a new transaction; suspend the outer one if present.
+- The new tx commits/rolls back independently
+- Useful for audit logs, sending notifications: you want them recorded even if the outer tx fails
+
+\`\`\`java
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void logAudit(AuditEntry e) { ... }
+\`\`\`
+
+**3. \`SUPPORTS\`** — Join the existing transaction if there is one; otherwise run non-transactionally.
+- Useful for read-only methods that can run either way
+
+**4. \`NOT_SUPPORTED\`** — Suspend the outer transaction; run non-transactionally.
+- Use when calling code that absolutely must not be inside a transaction (e.g. external API call, long task)
+
+**5. \`MANDATORY\`** — There MUST be an existing transaction, else throw \`IllegalTransactionStateException\`.
+- Useful as a defensive check: "this method should only be called from within a transaction"
+
+**6. \`NEVER\`** — There must NOT be an existing transaction, else throw exception.
+
+**7. \`NESTED\`** — A savepoint inside the existing transaction.
+- Inner rollback rolls back to the savepoint, outer can still commit
+- Only works with JDBC savepoint support
+- Outer rollback rolls back everything
+
+**Comparison table:**
+
+| Propagation | Existing tx | No tx |
+|-------------|-------------|-------|
+| REQUIRED (default) | Join | Create |
+| REQUIRES_NEW | Suspend, create new | Create |
+| SUPPORTS | Join | Run without tx |
+| NOT_SUPPORTED | Suspend, run without | Run without tx |
+| MANDATORY | Join | **Exception** |
+| NEVER | **Exception** | Run without tx |
+| NESTED | Savepoint | Create |
+
+**Common pitfall — self-invocation breaks @Transactional:**
+
+\`\`\`java
+@Service
+public class UserService {
+    @Transactional
+    public void outer() {
+        inner();              // BAD — bypasses Spring's proxy
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void inner() { ... }   // REQUIRES_NEW is IGNORED here
+}
+\`\`\`
+
+Spring's \`@Transactional\` works via a proxy. Calling \`this.inner()\` skips the proxy → no new transaction starts. **Fix:** call through a self-reference (\`AopContext.currentProxy()\`) or split into two beans.
+
+**Best practices:**
+- Default to \`REQUIRED\` — change only when you have a clear reason
+- Use \`REQUIRES_NEW\` for audit/logging that must commit independently
+- Use \`readOnly = true\` for query-only methods (hints DB, disables dirty checking)
+- Avoid \`NESTED\` unless you really understand savepoints`
+    },
+    {
+      id: 9,
+      category: 'Relationships',
+      difficulty: 'Medium',
+      question: 'Difference between mappedBy and @JoinColumn?',
+      answer: `In a bidirectional JPA relationship, **one side owns the foreign key, and one side mirrors it.** \`@JoinColumn\` belongs on the **owning side**. \`mappedBy\` belongs on the **inverse side**.
+
+**The rule:**
+- **\`@JoinColumn\`** → "I own the FK column. Here's its name."
+- **\`mappedBy\`** → "I do NOT own the FK. The other side does — look at its field."
+
+---
+
+**Example — Department (1) ↔ (N) Employee:**
+
+\`\`\`java
+@Entity
+public class Department {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    // INVERSE side — does NOT own the FK
+    @OneToMany(mappedBy = "department")    // 👈 points to the field in Employee
+    private List<Employee> employees = new ArrayList<>();
+}
+
+@Entity
+public class Employee {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    // OWNING side — has the FK column
+    @ManyToOne
+    @JoinColumn(name = "department_id")    // 👈 actual FK column in employees table
+    private Department department;
+}
+\`\`\`
+
+**Resulting schema:**
+\`\`\`sql
+employees (
+    id BIGINT PRIMARY KEY,
+    department_id BIGINT REFERENCES departments(id)   -- FK lives HERE
+);
+\`\`\`
+
+There's only **one** FK column, on the many-side. \`mappedBy = "department"\` tells JPA "the owning field is called \`department\` over in \`Employee\`."
+
+---
+
+**Why this matters — only the owning side writes the FK:**
+
+\`\`\`java
+Department dept = ...;
+Employee emp = new Employee();
+
+dept.getEmployees().add(emp);   // only updates the in-memory list
+                                // FK in DB is NOT set!
+
+emp.setDepartment(dept);        // sets the FK — this is what JPA persists
+\`\`\`
+
+Modifying the inverse side (\`dept.getEmployees()\`) **alone** does not update the database. You must set the owning side. The usual fix is a helper method that sets both:
+
+\`\`\`java
+public void addEmployee(Employee e) {
+    employees.add(e);
+    e.setDepartment(this);
+}
+\`\`\`
+
+---
+
+**Unidirectional — only one side, no \`mappedBy\` needed:**
+
+\`\`\`java
+@Entity
+public class Department {
+    @OneToMany
+    @JoinColumn(name = "department_id")   // owning side, but on the "one" end
+    private List<Employee> employees;
+}
+\`\`\`
+
+Without \`mappedBy\`, Hibernate assumes you own the FK and either:
+- Adds the FK column to Employee (if you used \`@JoinColumn\`), or
+- Creates a separate **join table** \`department_employees\` (default, usually undesirable)
+
+---
+
+**@ManyToMany — owning side gets \`@JoinTable\`:**
+
+\`\`\`java
+@Entity
+public class Student {
+    @ManyToMany
+    @JoinTable(
+        name = "student_course",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private Set<Course> courses;
+}
+
+@Entity
+public class Course {
+    @ManyToMany(mappedBy = "courses")    // inverse side
+    private Set<Student> students;
+}
+\`\`\`
+
+---
+
+**Summary:**
+
+| | mappedBy | @JoinColumn |
+|---|----------|-------------|
+| Goes on | Inverse side | Owning side |
+| Owns FK? | No | Yes |
+| Triggers DB write? | No (read-only view) | Yes |
+| Required for bidirectional? | Yes | Yes (on the other side) |
+
+**Rule of thumb:**
+- For \`@OneToMany\` / \`@ManyToOne\` — the **many** side owns the FK (\`@JoinColumn\` there, \`mappedBy\` on the one)
+- For \`@OneToOne\` — either side can own; pick the one that's more often queried by FK
+- For \`@ManyToMany\` — pick a side as owning, put \`@JoinTable\` there, \`mappedBy\` on the other`
+    },
+    {
+      id: 10,
+      category: 'Queries',
+      difficulty: 'Easy',
+      question: 'When should you use a native query in JPA?',
+      answer: `**Native query = raw SQL executed directly through JPA, instead of JPQL/HQL.**
+
+\`\`\`java
+@Query(value = "SELECT * FROM users WHERE created_at > NOW() - INTERVAL '7 days'",
+       nativeQuery = true)
+List<User> findRecent();
+\`\`\`
+
+**Default to JPQL. Reach for native SQL only when JPQL can't express what you need.**
+
+---
+
+**Good reasons to use native queries:**
+
+**1. Database-specific SQL features JPQL doesn't support:**
+- PostgreSQL: JSONB operators, window functions with complex frames, \`ON CONFLICT\`, CTEs in some JPA versions, full-text search
+- MySQL: hints (\`USE INDEX\`)
+- Oracle: \`CONNECT BY\`, hierarchical queries
+- DB-specific date functions (\`DATE_TRUNC\`, \`EXTRACT\`)
+
+\`\`\`java
+@Query(value = """
+    SELECT * FROM users
+    WHERE preferences @> CAST(:filter AS jsonb)
+    """, nativeQuery = true)
+List<User> findByPreferenceJson(@Param("filter") String filter);
+\`\`\`
+
+**2. Performance-critical bulk operations:**
+\`\`\`java
+@Modifying
+@Query(value = "UPDATE users SET last_seen = NOW() WHERE id IN (:ids)",
+       nativeQuery = true)
+int updateLastSeen(@Param("ids") List<Long> ids);
+\`\`\`
+
+**3. Reporting queries with aggregations / joins JPA mappings can't express cleanly:**
+\`\`\`java
+@Query(value = """
+    SELECT u.country, COUNT(*) as cnt, AVG(o.total) as avg_order
+    FROM users u
+    JOIN orders o ON o.user_id = u.id
+    WHERE o.created_at > :since
+    GROUP BY u.country
+    """, nativeQuery = true)
+List<Object[]> countryReport(@Param("since") Instant since);
+\`\`\`
+
+**4. Working with stored procedures and database functions:**
+\`\`\`java
+@Query(value = "SELECT * FROM calculate_recommendations(:userId)", nativeQuery = true)
+List<Recommendation> getRecommendations(@Param("userId") Long userId);
+\`\`\`
+
+**5. Queries that mix multiple unrelated entities or non-entity tables:**
+\`\`\`java
+@Query(value = """
+    SELECT u.id, u.name, COUNT(o.id)
+    FROM users u
+    LEFT JOIN unmapped_orders_table o ON o.user_id = u.id
+    GROUP BY u.id, u.name
+    """, nativeQuery = true)
+List<Object[]> userOrderCounts();
+\`\`\`
+
+---
+
+**Reasons NOT to use native queries:**
+
+- Loses **database portability** (locks you to one DB)
+- Loses **type-safety** of JPQL entity references
+- Hibernate cannot **dialect-translate** them
+- Returns may need manual mapping to entities/DTOs
+- **No second-level cache benefit**
+- **No automatic dirty checking** for results
+
+---
+
+**Pagination requires a \`countQuery\`:**
+
+\`\`\`java
+@Query(value      = "SELECT * FROM users WHERE active = true",
+       countQuery = "SELECT COUNT(*) FROM users WHERE active = true",
+       nativeQuery = true)
+Page<User> findActive(Pageable pageable);
+\`\`\`
+
+**Mapping to a DTO with \`@SqlResultSetMapping\`:**
+
+\`\`\`java
+@SqlResultSetMapping(
+    name = "UserSummaryMapping",
+    classes = @ConstructorResult(
+        targetClass = UserSummary.class,
+        columns = {
+            @ColumnResult(name = "id", type = Long.class),
+            @ColumnResult(name = "name", type = String.class)
+        }
+    )
+)
+\`\`\`
+
+**Best practices:**
+- Use **JPQL by default**; only switch to native when JPQL is too limited or too slow
+- Always parameterize (\`:param\`) — never concatenate user input
+- Keep native queries in repositories, not scattered through the codebase
+- Document **why** native was needed — easier to revisit later`
+    },
+    {
+      id: 11,
+      category: 'Performance',
+      difficulty: 'Medium',
+      question: 'How do you perform a batch insert in Spring Data JPA? Inserting 100+ rows efficiently',
+      answer: `**Problem:** \`saveAll(list)\` of 100 entities by default issues 100 separate INSERT round-trips. With batching configured properly, those collapse into 2–5 round-trips.
+
+---
+
+**Step 1 — Enable JDBC batching in \`application.properties\`:**
+
+\`\`\`properties
+spring.jpa.properties.hibernate.jdbc.batch_size=50
+spring.jpa.properties.hibernate.order_inserts=true
+spring.jpa.properties.hibernate.order_updates=true
+spring.jpa.properties.hibernate.jdbc.batch_versioned_data=true
+
+# Add to JDBC URL for PostgreSQL/MySQL — required for true batching
+spring.datasource.url=jdbc:postgresql://localhost/db?reWriteBatchedInserts=true
+\`\`\`
+
+\`reWriteBatchedInserts=true\` rewrites \`N\` separate INSERTs into a **single multi-row INSERT** — a huge speedup.
+
+---
+
+**Step 2 — Don't use \`GenerationType.IDENTITY\`:**
+
+\`\`\`java
+// BAD — IDENTITY forces immediate per-row INSERT to get the generated ID
+@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+\`\`\`
+
+\`\`\`java
+// GOOD — SEQUENCE batches IDs and INSERTs
+@Id
+@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+@SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 50)
+private Long id;
+\`\`\`
+
+---
+
+**Step 3 — Write the batch correctly (flush + clear every N):**
+
+\`\`\`java
+@PersistenceContext
+EntityManager em;
+
+@Transactional
+public void bulkInsert(List<User> users) {
+    int batchSize = 50;
+    for (int i = 0; i < users.size(); i++) {
+        em.persist(users.get(i));
+
+        if (i > 0 && i % batchSize == 0) {
+            em.flush();   // send INSERTs to DB
+            em.clear();   // detach managed entities (frees memory, avoids OOM)
+        }
+    }
+    em.flush();           // final batch
+    em.clear();
+}
+\`\`\`
+
+**Why flush + clear?**
+Without \`em.clear()\`, every entity stays in the first-level cache. With 100k rows, this is ~100k objects in memory plus growing dirty-checking cost. \`clear()\` detaches them.
+
+---
+
+**Step 4 — Don't use \`saveAndFlush\` in a loop:**
+
+\`\`\`java
+// BAD — defeats batching, immediate per-row round-trip
+for (User u : users) {
+    userRepo.saveAndFlush(u);
+}
+
+// OK — batches at commit
+userRepo.saveAll(users);
+\`\`\`
+
+\`saveAll()\` is fine **once batching is configured** — it just calls \`save()\` in a loop.
+
+---
+
+**Verifying that batching is actually working:**
+
+Enable Hibernate statistics:
+\`\`\`properties
+spring.jpa.properties.hibernate.generate_statistics=true
+logging.level.org.hibernate.stat=DEBUG
+\`\`\`
+
+Look for: \`JDBC batches: 2\` (not \`JDBC executions: 100\`).
+
+Or watch the DB: with PostgreSQL \`reWriteBatchedInserts=true\`, you should see one big INSERT with all values.
+
+---
+
+**Alternative — JdbcTemplate for max performance (skip JPA entirely):**
+
+\`\`\`java
+jdbc.batchUpdate(
+    "INSERT INTO users (name, email) VALUES (?, ?)",
+    users,
+    50,
+    (ps, user) -> {
+        ps.setString(1, user.getName());
+        ps.setString(2, user.getEmail());
+    }
+);
+\`\`\`
+
+When inserting **millions** of rows for ETL/import, this is significantly faster than JPA.
+
+---
+
+**Alternative — \`StatelessSession\` for ORM-aware bulk loads without the overhead:**
+
+\`\`\`java
+StatelessSession ss = sessionFactory.openStatelessSession();
+Transaction tx = ss.beginTransaction();
+for (User u : users) ss.insert(u);
+tx.commit();
+ss.close();
+\`\`\`
+
+No first-level cache, no dirty checking, no cascades — just fast INSERTs.
+
+---
+
+**Best practices:**
+- Set \`batch_size\` between 20 and 100
+- Use \`SEQUENCE\`, never \`IDENTITY\`, for batched inserts
+- Enable \`reWriteBatchedInserts=true\` (Postgres) or \`rewriteBatchedStatements=true\` (MySQL) in the JDBC URL
+- Always \`flush() + clear()\` periodically in big loops
+- For one-off ETL of millions of rows, use \`JdbcTemplate.batchUpdate\` instead of JPA`
     }
   ]
 
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -986,7 +1946,7 @@ private List<Child> children;
       }}>
         {availableCategories.map((cat) => {
           const isActive = activeCategory === cat
-          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
           const color = cat === 'All' ? '#3b82f6' : '#3b82f6'
           return (
             <button

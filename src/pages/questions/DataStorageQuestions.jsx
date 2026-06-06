@@ -436,7 +436,10 @@ for (let i = 0; i < file.size; i += chunkSize) {
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -480,7 +483,7 @@ for (let i = 0; i < file.size; i += chunkSize) {
               marginBottom: '1rem'
             }}
           >
-            ← Back
+            â† Back
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -501,7 +504,7 @@ for (let i = 0; i < file.size; i += chunkSize) {
           onSelect={(index) => setExpandedId(displayQuestions[index].id)}
           title="Questions"
           getItemLabel={(item) => `${item.id}. ${item.category}`}
-          getItemIcon={() => '❓'}
+          getItemIcon={() => 'â“'}
           primaryColor="#3b82f6"
         />
 
@@ -581,7 +584,7 @@ for (let i = 0; i < file.size; i += chunkSize) {
         }}>
           {availableCategories.map((cat) => {
             const isActive = activeCategory === cat
-            const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+            const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
             const color = cat === 'All' ? '#3b82f6' : '#3b82f6'
             return (
               <button
@@ -683,7 +686,7 @@ for (let i = 0; i < file.size; i += chunkSize) {
                     transform: expandedId === q.id ? 'rotate(180deg)' : 'rotate(0)',
                     transition: 'transform 0.2s'
                   }}>
-                    ▼
+                    â–¼
                   </span>
                 </button>
                 {expandedId === q.id && (

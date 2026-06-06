@@ -1381,7 +1381,10 @@ curl http://jobmanager:8081/jobs/<job-id>/metrics
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -1551,7 +1554,7 @@ curl http://jobmanager:8081/jobs/<job-id>/metrics
       }}>
         {availableCategories.map((cat) => {
           const isActive = activeCategory === cat
-          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
           const color = cat === 'All' ? '#3b82f6' : getCategoryColor(cat)
           return (
             <button

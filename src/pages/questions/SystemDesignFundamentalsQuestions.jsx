@@ -470,7 +470,7 @@ function SystemDesignFundamentalsQuestions({ onBack, problemLimit }) {
 - Average video minute = 50-150 MB
 
 **Time:**
-- 1 day = 86,400 seconds ≈ 100K seconds
+- 1 day = 86,400 seconds â‰ˆ 100K seconds
 - 1 month = 2.5 million seconds
 - 1 year = 31.5 million seconds
 
@@ -482,24 +482,27 @@ function SystemDesignFundamentalsQuestions({ onBack, problemLimit }) {
 **Example Calculation - Twitter:**
 - 500M tweets/day
 - Average tweet: 140 bytes
-- Daily storage: 500M × 140 = 70 GB/day
+- Daily storage: 500M Ã— 140 = 70 GB/day
 - With metadata (user, timestamp): ~200 GB/day
-- Yearly: 200 GB × 365 = 73 TB/year
+- Yearly: 200 GB Ã— 365 = 73 TB/year
 
 **QPS Calculation:**
-- 500M tweets/day ÷ 100K seconds = 5,000 writes/sec
+- 500M tweets/day Ã· 100K seconds = 5,000 writes/sec
 - Read:Write ratio 100:1 = 500,000 reads/sec
 - Peak (2x average) = 1M reads/sec
 
 **Memory for caching 20% of daily tweets:**
-- 100M tweets × 140 bytes = 14 GB RAM`
+- 100M tweets Ã— 140 bytes = 14 GB RAM`
     }
   ]
 
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -544,7 +547,7 @@ function SystemDesignFundamentalsQuestions({ onBack, problemLimit }) {
               marginBottom: '1rem'
             }}
           >
-            ← Back
+            â† Back
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -565,7 +568,7 @@ function SystemDesignFundamentalsQuestions({ onBack, problemLimit }) {
           onSelect={(index) => setExpandedId(displayQuestions[index].id)}
           title="Questions"
           getItemLabel={(item) => `${item.id}. ${item.category}`}
-          getItemIcon={() => '❓'}
+          getItemIcon={() => 'â“'}
           primaryColor="#3b82f6"
         />
 
@@ -646,7 +649,7 @@ function SystemDesignFundamentalsQuestions({ onBack, problemLimit }) {
         }}>
           {availableCategories.map((cat) => {
             const isActive = activeCategory === cat
-            const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+            const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
             const color = cat === 'All' ? '#3b82f6' : '#3b82f6'
             return (
               <button
@@ -747,7 +750,7 @@ function SystemDesignFundamentalsQuestions({ onBack, problemLimit }) {
                     transform: expandedId === q.id ? 'rotate(180deg)' : 'rotate(0)',
                     transition: 'transform 0.2s'
                   }}>
-                    ▼
+                    â–¼
                   </span>
                 </button>
                 {expandedId === q.id && (

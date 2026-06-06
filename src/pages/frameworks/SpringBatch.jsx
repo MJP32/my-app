@@ -139,7 +139,8 @@ function SpringBatch({ onBack, breadcrumb }) {
           { id: 'processors', label: 'Processors' },
           { id: 'writers', label: 'Writers' },
           { id: 'fault', label: 'Fault Tolerance' },
-          { id: 'scheduling', label: 'Scheduling' }
+          { id: 'scheduling', label: 'Scheduling' },
+          { id: 'partitioning', label: 'Partitioning & Parallel' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -1949,6 +1950,483 @@ public class CloudTaskBatchApp {
                 <strong>Production Tip:</strong> In Kubernetes or cloud environments, prefer short-lived batch
                 applications launched as CronJobs over long-running applications with @Scheduled. This gives
                 better resource utilization, isolation, and scaling characteristics.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Partitioning & Parallel Processing Section */}
+      {activeSection === 'partitioning' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '1px solid #374151'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+              Why Parallel Processing?
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              By default, Spring Batch processes chunks sequentially in a single thread. For large data sets,
+              this is the limiting factor. Spring Batch offers four scaling strategies, each with different
+              trade-offs between simplicity, throughput, and infrastructure cost.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+              {[
+                { icon: '\u{1F9F5}', title: 'Multi-threaded Step', desc: 'Single step processes chunks across a TaskExecutor. Simplest, but reader/writer must be thread-safe.' },
+                { icon: '\u{1F500}', title: 'Parallel Steps', desc: 'Independent steps run concurrently inside a flow. Good for unrelated work in the same job.' },
+                { icon: '\u{1F9E9}', title: 'Local Partitioning', desc: 'Master step splits work into partitions; slave steps run in parallel threads with isolated context.' },
+                { icon: '\u{1F30D}', title: 'Remote Partitioning / Chunking', desc: 'Partitions or chunks dispatched to worker JVMs over messaging (Kafka, RabbitMQ, JMS) for horizontal scale.' }
+              ].map((feature, index) => (
+                <div key={index} style={{
+                  backgroundColor: '#1f2937',
+                  padding: '1.5rem',
+                  borderRadius: '8px',
+                  border: '1px solid #374151'
+                }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{feature.icon}</div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#d1d5db', marginBottom: '0.5rem' }}>
+                    {feature.title}
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: '#9ca3af', margin: 0 }}>
+                    {feature.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div style={{
+              backgroundColor: '#064e3b',
+              padding: '1rem',
+              borderRadius: '8px',
+              borderLeft: '4px solid #f59e0b',
+              marginTop: '1rem'
+            }}>
+              <p style={{ fontSize: '0.95rem', color: '#6ee7b7', margin: 0 }}>
+                <strong>Decision Guide:</strong> Start with multi-threaded steps for moderate scale. Move to
+                local partitioning when you need predictable throughput and isolated transactions per partition.
+                Use remote partitioning only when a single JVM cannot keep up.
+              </p>
+            </div>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '1px solid #374151'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+              Multi-Threaded Step
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              Attach a TaskExecutor to a step and Spring Batch will dispatch each chunk to a worker thread.
+              Easy to enable, but the reader and writer must be thread-safe (or wrapped with
+              SynchronizedItemStreamReader / SynchronizedItemStreamWriter).
+            </p>
+            <div style={{
+              backgroundColor: '#1e1e1e',
+              padding: '1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <SyntaxHighlighter code={`@Configuration
+public class MultiThreadedStepConfig {
+
+    @Bean
+    public TaskExecutor batchTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(16);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("batch-worker-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
+    public Step multiThreadedStep(JobRepository jobRepository,
+                                  PlatformTransactionManager txManager,
+                                  ItemReader<Order> reader,
+                                  ItemProcessor<Order, OrderDto> processor,
+                                  ItemWriter<OrderDto> writer,
+                                  TaskExecutor batchTaskExecutor) {
+        return new StepBuilder("multiThreadedStep", jobRepository)
+            .<Order, OrderDto>chunk(500, txManager)
+            .reader(reader)
+            .processor(processor)
+            .writer(writer)
+            .taskExecutor(batchTaskExecutor)
+            .throttleLimit(8) // max concurrent chunks
+            .build();
+    }
+
+    // Wrap a non-thread-safe reader so it can be used safely
+    @Bean
+    public SynchronizedItemStreamReader<Order> synchronizedReader(
+            FlatFileItemReader<Order> delegate) {
+        SynchronizedItemStreamReader<Order> reader =
+            new SynchronizedItemStreamReader<>();
+        reader.setDelegate(delegate);
+        return reader;
+    }
+}`} />
+            </div>
+            <div style={{
+              backgroundColor: '#3f1f1f',
+              padding: '1rem',
+              borderRadius: '8px',
+              borderLeft: '4px solid #ef4444',
+              marginTop: '1rem'
+            }}>
+              <p style={{ fontSize: '0.95rem', color: '#fca5a5', margin: 0 }}>
+                <strong>Caveat:</strong> Most file readers (FlatFileItemReader, StaxEventItemReader) are NOT
+                thread-safe. JdbcCursorItemReader is also not thread-safe. Use JdbcPagingItemReader or
+                JpaPagingItemReader instead, or wrap with SynchronizedItemStreamReader.
+              </p>
+            </div>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '1px solid #374151'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+              Parallel Steps with Split Flows
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              When a job has independent steps (e.g., import customers, import products, import inventory),
+              run them concurrently with a split flow. Each branch runs on a separate thread.
+            </p>
+            <div style={{
+              backgroundColor: '#1e1e1e',
+              padding: '1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <SyntaxHighlighter code={`@Bean
+public Job parallelImportJob(JobRepository jobRepository,
+                             Step importCustomersStep,
+                             Step importProductsStep,
+                             Step importInventoryStep,
+                             Step reconcileStep,
+                             TaskExecutor batchTaskExecutor) {
+
+    Flow customersFlow = new FlowBuilder<Flow>("customersFlow")
+        .start(importCustomersStep)
+        .build();
+
+    Flow productsFlow = new FlowBuilder<Flow>("productsFlow")
+        .start(importProductsStep)
+        .build();
+
+    Flow inventoryFlow = new FlowBuilder<Flow>("inventoryFlow")
+        .start(importInventoryStep)
+        .build();
+
+    Flow parallelFlow = new FlowBuilder<Flow>("parallelImports")
+        .split(batchTaskExecutor)
+        .add(customersFlow, productsFlow, inventoryFlow)
+        .build();
+
+    return new JobBuilder("parallelImportJob", jobRepository)
+        .start(parallelFlow)
+        .next(reconcileStep) // runs after all parallel branches complete
+        .end()
+        .build();
+}`} />
+            </div>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '1px solid #374151'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+              Local Partitioning
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              Partitioning splits a step into multiple "slave" step executions, each with its own slice of
+              data. A Partitioner builds the partitions (e.g., by ID range or file), and a PartitionHandler
+              dispatches them to a TaskExecutor. Each partition gets its own ExecutionContext, transaction,
+              and metadata.
+            </p>
+            <div style={{
+              backgroundColor: '#1e1e1e',
+              padding: '1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <SyntaxHighlighter code={`// Custom Partitioner - splits work by ID range
+@Component
+public class RangePartitioner implements Partitioner {
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Override
+    public Map<String, ExecutionContext> partition(int gridSize) {
+        long minId = orderRepository.findMinId();
+        long maxId = orderRepository.findMaxId();
+        long range = (maxId - minId) / gridSize + 1;
+
+        Map<String, ExecutionContext> partitions = new HashMap<>();
+        long start = minId;
+
+        for (int i = 0; i < gridSize; i++) {
+            ExecutionContext ctx = new ExecutionContext();
+            long end = Math.min(start + range - 1, maxId);
+            ctx.putLong("minId", start);
+            ctx.putLong("maxId", end);
+            partitions.put("partition" + i, ctx);
+            start = end + 1;
+        }
+        return partitions;
+    }
+}
+
+// Slave step uses @StepScope reader bound to partition context
+@Bean
+@StepScope
+public JdbcPagingItemReader<Order> partitionedReader(
+        DataSource dataSource,
+        @Value("#{stepExecutionContext['minId']}") Long minId,
+        @Value("#{stepExecutionContext['maxId']}") Long maxId) {
+
+    return new JdbcPagingItemReaderBuilder<Order>()
+        .name("partitionedOrderReader")
+        .dataSource(dataSource)
+        .selectClause("SELECT id, customer_id, total")
+        .fromClause("FROM orders")
+        .whereClause("id BETWEEN :minId AND :maxId")
+        .parameterValues(Map.of("minId", minId, "maxId", maxId))
+        .sortKeys(Map.of("id", Order.ASCENDING))
+        .pageSize(1000)
+        .rowMapper(new OrderRowMapper())
+        .build();
+}
+
+@Bean
+public Step slaveStep(JobRepository jobRepository,
+                     PlatformTransactionManager txManager,
+                     JdbcPagingItemReader<Order> partitionedReader,
+                     ItemProcessor<Order, OrderDto> processor,
+                     ItemWriter<OrderDto> writer) {
+    return new StepBuilder("slaveStep", jobRepository)
+        .<Order, OrderDto>chunk(500, txManager)
+        .reader(partitionedReader)
+        .processor(processor)
+        .writer(writer)
+        .build();
+}
+
+// Master step coordinates partitions
+@Bean
+public Step masterStep(JobRepository jobRepository,
+                      Step slaveStep,
+                      RangePartitioner partitioner,
+                      TaskExecutor batchTaskExecutor) {
+    return new StepBuilder("masterStep", jobRepository)
+        .partitioner("slaveStep", partitioner)
+        .step(slaveStep)
+        .gridSize(10) // 10 partitions
+        .taskExecutor(batchTaskExecutor)
+        .build();
+}
+
+@Bean
+public Job partitionedJob(JobRepository jobRepository, Step masterStep) {
+    return new JobBuilder("partitionedJob", jobRepository)
+        .incrementer(new RunIdIncrementer())
+        .start(masterStep)
+        .build();
+}`} />
+            </div>
+            <div style={{
+              backgroundColor: '#064e3b',
+              padding: '1rem',
+              borderRadius: '8px',
+              borderLeft: '4px solid #f59e0b',
+              marginTop: '1rem'
+            }}>
+              <p style={{ fontSize: '0.95rem', color: '#6ee7b7', margin: 0 }}>
+                <strong>Why partitioning beats multi-threaded step:</strong> Each partition has its own
+                transaction, its own reader instance, and its own metadata in the JobRepository. Failures
+                are isolated per partition and only failed partitions are restarted. Thread-safety concerns
+                largely disappear because each slave reader sees a disjoint slice of data.
+              </p>
+            </div>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '1px solid #374151'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+              Async ItemProcessor & ItemWriter
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              When the processor is the bottleneck (e.g., it calls a slow external service), wrap it in
+              AsyncItemProcessor to process items concurrently while preserving chunk transactional semantics.
+              Pair with AsyncItemWriter to consume the Future results.
+            </p>
+            <div style={{
+              backgroundColor: '#1e1e1e',
+              padding: '1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <SyntaxHighlighter code={`// build.gradle:
+// implementation "org.springframework.batch:spring-batch-integration"
+
+@Configuration
+public class AsyncProcessingConfig {
+
+    @Bean
+    public AsyncItemProcessor<Order, OrderDto> asyncProcessor(
+            ItemProcessor<Order, OrderDto> delegate,
+            TaskExecutor batchTaskExecutor) {
+        AsyncItemProcessor<Order, OrderDto> processor =
+            new AsyncItemProcessor<>();
+        processor.setDelegate(delegate);
+        processor.setTaskExecutor(batchTaskExecutor);
+        return processor;
+    }
+
+    @Bean
+    public AsyncItemWriter<OrderDto> asyncWriter(
+            ItemWriter<OrderDto> delegate) {
+        AsyncItemWriter<OrderDto> writer = new AsyncItemWriter<>();
+        writer.setDelegate(delegate);
+        return writer;
+    }
+
+    @Bean
+    public Step asyncStep(JobRepository jobRepository,
+                          PlatformTransactionManager txManager,
+                          ItemReader<Order> reader,
+                          AsyncItemProcessor<Order, OrderDto> asyncProcessor,
+                          AsyncItemWriter<OrderDto> asyncWriter) {
+        return new StepBuilder("asyncStep", jobRepository)
+            .<Order, Future<OrderDto>>chunk(500, txManager)
+            .reader(reader)
+            .processor(asyncProcessor)
+            .writer(asyncWriter)
+            .build();
+    }
+}`} />
+            </div>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '1px solid #374151'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
+              Remote Partitioning (Multi-JVM)
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              When a single JVM cannot keep up, distribute partitions across worker JVMs using
+              MessageChannelPartitionHandler over Kafka, RabbitMQ, or JMS. The master sends partition
+              metadata to a request channel; workers consume, run the slave step, and return results on a
+              reply channel.
+            </p>
+            <div style={{
+              backgroundColor: '#1e1e1e',
+              padding: '1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <SyntaxHighlighter code={`// Master side - sends partitions to workers via message channel
+@Configuration
+@EnableBatchIntegration
+public class RemotePartitioningMasterConfig {
+
+    @Autowired
+    private RemotePartitioningMasterStepBuilderFactory masterFactory;
+
+    @Bean
+    public DirectChannel requestsChannel() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public DirectChannel repliesChannel() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public IntegrationFlow outboundFlow(
+            KafkaTemplate<String, Object> kafkaTemplate) {
+        return IntegrationFlow.from(requestsChannel())
+            .handle(Kafka.outboundChannelAdapter(kafkaTemplate)
+                .topic("batch.partitions.request"))
+            .get();
+    }
+
+    @Bean
+    public Step remoteMasterStep(RangePartitioner partitioner) {
+        return masterFactory.get("remoteMasterStep")
+            .partitioner("workerStep", partitioner)
+            .gridSize(20)
+            .outputChannel(requestsChannel())
+            .inputChannel(repliesChannel())
+            .build();
+    }
+}
+
+// Worker side - receives partitions, runs the slave step
+@Configuration
+@EnableBatchIntegration
+public class RemotePartitioningWorkerConfig {
+
+    @Autowired
+    private RemotePartitioningWorkerStepBuilderFactory workerFactory;
+
+    @Bean
+    public IntegrationFlow inboundFlow(ConsumerFactory<String, Object> cf) {
+        return IntegrationFlow.from(
+            Kafka.messageDrivenChannelAdapter(cf, "batch.partitions.request"))
+            .channel("requestsChannel")
+            .get();
+    }
+
+    @Bean
+    public Step workerStep(ItemReader<Order> partitionedReader,
+                          ItemProcessor<Order, OrderDto> processor,
+                          ItemWriter<OrderDto> writer) {
+        return workerFactory.get("workerStep")
+            .inputChannel(requestsChannel())
+            .outputChannel(repliesChannel())
+            .<Order, OrderDto>chunk(500)
+            .reader(partitionedReader)
+            .processor(processor)
+            .writer(writer)
+            .build();
+    }
+}`} />
+            </div>
+            <div style={{
+              backgroundColor: '#064e3b',
+              padding: '1rem',
+              borderRadius: '8px',
+              borderLeft: '4px solid #f59e0b',
+              marginTop: '1rem'
+            }}>
+              <p style={{ fontSize: '0.95rem', color: '#6ee7b7', margin: 0 }}>
+                <strong>Remote Partitioning vs. Remote Chunking:</strong> Remote partitioning sends partition
+                metadata (cheap) and workers do their own reading, processing, and writing. Remote chunking
+                sends actual data items over the wire (expensive) and only the processing is remote -
+                use remote chunking when the processor is by far the bottleneck.
               </p>
             </div>
           </div>

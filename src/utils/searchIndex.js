@@ -26,7 +26,7 @@ const categoryGroups = {
   'Frameworks': {
     icon: '🌱',
     color: '#ec4899',
-    items: ['Spring', 'Spring Boot', 'REST API', 'Dependency Injection', 'gRPC', 'SOAP', 'React', 'Angular', 'GraphQL', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Security', 'Ehcache', 'Shell Scripting', 'BFF']
+    items: ['Spring', 'Spring Boot', 'REST API', 'Dependency Injection', 'gRPC', 'SOAP', 'React', 'Angular', 'GraphQL', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Data', 'Spring Security', 'Ehcache', 'Shell Scripting', 'BFF']
   },
   'DevOps': {
     icon: '🛠️',
@@ -191,6 +191,7 @@ export const createSearchIndex = () => {
     { value: 'Actuator', title: 'Actuator', description: 'Spring Boot Actuator for monitoring, health checks, and production-ready features.', keywords: ['actuator', 'monitoring', 'health', 'metrics', 'prometheus', 'production'] },
     { value: 'Zipkin', title: 'Zipkin', description: 'Distributed tracing system for monitoring microservice architectures.', keywords: ['zipkin', 'tracing', 'distributed', 'sleuth', 'micrometer', 'observability', 'spans'] },
     { value: 'Spring Batch', title: 'Spring Batch', description: 'Batch processing framework for enterprise jobs with chunk-oriented processing.', keywords: ['spring batch', 'batch', 'chunk', 'job', 'step', 'reader', 'processor', 'writer', 'itemreader', 'itemwriter', 'tasklet', 'scheduling'] },
+    { value: 'Spring Data', title: 'Spring Data', description: 'Repositories, derived query methods, pagination, and Specifications for JPA and other stores.', keywords: ['spring data', 'jpa', 'repository', 'jparepository', 'crudrepository', 'pagingandsorting', 'query method', 'derived query', '@query', 'jpql', 'pageable', 'page', 'slice', 'sort', 'specification', 'jpaspecificationexecutor', 'querydsl', 'projection', '@modifying', 'auditing', 'spring data jpa', 'spring data mongodb', 'spring data redis'] },
     { value: 'Spring Security', title: 'Spring Security', description: 'Authentication and authorization framework for securing Spring applications with JWT, OAuth2, and CSRF protection.', keywords: ['spring security', 'authentication', 'authorization', 'jwt', 'oauth2', 'csrf', 'cors', 'filter chain', 'password encoder', 'bcrypt', 'role', 'permission', 'method security', 'preauthorize'] },
     { value: 'Ehcache', title: 'Ehcache', description: 'Java-based caching library with tiered storage, Spring Cache integration, and Hibernate L2 cache support.', keywords: ['ehcache', 'cache', 'caching', 'jcache', 'jsr-107', 'tiered', 'heap', 'offheap', 'disk', 'ttl', 'tti', 'eviction', 'spring cache', 'cacheable', 'hibernate l2', 'second level cache', 'terracotta', 'distributed cache'] },
     { value: 'Shell Scripting', title: 'Unix/Shell Scripting', description: 'Bash scripting essentials: variables, control flow, text processing with grep/sed/awk, pipes, process management, and automation.', keywords: ['shell', 'bash', 'unix', 'linux', 'scripting', 'grep', 'sed', 'awk', 'pipe', 'redirect', 'cron', 'chmod', 'find', 'curl', 'ssh', 'process', 'terminal', 'command line', 'cli'] },
@@ -241,6 +242,7 @@ export const createSearchIndex = () => {
     { value: 'Caching Strategies', title: 'Caching Strategies', description: 'Caching patterns including write-through, write-back, and cache-aside.', keywords: ['caching', 'cache', 'redis', 'memcached', 'cdn', 'eviction', 'ttl'] },
     { value: 'CAP Theorem', title: 'CAP Theorem', description: 'CAP theorem explaining consistency, availability, and partition tolerance trade-offs.', keywords: ['cap', 'theorem', 'consistency', 'availability', 'partition', 'tolerance'] },
     // Projects
+    { value: 'Semaphore Internals', title: 'Semaphore Internals', description: 'Deep dive into Java Semaphore: permit-based synchronization, fair vs non-fair, connection pooling, rate limiting, comparison with mutex.', keywords: ['semaphore', 'internals', 'permits', 'acquire', 'release', 'fair', 'unfair', 'connection pool', 'rate limiting', 'mutex', 'binary semaphore', 'counting semaphore', 'aqs', 'java concurrency'] },
     { value: 'Var/CVar', title: 'VaR/CVaR', description: 'Value at Risk and Conditional Value at Risk calculations for financial risk management.', keywords: ['var', 'cvar', 'risk', 'financial', 'value', 'conditional'] },
     { value: 'Dark Pool Matching Engine', title: 'Dark Pool Matching Engine', description: 'Dark pool trading system with order matching algorithms and liquidity optimization.', keywords: ['dark', 'pool', 'matching', 'engine', 'trading', 'order', 'book'] },
     { value: 'Financial Banking', title: 'Financial Banking', description: 'Financial transaction processing, payment systems, and banking domain concepts.', keywords: ['financial', 'banking', 'payment', 'transaction', 'settlement'] },
@@ -550,91 +552,206 @@ export const createSearchIndex = () => {
     })
   })
 
+  // ============================================================
+  // Topic shortcuts \u2014 Q&A topics and concept-card detail subjects
+  // routed to the page where the user can find them.
+  // ============================================================
+  const topicShortcuts = [
+    // === Java page \u2014 Interview Fundamentals card ===
+    { title: 'Class Loaders', page: 'Java', icon: '\u2615', desc: 'Bootstrap, Platform, Application class loaders + parent delegation', keywords: ['classloader', 'class loader', 'classloading', 'bootstrap', 'platform classloader', 'application classloader', 'parent delegation', 'tomcat classloader', 'classloader leak'] },
+    { title: 'Garbage Collection \u2014 Mark & Sweep', page: 'Java', icon: '\u2615', desc: 'GC algorithm: trace from roots, sweep unreachable, optional compact', keywords: ['gc', 'garbage collection', 'mark sweep', 'mark and sweep', 'reachability', 'gc roots', 'g1', 'zgc', 'compact', 'tenured', 'minor gc', 'major gc'] },
+    { title: 'this and super keywords', page: 'Java', icon: '\u2615', desc: 'this references current instance; super references parent class', keywords: ['this', 'super', 'this()', 'super()', 'parent constructor', 'override'] },
+    { title: 'static keyword', page: 'Java', icon: '\u2615', desc: 'Class-level fields, methods, blocks, nested classes, imports', keywords: ['static', 'static method', 'static field', 'static block', 'static nested class', 'static import'] },
+    { title: 'Static Initializer Block', page: 'Java', icon: '\u2615', desc: 'Runs once on class load; initialization order', keywords: ['static block', 'static initializer', 'class loading', 'clinit', 'initialization order'] },
+    { title: 'Private Constructor', page: 'Java', icon: '\u2615', desc: 'Singleton, utility class, factory method, builder pattern', keywords: ['private constructor', 'singleton', 'utility class', 'factory method', 'builder pattern'] },
+    { title: 'Ways to Create an Object', page: 'Java', icon: '\u2615', desc: 'new, reflection, clone, deserialization, factory methods', keywords: ['new', 'create object', 'reflection', 'clone', 'cloneable', 'deserialization', 'factory method', 'instantiate'] },
+    { title: 'JVM vs JDK vs JRE', page: 'Java', icon: '\u2615', desc: 'Nested: JDK \u2283 JRE \u2283 JVM. Compile vs run vs execute bytecode', keywords: ['jvm', 'jdk', 'jre', 'java virtual machine', 'java runtime environment', 'java development kit', 'bytecode', 'jit'] },
+    { title: 'main without public', page: 'Java', icon: '\u2615', desc: 'JVM requires public; Java 21 JEP 445 relaxes this', keywords: ['main method', 'psvm', 'public static void main', 'jep 445', 'unnamed class', 'instance main'] },
+    { title: 'Running Without main', page: 'Java', icon: '\u2615', desc: 'Pre-Java 7 static block trick; library classes; servlets', keywords: ['no main', 'without main', 'static block trick', 'library class', 'servlet'] },
+    { title: 'System.out.println', page: 'Java', icon: '\u2615', desc: 'System class, out PrintStream field, println method', keywords: ['system out println', 'sysout', 'printstream', 'standard output', 'system class'] },
+    { title: 'Heap vs Stack memory', page: 'Java', icon: '\u2615', desc: 'Stack per-thread method frames, Heap shared objects, Metaspace', keywords: ['heap', 'stack', 'memory', 'jvm memory', 'metaspace', 'young generation', 'old generation', 'eden', 'survivor'] },
+    { title: 'Records and Sealed Classes', page: 'Java', icon: '\u2615', desc: 'Java 14+ records (immutable data); Java 17+ sealed classes', keywords: ['records', 'sealed', 'sealed class', 'permits', 'algebraic data type', 'record', 'immutable'] },
+    { title: 'Wrapper Classes & Autoboxing', page: 'Java', icon: '\u2615', desc: 'Integer, Long, etc. + autoboxing pitfalls (cache, NPE)', keywords: ['wrapper class', 'autoboxing', 'unboxing', 'integer cache', 'integer', 'long', 'double', 'boolean'] },
+    { title: 'try-with-resources', page: 'Java', icon: '\u2615', desc: 'Java 7+ AutoCloseable; auto-close on block exit', keywords: ['try-with-resources', 'try with resources', 'autocloseable', 'closeable', 'resource management'] },
+
+    // === Java page \u2014 Senior Interview Topics card ===
+    { title: 'Java Memory Model & happens-before', page: 'Java', icon: '\u2615', desc: 'JMM, happens-before edges, volatile semantics, safe publication', keywords: ['jmm', 'java memory model', 'happens-before', 'happens before', 'volatile', 'memory barrier', 'safe publication', 'visibility'] },
+    { title: 'HashMap Internals (Treeification)', page: 'Java', icon: '\u2615', desc: 'Buckets, hash function, load factor, Java 8 treeification', keywords: ['hashmap', 'hash map', 'treeification', 'red-black tree', 'load factor', 'rehash', 'collision', 'bucket', 'treeify'] },
+    { title: 'CAS and the ABA Problem', page: 'Java', icon: '\u2615', desc: 'Compare-and-swap, AtomicInteger, ABA, AtomicStampedReference', keywords: ['cas', 'compare and swap', 'aba problem', 'aba', 'atomicinteger', 'atomicreference', 'atomicstampedreference', 'lock-free'] },
+    { title: 'Reference Types: Strong/Soft/Weak/Phantom', page: 'Java', icon: '\u2615', desc: 'GC reachability levels and their use cases', keywords: ['weak reference', 'soft reference', 'phantom reference', 'strong reference', 'weakhashmap', 'cleaner', 'finalize'] },
+    { title: 'invokedynamic & Lambda Compilation', page: 'Java', icon: '\u2615', desc: 'How lambdas compile via LambdaMetafactory + invokedynamic', keywords: ['invokedynamic', 'indy', 'lambdametafactory', 'lambda compilation', 'method handle', 'bootstrap method'] },
+    { title: 'Type Erasure Pitfalls', page: 'Java', icon: '\u2615', desc: 'Generics erased at runtime; instanceof T, new T[] limitations', keywords: ['type erasure', 'erasure', 'generics', 'heap pollution', 'safevarargs', 'parameterized type'] },
+    { title: 'CompletableFuture Composition', page: 'Java', icon: '\u2615', desc: 'thenApply, thenCompose, allOf/anyOf, exceptionally, executors', keywords: ['completablefuture', 'completable future', 'thenapply', 'thencompose', 'thencombine', 'allof', 'anyof', 'forkjoinpool', 'async'] },
+    { title: 'Virtual Threads \u2014 Pinning & Pitfalls', page: 'Java', icon: '\u2615', desc: 'Project Loom; mounting/unmounting; synchronized pins carrier', keywords: ['virtual thread', 'virtual threads', 'project loom', 'loom', 'pinning', 'carrier thread', 'platform thread', 'java 21'] },
+    { title: 'Class Loader Internals & Leaks', page: 'Java', icon: '\u2615', desc: 'Class identity, TCCL, classloader leaks in app servers', keywords: ['classloader leak', 'tccl', 'thread context classloader', 'class identity', 'tomcat classloader', 'class is not class', 'class cast exception classloader'] },
+
+    // === Core Java Questions topics ===
+    { title: '== vs equals()', page: 'Core Java Questions', icon: '\u2753', desc: 'Reference vs content comparison; Integer cache pitfall', keywords: ['equals', '== vs equals', 'reference equality', 'value equality', 'integer cache'] },
+    { title: 'Abstraction in Java', page: 'Core Java Questions', icon: '\u2753', desc: 'Hiding implementation; abstract classes and interfaces', keywords: ['abstraction', 'abstract', 'abstract class'] },
+    { title: 'Abstract Class vs Interface', page: 'Core Java Questions', icon: '\u2753', desc: 'When to use each; multiple inheritance; default methods', keywords: ['abstract class', 'interface', 'abstract vs interface', 'default method', 'abstract method'] },
+    { title: 'Access Modifiers', page: 'Core Java Questions', icon: '\u2753', desc: 'private, default, protected, public visibility levels', keywords: ['access modifier', 'private', 'public', 'protected', 'package-private', 'visibility'] },
+    { title: 'Shallow vs Deep Copy', page: 'Core Java Questions', icon: '\u2753', desc: 'Default clone is shallow; copy constructors vs serialization', keywords: ['shallow copy', 'deep copy', 'clone', 'cloneable', 'copy constructor'] },
+    { title: 'Encapsulation', page: 'Core Java Questions', icon: '\u2753', desc: 'Bundle data with methods; private fields; getters/setters', keywords: ['encapsulation', 'private field', 'getter setter', 'data hiding'] },
+    { title: 'Aggregation vs Composition', page: 'Core Java Questions', icon: '\u2753', desc: 'Weak vs strong HAS-A relationships', keywords: ['aggregation', 'composition', 'has-a', 'has a', 'uml', 'ownership'] },
+    { title: 'HAS-A vs IS-A', page: 'Core Java Questions', icon: '\u2753', desc: 'Composition vs inheritance', keywords: ['has-a', 'is-a', 'has a', 'is a', 'composition', 'inheritance'] },
+    { title: 'hashCode and toString', page: 'Core Java Questions', icon: '\u2753', desc: 'Override contract; Objects.hash; equals/hashCode pairing', keywords: ['hashcode', 'tostring', 'equals hashcode contract', 'objects.hash'] },
+    { title: 'Multiple Inheritance / Diamond Problem', page: 'Core Java Questions', icon: '\u2753', desc: 'Why Java forbids; default methods conflict resolution', keywords: ['multiple inheritance', 'diamond problem', 'diamond', 'default method conflict'] },
+    { title: 'Marker Interface', page: 'Core Java Questions', icon: '\u2753', desc: 'Empty interface for type categorization (Serializable, Cloneable)', keywords: ['marker interface', 'serializable', 'cloneable', 'remote', 'random access', 'event listener'] },
+    { title: 'SOLID Principles', page: 'Core Java Questions', icon: '\u2753', desc: 'Single responsibility, open-closed, Liskov, interface segregation, dependency inversion', keywords: ['solid', 'srp', 'ocp', 'lsp', 'isp', 'dip', 'single responsibility', 'open closed', 'liskov', 'interface segregation', 'dependency inversion'] },
+    { title: 'Checked vs Unchecked Exceptions', page: 'Core Java Questions', icon: '\u2753', desc: 'Compile-time vs runtime; throws declaration', keywords: ['checked exception', 'unchecked exception', 'runtimeexception', 'throws', 'exception hierarchy'] },
+    { title: 'try without catch', page: 'Core Java Questions', icon: '\u2753', desc: 'try-finally and try-with-resources without catch', keywords: ['try finally', 'try without catch', 'try with resources'] },
+    { title: 'Multiple catch blocks', page: 'Core Java Questions', icon: '\u2753', desc: 'Order from specific to general; multi-catch (Java 7+)', keywords: ['multiple catch', 'multi-catch', 'catch order', 'exception order'] },
+    { title: 'throw vs throws', page: 'Core Java Questions', icon: '\u2753', desc: 'throw fires; throws declares', keywords: ['throw', 'throws', 'throw vs throws', 'exception declaration'] },
+    { title: 'Custom Exception', page: 'Core Java Questions', icon: '\u2753', desc: 'Extend Exception (checked) or RuntimeException (unchecked)', keywords: ['custom exception', 'extend exception', 'user-defined exception'] },
+    { title: 'Exception Override Rules', page: 'Core Java Questions', icon: '\u2753', desc: 'Subclass can throw narrower checked, any unchecked', keywords: ['exception override', 'override exception', 'narrower exception', 'liskov exception'] },
+    { title: 'Catch Block Ordering', page: 'Core Java Questions', icon: '\u2753', desc: 'Specific to general; reverse order causes compile error', keywords: ['catch order', 'catch ordering', 'unreachable catch', 'arithmetic exception order'] },
+    { title: 'final vs finally vs finalize', page: 'Core Java Questions', icon: '\u2753', desc: 'Modifier vs block vs deprecated method', keywords: ['final', 'finally', 'finalize', 'final vs finally', 'finalize deprecated'] },
+    { title: 'Method Overloading vs Overriding', page: 'Core Java Questions', icon: '\u2753', desc: 'Compile-time vs runtime polymorphism', keywords: ['overloading', 'overriding', 'method overloading', 'method overriding', 'polymorphism', 'static binding', 'dynamic binding'] },
+    { title: 'Generics in Java', page: 'Core Java Questions', icon: '\u2753', desc: 'Type-parameterized classes; bounded types; wildcards; type erasure', keywords: ['generics', 'generic', 'type parameter', 'wildcard', 'pecs', 'producer extends consumer super'] },
+    { title: 'Ternary Operator', page: 'Core Java Questions', icon: '\u2753', desc: 'condition ? then : else conditional expression', keywords: ['ternary', 'conditional operator', '?:'] },
+    { title: 'Serialization vs Deserialization', page: 'Core Java Questions', icon: '\u2753', desc: 'Object to bytes and back; transient; Serializable', keywords: ['serialization', 'deserialization', 'serializable', 'transient', 'objectoutputstream', 'objectinputstream'] },
+    { title: 'serialVersionUID', page: 'Core Java Questions', icon: '\u2753', desc: 'Version stamp for serialized class compatibility', keywords: ['serialversionuid', 'serial version uid', 'serialization version'] },
+    { title: 'Why Java is Platform Independent', page: 'Core Java Questions', icon: '\u2753', desc: 'Bytecode + JVM = write once run anywhere', keywords: ['platform independent', 'wora', 'write once run anywhere', 'bytecode', 'jvm portability'] },
+    { title: 'Different Memory Locations in Java', page: 'Core Java Questions', icon: '\u2753', desc: 'Heap, Stack, Metaspace, PC Register, Native Method Stack', keywords: ['memory locations', 'jvm memory areas', 'heap stack metaspace', 'pc register', 'native method stack'] },
+    { title: 'System.gc() vs Runtime.gc()', page: 'Core Java Questions', icon: '\u2753', desc: 'Both are JVM hints; usually should not be called', keywords: ['system.gc', 'runtime.gc', 'force gc', 'manual gc', 'disableexplicitgc'] },
+    { title: 'Constructor vs Method', page: 'Core Java Questions', icon: '\u2753', desc: 'Initialize vs perform; not inherited; not overridable', keywords: ['constructor', 'method', 'constructor vs method', 'default constructor'] },
+    { title: 'Static from Non-Static and Vice Versa', page: 'Core Java Questions', icon: '\u2753', desc: 'Static accessible from non-static; reverse needs an instance', keywords: ['static method', 'non-static method', 'static from non-static', 'instance from static'] },
+    { title: 'Design Payment System OOP', page: 'Core Java Questions', icon: '\u2753', desc: 'Strategy pattern, factory, abstraction, SOLID applied', keywords: ['payment system', 'design payment', 'strategy pattern', 'oop design'] },
+    { title: 'Override main method', page: 'Core Java Questions', icon: '\u2753', desc: 'Static methods cannot be overridden \u2014 only hidden', keywords: ['override main', 'main override', 'static override', 'method hiding'] },
+
+    // === Spring Data JPA Questions topics ===
+    { title: 'JPA Repository', page: 'Spring Data JPA Questions', icon: '\ud83d\udcbe', desc: 'JpaRepository hierarchy, custom methods, projections, specifications', keywords: ['jpa repository', 'jparepository', 'crudrepository', 'pagingandsortingrepository', 'spring data jpa', 'repository pattern'] },
+    { title: 'Pagination', page: 'Spring Data JPA Questions', icon: '\ud83d\udcbe', desc: 'Pageable, Page<T>, Slice<T>, sorting, keyset pagination', keywords: ['pagination', 'pageable', 'page', 'slice', 'sort', 'limit offset', 'pagerequest', 'keyset pagination', 'cursor pagination'] },
+    { title: 'JPQL and Native Queries', page: 'Spring Data JPA Questions', icon: '\ud83d\udcbe', desc: '@Query for JPQL/native; @Modifying for updates', keywords: ['jpql', '@query', 'native query', '@modifying', 'derived query'] },
+    { title: 'JPA Entity Relationships', page: 'Spring Data JPA Questions', icon: '\ud83d\udcbe', desc: '@OneToOne, @OneToMany, @ManyToOne, @ManyToMany, fetch types', keywords: ['onetomany', 'manytoone', 'onetoone', 'manytomany', 'fetch type', 'lazy', 'eager', 'cascade', 'orphan removal'] },
+
+    // === Practice page Interview Questions ===
+    { title: 'What is an API?', page: 'Practice', icon: '\ud83d\udcaa', desc: 'REST, GraphQL, gRPC, SOAP \u2014 contracts between systems', keywords: ['api', 'rest', 'graphql', 'grpc', 'soap', 'web service'] },
+    { title: 'SQL vs NoSQL', page: 'Practice', icon: '\ud83d\udcaa', desc: 'Relational vs non-relational; ACID vs BASE; vertical vs horizontal scaling', keywords: ['sql vs nosql', 'sql', 'nosql', 'mongodb', 'postgres', 'mysql', 'cassandra', 'acid', 'base'] },
+    { title: 'Request/Response Cycle', page: 'Practice', icon: '\ud83d\udcaa', desc: 'DNS, TCP, TLS, HTTP, server, response, render', keywords: ['request response', 'http request', 'dns lookup', 'tcp handshake', 'tls handshake', 'http cycle'] },
+    { title: 'Create a File Uploader', page: 'Practice', icon: '\ud83d\udcaa', desc: 'FormData, multer, multipart, S3 pre-signed URLs', keywords: ['file uploader', 'file upload', 'multipart form data', 'multer', 's3 presigned'] },
+    { title: 'URL to Pixels', page: 'Practice', icon: '\ud83d\udcaa', desc: 'Browser pipeline: DNS to HTML parsing to render to paint', keywords: ['url to pixels', 'browser rendering', 'dom', 'cssom', 'render tree', 'paint', 'composite', 'critical rendering path'] },
+  ]
+
+  topicShortcuts.forEach(topic => {
+    searchIndex.push({
+      id: `topic-${topic.page}-${topic.title}`,
+      type: 'component',
+      title: topic.title,
+      description: topic.desc,
+      icon: topic.icon || '\ud83d\udccc',
+      path: [topic.page, topic.title],
+      breadcrumb: `${topic.page} \u2192 ${topic.title}`,
+      keywords: [topic.title.toLowerCase(), ...(topic.keywords || [])],
+      navigateTo: () => ({ type: 'component', value: topic.page })
+    })
+  })
+
   return searchIndex
 }
 
 // Search function with fuzzy matching and ranking
+// Escape regex metacharacters in user query so they don't break the pattern
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 export const searchContent = (query, searchIndex) => {
   if (!query || query.trim().length === 0) {
     return []
   }
 
   const normalizedQuery = query.toLowerCase().trim()
-  const queryWords = normalizedQuery.split(/\s+/)
-  
+  const queryWords = normalizedQuery.split(/\s+/).filter(w => w.length > 0)
+  const escapedQuery = escapeRegex(normalizedQuery)
+  const wordBoundaryQuery = new RegExp(`\\b${escapedQuery}\\b`, 'i')
+
   const results = searchIndex
     .map(item => {
       let score = 0
       let matchedTerms = []
+      const titleLower = item.title.toLowerCase()
+      const descLower = (item.description || '').toLowerCase()
+      const breadcrumbLower = (item.breadcrumb || '').toLowerCase()
 
-      // Exact title match (highest priority)
-      if (item.title.toLowerCase() === normalizedQuery) {
+      // ===== TITLE MATCHES =====
+      if (titleLower === normalizedQuery) {
         score += 1000
         matchedTerms.push(item.title)
-      }
-
-      // Title starts with query (very high priority)
-      else if (item.title.toLowerCase().startsWith(normalizedQuery)) {
+      } else if (titleLower.startsWith(normalizedQuery)) {
         score += 500
         matchedTerms.push(item.title)
-      }
-
-      // Title contains query as whole word
-      else if (new RegExp(`\\b${normalizedQuery}\\b`, 'i').test(item.title)) {
+      } else if (wordBoundaryQuery.test(item.title)) {
         score += 300
         matchedTerms.push(item.title)
-      }
-
-      // Title contains query anywhere
-      else if (item.title.toLowerCase().includes(normalizedQuery)) {
+      } else if (titleLower.includes(normalizedQuery)) {
         score += 100
         matchedTerms.push(item.title)
       }
 
-      // Check individual words in title (only for multi-word queries)
+      // ===== INDIVIDUAL WORDS IN TITLE =====
+      // Useful for queries where words appear in different orders
       if (queryWords.length > 1) {
         let wordMatchCount = 0
         queryWords.forEach(word => {
-          if (word.length > 2 && item.title.toLowerCase().includes(word)) {
+          if (word.length > 1 && titleLower.includes(word)) {
             wordMatchCount++
             matchedTerms.push(word)
           }
         })
-        score += wordMatchCount * 50
+        score += wordMatchCount * 60
       }
 
-      // Exact keyword match
-      item.keywords.forEach(keyword => {
-        if (keyword === normalizedQuery) {
+      // ===== KEYWORD MATCHES =====
+      const keywords = item.keywords || []
+      keywords.forEach(keyword => {
+        const kw = keyword.toLowerCase()
+        if (kw === normalizedQuery) {
           score += 400
           matchedTerms.push(keyword)
-        } else if (keyword.startsWith(normalizedQuery)) {
+        } else if (kw.startsWith(normalizedQuery)) {
           score += 200
           matchedTerms.push(keyword)
-        } else if (new RegExp(`\\b${normalizedQuery}\\b`, 'i').test(keyword)) {
+        } else if (wordBoundaryQuery.test(keyword)) {
           score += 150
           matchedTerms.push(keyword)
-        } else if (keyword.includes(normalizedQuery) && normalizedQuery.length > 3) {
-          score += 50
+        } else if (kw.includes(normalizedQuery) && normalizedQuery.length > 2) {
+          score += 60
           matchedTerms.push(keyword)
+        }
+
+        // Also check individual query words against keywords
+        if (queryWords.length > 1) {
+          queryWords.forEach(word => {
+            if (word.length > 2 && kw.includes(word)) {
+              score += 25
+              matchedTerms.push(word)
+            }
+          })
         }
       })
 
-      // Description matches (lower priority, only for longer queries)
-      if (normalizedQuery.length > 3 && item.description.toLowerCase().includes(normalizedQuery)) {
-        score += 10
+      // ===== DESCRIPTION MATCHES =====
+      if (normalizedQuery.length > 2 && descLower.includes(normalizedQuery)) {
+        score += 30
         matchedTerms.push('description')
       }
+      // Per-word description matches for multi-word queries
+      if (queryWords.length > 1) {
+        queryWords.forEach(word => {
+          if (word.length > 2 && descLower.includes(word)) {
+            score += 8
+          }
+        })
+      }
 
-      // Breadcrumb matches
-      if (item.breadcrumb.toLowerCase().includes(normalizedQuery)) {
+      // ===== BREADCRUMB MATCHES =====
+      if (breadcrumbLower.includes(normalizedQuery)) {
         score += 20
         matchedTerms.push('breadcrumb')
       }
 
-      // Boost score based on item type
-      if (item.type === 'component') score += 30  // Components are what users usually want
-      if (item.type === 'section') score += 25     // Sections within pages
+      // ===== TYPE BOOSTS =====
+      if (item.type === 'component') score += 30
+      if (item.type === 'section') score += 25
       if (item.type === 'subcategory') score += 20
       if (item.type === 'category') score += 10
 
@@ -648,16 +765,18 @@ export const searchContent = (query, searchIndex) => {
     })
     .filter(item => item.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 10) // Limit to top 10 results
+    .slice(0, 25) // Top 25 results (was 10)
 
   return results
 }
 
 // Helper function to highlight matching terms
 const highlightMatches = (text, queryWords) => {
+  if (!text) return ''
   let highlighted = text
   queryWords.forEach(word => {
-    const regex = new RegExp(`(${word})`, 'gi')
+    if (!word) return
+    const regex = new RegExp(`(${escapeRegex(word)})`, 'gi')
     highlighted = highlighted.replace(regex, '<mark>$1</mark>')
   })
   return highlighted

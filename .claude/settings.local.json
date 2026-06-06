@@ -123,7 +123,15 @@
       "Bash(npx vitest:*)",
       "Bash(powershell -Command:*)",
       "Bash(powershell -c \"\\(Get-Content ''C:\\\\Users\\\\micha\\\\Documents\\\\2026\\\\apr\\\\my-app\\\\src\\\\pages\\\\devops\\\\Maven.jsx'' | Measure-Object -Line\\).Lines\")",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(tail -30 \"C:\\\\\\\\Users\\\\\\\\micha\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--Users-micha-Documents-2026-apr-my-app\\\\\\\\5fef0f2d-0759-4171-b0af-c6cd7994e592\\\\\\\\tasks\\\\\\\\bcmgw26i5.output\")",
+      "Bash(tail *)",
+      "Bash(start *)",
+      "Bash(Start-Sleep -Seconds 6)",
+      "Bash(Get-Content \"C:\\\\Users\\\\micha\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-micha-Documents-2026-apr-my-app\\\\67878eaf-0e80-4d72-b363-d7f741d50445\\\\tasks\\\\byb4lnpml.output\" -Tail 40)",
+      "Bash(git rm *)",
+      "Bash(Select-String -NotMatch \"warning\")",
+      "Bash(git reset *)"
     ],
     "deny": [],
     "ask": []

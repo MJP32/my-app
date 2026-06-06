@@ -7606,6 +7606,56 @@ public User clone() throws CloneNotSupportedException {
 \`\`\`
 Requires \`Address\` to also implement \`Cloneable\`.
 
+**Complete worked example:**
+\`\`\`java
+public class Employee implements Cloneable {
+    String name;
+    int id;
+    Address address;
+
+    public Employee(String name, int id, Address address) {
+        this.name = name;
+        this.id = id;
+        this.address = address;
+    }
+
+    public void setAddress(String line1, String line2) {
+        this.address = new Address(line1, line2);
+    }
+
+    @Override
+    public Employee clone() throws CloneNotSupportedException {
+        Employee e2 = (Employee) super.clone();   // shallow copy of fields
+        e2.address = address.clone();             // deep copy the mutable field
+        return e2;
+    }
+}
+
+public class Address implements Cloneable {
+    String line1;
+    String line2;
+
+    public Address(String line1, String line2) {
+        this.line1 = line1;
+        this.line2 = line2;
+    }
+
+    @Override
+    public Address clone() throws CloneNotSupportedException {
+        return (Address) super.clone();           // String fields are immutable, shallow is fine
+    }
+}
+\`\`\`
+Test showing the deep copy is independent:
+\`\`\`java
+Employee e1 = new Employee("Mohit", 1, new Address("123", "123"));
+Employee e2 = e1.clone();
+e2.setAddress("234", "234");
+
+System.out.println(e1.address.line1); // prints "123" — deep copy worked
+System.out.println(e2.address.line1); // prints "234"
+\`\`\`
+
 **Option 2 — Copy constructor (preferred):**
 \`\`\`java
 public User(User other) {
@@ -9467,7 +9517,10 @@ catch (IOException | FileNotFoundException e) { }   // ❌ FNFE extends IOE — 
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
   // Available categories with counts (for tab filter)
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -9651,7 +9704,7 @@ catch (IOException | FileNotFoundException e) { }   // ❌ FNFE extends IOE — 
       }}>
         {availableCategories.map((cat) => {
           const isActive = activeCategory === cat
-          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
           const color = cat === 'All' ? '#3b82f6' : getCategoryColor(cat)
           return (
             <button

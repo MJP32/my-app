@@ -311,13 +311,199 @@ public class CustomScopeConfig {
     }
 }
 \`\`\``
+    },
+    {
+      id: 4,
+      category: 'Container Startup',
+      difficulty: 'Hard',
+      question: 'What all happens when Spring loads (the full startup sequence)?',
+      answer: `**Spring Application Startup - End to End:**
+
+When you call \`SpringApplication.run()\` (or \`new AnnotationConfigApplicationContext(...)\`), Spring executes a well-defined sequence to bring the ApplicationContext from configuration metadata to a fully wired, ready-to-serve container.
+
+**1. Bootstrap & Environment Preparation:**
+- \`SpringApplication\` is created and inspects the classpath to determine the application type (servlet, reactive, none)
+- \`ApplicationContextInitializer\` and \`ApplicationListener\` instances are loaded from \`META-INF/spring.factories\` (Spring Boot)
+- The \`Environment\` is created and populated: command line args, \`application.properties/yml\`, profile-specific files, system properties, environment variables, \`@PropertySource\`
+- Active profiles are resolved
+- Banner is printed
+- \`ApplicationStartingEvent\` and \`ApplicationEnvironmentPreparedEvent\` are published
+
+**2. ApplicationContext Created:**
+- The right ApplicationContext implementation is instantiated (\`AnnotationConfigServletWebServerApplicationContext\` for typical web apps)
+- A \`BeanFactory\` (DefaultListableBeanFactory) is created inside the context
+- \`ApplicationContextInitializer\`s are invoked
+
+**3. Bean Definition Loading (no instantiation yet):**
+- \`@ComponentScan\` scans packages for \`@Component\`, \`@Service\`, \`@Repository\`, \`@Controller\`, \`@Configuration\`
+- \`ConfigurationClassPostProcessor\` parses \`@Configuration\` classes and registers \`@Bean\` methods as bean definitions
+- \`@Import\`, \`@ImportResource\`, and \`@ImportSelector\` pull in additional definitions
+- Spring Boot's \`@EnableAutoConfiguration\` adds auto-configuration classes (filtered by \`@Conditional\`)
+- All bean definitions land in the \`BeanDefinitionRegistry\` as metadata only
+
+**4. BeanFactoryPostProcessors Run:**
+- These can MODIFY bean definitions before any bean is created
+- Built-ins: \`PropertySourcesPlaceholderConfigurer\` (resolves \`\${...}\` placeholders), \`ConfigurationClassPostProcessor\`
+- Custom \`BeanFactoryPostProcessor\` runs here
+
+**5. BeanPostProcessors Registered:**
+- \`BeanPostProcessor\`s are themselves beans that need to be created early
+- Examples: \`AutowiredAnnotationBeanPostProcessor\` (handles \`@Autowired\`), \`CommonAnnotationBeanPostProcessor\` (handles \`@PostConstruct\`/\`@PreDestroy\`), \`AnnotationAwareAspectJAutoProxyCreator\` (creates AOP proxies)
+
+**6. MessageSource, Event Multicaster, Web Server:**
+- \`MessageSource\` for i18n is initialized
+- \`ApplicationEventMulticaster\` is set up for event publishing
+- For web apps: the embedded server (Tomcat/Jetty/Undertow) is created but not started yet
+
+**7. Singleton Bean Instantiation (the big one):**
+For each non-lazy singleton bean definition, in dependency order:
+
+  **a. Instantiate** - call constructor (constructor injection happens here)
+  **b. Populate properties** - inject \`@Autowired\` fields and setters
+  **c. Aware callbacks** - \`BeanNameAware\`, \`BeanFactoryAware\`, \`ApplicationContextAware\`
+  **d. BeanPostProcessor.postProcessBeforeInitialization()** - this is where \`@PostConstruct\` is invoked, and where AOP proxies wrap the bean
+  **e. Initialization callbacks** - \`InitializingBean.afterPropertiesSet()\`, then custom \`init-method\`
+  **f. BeanPostProcessor.postProcessAfterInitialization()** - final wrapping; AOP proxies are typically applied here
+
+**8. SmartInitializingSingleton Callbacks:**
+- After all singletons are created, beans implementing \`SmartInitializingSingleton\` get \`afterSingletonsInstantiated()\` - useful for logic that needs the full container ready
+
+**9. Web Server Started:**
+- Embedded server starts and binds the port
+- DispatcherServlet is registered
+
+**10. Events Published:**
+- \`ContextRefreshedEvent\` - context fully initialized
+- \`ApplicationStartedEvent\` (Spring Boot) - all auto-config done
+- \`ApplicationReadyEvent\` (Spring Boot) - app is ready to serve traffic
+- \`CommandLineRunner\` and \`ApplicationRunner\` beans execute now (just before ApplicationReadyEvent)
+
+**11. Shutdown (when JVM stops):**
+- \`ContextClosedEvent\` is published
+- Singletons get \`@PreDestroy\` -> \`DisposableBean.destroy()\` -> custom \`destroy-method\`
+- Web server stops
+- BeanFactory is closed
+
+**Diagram - Lifecycle of a Single Bean:**
+\`\`\`
+Bean Definition Registered
+        |
+        v
+Instantiate (constructor)
+        |
+        v
+Populate Properties (@Autowired fields/setters)
+        |
+        v
+Aware Interfaces (BeanNameAware, ApplicationContextAware, ...)
+        |
+        v
+BeanPostProcessor.postProcessBeforeInitialization()
+   |    \\-> @PostConstruct invoked here
+   |
+   v
+InitializingBean.afterPropertiesSet()
+        |
+        v
+Custom init-method
+        |
+        v
+BeanPostProcessor.postProcessAfterInitialization()
+   |    \\-> AOP proxy created here (typically)
+   |
+   v
+   READY
+        |
+        v (on shutdown)
+@PreDestroy
+        |
+        v
+DisposableBean.destroy()
+        |
+        v
+Custom destroy-method
+\`\`\`
+
+**Hooks You Can Plug Into:**
+\`\`\`java
+// 1. Modify bean definitions before any bean is created
+@Component
+public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory bf) {
+        // E.g., change scope, add property values
+    }
+}
+
+// 2. Wrap or modify each bean as it is created
+@Component
+public class MyBeanPostProcessor implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String name) {
+        return bean; // before @PostConstruct
+    }
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String name) {
+        return bean; // after init - good place to wrap with proxy
+    }
+}
+
+// 3. Run logic once the container is fully refreshed
+@Component
+public class StartupListener {
+    @EventListener(ContextRefreshedEvent.class)
+    public void onRefresh() {
+        // All beans are ready
+    }
+}
+
+// 4. Spring Boot - run after the app is ready to serve traffic
+@Component
+public class MyRunner implements ApplicationRunner {
+    @Override
+    public void run(ApplicationArguments args) {
+        // Last thing before ApplicationReadyEvent
+    }
+}
+
+// 5. Spring Boot - hook into specific startup phases
+@Component
+public class ReadyListener {
+    @EventListener(ApplicationReadyEvent.class)
+    public void onReady() {
+        // App is fully up and accepting requests
+    }
+}
+\`\`\`
+
+**Order of Key Events (Spring Boot Web App):**
+| # | Event | What's Ready |
+|---|-------|--------------|
+| 1 | \`ApplicationStartingEvent\` | Nothing - just bootstrapping |
+| 2 | \`ApplicationEnvironmentPreparedEvent\` | Environment loaded, no context |
+| 3 | \`ApplicationContextInitializedEvent\` | Context created, no beans |
+| 4 | \`ApplicationPreparedEvent\` | Bean definitions loaded, no instantiation |
+| 5 | \`ContextRefreshedEvent\` | All singletons created and initialized |
+| 6 | \`ApplicationStartedEvent\` | Web server started |
+| 7 | \`ApplicationReadyEvent\` | Runners executed; serving traffic |
+| 8 | \`ContextClosedEvent\` | Shutdown initiated |
+
+**Common Pitfalls:**
+- **Doing work in the constructor** - dependencies may not yet be injected; prefer \`@PostConstruct\` or \`ApplicationReadyEvent\`
+- **Circular dependencies in constructor injection** - Spring cannot resolve them; refactor or use \`@Lazy\`
+- **\`BeanPostProcessor\` injecting other beans** - those dependencies will be created very early and may miss other post-processors; keep BPPs minimal
+- **Long-running logic in \`@PostConstruct\`** - blocks application startup; prefer async or \`ApplicationReadyEvent\`
+- **Assuming \`@Autowired\` fields are set inside the constructor** - they aren't; field/setter injection happens after construction`
     }
   ]
 
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -640,7 +826,7 @@ public class CustomScopeConfig {
       }}>
         {availableCategories.map((cat) => {
           const isActive = activeCategory === cat
-          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
           const color = cat === 'All' ? '#3b82f6' : '#3b82f6'
           return (
             <button

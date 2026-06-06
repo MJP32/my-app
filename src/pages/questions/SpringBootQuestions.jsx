@@ -3598,13 +3598,518 @@ public void process() throws IOException {
     throw new IOException();  // Now rolls back
 }
 \`\`\``
+    },
+    {
+      id: 19,
+      category: 'Feign Client',
+      difficulty: 'Medium',
+      question: 'What is Spring Cloud OpenFeign and why use it over RestTemplate / WebClient?',
+      answer: `**OpenFeign:**
+A declarative REST client from Spring Cloud. You define a Java interface annotated with \`@FeignClient\` and Spring generates the HTTP client implementation at runtime - no boilerplate request building, serialization, or response parsing.
+
+**Why It Exists:**
+\`\`\`java
+// Without Feign - RestTemplate boilerplate
+@Service
+public class UserService {
+    private final RestTemplate restTemplate;
+
+    public User getUser(Long id) {
+        String url = "http://user-service/api/users/" + id;
+        ResponseEntity<User> response =
+            restTemplate.getForEntity(url, User.class);
+        return response.getBody();
+    }
+
+    public User createUser(User user) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<User> entity = new HttpEntity<>(user, headers);
+        return restTemplate.postForObject(
+            "http://user-service/api/users", entity, User.class);
+    }
+}
+
+// With Feign - just declare the interface
+@FeignClient(name = "user-service")
+public interface UserClient {
+
+    @GetMapping("/api/users/{id}")
+    User getUser(@PathVariable Long id);
+
+    @PostMapping("/api/users")
+    User createUser(@RequestBody User user);
+}
+\`\`\`
+
+**Setup:**
+\`\`\`xml
+<!-- pom.xml -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+\`\`\`
+
+\`\`\`java
+// Enable Feign clients - usually on the main application class
+@SpringBootApplication
+@EnableFeignClients(basePackages = "com.example.clients")
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+\`\`\`
+
+**Usage - injecting a Feign client like any other Spring bean:**
+\`\`\`java
+@RestController
+@RequiredArgsConstructor
+public class OrderController {
+    private final UserClient userClient;
+
+    @GetMapping("/orders/{id}/customer")
+    public User getOrderCustomer(@PathVariable Long id) {
+        Order order = orderRepository.findById(id).orElseThrow();
+        return userClient.getUser(order.getCustomerId());
+    }
+}
+\`\`\`
+
+**Discovery integration:**
+The \`name\` attribute in \`@FeignClient(name = "user-service")\` is a service ID that gets resolved against a service registry (Eureka, Consul, Kubernetes). Feign asks the load balancer (\`Spring Cloud LoadBalancer\`) for an instance of \`user-service\` and forwards the request - no hardcoded URLs.
+
+\`\`\`java
+// Direct URL (skips discovery) - useful for external services
+@FeignClient(name = "stripe", url = "https://api.stripe.com")
+public interface StripeClient {
+    @PostMapping("/v1/charges")
+    Charge createCharge(@RequestBody ChargeRequest request);
+}
+\`\`\`
+
+**Feign vs RestTemplate vs WebClient:**
+| Feature | Feign | RestTemplate | WebClient |
+|---------|-------|--------------|-----------|
+| Programming model | Declarative interface | Imperative | Reactive/imperative |
+| Boilerplate | Minimal | High | Medium |
+| Service discovery | Built-in | Manual or via LoadBalancerClient | Manual |
+| Reactive | No (blocking) | No | Yes |
+| Future | Maintained | Maintenance mode | Recommended for new code |
+| Best for | Sync microservice-to-microservice | Legacy code | Reactive stacks |
+
+**When to use Feign:**
+- Synchronous microservice-to-microservice calls
+- Spring Cloud / Eureka / Kubernetes environments where service discovery matters
+- Teams that value declarative, interface-driven code
+- Existing blocking servlet-based stacks
+
+**When NOT to use Feign:**
+- Reactive (WebFlux) applications - use \`WebClient\` instead
+- High-throughput streaming where you need backpressure
+- Calling a single external API where the simplicity of \`RestClient\` (Spring 6.1+) is enough`
+    },
+    {
+      id: 20,
+      category: 'Feign Client',
+      difficulty: 'Medium',
+      question: 'How do you configure Feign Client (timeouts, logging, interceptors, encoder/decoder)?',
+      answer: `**Configuration Approaches:**
+Feign supports both global configuration (applies to all clients) and per-client configuration (applies to one \`@FeignClient\`).
+
+**1. Properties-Based Configuration (Most Common):**
+\`\`\`yaml
+# application.yml
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          # Default config applied to all Feign clients
+          default:
+            connectTimeout: 5000      # ms
+            readTimeout: 10000        # ms
+            loggerLevel: BASIC        # NONE, BASIC, HEADERS, FULL
+
+          # Per-client override - matches @FeignClient(name = "user-service")
+          user-service:
+            connectTimeout: 2000
+            readTimeout: 5000
+            loggerLevel: FULL
+            requestInterceptors:
+              - com.example.AuthRequestInterceptor
+
+      circuitbreaker:
+        enabled: true
+\`\`\`
+
+**2. Java Configuration Class:**
+\`\`\`java
+// Apply only to user-service client
+@FeignClient(
+    name = "user-service",
+    configuration = UserClientConfig.class
+)
+public interface UserClient {
+    @GetMapping("/users/{id}")
+    User getUser(@PathVariable Long id);
+}
+
+// IMPORTANT: do NOT annotate with @Configuration if you don't want it
+// to apply globally; Feign instantiates it for this client only
+public class UserClientConfig {
+
+    @Bean
+    public Request.Options requestOptions() {
+        return new Request.Options(
+            2000, TimeUnit.MILLISECONDS,    // connect
+            5000, TimeUnit.MILLISECONDS,    // read
+            true                            // followRedirects
+        );
+    }
+
+    @Bean
+    public feign.Logger.Level loggerLevel() {
+        return feign.Logger.Level.FULL;
+    }
+
+    @Bean
+    public RequestInterceptor authInterceptor(TokenService tokenService) {
+        return template -> {
+            String token = tokenService.getCurrentToken();
+            template.header("Authorization", "Bearer " + token);
+        };
+    }
+}
+\`\`\`
+
+**3. Logging:**
+Feign logs at DEBUG level for the interface package - configure both the level bean AND the logger.
+\`\`\`yaml
+# application.yml
+logging:
+  level:
+    com.example.clients.UserClient: DEBUG
+\`\`\`
+
+| Level | Logs |
+|-------|------|
+| NONE | Nothing (default) |
+| BASIC | Request method/URL + response status/time |
+| HEADERS | BASIC + request and response headers |
+| FULL | HEADERS + request and response bodies |
+
+**4. Headers - Static and Dynamic:**
+\`\`\`java
+@FeignClient(name = "billing-service")
+public interface BillingClient {
+
+    // Static header - applied to every call
+    @GetMapping(value = "/invoices", headers = "X-API-Version=2")
+    List<Invoice> getInvoices();
+
+    // Dynamic header - passed as parameter
+    @GetMapping("/invoices/{id}")
+    Invoice getInvoice(
+        @PathVariable Long id,
+        @RequestHeader("X-Request-Id") String requestId,
+        @RequestHeader("Authorization") String authHeader
+    );
+}
+
+// Better: use a RequestInterceptor for cross-cutting headers
+@Component
+public class TraceHeaderInterceptor implements RequestInterceptor {
+    @Override
+    public void apply(RequestTemplate template) {
+        // Forward correlation ID across service hops
+        String traceId = MDC.get("traceId");
+        if (traceId != null) {
+            template.header("X-Trace-Id", traceId);
+        }
+    }
+}
+\`\`\`
+
+**5. Custom Encoder/Decoder:**
+\`\`\`java
+public class FeignSupportConfig {
+
+    // Use Spring's HttpMessageConverters (so you get Jackson behavior
+    // matching the rest of the app)
+    @Bean
+    public Decoder feignDecoder(
+            ObjectFactory<HttpMessageConverters> messageConverters) {
+        return new ResponseEntityDecoder(
+            new SpringDecoder(messageConverters));
+    }
+
+    @Bean
+    public Encoder feignEncoder(
+            ObjectFactory<HttpMessageConverters> messageConverters) {
+        return new SpringEncoder(messageConverters);
+    }
+
+    // Form-encoded requests
+    @Bean
+    public Encoder formEncoder(
+            ObjectFactory<HttpMessageConverters> messageConverters) {
+        return new SpringFormEncoder(
+            new SpringEncoder(messageConverters));
+    }
+}
+\`\`\`
+
+**6. Underlying HTTP Client:**
+By default Feign uses \`HttpURLConnection\`. Swap in OkHttp or Apache HttpClient 5 for connection pooling and HTTP/2:
+\`\`\`xml
+<dependency>
+    <groupId>io.github.openfeign</groupId>
+    <artifactId>feign-okhttp</artifactId>
+</dependency>
+\`\`\`
+\`\`\`yaml
+spring:
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+\`\`\`
+
+**7. Compression:**
+\`\`\`yaml
+spring:
+  cloud:
+    openfeign:
+      compression:
+        request:
+          enabled: true
+          mime-types: application/json,text/xml
+          min-request-size: 2048
+        response:
+          enabled: true
+\`\`\`
+
+**Key Pitfalls:**
+- Marking \`UserClientConfig\` with \`@Configuration\` causes it to leak into the global context and apply to ALL Feign clients
+- Default \`connectTimeout\` (10s) and \`readTimeout\` (60s) are too generous for most production microservice calls - always tune
+- Don't manually add the \`Authorization\` header on every method; use a \`RequestInterceptor\`
+- Logging at \`FULL\` level prints request bodies; never enable in production for endpoints that handle PII or secrets`
+    },
+    {
+      id: 21,
+      category: 'Feign Client',
+      difficulty: 'Hard',
+      question: 'How do you handle errors, retries, and circuit breaking with Feign?',
+      answer: `**The Three Layers of Resilience:**
+A production Feign client typically combines:
+1. **ErrorDecoder** - convert HTTP errors into typed exceptions
+2. **Retryer** - retry transient failures
+3. **Circuit breaker (Resilience4j)** - prevent cascading failures and provide fallbacks
+
+**1. ErrorDecoder - Mapping HTTP Errors to Exceptions:**
+By default Feign throws \`FeignException\` for any non-2xx response. Replace with a typed decoder:
+\`\`\`java
+public class UserClientErrorDecoder implements ErrorDecoder {
+    private final ErrorDecoder defaultDecoder = new Default();
+
+    @Override
+    public Exception decode(String methodKey, Response response) {
+        switch (response.status()) {
+            case 400:
+                return new BadRequestException(
+                    extractMessage(response));
+            case 404:
+                return new UserNotFoundException(
+                    extractMessage(response));
+            case 409:
+                return new UserConflictException(
+                    extractMessage(response));
+            case 503:
+                // Mark as retryable so Retryer kicks in
+                return new RetryableException(
+                    response.status(),
+                    "Service unavailable",
+                    response.request().httpMethod(),
+                    null,
+                    response.request());
+            default:
+                return defaultDecoder.decode(methodKey, response);
+        }
+    }
+}
+
+// Wire it in
+@Bean
+public ErrorDecoder errorDecoder() {
+    return new UserClientErrorDecoder();
+}
+\`\`\`
+
+**2. Retryer - Built-in Feign Retries:**
+Feign's \`Retryer\` retries only on \`IOException\` and \`RetryableException\` (which your \`ErrorDecoder\` can throw).
+\`\`\`java
+@Bean
+public Retryer feignRetryer() {
+    return new Retryer.Default(
+        100,                    // initial period (ms)
+        TimeUnit.SECONDS.toMillis(1), // max period
+        3                       // max attempts (including first)
+    );
+}
+\`\`\`
+**Caveats:**
+- Default Feign behavior is NO retries (\`Retryer.NEVER_RETRY\`); you must opt in
+- Be careful with retries on non-idempotent methods (POST/PATCH) - duplicate side effects
+- Exponential backoff is built in via \`Retryer.Default\`
+
+**3. Circuit Breaker with Resilience4j:**
+The recommended way to protect against a downstream service melting down. Replaces the older Hystrix integration.
+
+\`\`\`xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+</dependency>
+\`\`\`
+
+\`\`\`yaml
+# Enable circuit breaker integration
+spring:
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+        # If true, picks the circuit-breaker name from method (e.g.
+        # "UserClient#getUser(Long)") instead of the client name
+        group:
+          enabled: false
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      UserClient:                  # name = @FeignClient name
+        slidingWindowSize: 10
+        failureRateThreshold: 50   # open circuit at >=50% failures
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+  timelimiter:
+    instances:
+      UserClient:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+\`\`\`
+
+**4. Fallbacks - Graceful Degradation:**
+\`\`\`java
+@FeignClient(
+    name = "user-service",
+    fallbackFactory = UserClientFallbackFactory.class
+)
+public interface UserClient {
+    @GetMapping("/users/{id}")
+    User getUser(@PathVariable Long id);
+
+    @GetMapping("/users/{id}/preferences")
+    UserPreferences getPreferences(@PathVariable Long id);
+}
+
+// Fallback factory gives you access to the underlying exception
+@Component
+@Slf4j
+public class UserClientFallbackFactory
+        implements FallbackFactory<UserClient> {
+
+    @Override
+    public UserClient create(Throwable cause) {
+        log.warn("user-service fallback triggered", cause);
+        return new UserClient() {
+            @Override
+            public User getUser(Long id) {
+                // Return a sentinel "unknown user" - keep the page rendering
+                return User.unknown(id);
+            }
+
+            @Override
+            public UserPreferences getPreferences(Long id) {
+                return UserPreferences.defaults();
+            }
+        };
+    }
+}
+
+// Simpler form - fallback class without access to the exception
+@FeignClient(
+    name = "user-service",
+    fallback = UserClientFallback.class
+)
+public interface UserClient { /* ... */ }
+
+@Component
+public class UserClientFallback implements UserClient {
+    @Override public User getUser(Long id) { return User.unknown(id); }
+    @Override public UserPreferences getPreferences(Long id) {
+        return UserPreferences.defaults();
+    }
+}
+\`\`\`
+
+**Important rule:** \`fallback\` and \`fallbackFactory\` ONLY work when \`spring.cloud.openfeign.circuitbreaker.enabled=true\`. Without it, the property is silently ignored and exceptions propagate.
+
+**5. Decision Tree - Where to Handle Failures:**
+| Failure | Layer that should handle it |
+|---------|----------------------------|
+| Transient network blip (\`IOException\`) | Feign \`Retryer\` |
+| Downstream returned 503 | \`ErrorDecoder\` -> \`RetryableException\` -> \`Retryer\` |
+| 4xx business error (404, 409) | \`ErrorDecoder\` -> typed exception, caller decides |
+| Downstream is unhealthy / slow | Resilience4j circuit breaker |
+| Need to keep the user-facing flow alive | Fallback method returns a degraded response |
+
+**6. Layered Configuration - Putting It All Together:**
+\`\`\`java
+public class ResilientFeignConfig {
+
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new UserClientErrorDecoder();
+    }
+
+    @Bean
+    public Retryer feignRetryer() {
+        return new Retryer.Default(100, 1000, 3);
+    }
+
+    @Bean
+    public Request.Options requestOptions() {
+        // Connect/read timeouts must be SHORTER than the
+        // circuit-breaker time limit, otherwise the breaker never trips
+        return new Request.Options(
+            1000, TimeUnit.MILLISECONDS,
+            2000, TimeUnit.MILLISECONDS,
+            true);
+    }
+}
+\`\`\`
+
+**Common Pitfalls:**
+- **Ordering of layers:** the call goes circuit breaker -> Feign -> retryer -> HTTP. If the breaker time limit is shorter than the retryer's worst-case duration, retries get cut off mid-flight
+- **Retrying POSTs without idempotency keys** - duplicate orders, payments
+- **Catching \`FeignException\` everywhere** - prefer typed exceptions from your \`ErrorDecoder\`
+- **Forgetting to enable** \`spring.cloud.openfeign.circuitbreaker.enabled\` - fallbacks silently do nothing
+- **Fallbacks that throw exceptions** - they must always return a value or the breaker reports another failure
+- **Logging the fallback at error level** - it's expected behavior under load; use warn or info`
     }
   ]
 
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -3927,7 +4432,7 @@ public void process() throws IOException {
       }}>
         {availableCategories.map((cat) => {
           const isActive = activeCategory === cat
-          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
           const color = cat === 'All' ? '#3b82f6' : '#3b82f6'
           return (
             <button

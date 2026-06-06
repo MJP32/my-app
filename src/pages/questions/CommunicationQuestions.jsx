@@ -253,11 +253,11 @@ void handleMessage(Message msg) {
    - Any server can broadcast to all clients
 
 \`\`\`
-Client A ──► Server 1 ──┐
-                        ├──► Redis ──┐
-Client B ──► Server 2 ──┘            │
-                                     ▼
-Client C ──► Server 3 ◄────── Broadcast
+Client A â”€â”€â–º Server 1 â”€â”€â”
+                        â”œâ”€â”€â–º Redis â”€â”€â”
+Client B â”€â”€â–º Server 2 â”€â”€â”˜            â”‚
+                                     â–¼
+Client C â”€â”€â–º Server 3 â—„â”€â”€â”€â”€â”€â”€ Broadcast
 \`\`\`
 
 3. **Dedicated WebSocket Servers**
@@ -387,7 +387,10 @@ void handleOrderPlaced(OrderPlacedEvent event) {
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -431,7 +434,7 @@ void handleOrderPlaced(OrderPlacedEvent event) {
               marginBottom: '1rem'
             }}
           >
-            ← Back
+            â† Back
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -452,7 +455,7 @@ void handleOrderPlaced(OrderPlacedEvent event) {
           onSelect={(index) => setExpandedId(displayQuestions[index].id)}
           title="Questions"
           getItemLabel={(item) => `${item.id}. ${item.category}`}
-          getItemIcon={() => '❓'}
+          getItemIcon={() => 'â“'}
           primaryColor="#3b82f6"
         />
 
@@ -532,7 +535,7 @@ void handleOrderPlaced(OrderPlacedEvent event) {
         }}>
           {availableCategories.map((cat) => {
             const isActive = activeCategory === cat
-            const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+            const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
             const color = cat === 'All' ? '#3b82f6' : '#3b82f6'
             return (
               <button
@@ -634,7 +637,7 @@ void handleOrderPlaced(OrderPlacedEvent event) {
                     transform: expandedId === q.id ? 'rotate(180deg)' : 'rotate(0)',
                     transition: 'transform 0.2s'
                   }}>
-                    ▼
+                    â–¼
                   </span>
                 </button>
                 {expandedId === q.id && (

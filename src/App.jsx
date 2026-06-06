@@ -49,6 +49,7 @@ import Multithreading from './pages/java/Multithreading.jsx'
 import ExceptionHandling from './pages/java/ExceptionHandling.jsx'
 import FileIO from './pages/java/FileIO.jsx'
 import JVMInternals from './pages/java/JVMInternals.jsx'
+import SemaphoreInternals from './pages/projects/SemaphoreInternals.jsx'
 import MemoryManagement from './pages/java/MemoryManagement.jsx'
 import Streams from './pages/java/Streams.jsx'
 import Optional from './pages/java/Optional.jsx'
@@ -66,6 +67,7 @@ import Hibernate from './pages/spring/Hibernate.jsx'
 import Actuator from './pages/frameworks/Actuator.jsx'
 import Zipkin from './pages/frameworks/Zipkin.jsx'
 import SpringBatch from './pages/frameworks/SpringBatch.jsx'
+import SpringData from './pages/frameworks/SpringData.jsx'
 import SpringSecurity from './pages/frameworks/SpringSecurity.jsx'
 import Ehcache from './pages/frameworks/Ehcache.jsx'
 import Angular from './pages/frameworks/Angular.jsx'
@@ -902,6 +904,7 @@ function App() {
   const [showExceptionHandlingModal, setShowExceptionHandlingModal] = useState(false)
   const [showFileIOModal, setShowFileIOModal] = useState(false)
   const [showJVMInternalsModal, setShowJVMInternalsModal] = useState(false)
+  const [showSemaphoreInternalsModal, setShowSemaphoreInternalsModal] = useState(false)
   const [showMemoryManagementModal, setShowMemoryManagementModal] = useState(false)
   const [showDataStructuresModal, setShowDataStructuresModal] = useState(false)
   const [showStringsModal, setShowStringsModal] = useState(false)
@@ -916,6 +919,7 @@ function App() {
   const [showActuatorModal, setShowActuatorModal] = useState(false)
   const [showZipkinModal, setShowZipkinModal] = useState(false)
   const [showSpringBatchModal, setShowSpringBatchModal] = useState(false)
+  const [showSpringDataModal, setShowSpringDataModal] = useState(false)
   const [showSpringSecurityModal, setShowSpringSecurityModal] = useState(false)
   const [showEhcacheModal, setShowEhcacheModal] = useState(false)
   const [showAngularModal, setShowAngularModal] = useState(false)
@@ -3094,6 +3098,7 @@ function App() {
             [showExceptionHandlingModal, setShowExceptionHandlingModal],
             [showFileIOModal, setShowFileIOModal],
             [showJVMInternalsModal, setShowJVMInternalsModal],
+            [showSemaphoreInternalsModal, setShowSemaphoreInternalsModal],
             [showMemoryManagementModal, setShowMemoryManagementModal],
             [showDataStructuresModal, setShowDataStructuresModal],
             [showStringsModal, setShowStringsModal],
@@ -3108,6 +3113,7 @@ function App() {
             [showActuatorModal, setShowActuatorModal],
             [showZipkinModal, setShowZipkinModal],
             [showSpringBatchModal, setShowSpringBatchModal],
+            [showSpringDataModal, setShowSpringDataModal],
             [showSpringSecurityModal, setShowSpringSecurityModal],
             [showEhcacheModal, setShowEhcacheModal],
             [showGRPCModal, setShowGRPCModal],
@@ -3386,6 +3392,7 @@ function App() {
     showExceptionHandlingModal,
     showFileIOModal,
     showJVMInternalsModal,
+    showSemaphoreInternalsModal,
     showMemoryManagementModal,
     showDataStructuresModal,
     showStringsModal,
@@ -3400,6 +3407,7 @@ function App() {
     showActuatorModal,
     showZipkinModal,
     showSpringBatchModal,
+    showSpringDataModal,
     showSpringSecurityModal,
     showEhcacheModal,
     showShellScriptingModal,
@@ -3515,6 +3523,7 @@ function App() {
     'Actuator': { name: 'Spring Ecosystem', id: 'spring' },
     'Zipkin': { name: 'Spring Ecosystem', id: 'spring' },
     'SpringBatch': { name: 'Spring Ecosystem', id: 'spring' },
+    'SpringData': { name: 'Spring Ecosystem', id: 'spring' },
     'SpringSecurity': { name: 'Spring Ecosystem', id: 'spring' },
     'Ehcache': { name: 'Spring Ecosystem', id: 'spring' },
     'RestAPI': { name: 'API Development', id: 'api' },
@@ -4285,6 +4294,11 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
+    if (selectedOption === 'Spring Data') {
+      setShowSpringDataModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
     if (selectedOption === 'Spring Security') {
       setShowSpringSecurityModal(true)
       setSelectedOptionAndRef('')
@@ -4609,6 +4623,11 @@ function App() {
     }
     if (selectedOption === 'JVM Internals') {
       setShowJVMInternalsModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Semaphore Internals') {
+      setShowSemaphoreInternalsModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -5389,6 +5408,25 @@ function App() {
             <SpringBatch onBack={() => { setShowSpringBatchModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringBatchModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['SpringBatch'].name, onClick: () => { setShowSpringBatchModal(false); goToFrameworksCategory(frameworksTopicCategories['SpringBatch'].id) } },
               topic: 'Spring Batch',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Spring Data Modal */}
+      {showSpringDataModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowSpringDataModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <SpringData onBack={() => { setShowSpringDataModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringDataModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['SpringData'].name, onClick: () => { setShowSpringDataModal(false); goToFrameworksCategory(frameworksTopicCategories['SpringData'].id) } },
+              topic: 'Spring Data',
               colors: BREADCRUMB_COLORS.Frameworks
             }} />
           </div>
@@ -7575,6 +7613,50 @@ function App() {
             <JVMInternals
               onBack={() => { setShowJVMInternalsModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('JVM Internals')}
+            />
+          </div>
+        </div>
+      )}
+
+      {showSemaphoreInternalsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowSemaphoreInternalsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <SemaphoreInternals
+              onBack={() => { setShowSemaphoreInternalsModal(false); setSelectedOptionAndRef('Concurrency') }}
+              breadcrumb={{
+                onMainMenu: () => setSelectedOptionAndRef(''),
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowSemaphoreInternalsModal(false); setSelectedOptionAndRef('Java') } },
+                category: { name: 'Concurrency', onClick: () => { setShowSemaphoreInternalsModal(false); setSelectedOptionAndRef('Concurrency') } },
+                topic: 'Semaphore Internals'
+              }}
             />
           </div>
         </div>

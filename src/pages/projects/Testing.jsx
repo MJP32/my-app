@@ -596,6 +596,236 @@ void testWithSpy() {
   verify(spyList).add("one");
   assertEquals(2, spyList.size());
 }`
+        },
+        {
+          name: 'Spring Boot @MockBean & @SpyBean',
+          explanation: 'In Spring Boot tests that load an ApplicationContext (@SpringBootTest, @WebMvcTest, @DataJpaTest), @MockBean replaces a bean in the context with a Mockito mock, and @SpyBean wraps the real bean so you can verify interactions while keeping real behavior. Use these only for integration-style tests - for pure unit tests, prefer @Mock/@InjectMocks without Spring context for faster tests. Note: starting in Spring Boot 3.4, @MockitoBean and @MockitoSpyBean are the preferred replacements (the older annotations still work but are deprecated).',
+          codeExample: `@WebMvcTest(UserController.class)
+class UserControllerTest {
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @MockBean // Replaces UserService in the test context with a mock
+  private UserService userService;
+
+  @SpyBean // Wraps the real EmailFormatter; verify calls but keep real logic
+  private EmailFormatter emailFormatter;
+
+  @Test
+  void getUserReturnsJson() throws Exception {
+    when(userService.findById(1L))
+      .thenReturn(new User(1L, "john@example.com", "John"));
+
+    mockMvc.perform(get("/api/users/1"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.email").value("john@example.com"));
+
+    verify(userService).findById(1L);
+    verify(emailFormatter).format(anyString()); // real logic ran
+  }
+}
+
+// Spring Boot 3.4+ preferred form
+@SpringBootTest
+class NewerSpringBootTest {
+
+  @MockitoBean // Replacement for @MockBean
+  private UserRepository repo;
+
+  @MockitoSpyBean // Replacement for @SpyBean
+  private AuditLogger auditLogger;
+}`
+        },
+        {
+          name: 'ArgumentCaptor',
+          explanation: 'ArgumentCaptor captures the actual arguments passed to a mock so you can assert their contents after the fact. Use it when you cannot use simple matchers (e.g., the argument is built inside the system under test from inputs you do not directly control, or you need to assert multiple fields on a complex object). Prefer ArgumentCaptor over matchers when the assertion is about the SHAPE of the argument; prefer matchers when you only need to stub conditionally.',
+          codeExample: `@Test
+void captureArgumentPassedToRepository() {
+  // Arrange
+  CreateUserRequest req = new CreateUserRequest("john@example.com", "John");
+
+  // Act
+  userService.createUser(req);
+
+  // Assert - capture what was actually passed to save()
+  ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+  verify(userRepository).save(captor.capture());
+
+  User saved = captor.getValue();
+  assertEquals("john@example.com", saved.getEmail());
+  assertEquals("John", saved.getName());
+  assertNotNull(saved.getCreatedAt());
+  assertTrue(saved.getPasswordHash().length() > 20);
+}
+
+// Capture multiple invocations
+@Test
+void captureMultipleCalls() {
+  userService.bulkCreate(List.of(req1, req2, req3));
+
+  ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+  verify(userRepository, times(3)).save(captor.capture());
+
+  List<User> allSaved = captor.getAllValues();
+  assertEquals(3, allSaved.size());
+  assertEquals("a@x.com", allSaved.get(0).getEmail());
+}
+
+// @Captor annotation - cleaner than forClass()
+@ExtendWith(MockitoExtension.class)
+class WithCaptorAnnotation {
+
+  @Captor
+  private ArgumentCaptor<EmailRequest> emailCaptor;
+
+  @Test
+  void sendsWelcomeEmail() {
+    userService.createUser(new CreateUserRequest("john@example.com", "John"));
+
+    verify(emailService).send(emailCaptor.capture());
+    assertEquals("Welcome!", emailCaptor.getValue().getSubject());
+  }
+}`
+        },
+        {
+          name: 'BDDMockito (given/when/then)',
+          explanation: 'BDDMockito offers the same functionality as core Mockito but with a Behavior-Driven Development style: given() instead of when() for stubbing, then() instead of verify() for verification. It reads more naturally for tests structured around given-when-then scenarios. Use it consistently across a project - mixing styles in the same test file is confusing.',
+          codeExample: `import static org.mockito.BDDMockito.*;
+
+@Test
+void shouldChargeCustomerWhenOrderIsPaid() {
+  // Given
+  Order order = new Order(1L, 99.99);
+  given(orderRepository.findById(1L)).willReturn(Optional.of(order));
+  given(paymentGateway.charge(any(ChargeRequest.class)))
+    .willReturn(ChargeResult.success("txn-123"));
+
+  // When
+  PaymentResult result = paymentService.pay(1L);
+
+  // Then
+  assertEquals("txn-123", result.getTransactionId());
+  then(paymentGateway).should().charge(any(ChargeRequest.class));
+  then(orderRepository).should().save(argThat(o -> o.isPaid()));
+}
+
+// willThrow for exceptions
+@Test
+void shouldThrowWhenGatewayFails() {
+  given(paymentGateway.charge(any()))
+    .willThrow(new GatewayException("network error"));
+
+  assertThrows(PaymentException.class,
+    () -> paymentService.pay(1L));
+
+  then(orderRepository).should(never()).save(any());
+}
+
+// willAnswer for dynamic responses
+@Test
+void shouldEchoOrderId() {
+  given(orderRepository.save(any(Order.class)))
+    .willAnswer(invocation -> invocation.getArgument(0));
+
+  Order result = orderService.create(new Order(null, 99.99));
+  assertNotNull(result);
+}`
+        },
+        {
+          name: 'Static & Constructor Mocking',
+          explanation: 'Modern Mockito (3.4+) can mock static methods via Mockito.mockStatic() and constructor calls via Mockito.mockConstruction() without external libraries (formerly PowerMock territory). Wrap the mock in a try-with-resources block so the static/constructor mocking is scoped and automatically cleaned up. Use sparingly - if you find yourself mocking statics often, that is usually a code smell pointing to global state that should be refactored into an injectable dependency.',
+          codeExample: `// Static method mocking - requires mockito-inline dependency
+@Test
+void mockStaticUtility() {
+  try (MockedStatic<UUID> uuidMock = mockStatic(UUID.class)) {
+    UUID fixed = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    uuidMock.when(UUID::randomUUID).thenReturn(fixed);
+
+    Order order = orderService.create(new CreateOrderRequest());
+
+    assertEquals(fixed.toString(), order.getId());
+    uuidMock.verify(UUID::randomUUID);
+  } // static mocking is released automatically here
+}
+
+// Mocking a static method on your own class
+@Test
+void mockStaticFactory() {
+  try (MockedStatic<Clock> clockMock = mockStatic(Clock.class)) {
+    Instant fixed = Instant.parse("2026-01-15T10:00:00Z");
+    clockMock.when(() -> Clock.systemUTC().instant()).thenReturn(fixed);
+
+    Audit audit = auditService.create("event");
+    assertEquals(fixed, audit.getTimestamp());
+  }
+}
+
+// Constructor mocking - intercept "new"
+@Test
+void mockConstructorCall() {
+  try (MockedConstruction<HttpClient> mocked = mockConstruction(
+      HttpClient.class,
+      (mock, ctx) -> {
+        when(mock.send(any())).thenReturn("OK");
+      })) {
+
+    // Inside service, "new HttpClient()" returns the mock above
+    String result = externalCaller.callRemote();
+
+    assertEquals("OK", result);
+    assertEquals(1, mocked.constructed().size());
+  }
+}`
+        },
+        {
+          name: 'InOrder & Strict Stubbing',
+          explanation: 'InOrder verifies that interactions happened in a specific sequence - useful when ordering matters (e.g., transaction begin -> save -> commit). Strict stubbing (default with MockitoExtension) fails the test if you stub a method that is never called or call a stubbed method with unexpected arguments - this catches dead stubs and prevents tests from passing for the wrong reasons. Use lenient() to opt out of strictness for a specific stub.',
+          codeExample: `// Verify ordering of interactions across mocks
+@Test
+void verifyTransactionOrder() {
+  orderService.placeOrder(order);
+
+  InOrder inOrder = inOrder(transactionManager, orderRepository,
+                            inventoryService, emailService);
+
+  inOrder.verify(transactionManager).begin();
+  inOrder.verify(inventoryService).reserve(order.getItems());
+  inOrder.verify(orderRepository).save(order);
+  inOrder.verify(transactionManager).commit();
+  inOrder.verify(emailService).sendConfirmation(order); // after commit
+}
+
+// Strict stubbing (default with @ExtendWith(MockitoExtension.class))
+@ExtendWith(MockitoExtension.class)
+class StrictStubbingTest {
+
+  @Mock private UserRepository repo;
+
+  @Test
+  void unusedStubFails() {
+    // This will fail the test with UnnecessaryStubbingException
+    // because the stub is never used
+    when(repo.findById(1L)).thenReturn(Optional.empty());
+    // ... no call to repo.findById(1L) ...
+  }
+
+  @Test
+  void lenientStubAllowed() {
+    // Opt out of strictness for a single stub
+    lenient().when(repo.findById(anyLong()))
+      .thenReturn(Optional.empty());
+
+    // Test logic that may or may not call findById
+  }
+}
+
+// MockitoSettings to relax strictness globally for a test class
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class LenientTestClass {
+  // All stubs in this class are lenient
+}`
         }
       ]
     },
@@ -1571,7 +1801,10 @@ jobs:
         {concepts.map((concept, index) => (
           <div
             key={concept.id}
-            onClick={() => setSelectedConceptIndex(index)}
+            onClick={() => {
+              setSelectedConceptIndex(index)
+              setSelectedDetailIndex(0)
+            }}
             style={{
               background: 'rgba(15, 23, 42, 0.8)',
               borderRadius: '1rem',

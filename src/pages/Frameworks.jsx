@@ -16,7 +16,7 @@ const FRAMEWORK_COLORS = {
 
 const categories = {
   all: { label: 'All', ids: null },
-  spring: { label: 'Spring Ecosystem', ids: ['Spring', 'Spring Boot', 'Hibernate', 'Dependency Injection', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Security', 'Ehcache'] },
+  spring: { label: 'Spring Ecosystem', ids: ['Spring', 'Spring Boot', 'Hibernate', 'Dependency Injection', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Data', 'Spring Security', 'Ehcache'] },
   api: { label: 'API Development', ids: ['REST API', 'gRPC', 'SOAP', 'GraphQL', 'BFF'] },
   frontend: { label: 'Frontend', ids: ['React', 'Angular'] },
   tools: { label: 'Tools', ids: ['Shell Scripting'] }
@@ -83,6 +83,13 @@ function Frameworks({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       icon: '⚙️',
       color: '#f59e0b',
       description: 'Robust batch processing framework for enterprise jobs, chunk-oriented processing, readers, processors, and writers.'
+    },
+    {
+      id: 'Spring Data',
+      name: 'Spring Data',
+      icon: '🗂️',
+      color: '#10b981',
+      description: 'Repositories, derived query methods, pagination, dynamic queries with Specifications, and JPA integration for relational and NoSQL stores.'
     },
     {
       id: 'Spring Security',

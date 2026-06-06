@@ -183,6 +183,7 @@ function NoSQLQuestions({ onBack, breadcrumb, problemLimit }) {
     {
       id: 1,
       category: 'Fundamentals',
+      difficulty: 'Easy',
       question: 'What is NoSQL and how does it differ from SQL databases?',
       answer: `**NoSQL Definition:**
 - "Not Only SQL" - databases that don't use traditional relational model
@@ -240,6 +241,7 @@ function NoSQLQuestions({ onBack, breadcrumb, problemLimit }) {
     {
       id: 2,
       category: 'MongoDB',
+      difficulty: 'Easy',
       question: 'Explain MongoDB document model and basic CRUD operations',
       answer: `**MongoDB Document Model:**
 - Data stored as BSON (Binary JSON) documents
@@ -359,6 +361,7 @@ db.users.find({
     {
       id: 3,
       category: 'MongoDB',
+      difficulty: 'Medium',
       question: 'What are MongoDB indexes and aggregation pipeline?',
       answer: `**MongoDB Indexes:**
 - Data structures that improve query performance
@@ -469,6 +472,7 @@ db.orders.aggregate([
     {
       id: 4,
       category: 'Redis',
+      difficulty: 'Medium',
       question: 'What is Redis and what are its main data structures?',
       answer: `**What is Redis?**
 - In-memory data structure store
@@ -573,6 +577,7 @@ PUBLISH channel:updates "New message!"
     {
       id: 5,
       category: 'Cassandra',
+      difficulty: 'Hard',
       question: 'Explain Apache Cassandra architecture and data modeling',
       answer: `**What is Cassandra?**
 - Distributed, wide-column NoSQL database
@@ -687,6 +692,7 @@ CREATE TABLE orders_by_product (...);
     {
       id: 6,
       category: 'DynamoDB',
+      difficulty: 'Medium',
       question: 'What is Amazon DynamoDB and how does it work?',
       answer: `**What is DynamoDB?**
 - Fully managed NoSQL database by AWS
@@ -828,6 +834,7 @@ with table.batch_writer() as batch:
     {
       id: 7,
       category: 'CAP Theorem',
+      difficulty: 'Medium',
       question: 'Explain CAP Theorem and BASE properties',
       answer: `**CAP Theorem:**
 States that a distributed system can only guarantee 2 out of 3 properties:
@@ -936,6 +943,7 @@ Write with ALL, Read with ONE:
     {
       id: 8,
       category: 'Comparison',
+      difficulty: 'Easy',
       question: 'When should you choose NoSQL over SQL databases?',
       answer: `**Choose NoSQL When:**
 
@@ -1074,13 +1082,107 @@ E-commerce Platform:
 - Start with SQL unless you have specific needs for NoSQL
 - NoSQL adds complexity (eventual consistency, denormalization)
 - Choose based on actual requirements, not hype`
+    },
+    {
+      id: 9,
+      category: 'Redis',
+      difficulty: 'Medium',
+      question: 'Why is Redis so fast?',
+      answer: `Redis routinely handles **100k+ ops/sec on a single node with sub-millisecond latency**. The speed comes from a combination of design choices — not one trick.
+
+**1. Everything lives in RAM**
+- All data is stored in memory, not on disk
+- A memory access takes ~100 ns vs ~10 ms for a random SSD read — about 100,000× faster
+- Disk is used only for persistence (RDB snapshots / AOF log), not for serving reads
+
+**2. Single-threaded command processing**
+- One thread runs all commands, sequentially
+- **No locking, no mutexes, no context switches**
+- No cache contention, no race conditions
+- Modern multithreaded code spends most of its time on synchronization — Redis sidesteps that entirely
+- (Redis 6+ adds threaded I/O for network read/write, but command execution is still single-threaded)
+
+**3. Event loop (multiplexed I/O)**
+- Single thread + non-blocking I/O via \`epoll\` / \`kqueue\`
+- One thread handles tens of thousands of connections concurrently
+- No thread-per-connection overhead
+
+**4. Purpose-built data structures with optimal complexity**
+- Strings, Lists, Sets, Hashes, Sorted Sets, HyperLogLog, Streams
+- Each operation is implemented at **C-level efficiency**:
+  - \`GET\`, \`SET\`, \`HSET\` → O(1)
+  - \`LPUSH\`, \`RPUSH\` → O(1)
+  - \`ZADD\` → O(log N) via skip list
+  - \`ZRANGE\` → O(log N + M)
+- Compare to relational DBs needing to parse SQL, plan, scan B-trees, lock, journal
+
+**5. Simple binary protocol (RESP)**
+- Plain text, parsing is trivial
+- No SQL parser, no query planner, no optimizer
+- Command pipelining: send many commands in one TCP packet, get many responses back
+
+**6. Lazy persistence (optional, asynchronous)**
+- Persistence happens via fork() snapshots (RDB) or appending to a log (AOF) — both async
+- The main command loop is never blocked by disk I/O
+- You can disable persistence entirely for pure-cache workloads
+
+---
+
+**Sorted Set scores — \`ZADD\` and \`Score\`:**
+
+Each member of a sorted set has an associated \`score\` (a double-precision float). Members are kept ordered **by score**, ties broken by lexicographic order of the member.
+
+\`\`\`redis
+ZADD leaderboard 1500 "alice"
+ZADD leaderboard 2300 "bob"
+ZADD leaderboard 1800 "carol"
+
+ZRANGE leaderboard 0 -1 WITHSCORES
+# 1) "alice"   2) "1500"
+# 3) "carol"   4) "1800"
+# 5) "bob"     6) "2300"
+
+ZREVRANGE leaderboard 0 9 WITHSCORES    # top 10
+ZSCORE leaderboard "bob"                # 2300
+ZRANK leaderboard "alice"               # 0 (rank ascending)
+ZREVRANK leaderboard "bob"              # 0 (rank descending)
+ZINCRBY leaderboard 50 "alice"          # alice's score now 1550
+ZRANGEBYSCORE leaderboard 1500 2000     # filter by score range
+\`\`\`
+
+**Under the hood:** Sorted Sets use two structures together:
+- A **hash table** for O(1) member → score lookups
+- A **skip list** for O(log N) ordered range queries
+
+**Use cases:** leaderboards, priority queues, time-ordered feeds, rate limiting by score, fairness queues.
+
+---
+
+**Where Redis is NOT fast:**
+- Big values (multi-MB strings, huge hashes) — the single thread blocks while serializing
+- O(N) commands on big collections: \`KEYS *\`, \`SMEMBERS\` on huge set, \`HGETALL\` on huge hash — block the event loop
+- Network round-trips — fix with **pipelining** or **Lua scripts**
+- Lots of small ops without pipelining — fix with \`MGET\`, \`MSET\`, transactions, Lua
+
+---
+
+**Best practices for staying fast:**
+- Never run \`KEYS *\` in production — use \`SCAN\`
+- Pipeline batches of commands instead of one round-trip per command
+- Keep values small (< 100 KB); split big values across keys
+- Use Lua scripts for atomic multi-step logic
+- Use connection pooling on the client side
+- Monitor \`slowlog\` to find blocking commands`
     }
   ]
 
   // Filter questions based on problemLimit (for Top 100/300 mode)
   const limitedQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
 
-  const categoryCounts = limitedQuestions.reduce((acc, q) => {
+  const questionsForCategoryCount = limitedQuestions.filter(q =>
+    activeDifficulty === 'All' || q.difficulty === activeDifficulty
+  )
+  const categoryCounts = questionsForCategoryCount.reduce((acc, q) => {
     acc[q.category] = (acc[q.category] || 0) + 1
     return acc
   }, {})
@@ -1252,7 +1354,7 @@ E-commerce Platform:
       }}>
         {availableCategories.map((cat) => {
           const isActive = activeCategory === cat
-          const count = cat === 'All' ? limitedQuestions.length : (categoryCounts[cat] || 0)
+          const count = cat === 'All' ? questionsForCategoryCount.length : (categoryCounts[cat] || 0)
           const color = cat === 'All' ? '#3b82f6' : getCategoryColor(cat)
           return (
             <button

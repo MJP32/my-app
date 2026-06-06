@@ -189,7 +189,7 @@ const OOPDiagram = () => (
 
 const tabCategories = {
   all: { label: 'All', ids: null },
-  quickref: { label: 'Quick Reference', ids: ['oop-overview', 'streams-overview', 'concurrency-overview', 'collections-overview', 'modern-java-overview', 'jvm-overview'] },
+  quickref: { label: 'Quick Reference', ids: ['oop-overview', 'streams-overview', 'concurrency-overview', 'collections-overview', 'modern-java-overview', 'jvm-overview', 'fundamentals-overview', 'fundamentals-senior-overview', 'must-know-examples-overview'] },
   core: { label: 'Core Fundamentals', ids: ['Core Java', 'Object-Oriented Programming', 'Class', 'Interface', 'Exception Handling', 'Generics', 'File I/O'] },
   collections: { label: 'Collections & Streams', ids: ['Collections Framework', 'Streams', 'Streams Advanced', 'Optional', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Functional Programming'] },
   concurrency: { label: 'Concurrency', ids: ['Concurrency', 'Multithreading'] },
@@ -220,6 +220,7 @@ function Java({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCate
     { id: 'jvm-overview', name: 'JVM & Performance', icon: '⚙️', color: '#6366f1', description: 'Memory model, garbage collection, and optimization techniques.', isQuickRef: true },
     { id: 'fundamentals-overview', name: 'Interview Fundamentals', icon: '🔑', color: '#a855f7', description: 'Class loaders, GC, this/super, static, object creation, JVM/JDK/JRE, heap vs stack, records, wrappers — common interview topics.', isQuickRef: true },
     { id: 'fundamentals-senior-overview', name: 'Senior Interview Topics', icon: '⚡', color: '#ef4444', description: 'JMM, HashMap internals, CAS/ABA, references, invokedynamic, type erasure, CompletableFuture, virtual threads, classloader leaks.', isQuickRef: true },
+    { id: 'must-know-examples-overview', name: 'Coding Must-Know Examples', icon: '💡', color: '#0ea5e9', description: 'Canonical implementations: deep vs shallow object cloning, copy constructors, and other from-scratch coding patterns.', isQuickRef: true },
     // Core Fundamentals
     { id: 'Core Java', name: 'Core Java', icon: '☕', color: '#f59e0b', description: 'Java fundamentals, syntax, data types, operators, and control flow.' },
     { id: 'Object-Oriented Programming', name: 'Object-Oriented Programming', icon: '🎭', color: '#8b5cf6', description: 'Classes, objects, inheritance, polymorphism, encapsulation, and abstraction.' },
@@ -2446,6 +2447,291 @@ try {
 // Java 9+ Module Layers
 // ModuleLayer can have its own loaders; multiple versions of same module
 // in different layers don't conflict. Foundation for jlink and Loom.`
+        }
+      ]
+    },
+    {
+      id: 'must-know-examples',
+      name: 'Coding Must-Know Examples',
+      icon: '💡',
+      color: '#0ea5e9',
+      description: 'Canonical implementations every Java developer should be able to write from scratch — starting with deep vs shallow object cloning.',
+      details: [
+        {
+          name: 'Cloning — Shallow Copy (default clone)',
+          explanation: 'A shallow copy duplicates the top-level object but shares references to nested objects. Object.clone() is shallow by default — primitive and immutable (String) fields are effectively independent, but any mutable reference field is SHARED with the original. Mutating the nested object through one reference is visible through the other.',
+          codeExample: `public class Employee implements Cloneable {
+    String name;
+    int id;
+    Address address;   // mutable nested object
+
+    public Employee(String name, int id, Address address) {
+        this.name = name;
+        this.id = id;
+        this.address = address;
+    }
+
+    @Override
+    public Employee clone() throws CloneNotSupportedException {
+        return (Employee) super.clone();   // SHALLOW: address reference is shared
+    }
+}
+
+class Address {
+    String line1;
+    String line2;
+    Address(String line1, String line2) { this.line1 = line1; this.line2 = line2; }
+}
+
+// --- Demo: the shared reference bites you ---
+Employee e1 = new Employee("Mohit", 1, new Address("123", "123"));
+Employee e2 = e1.clone();
+
+e2.address.line1 = "234";              // mutate through the copy...
+
+System.out.println(e1.address.line1); // prints "234"  ⚠️ original changed too!
+System.out.println(e2.address.line1); // prints "234"
+// Both Employees point at the SAME Address object.`
+        },
+        {
+          name: 'Cloning — Deep Copy (recursive clone)',
+          explanation: 'A deep copy recursively clones nested mutable objects so the copy is fully independent. Override clone() to clone each mutable field after calling super.clone(). Immutable fields (String, primitives) need no special handling. The nested type must also support cloning.',
+          codeExample: `public class Employee implements Cloneable {
+    String name;
+    int id;
+    Address address;
+
+    public Employee(String name, int id, Address address) {
+        this.name = name;
+        this.id = id;
+        this.address = address;
+    }
+
+    public void setAddress(String line1, String line2) {
+        this.address = new Address(line1, line2);
+    }
+
+    @Override
+    public Employee clone() throws CloneNotSupportedException {
+        Employee e2 = (Employee) super.clone();   // shallow copy of fields
+        e2.address = address.clone();             // deep copy the mutable field
+        return e2;
+    }
+}
+
+public class Address implements Cloneable {
+    String line1;
+    String line2;
+
+    public Address(String line1, String line2) {
+        this.line1 = line1;
+        this.line2 = line2;
+    }
+
+    @Override
+    public Address clone() throws CloneNotSupportedException {
+        return (Address) super.clone();   // String fields are immutable, shallow is fine
+    }
+}
+
+// --- Demo: copy is independent ---
+Employee e1 = new Employee("Mohit", 1, new Address("123", "123"));
+Employee e2 = e1.clone();
+e2.setAddress("234", "234");
+
+System.out.println(e1.address.line1); // prints "123" — deep copy worked
+System.out.println(e2.address.line1); // prints "234"`
+        },
+        {
+          name: 'Cloning — Copy Constructor (preferred over clone)',
+          explanation: 'Joshua Bloch (Effective Java) recommends avoiding Cloneable entirely — it is a fragile, error-prone marker interface. A copy constructor (or static factory) is clearer, needs no checked exception, works with final fields, and makes deep vs shallow explicit by how you copy each field.',
+          codeExample: `public class Employee {
+    private final String name;
+    private final int id;
+    private Address address;
+
+    public Employee(String name, int id, Address address) {
+        this.name = name;
+        this.id = id;
+        this.address = address;
+    }
+
+    // Copy constructor — deep copies the mutable Address
+    public Employee(Employee other) {
+        this.name = other.name;
+        this.id = other.id;
+        this.address = new Address(other.address);   // explicit deep copy
+    }
+}
+
+class Address {
+    String line1, line2;
+    Address(String line1, String line2) { this.line1 = line1; this.line2 = line2; }
+    // copy constructor
+    Address(Address other) { this.line1 = other.line1; this.line2 = other.line2; }
+}
+
+Employee e1 = new Employee("Mohit", 1, new Address("123", "123"));
+Employee e2 = new Employee(e1);   // independent deep copy, no clone()/CloneNotSupportedException`
+        },
+        {
+          name: 'Concurrency — Producer-Consumer (BlockingQueue)',
+          explanation: 'The classic concurrency pattern: producers add work to a shared queue, consumers remove it, and the queue decouples their speeds. A bounded BlockingQueue handles all synchronization — put() blocks when the queue is full and take() blocks when it is empty, so you never busy-wait or manage wait()/notify() by hand. Always restore the interrupt flag (Thread.currentThread().interrupt()) when catching InterruptedException.',
+          codeExample: `import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class ProducerConsumer {
+
+    static class Producer implements Runnable {
+        private final BlockingQueue<Integer> queue;
+
+        Producer(BlockingQueue<Integer> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public void run() {
+            try {
+                for (int i = 0; i < 10; i++) {
+                    queue.put(i);                    // blocks if full
+                    System.out.println("Produced: " + i);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    static class Consumer implements Runnable {
+        private final BlockingQueue<Integer> queue;
+
+        Consumer(BlockingQueue<Integer> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    Integer item = queue.take();     // blocks if empty
+                    System.out.println("Consumed: " + item);
+                    Thread.sleep(1500);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        BlockingQueue<Integer> queue = new LinkedBlockingQueue<>(5); // bounded
+        new Thread(new Producer(queue), "producer").start();
+        new Thread(new Consumer(queue), "consumer").start();
+    }
+}`
+        },
+        {
+          name: 'I/O — Serialization & Deserialization',
+          explanation: 'Serialization converts an object graph into a byte stream (for storage or network transfer); deserialization reconstructs it. Implement java.io.Serializable, declare a serialVersionUID to control version compatibility, and mark fields you do NOT want persisted as transient (e.g. secrets, derived/cached values). Deserialization bypasses constructors — the JVM allocates the object and restores fields directly — so validate sensitive invariants in readObject if needed.',
+          codeExample: `import java.io.*;
+
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;  // version control
+
+    private String name;
+    private int age;
+    private transient String password;   // NOT serialized (skipped)
+
+    public User(String name, int age, String password) {
+        this.name = name;
+        this.age = age;
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{name=" + name + ", age=" + age + ", password=" + password + "}";
+    }
+
+    // Serialize an object to a file
+    public static void serialize(User user, String path) throws IOException {
+        try (ObjectOutputStream out =
+                 new ObjectOutputStream(new FileOutputStream(path))) {
+            out.writeObject(user);
+        }
+    }
+
+    // Deserialize an object from a file
+    public static User deserialize(String path)
+            throws IOException, ClassNotFoundException {
+        try (ObjectInputStream in =
+                 new ObjectInputStream(new FileInputStream(path))) {
+            return (User) in.readObject();
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        User u1 = new User("Mohit", 30, "secret123");
+        serialize(u1, "user.ser");
+
+        User u2 = deserialize("user.ser");
+        System.out.println(u2);   // password is null — transient field not restored
+    }
+}`
+        },
+        {
+          name: 'Singleton — Eager & Static Holder',
+          explanation: 'A Singleton guarantees exactly one instance of a class and a global access point to it. The simplest correct forms are eager initialization (instance created at class load) and the Bill Pugh static holder (lazy + thread-safe via class-loading guarantees, no synchronization cost). Use eager when the instance is cheap and always needed; use the holder idiom when you want lazy creation without locking overhead.',
+          codeExample: `// 1. Eager initialization — instance built at class load, inherently thread-safe
+public class EagerSingleton {
+    private static final EagerSingleton INSTANCE = new EagerSingleton();
+
+    private EagerSingleton() { }                  // private — no external new
+
+    public static EagerSingleton getInstance() {
+        return INSTANCE;
+    }
+}
+
+// 2. Bill Pugh static holder — lazy AND thread-safe with no synchronization.
+//    The holder class loads only on first getInstance() call.
+public class HolderSingleton {
+    private HolderSingleton() { }
+
+    private static class Holder {
+        private static final HolderSingleton INSTANCE = new HolderSingleton();
+    }
+
+    public static HolderSingleton getInstance() {
+        return Holder.INSTANCE;
+    }
+}`
+        },
+        {
+          name: 'Singleton — Double-Checked Locking',
+          explanation: 'Lazy singleton that is thread-safe but only pays the synchronization cost on the first call. The volatile keyword is REQUIRED: without it, the partially-constructed object could be visible to another thread due to instruction reordering (the reference is assigned before the constructor finishes). The two null checks avoid locking once the instance exists.',
+          codeExample: `public class Singleton {
+    // volatile prevents reordering / publishing a half-built object
+    private static volatile Singleton instance;
+
+    private Singleton() { }
+
+    public static Singleton getInstance() {
+        if (instance == null) {                 // 1st check — no lock (fast path)
+            synchronized (Singleton.class) {
+                if (instance == null) {         // 2nd check — inside lock
+                    instance = new Singleton(); // safe publication via volatile
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+// Why the second check? Two threads can both pass the first null check and
+// queue on the lock. Without the inner check, the second thread would create
+// a second instance after the first already did.`
         }
       ]
     }
