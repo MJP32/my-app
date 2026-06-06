@@ -1208,6 +1208,151 @@ int[] evenSquares = IntStream.range(1, 10)
       ]
     },
     {
+      id: 'functional-interfaces',
+      name: 'Functional Interfaces',
+      icon: '🧩',
+      color: '#06b6d4',
+      description: 'Which functional interface each Stream method takes — and why. Map the verb to the shape: Decide → Predicate, Convert → Function, Consume → Consumer, Fold → BinaryOperator/BiFunction, Create → Supplier.',
+      details: [
+        {
+          name: 'The Big Picture — Verb maps to Shape',
+          explanation: 'The functional interface a stream method requires is dictated by what the method needs to do with each element. Once you recognize the job, you know the interface — you do not have to memorize each signature. Decide whether to keep an element → Predicate. Convert an element into something else → Function. Do something with no result → Consumer. Fold many elements into one → BinaryOperator/BiFunction. Produce a fresh container → Supplier. The wildcards (? super, ? extends) only add flexibility in what types you can pass; they never change which interface it is.',
+          codeExample: `// Map the verb to the shape
+
+//  JOB              SHAPE                         INTERFACE
+//  ---------------  ----------------------------  -----------------------
+//  Decide (yes/no)  T  -> boolean                 Predicate<T>
+//  Convert          T  -> R                        Function<T,R>
+//  Convert (prim.)  T  -> int/long/double          ToIntFunction<T> etc.
+//  Consume          T  -> void                      Consumer<T>
+//  Fold (same type) (T,T) -> T                      BinaryOperator<T>
+//  Fold (acc type)  (U,T) -> U                      BiFunction<U,T,U>
+//  Create container ()  -> R                         Supplier<R>
+
+// filter   -> Predicate     (should this pass?)
+// map      -> Function      (turn this into that)
+// peek     -> Consumer      (do something, return nothing)
+// reduce   -> BinaryOperator(combine two into one)
+// collect  -> Supplier+...  (make an empty box, then fill it)`
+        },
+        {
+          name: 'Intermediate Operation Signatures',
+          explanation: 'Intermediate operations return a new Stream, so they can be chained. Notice the recurring shapes: filtering takes a Predicate, transforming takes a Function (or a primitive ToXxxFunction to avoid boxing), and side-effects take a Consumer. Methods that take no functional interface are pure stream mechanics: distinct(), limit(long), skip(long), sorted() (natural order).',
+          codeExample: `// Intermediate operations
+filter(Predicate<? super T>)                              -> Stream<T>
+map(Function<? super T, ? extends R>)                     -> Stream<R>
+mapToInt(ToIntFunction<? super T>)                        -> IntStream
+mapToLong(ToLongFunction<? super T>)                      -> LongStream
+mapToDouble(ToDoubleFunction<? super T>)                  -> DoubleStream
+flatMap(Function<? super T, ? extends Stream<? extends R>>) -> Stream<R>
+flatMapToInt(Function<? super T, ? extends IntStream>)    -> IntStream
+flatMapToLong(Function<? super T, ? extends LongStream>)  -> LongStream
+flatMapToDouble(Function<? super T, ? extends DoubleStream>) -> DoubleStream
+mapMulti(BiConsumer<? super T, ? super Consumer<R>>)      -> Stream<R>   // Java 16+
+peek(Consumer<? super T>)                                 -> Stream<T>
+takeWhile(Predicate<? super T>)                           -> Stream<T>   // Java 9+
+dropWhile(Predicate<? super T>)                           -> Stream<T>   // Java 9+
+sorted(Comparator<? super T>)                             -> Stream<T>
+
+// No functional interface: distinct(), limit(long), skip(long), sorted()`
+        },
+        {
+          name: 'Terminal Operation Signatures',
+          explanation: 'Terminal operations consume the stream and produce a result or side-effect. Searching/matching takes a Predicate, ordering uses a Comparator, reduction uses a BinaryOperator/BiFunction, and the three-arg collect supplies a container via a Supplier. Methods taking no functional interface: count(), findFirst(), findAny(), toList() (Java 16+).',
+          codeExample: `// Terminal operations
+forEach(Consumer<? super T>)                              -> void
+forEachOrdered(Consumer<? super T>)                       -> void
+reduce(BinaryOperator<T>)                                 -> Optional<T>
+reduce(T, BinaryOperator<T>)                              -> T
+reduce(U, BiFunction<U,? super T,U>, BinaryOperator<U>)   -> U
+collect(Supplier<R>, BiConsumer<R,? super T>, BiConsumer<R,R>) -> R
+collect(Collector<? super T, A, R>)                       -> R
+anyMatch(Predicate<? super T>)                            -> boolean
+allMatch(Predicate<? super T>)                            -> boolean
+noneMatch(Predicate<? super T>)                           -> boolean
+min(Comparator<? super T>)                                -> Optional<T>
+max(Comparator<? super T>)                                -> Optional<T>
+toArray(IntFunction<A[]>)                                 -> A[]
+
+// No functional interface: count(), findFirst(), findAny(), toList()`
+        },
+        {
+          name: 'Filtering maps to Predicate<T>',
+          explanation: 'Methods that keep or drop elements need a yes/no decision per element, so they take a Predicate<T> (T -> boolean). The method asks "should this element pass?" and the predicate answers true/false. This shape covers filter, takeWhile, dropWhile, anyMatch, allMatch, and noneMatch.',
+          codeExample: `// Predicate<T>: T -> boolean
+Predicate<String> isLong = s -> s.length() > 3;
+
+List<String> names = List.of("Al", "Alice", "Bob", "Charlie");
+
+names.stream().filter(isLong).toList();       // [Alice, Charlie]
+names.stream().takeWhile(isLong).toList();    // [] (first fails)
+names.stream().anyMatch(isLong);              // true
+names.stream().allMatch(isLong);              // false
+names.stream().noneMatch(String::isBlank);    // true`
+        },
+        {
+          name: 'Transforming maps to Function / ToXxxFunction',
+          explanation: 'Methods that convert each element into something else take a value and return a (possibly different) value. map returns an object R; the mapToXxx variants return a primitive, so they use the specialized ToIntFunction/ToLongFunction/ToDoubleFunction to avoid boxing. flatMap is still a Function — it just returns a Stream instead of a scalar, so its results are flattened into one stream.',
+          codeExample: `// Function<T,R>: T -> R
+Function<String, Integer> len = String::length;
+List.of("a", "bb", "ccc").stream().map(len).toList(); // [1, 2, 3]
+
+// ToIntFunction<T>: T -> int (no boxing)
+int total = List.of("a", "bb", "ccc").stream()
+    .mapToInt(String::length)
+    .sum();                                            // 6
+
+// flatMap: Function returning a Stream, then flattened
+List<List<Integer>> nested = List.of(List.of(1, 2), List.of(3, 4));
+nested.stream()
+    .flatMap(List::stream)
+    .toList();                                         // [1, 2, 3, 4]`
+        },
+        {
+          name: 'Side-effects map to Consumer<T>',
+          explanation: 'Methods that do something with each element but do not produce a new value take a Consumer<T> (T -> void) — it accepts an element and returns nothing. forEach and peek exist purely for their side effects (printing, logging), which is exactly the void-returning shape. peek is intermediate (returns the stream for chaining); forEach is terminal.',
+          codeExample: `// Consumer<T>: T -> void
+Consumer<String> print = System.out::println;
+
+List.of("a", "b", "c").forEach(print);   // prints a, b, c (terminal)
+
+// peek: side-effect mid-pipeline, stream flows on (intermediate)
+List<Integer> result = Stream.of(1, 2, 3)
+    .peek(n -> System.out.println("saw " + n))
+    .map(n -> n * 2)
+    .toList();                            // [2, 4, 6]`
+        },
+        {
+          name: 'Combining maps to BinaryOperator / BiFunction',
+          explanation: 'Reduction folds many elements into one by repeatedly combining two at a time. reduce(BinaryOperator) takes two values of the same type and returns one of that type ((T,T) -> T). The three-arg reduce allows the accumulator to be a different type U, so its accumulator is a BiFunction<U,T,U> (combine the running result with the next element) plus a BinaryOperator<U> combiner for parallel merging.',
+          codeExample: `// BinaryOperator<T>: (T,T) -> T
+int sum = Stream.of(1, 2, 3, 4).reduce(0, Integer::sum);   // 10
+Optional<Integer> max = Stream.of(1, 2, 3).reduce(Integer::max); // 3
+
+// BiFunction<U,T,U> accumulator + BinaryOperator<U> combiner
+int totalLen = Stream.of("a", "bb", "ccc")
+    .reduce(0,
+            (acc, s) -> acc + s.length(),  // BiFunction<Integer,String,Integer>
+            Integer::sum);                 // BinaryOperator<Integer> (parallel merge)
+// totalLen = 6`
+        },
+        {
+          name: 'Supplying containers maps to Supplier<R>',
+          explanation: 'The mutable collect(Supplier, BiConsumer, BiConsumer) needs an empty container to fill. A Supplier<R> (() -> R) takes no input and produces a fresh container (e.g. ArrayList::new). It is a factory — called to create the thing that accumulates results. The two BiConsumers then add an element and merge two partial containers.',
+          codeExample: `// Supplier<R>: () -> R (a factory for the container)
+List<String> collected = Stream.of("a", "b", "c")
+    .collect(ArrayList::new,     // Supplier<List>: make empty box
+             List::add,          // BiConsumer<List,String>: add element
+             List::addAll);      // BiConsumer<List,List>: merge (parallel)
+// collected = [a, b, c]
+
+// Same idea via a packaged Collector
+List<String> viaCollector = Stream.of("a", "b", "c")
+    .collect(Collectors.toCollection(ArrayList::new));`
+        }
+      ]
+    },
+    {
       id: 'collectors',
       name: 'Collectors & Grouping',
       icon: '📦',
