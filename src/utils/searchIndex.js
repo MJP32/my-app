@@ -6,7 +6,7 @@ const categoryGroups = {
   'Java': {
     icon: '☕',
     color: '#f59e0b',
-    items: ['Core Java', 'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24']
+    items: ['Core Java', 'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26']
   },
   'Design': {
     icon: '🎨',
@@ -177,6 +177,9 @@ export const createSearchIndex = () => {
     { value: 'Java 8', title: 'Java 8', description: 'Java 8 features including lambda expressions, streams API, optional, method references, and functional programming.', keywords: ['java8', 'lambda', 'streams', 'optional', 'functional', 'programming'] },
     { value: 'Java 11', title: 'Java 11', description: 'Java 11 LTS features including HTTP client, local variable type inference, and module system.', keywords: ['java11', 'http', 'client', 'modules', 'lts'] },
     { value: 'Java 21', title: 'Java 21', description: 'Java 21 LTS with virtual threads, pattern matching, record patterns, and structured concurrency.', keywords: ['java21', 'virtual', 'threads', 'loom', 'pattern', 'matching', 'records'] },
+    { value: 'Java 24', title: 'Java 24', description: 'Java 24 preview features including stream gatherers, scoped values, class-file API, and primitive patterns.', keywords: ['java24', 'gatherers', 'scoped', 'values', 'class-file', 'preview'] },
+    { value: 'Java 25', title: 'Java 25 LTS', description: 'Java 25 LTS: compact source files, instance main, module imports, scoped values, stable values, compact object headers, generational Shenandoah, KDF API.', keywords: ['java25', 'lts', 'compact', 'source', 'instance main', 'module import', 'scoped values', 'stable values', 'object headers', 'shenandoah', 'kdf'] },
+    { value: 'Java 26', title: 'Java 26 Early Access', description: 'Java 26 early access (targeted 2026): value classes (Valhalla), lazy constants, structured concurrency, primitive patterns. Preview, subject to change.', keywords: ['java26', 'valhalla', 'value classes', 'lazy constants', 'structured concurrency', 'primitive patterns', 'preview', 'early access'] },
     // Frameworks
     { value: 'Spring', title: 'Spring Framework', description: 'Spring framework including dependency injection, AOP, MVC, and enterprise application development.', keywords: ['spring', 'dependency', 'injection', 'aop', 'mvc', 'framework'] },
     { value: 'Spring Boot', title: 'Spring Boot', description: 'Opinionated framework for rapid application development with auto-configuration and embedded servers.', keywords: ['springboot', 'boot', 'auto', 'configuration', 'starter', 'actuator'] },

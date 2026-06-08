@@ -38,6 +38,8 @@ import Java8 from './pages/java/Java8.jsx'
 import Java15 from './pages/java/Java15.jsx'
 import Java21 from './pages/java/Java21.jsx'
 import Java24 from './pages/java/Java24.jsx'
+import Java25 from './pages/java/Java25.jsx'
+import Java26 from './pages/java/Java26.jsx'
 import Module from './pages/java/Module.jsx'
 import Class from './pages/java/Class.jsx'
 import Interface from './pages/java/Interface.jsx'
@@ -86,6 +88,8 @@ import Java11Questions from './pages/questions/Java11Questions.jsx'
 import Java15Questions from './pages/questions/Java15Questions.jsx'
 import Java21Questions from './pages/questions/Java21Questions.jsx'
 import Java24Questions from './pages/questions/Java24Questions.jsx'
+import Java25Questions from './pages/questions/Java25Questions.jsx'
+import Java26Questions from './pages/questions/Java26Questions.jsx'
 import SQLQuestions from './pages/questions/SQLQuestions.jsx'
 import NoSQLQuestions from './pages/questions/NoSQLQuestions.jsx'
 import ORMQuestions from './pages/questions/ORMQuestions.jsx'
@@ -441,7 +445,7 @@ const QUESTIONS_COMPONENTS_ORDER = [
   // Spring Framework
   'Spring Core Questions', 'Spring Boot Questions', 'Spring Security Questions', 'Spring Data JPA Questions', 'Spring Annotations Questions',
   // Java
-  'Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions',
+  'Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions', 'Java 25 Questions', 'Java 26 Questions',
   // Databases
   'SQL Questions', 'NoSQL Questions', 'ORM Questions', 'Hibernate Questions',
   // Messaging
@@ -459,7 +463,7 @@ const QUESTIONS_COMPONENTS_ORDER = [
 // Subcategory groupings for questions
 const QUESTIONS_SUBCATEGORIES = {
   'Spring Framework': ['Spring Core Questions', 'Spring Boot Questions', 'Spring Security Questions', 'Spring Data JPA Questions', 'Spring Annotations Questions'],
-  'Java': ['Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions'],
+  'Java': ['Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions', 'Java 25 Questions', 'Java 26 Questions'],
   'Databases': ['SQL Questions', 'NoSQL Questions', 'ORM Questions', 'Hibernate Questions'],
   'Messaging': ['Kafka Questions', 'RabbitMQ Questions', 'Solace Questions'],
   'APIs & Integration': ['REST API Questions'],
@@ -495,13 +499,13 @@ const LEARNING_COMPONENTS_ORDER = [
   // Core Programming
   'Core Java', 'Class', 'Interface', 'Design Patterns', 'Dependency Injection', 'System Design',
   // Java Versions
-  'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24'
+  'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26'
 ]
 
 // Subcategory groupings for learning components
 const LEARNING_SUBCATEGORIES = {
   'Core Programming': ['Core Java', 'Class', 'Interface', 'Design Patterns', 'Dependency Injection', 'System Design'],
-  'Java Versions': ['Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24']
+  'Java Versions': ['Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26']
 }
 
 const LEARNING_SUBCATEGORY_ORDER = ['Core Programming', 'Java Versions']
@@ -936,6 +940,8 @@ function App() {
   const [showJava15QuestionsModal, setShowJava15QuestionsModal] = useState(false)
   const [showJava21QuestionsModal, setShowJava21QuestionsModal] = useState(false)
   const [showJava24QuestionsModal, setShowJava24QuestionsModal] = useState(false)
+  const [showJava25QuestionsModal, setShowJava25QuestionsModal] = useState(false)
+  const [showJava26QuestionsModal, setShowJava26QuestionsModal] = useState(false)
   const [showSQLQuestionsModal, setShowSQLQuestionsModal] = useState(false)
   const [showNoSQLQuestionsModal, setShowNoSQLQuestionsModal] = useState(false)
   const [showORMQuestionsModal, setShowORMQuestionsModal] = useState(false)
@@ -2282,6 +2288,22 @@ function App() {
         metrics: ['Future Features', 'JVM Enhancements', 'Language Evolution', 'Experimental APIs'],
         complexity: 'Expert Level',
         industry: 'Research & Development, Early Adopters'
+      },
+      {
+        value: 'Java 25',
+        label: '🚀 Java 25 LTS',
+        description: 'Java 25 (LTS) finalizes the simplified on-ramp (compact source files, instance main, module imports), Scoped Values, and major runtime wins like compact object headers and generational Shenandoah.',
+        metrics: ['LTS Release', 'Compact Source Files', 'Scoped Values', 'Compact Object Headers'],
+        complexity: 'Advanced',
+        industry: 'Enterprise, Long-Term Support'
+      },
+      {
+        value: 'Java 26',
+        label: '🔬 Java 26 Early Access',
+        description: 'Java 26 (targeted March 2026, non-LTS) carries forward value classes (Valhalla), lazy constants, structured concurrency, and primitive patterns. Features are in preview and subject to change.',
+        metrics: ['Early Access', 'Value Classes', 'Lazy Constants', 'Preview Features'],
+        complexity: 'Expert Level',
+        industry: 'Research & Development, Early Adopters'
       }
     ],
     // Row 2: Frameworks & Data Technologies
@@ -3134,6 +3156,8 @@ function App() {
             [showJava15QuestionsModal, setShowJava15QuestionsModal],
             [showJava21QuestionsModal, setShowJava21QuestionsModal],
             [showJava24QuestionsModal, setShowJava24QuestionsModal],
+            [showJava25QuestionsModal, setShowJava25QuestionsModal],
+            [showJava26QuestionsModal, setShowJava26QuestionsModal],
             [showSQLQuestionsModal, setShowSQLQuestionsModal],
             [showHibernateQuestionsModal, setShowHibernateQuestionsModal],
             [showKafkaQuestionsModal, setShowKafkaQuestionsModal],
@@ -3422,6 +3446,8 @@ function App() {
     showJava15QuestionsModal,
     showJava21QuestionsModal,
     showJava24QuestionsModal,
+    showJava25QuestionsModal,
+    showJava26QuestionsModal,
     showSQLQuestionsModal,
     showHibernateQuestionsModal,
     showKafkaQuestionsModal,
@@ -3472,7 +3498,9 @@ function App() {
     'Java 11': { name: 'Modern Java (8-11)', id: 'modern-java' },
     'Java 15': { name: 'Recent Releases (15-21)', id: 'recent-releases' },
     'Java 21': { name: 'Recent Releases (15-21)', id: 'recent-releases' },
-    'Java 24': { name: 'Preview Features', id: 'preview' }
+    'Java 24': { name: 'Preview Features', id: 'preview' },
+    'Java 25': { name: 'Preview Features', id: 'preview' },
+    'Java 26': { name: 'Preview Features', id: 'preview' }
   }
 
   // Helper function to navigate to Java with a specific category
@@ -3842,6 +3870,8 @@ function App() {
             'Java 15 Questions': setShowJava15QuestionsModal,
             'Java 21 Questions': setShowJava21QuestionsModal,
             'Java 24 Questions': setShowJava24QuestionsModal,
+            'Java 25 Questions': setShowJava25QuestionsModal,
+            'Java 26 Questions': setShowJava26QuestionsModal,
             'Spring Core Questions': setShowSpringCoreQuestionsModal,
             'Spring Boot Questions': setShowSpringBootQuestionsModal,
             'Spring Security Questions': setShowSpringSecurityQuestionsModal,
@@ -4178,6 +4208,14 @@ function App() {
     if (selectedOption === 'Java 24') {
       const navCallbacks = createLearningNavigationCallbacks('Java 24')
       return <Java24 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 24'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 24'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 24 Preview' }} />
+    }
+    if (selectedOption === 'Java 25') {
+      const navCallbacks = createLearningNavigationCallbacks('Java 25')
+      return <Java25 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 25'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 25'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 25 LTS' }} />
+    }
+    if (selectedOption === 'Java 26') {
+      const navCallbacks = createLearningNavigationCallbacks('Java 26')
+      return <Java26 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 26'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 26'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 26 Early Access' }} />
     }
     if (selectedOption === 'Design Patterns') {
       setShowDesignPatternsModal(true)
@@ -4814,6 +4852,8 @@ function App() {
             case 'Java 15 Questions': setShowJava15QuestionsModal(true); break;
             case 'Java 21 Questions': setShowJava21QuestionsModal(true); break;
             case 'Java 24 Questions': setShowJava24QuestionsModal(true); break;
+            case 'Java 25 Questions': setShowJava25QuestionsModal(true); break;
+            case 'Java 26 Questions': setShowJava26QuestionsModal(true); break;
             case 'SQL Questions': setShowSQLQuestionsModal(true); break;
             case 'NoSQL Questions': setShowNoSQLQuestionsModal(true); break;
             case 'ORM Questions': setShowORMQuestionsModal(true); break;
@@ -8370,6 +8410,92 @@ function App() {
               onBack={() => handleQuestionModalBack(setShowJava24QuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava24QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 24',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
+      )}
+
+      {showJava25QuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowJava25QuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <Java25Questions
+              onBack={() => handleQuestionModalBack(setShowJava25QuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava25QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java 25',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
+      )}
+
+      {showJava26QuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowJava26QuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <Java26Questions
+              onBack={() => handleQuestionModalBack(setShowJava26QuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava26QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java 26',
                 colors: BREADCRUMB_COLORS.Questions
               }}
               problemLimit={problemLimit}
