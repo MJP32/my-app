@@ -754,6 +754,969 @@ const MementoDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
+// =============================================================================
+// REAL-WORLD USAGE EXAMPLES (rendered as an extra tab per pattern)
+// =============================================================================
+const REAL_WORLD_USAGE = {
+  singleton: {
+    name: 'Real-World Usage',
+    explanation: 'Where you actually meet Singletons: Spring beans default to singleton scope (one instance per container); java.lang.Runtime and the SLF4J/Log4j LogManager are JVM-wide singletons; connection pools like HikariCP expose a single shared pool; configuration/property managers and metric registries (Micrometer) are typically singletons. The goal is one shared, expensive-to-create resource coordinated across the whole app.',
+    codeExample: `// A single shared connection pool for the whole service
+public final class ConnectionPool {
+  private static final ConnectionPool INSTANCE = new ConnectionPool();
+  private final HikariDataSource dataSource;
+
+  private ConnectionPool() {
+    HikariConfig cfg = new HikariConfig();
+    cfg.setJdbcUrl(System.getenv("DB_URL"));
+    cfg.setMaximumPoolSize(20);
+    this.dataSource = new HikariDataSource(cfg);
+  }
+
+  public static ConnectionPool getInstance() { return INSTANCE; }
+  public Connection getConnection() throws SQLException {
+    return dataSource.getConnection();
+  }
+}
+
+// In Spring this is automatic - every @Service/@Component is a singleton bean
+@Service
+public class PricingService { /* one instance shared by all callers */ }`
+  },
+  'factory-method': {
+    name: 'Real-World Usage',
+    explanation: 'Factory Method shows up wherever creation is decoupled from use: JDBC DriverManager.getConnection() returns the right Connection for the URL; LoggerFactory.getLogger() hands back a logger implementation; Calendar.getInstance() returns a locale-specific calendar; payment gateways and notification systems pick a concrete sender at runtime based on type/config.',
+    codeExample: `// Pick a payment processor by type, without the caller knowing the class
+public abstract class PaymentFactory {
+  public abstract PaymentProcessor create();   // the factory method
+
+  public static PaymentFactory forType(String type) {
+    return switch (type) {
+      case "card"   -> new CardPaymentFactory();
+      case "paypal" -> new PayPalFactory();
+      case "crypto" -> new CryptoFactory();
+      default -> throw new IllegalArgumentException(type);
+    };
+  }
+}
+
+PaymentProcessor processor = PaymentFactory.forType(order.method()).create();
+processor.charge(order.amount());   // works for any provider`
+  },
+  builder: {
+    name: 'Real-World Usage',
+    explanation: 'Builders are everywhere in modern Java: StringBuilder, Stream.builder(), the Java 11+ HttpClient/HttpRequest builders, OkHttp Request.Builder, Lombok @Builder, and the AWS/GCP SDK request builders. They shine when an object has many optional fields and you want readable, immutable construction without telescoping constructors.',
+    codeExample: `// Building an HTTP request fluently (java.net.http)
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/orders"))
+    .header("Authorization", "Bearer " + token)
+    .header("Content-Type", "application/json")
+    .timeout(Duration.ofSeconds(10))
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+// Lombok generates the same style for your domain objects
+Order order = Order.builder()
+    .customerId(42L)
+    .item("SKU-1", 3)
+    .expedited(true)
+    .build();`
+  },
+  observer: {
+    name: 'Real-World Usage',
+    explanation: 'Observer underpins all event-driven code: Spring ApplicationEvents with @EventListener, GUI listeners in Swing/Android, reactive streams (Project Reactor, RxJava), Kafka/RabbitMQ consumers reacting to messages, and WebSocket subscriptions. One state change fans out to many independent reactions without the publisher knowing the subscribers.',
+    codeExample: `// Spring publishes a domain event; many listeners react independently
+@Service
+public class OrderService {
+  private final ApplicationEventPublisher publisher;
+  public OrderService(ApplicationEventPublisher publisher) { this.publisher = publisher; }
+
+  public void place(Order order) {
+    save(order);
+    publisher.publishEvent(new OrderPlacedEvent(order));  // notify observers
+  }
+}
+
+@Component
+class EmailListener {
+  @EventListener void on(OrderPlacedEvent e) { sendConfirmation(e.order()); }
+}
+@Component
+class InventoryListener {
+  @EventListener void on(OrderPlacedEvent e) { reserveStock(e.order()); }
+}`
+  },
+  strategy: {
+    name: 'Real-World Usage',
+    explanation: 'Strategy lets you swap algorithms at runtime: Collections.sort with different Comparators, pluggable shipping/discount/pricing engines, authentication strategies in Spring Security, compression or serialization format selection, and order-routing logic in trading systems. The behavior is chosen by configuration or context instead of hard-coded branches.',
+    codeExample: `// Choose a shipping-cost algorithm at runtime
+interface ShippingStrategy { BigDecimal cost(Cart cart); }
+
+class StandardShipping implements ShippingStrategy {
+  public BigDecimal cost(Cart c) { return BigDecimal.valueOf(5); }
+}
+class ExpressShipping implements ShippingStrategy {
+  public BigDecimal cost(Cart c) { return BigDecimal.valueOf(15); }
+}
+class FreeOverThreshold implements ShippingStrategy {
+  public BigDecimal cost(Cart c) {
+    return c.total().compareTo(BigDecimal.valueOf(50)) >= 0
+        ? BigDecimal.ZERO : BigDecimal.valueOf(5);
+  }
+}
+
+ShippingStrategy strategy = strategies.get(customer.tier());
+BigDecimal fee = strategy.cost(cart);`
+  },
+  decorator: {
+    name: 'Real-World Usage',
+    explanation: 'The classic example is java.io: a BufferedInputStream wraps a FileInputStream which can be wrapped again for decompression - each layer adds behavior. Other real uses: Collections.unmodifiableList / synchronizedList, Spring HttpServletRequestWrapper for request filtering, servlet response compression/caching wrappers, and UI component decoration.',
+    codeExample: `// Stack behavior by wrapping streams (java.io decorators)
+InputStream in =
+    new GZIPInputStream(                 // + decompression
+        new BufferedInputStream(         // + buffering
+            new FileInputStream("data.gz")));   // base source
+
+// Collections decorators add behavior without subclassing
+List<String> readOnly = Collections.unmodifiableList(names);
+List<String> threadSafe = Collections.synchronizedList(new ArrayList<>());`
+  },
+  adapter: {
+    name: 'Real-World Usage',
+    explanation: 'Adapters bridge incompatible interfaces: InputStreamReader adapts a byte stream to a character stream, Arrays.asList adapts an array to a List, SLF4J adapts to Log4j/JUL behind one API, and Spring MVC HandlerAdapter lets the dispatcher invoke many controller styles. In practice you wrap legacy or third-party SDKs to fit your own interfaces.',
+    codeExample: `// Adapt a third-party gateway to our own PaymentProcessor interface
+interface PaymentProcessor { void charge(Money amount, String token); }
+
+// Legacy/3rd-party class we cannot change
+class StripeClient { void createCharge(long cents, String src) { /* ... */ } }
+
+class StripeAdapter implements PaymentProcessor {
+  private final StripeClient stripe = new StripeClient();
+  public void charge(Money amount, String token) {
+    stripe.createCharge(amount.toCents(), token);   // translate the call
+  }
+}
+
+// The rest of the app depends only on PaymentProcessor
+PaymentProcessor processor = new StripeAdapter();`
+  },
+  facade: {
+    name: 'Real-World Usage',
+    explanation: 'Facades give a simple front to a complex subsystem: Spring JdbcTemplate hides JDBC connection/statement/result-set handling, SLF4J fronts logging backends, and service-layer classes orchestrate inventory, payment, and shipping behind one method. Clients call one clean API instead of wiring many low-level components.',
+    codeExample: `// One checkout() call hides a multi-step subsystem
+@Service
+public class CheckoutFacade {
+  private final InventoryService inventory;
+  private final PaymentService payment;
+  private final ShippingService shipping;
+  private final NotificationService notifications;
+
+  public OrderResult checkout(Cart cart, Customer customer) {
+    inventory.reserve(cart);
+    Payment p = payment.charge(customer, cart.total());
+    Shipment s = shipping.schedule(cart, customer.address());
+    notifications.sendConfirmation(customer, p, s);
+    return new OrderResult(p.id(), s.tracking());
+  }
+}`
+  },
+  command: {
+    name: 'Real-World Usage',
+    explanation: 'Command objectifies an action so it can be queued, logged, or undone: Runnable/Callable tasks submitted to an ExecutorService, GUI menu actions with undo/redo in editors, job queues and Spring Batch steps, transactional outbox entries, and macro recording. The invoker triggers commands without knowing their concrete logic.',
+    codeExample: `// Editor actions as commands enable undo/redo
+interface Command { void execute(); void undo(); }
+
+class InsertText implements Command {
+  private final Document doc; private final String text; private final int pos;
+  InsertText(Document doc, String text, int pos) { this.doc = doc; this.text = text; this.pos = pos; }
+  public void execute() { doc.insert(pos, text); }
+  public void undo()    { doc.delete(pos, text.length()); }
+}
+
+Deque<Command> history = new ArrayDeque<>();
+void run(Command c) { c.execute(); history.push(c); }
+void undo()         { if (!history.isEmpty()) history.pop().undo(); }`
+  },
+  proxy: {
+    name: 'Real-World Usage',
+    explanation: 'Proxies are core to frameworks: Spring AOP creates proxies so @Transactional/@Async/@Cacheable work, Hibernate returns lazy-loading proxies for entity associations, java.lang.reflect.Proxy and CGLIB power dynamic proxies, and Mockito mocks are proxies. Real systems also use API gateways and caching/protection proxies in front of expensive resources.',
+    codeExample: `// A virtual proxy delays loading an expensive resource until needed
+interface Image { void render(); }
+
+class RealImage implements Image {
+  private final byte[] data;
+  RealImage(String path) { this.data = loadFromDisk(path); }  // expensive
+  public void render() { /* draw data */ }
+}
+
+class LazyImage implements Image {       // the proxy
+  private final String path;
+  private RealImage delegate;
+  LazyImage(String path) { this.path = path; }
+  public void render() {
+    if (delegate == null) delegate = new RealImage(path);  // load on first use
+    delegate.render();
+  }
+}
+// Spring/Hibernate generate this kind of proxy for you automatically`
+  },
+  state: {
+    name: 'Real-World Usage',
+    explanation: 'State machines model real lifecycles: an order moving through CREATED -> PAID -> SHIPPED -> DELIVERED, a TCP connection, a vending machine, document/approval workflows, and game character states. Each state encapsulates the allowed transitions, replacing tangled if/switch chains. Spring Statemachine formalizes this.',
+    codeExample: `// Order lifecycle as states - each defines its own valid transitions
+interface OrderState { OrderState pay(Order o); OrderState ship(Order o); }
+
+class Created implements OrderState {
+  public OrderState pay(Order o)  { o.capturePayment(); return new Paid(); }
+  public OrderState ship(Order o) { throw new IllegalStateException("pay first"); }
+}
+class Paid implements OrderState {
+  public OrderState pay(Order o)  { throw new IllegalStateException("already paid"); }
+  public OrderState ship(Order o) { o.dispatch(); return new Shipped(); }
+}
+class Shipped implements OrderState {
+  public OrderState pay(Order o)  { throw new IllegalStateException(); }
+  public OrderState ship(Order o) { throw new IllegalStateException(); }
+}`
+  },
+  'abstract-factory': {
+    name: 'Real-World Usage',
+    explanation: 'Abstract Factory creates whole families of related objects: GUI toolkits producing a matching look-and-feel set (buttons, checkboxes) per OS/theme, JDBC driver families, DocumentBuilderFactory/TransformerFactory in JAXP, and cloud-provider SDKs that build a consistent family of clients (storage, queue, compute) per provider.',
+    codeExample: `// A family of UI widgets that must match per platform/theme
+interface UiFactory { Button button(); Checkbox checkbox(); }
+
+class DarkThemeFactory implements UiFactory {
+  public Button button()     { return new DarkButton(); }
+  public Checkbox checkbox() { return new DarkCheckbox(); }
+}
+class LightThemeFactory implements UiFactory {
+  public Button button()     { return new LightButton(); }
+  public Checkbox checkbox() { return new LightCheckbox(); }
+}
+
+UiFactory factory = userPrefersDark ? new DarkThemeFactory() : new LightThemeFactory();
+Button b = factory.button();      // guaranteed to match the chosen theme
+Checkbox c = factory.checkbox();`
+  },
+  prototype: {
+    name: 'Real-World Usage',
+    explanation: 'Prototype clones a preconfigured object instead of rebuilding it: copying expensive-to-construct configuration objects, spawning game entities from a template, duplicating document/email templates, Spring prototype-scoped beans, and deep-copying complex object graphs. Cloning is often far cheaper than constructing from scratch.',
+    codeExample: `// Clone a fully configured template instead of rebuilding it each time
+public class EmailTemplate implements Cloneable {
+  private String subject;
+  private String body;
+  private List<String> headers = new ArrayList<>();
+
+  @Override
+  public EmailTemplate clone() {
+    try {
+      EmailTemplate copy = (EmailTemplate) super.clone();
+      copy.headers = new ArrayList<>(this.headers);  // deep copy mutable state
+      return copy;
+    } catch (CloneNotSupportedException e) { throw new AssertionError(e); }
+  }
+}
+
+EmailTemplate welcome = baseTemplate.clone();   // reuse base config
+welcome.setSubject("Welcome!");`
+  },
+  composite: {
+    name: 'Real-World Usage',
+    explanation: 'Composite models part-whole trees uniformly: file systems (files and directories), GUI component hierarchies and the HTML DOM, organization charts, nested menus, and graphics scene graphs. Client code treats a single leaf and a whole subtree the same way through one interface.',
+    codeExample: `// File system: files (leaves) and folders (composites) share one interface
+interface Node { long size(); }
+
+class FileNode implements Node {
+  private final long bytes;
+  FileNode(long bytes) { this.bytes = bytes; }
+  public long size() { return bytes; }
+}
+
+class FolderNode implements Node {
+  private final List<Node> children = new ArrayList<>();
+  void add(Node n) { children.add(n); }
+  public long size() {                       // recurse over the tree
+    return children.stream().mapToLong(Node::size).sum();
+  }
+}
+
+// A folder and a file are used identically
+long total = rootFolder.size();`
+  },
+  'template-method': {
+    name: 'Real-World Usage',
+    explanation: 'Template Method fixes an algorithm skeleton and lets subclasses fill steps: Spring JdbcTemplate/RestTemplate, the servlet HttpServlet.service() dispatching to doGet/doPost, JUnit setUp/test/tearDown, java.util.AbstractList, and ETL/import pipelines with a fixed read-transform-write flow but pluggable stages.',
+    codeExample: `// Fixed import pipeline; subclasses define the varying steps
+public abstract class DataImporter {
+  // the template method - the algorithm skeleton (final = not overridable)
+  public final void run(Path file) {
+    var raw = read(file);
+    var clean = validate(raw);
+    save(clean);
+    afterImport();        // hook with a default
+  }
+  protected abstract List<Row> read(Path file);
+  protected abstract List<Row> validate(List<Row> rows);
+  protected abstract void save(List<Row> rows);
+  protected void afterImport() { /* optional hook */ }
+}
+
+class CsvImporter extends DataImporter {
+  protected List<Row> read(Path f)        { /* parse CSV */ return ...; }
+  protected List<Row> validate(List<Row> r){ /* rules */    return ...; }
+  protected void save(List<Row> r)        { repository.saveAll(r); }
+}`
+  },
+  iterator: {
+    name: 'Real-World Usage',
+    explanation: 'Iterator is built into the language: every Collection exposes iterator() and the for-each loop, Scanner iterates tokens, Spring Data Pageable iterates pages, and database/JDBC cursors stream large result sets. It lets you traverse a collection without exposing its internal structure.',
+    codeExample: `// A custom iterator hides how the data is stored
+public class Playlist implements Iterable<Song> {
+  private final Song[] songs;
+  public Playlist(Song[] songs) { this.songs = songs; }
+
+  public Iterator<Song> iterator() {
+    return new Iterator<>() {
+      private int index = 0;
+      public boolean hasNext() { return index < songs.length; }
+      public Song next()       { return songs[index++]; }
+    };
+  }
+}
+
+// Client traverses without knowing it's backed by an array
+for (Song s : playlist) play(s);`
+  },
+  'chain-of-responsibility': {
+    name: 'Real-World Usage',
+    explanation: 'Chain of Responsibility powers pipelines: Servlet Filters and the Spring Security filter chain, logging handler chains (java.util.logging), exception/HTTP interceptors, middleware stacks, and multi-level approval workflows. Each handler either processes the request or passes it along until one handles it.',
+    codeExample: `// Expense approval escalates up a chain until someone can approve
+abstract class Approver {
+  protected Approver next;
+  Approver linkWith(Approver next) { this.next = next; return next; }
+  void handle(Expense e) {
+    if (canApprove(e)) approve(e);
+    else if (next != null) next.handle(e);     // pass it on
+    else throw new IllegalStateException("no approver for " + e.amount());
+  }
+  abstract boolean canApprove(Expense e);
+  abstract void approve(Expense e);
+}
+
+class Manager extends Approver {
+  boolean canApprove(Expense e) { return e.amount() <= 1000; }
+  void approve(Expense e) { /* ... */ }
+}
+class Director extends Approver {
+  boolean canApprove(Expense e) { return e.amount() <= 10000; }
+  void approve(Expense e) { /* ... */ }
+}
+
+Approver chain = new Manager();
+chain.linkWith(new Director());`
+  },
+  memento: {
+    name: 'Real-World Usage',
+    explanation: 'Memento captures and restores state: undo/redo in editors and IDEs, game save points, database transaction savepoints/rollback, form-state restoration, and version snapshots. The originator produces an opaque memento that a caretaker stores and later uses to roll back, without exposing internals.',
+    codeExample: `// Editor snapshots enable undo
+class Editor {
+  private String content = "";
+  void type(String text) { content += text; }
+  String content() { return content; }
+
+  Memento save()              { return new Memento(content); }   // capture
+  void restore(Memento m)     { this.content = m.state(); }      // roll back
+
+  record Memento(String state) {}   // opaque to the caretaker
+}
+
+Editor editor = new Editor();
+Deque<Editor.Memento> history = new ArrayDeque<>();
+
+editor.type("Hello");
+history.push(editor.save());   // checkpoint
+editor.type(" World");
+editor.restore(history.pop()); // undo -> "Hello"`
+  }
+};
+
+// =============================================================================
+// COMPLETE END-TO-END EXAMPLES (rendered as an extra tab per pattern)
+// =============================================================================
+const COMPLETE_EXAMPLE = {
+  singleton: {
+    name: 'Complete Example',
+    explanation: 'A complete, runnable program: a thread-safe configuration registry implemented as an enum Singleton, with a main method proving every caller shares the same instance.',
+    codeExample: `import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+
+// Enum singleton - thread-safe, serialization-safe, reflection-safe
+enum AppConfig {
+  INSTANCE;
+
+  private final Map<String, String> settings = new ConcurrentHashMap<>();
+
+  public void set(String key, String value) { settings.put(key, value); }
+  public String get(String key)             { return settings.get(key); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    AppConfig.INSTANCE.set("region", "us-east-1");
+
+    // A different part of the app reads the same instance
+    String region = AppConfig.INSTANCE.get("region");
+    System.out.println("region = " + region);                 // us-east-1
+
+    boolean same = AppConfig.INSTANCE == AppConfig.INSTANCE;
+    System.out.println("same instance = " + same);            // true
+  }
+}`
+  },
+  'factory-method': {
+    name: 'Complete Example',
+    explanation: 'A complete program where a creator decides which Shape to instantiate, so the client never references concrete classes.',
+    codeExample: `interface Shape { void draw(); }
+
+class Circle implements Shape { public void draw() { System.out.println("Circle"); } }
+class Square implements Shape { public void draw() { System.out.println("Square"); } }
+
+abstract class ShapeFactory {
+  abstract Shape create();                 // the factory method
+
+  static ShapeFactory of(String kind) {
+    return switch (kind) {
+      case "circle" -> new CircleFactory();
+      case "square" -> new SquareFactory();
+      default -> throw new IllegalArgumentException(kind);
+    };
+  }
+}
+class CircleFactory extends ShapeFactory { Shape create() { return new Circle(); } }
+class SquareFactory extends ShapeFactory { Shape create() { return new Square(); } }
+
+public class Demo {
+  public static void main(String[] args) {
+    for (String kind : new String[]{"circle", "square"}) {
+      Shape s = ShapeFactory.of(kind).create();
+      s.draw();                            // Circle, then Square
+    }
+  }
+}`
+  },
+  builder: {
+    name: 'Complete Example',
+    explanation: 'A complete program building an immutable User with required and optional fields through a fluent builder.',
+    codeExample: `class User {
+  private final String name;     // required
+  private final int age;         // optional
+  private final String email;    // optional
+
+  private User(Builder b) { this.name = b.name; this.age = b.age; this.email = b.email; }
+
+  public String toString() { return name + ", age=" + age + ", email=" + email; }
+
+  static Builder builder(String name) { return new Builder(name); }
+
+  static class Builder {
+    private final String name;
+    private int age;
+    private String email;
+    Builder(String name) { this.name = name; }
+    Builder age(int age)        { this.age = age; return this; }
+    Builder email(String email) { this.email = email; return this; }
+    User build()                { return new User(this); }
+  }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    User u = User.builder("Ada").age(36).email("ada@x.io").build();
+    System.out.println(u);                 // Ada, age=36, email=ada@x.io
+  }
+}`
+  },
+  observer: {
+    name: 'Complete Example',
+    explanation: 'A complete weather-station program: the subject pushes updates to every registered observer.',
+    codeExample: `import java.util.ArrayList;
+import java.util.List;
+
+interface Observer { void update(float temp); }
+
+class WeatherStation {
+  private final List<Observer> observers = new ArrayList<>();
+  private float temp;
+  void subscribe(Observer o)   { observers.add(o); }
+  void setTemp(float t) {
+    this.temp = t;
+    observers.forEach(o -> o.update(temp));   // notify all
+  }
+}
+
+class PhoneDisplay implements Observer {
+  public void update(float t) { System.out.println("Phone: " + t + "C"); }
+}
+class WebDisplay implements Observer {
+  public void update(float t) { System.out.println("Web: " + t + "C"); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    WeatherStation station = new WeatherStation();
+    station.subscribe(new PhoneDisplay());
+    station.subscribe(new WebDisplay());
+    station.setTemp(21.5f);                 // both displays update
+  }
+}`
+  },
+  strategy: {
+    name: 'Complete Example',
+    explanation: 'A complete program where the payment algorithm is selected at runtime and swapped without changing the context.',
+    codeExample: `interface PaymentStrategy { void pay(int amount); }
+
+class CardPayment implements PaymentStrategy {
+  private final String number;
+  CardPayment(String number) { this.number = number; }
+  public void pay(int amount) { System.out.println("Paid " + amount + " with card " + number); }
+}
+class PayPalPayment implements PaymentStrategy {
+  private final String email;
+  PayPalPayment(String email) { this.email = email; }
+  public void pay(int amount) { System.out.println("Paid " + amount + " via PayPal " + email); }
+}
+
+class Checkout {
+  private PaymentStrategy strategy;
+  void setStrategy(PaymentStrategy s) { this.strategy = s; }
+  void pay(int amount) { strategy.pay(amount); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    Checkout checkout = new Checkout();
+    checkout.setStrategy(new CardPayment("4242"));
+    checkout.pay(100);
+    checkout.setStrategy(new PayPalPayment("a@b.io"));  // swap at runtime
+    checkout.pay(250);
+  }
+}`
+  },
+  decorator: {
+    name: 'Complete Example',
+    explanation: 'A complete coffee-shop program: decorators wrap a base beverage to add cost and description dynamically.',
+    codeExample: `interface Coffee { String desc(); double cost(); }
+
+class Espresso implements Coffee {
+  public String desc() { return "Espresso"; }
+  public double cost() { return 2.0; }
+}
+
+abstract class CoffeeDecorator implements Coffee {
+  protected final Coffee inner;
+  CoffeeDecorator(Coffee inner) { this.inner = inner; }
+}
+class Milk extends CoffeeDecorator {
+  Milk(Coffee c) { super(c); }
+  public String desc() { return inner.desc() + " + Milk"; }
+  public double cost() { return inner.cost() + 0.5; }
+}
+class Sugar extends CoffeeDecorator {
+  Sugar(Coffee c) { super(c); }
+  public String desc() { return inner.desc() + " + Sugar"; }
+  public double cost() { return inner.cost() + 0.2; }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    Coffee order = new Sugar(new Milk(new Espresso()));
+    System.out.println(order.desc() + " = $" + order.cost());
+    // Espresso + Milk + Sugar = $2.7
+  }
+}`
+  },
+  adapter: {
+    name: 'Complete Example',
+    explanation: 'A complete program where an adapter makes an incompatible legacy class satisfy the interface the client expects.',
+    codeExample: `// Target interface the client wants
+interface MediaPlayer { void play(String file); }
+
+// Incompatible existing class we cannot modify
+class LegacyAudioEngine {
+  void start(String path) { System.out.println("Playing " + path); }
+}
+
+// Adapter translates play() -> start()
+class AudioAdapter implements MediaPlayer {
+  private final LegacyAudioEngine engine = new LegacyAudioEngine();
+  public void play(String file) { engine.start(file); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    MediaPlayer player = new AudioAdapter();
+    player.play("song.mp3");               // Playing song.mp3
+  }
+}`
+  },
+  facade: {
+    name: 'Complete Example',
+    explanation: 'A complete home-theater program: one facade method coordinates several subsystems behind a simple API.',
+    codeExample: `class Amplifier { void on()  { System.out.println("Amp on"); } }
+class Projector { void on()  { System.out.println("Projector on"); } }
+class Lights    { void dim() { System.out.println("Lights dimmed"); } }
+class Player    { void play(String movie) { System.out.println("Playing " + movie); } }
+
+class HomeTheaterFacade {
+  private final Amplifier amp = new Amplifier();
+  private final Projector projector = new Projector();
+  private final Lights lights = new Lights();
+  private final Player player = new Player();
+
+  void watch(String movie) {            // hides the whole sequence
+    lights.dim();
+    amp.on();
+    projector.on();
+    player.play(movie);
+  }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    new HomeTheaterFacade().watch("Inception");
+  }
+}`
+  },
+  command: {
+    name: 'Complete Example',
+    explanation: 'A complete remote-control program: commands encapsulate actions on a receiver, invoked uniformly.',
+    codeExample: `interface Command { void execute(); }
+
+class Light {
+  void on()  { System.out.println("Light ON"); }
+  void off() { System.out.println("Light OFF"); }
+}
+
+class LightOnCommand  implements Command {
+  private final Light light;
+  LightOnCommand(Light l) { this.light = l; }
+  public void execute() { light.on(); }
+}
+class LightOffCommand implements Command {
+  private final Light light;
+  LightOffCommand(Light l) { this.light = l; }
+  public void execute() { light.off(); }
+}
+
+class Remote {
+  private Command command;
+  void setCommand(Command c) { this.command = c; }
+  void press()               { command.execute(); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    Light light = new Light();
+    Remote remote = new Remote();
+    remote.setCommand(new LightOnCommand(light));
+    remote.press();                        // Light ON
+    remote.setCommand(new LightOffCommand(light));
+    remote.press();                        // Light OFF
+  }
+}`
+  },
+  proxy: {
+    name: 'Complete Example',
+    explanation: 'A complete protection-proxy program: the proxy enforces access control before delegating to the real object.',
+    codeExample: `interface Document { void display(String user); }
+
+class SecureDocument implements Document {
+  public void display(String user) { System.out.println(user + " viewing secret report"); }
+}
+
+class DocumentProxy implements Document {
+  private final SecureDocument real = new SecureDocument();
+  private final java.util.Set<String> allowed = java.util.Set.of("admin");
+
+  public void display(String user) {
+    if (!allowed.contains(user)) {
+      System.out.println("Access denied for " + user);
+      return;
+    }
+    real.display(user);                    // delegate only if permitted
+  }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    Document doc = new DocumentProxy();
+    doc.display("guest");                   // Access denied for guest
+    doc.display("admin");                   // admin viewing secret report
+  }
+}`
+  },
+  state: {
+    name: 'Complete Example',
+    explanation: 'A complete turnstile program: each state object handles events and returns the next state.',
+    codeExample: `interface State { State coin(); State push(); }
+
+class Locked implements State {
+  public State coin() { System.out.println("Unlocked"); return new Unlocked(); }
+  public State push() { System.out.println("Still locked"); return this; }
+}
+class Unlocked implements State {
+  public State coin() { System.out.println("Already unlocked"); return this; }
+  public State push() { System.out.println("Walk through; locking"); return new Locked(); }
+}
+
+class Turnstile {
+  private State state = new Locked();
+  void coin() { state = state.coin(); }
+  void push() { state = state.push(); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    Turnstile t = new Turnstile();
+    t.push();   // Still locked
+    t.coin();   // Unlocked
+    t.push();   // Walk through; locking
+  }
+}`
+  },
+  'abstract-factory': {
+    name: 'Complete Example',
+    explanation: 'A complete program creating a matching family of UI widgets for a chosen platform via an abstract factory.',
+    codeExample: `interface Button   { void render(); }
+interface Checkbox { void render(); }
+
+class WinButton   implements Button   { public void render() { System.out.println("Windows button"); } }
+class WinCheckbox implements Checkbox { public void render() { System.out.println("Windows checkbox"); } }
+class MacButton   implements Button   { public void render() { System.out.println("Mac button"); } }
+class MacCheckbox implements Checkbox { public void render() { System.out.println("Mac checkbox"); } }
+
+interface GuiFactory { Button button(); Checkbox checkbox(); }
+class WinFactory implements GuiFactory {
+  public Button button()     { return new WinButton(); }
+  public Checkbox checkbox() { return new WinCheckbox(); }
+}
+class MacFactory implements GuiFactory {
+  public Button button()     { return new MacButton(); }
+  public Checkbox checkbox() { return new MacCheckbox(); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    GuiFactory factory = System.getProperty("os.name").startsWith("Mac")
+        ? new MacFactory() : new WinFactory();
+    factory.button().render();
+    factory.checkbox().render();           // family always matches
+  }
+}`
+  },
+  prototype: {
+    name: 'Complete Example',
+    explanation: 'A complete program that registers prototypes and produces new objects by cloning them.',
+    codeExample: `import java.util.HashMap;
+import java.util.Map;
+
+class Shape implements Cloneable {
+  String type;
+  String color;
+  Shape(String type, String color) { this.type = type; this.color = color; }
+  public Shape clone() {
+    try { return (Shape) super.clone(); }
+    catch (CloneNotSupportedException e) { throw new AssertionError(e); }
+  }
+  public String toString() { return color + " " + type; }
+}
+
+class ShapeRegistry {
+  private final Map<String, Shape> prototypes = new HashMap<>();
+  void register(String key, Shape s) { prototypes.put(key, s); }
+  Shape create(String key)           { return prototypes.get(key).clone(); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    ShapeRegistry registry = new ShapeRegistry();
+    registry.register("red-circle", new Shape("circle", "red"));
+
+    Shape a = registry.create("red-circle");
+    Shape b = registry.create("red-circle");
+    b.color = "blue";                       // clones are independent
+    System.out.println(a + " | " + b);      // red circle | blue circle
+  }
+}`
+  },
+  composite: {
+    name: 'Complete Example',
+    explanation: 'A complete file-system program: files and folders share one interface, and a folder recursively sums its tree.',
+    codeExample: `import java.util.ArrayList;
+import java.util.List;
+
+interface Node { long size(); }
+
+class FileNode implements Node {
+  private final String name; private final long bytes;
+  FileNode(String name, long bytes) { this.name = name; this.bytes = bytes; }
+  public long size() { return bytes; }
+}
+
+class Folder implements Node {
+  private final String name;
+  private final List<Node> children = new ArrayList<>();
+  Folder(String name) { this.name = name; }
+  Folder add(Node n) { children.add(n); return this; }
+  public long size() { return children.stream().mapToLong(Node::size).sum(); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    Folder root = new Folder("root")
+        .add(new FileNode("a.txt", 100))
+        .add(new Folder("sub")
+            .add(new FileNode("b.txt", 250))
+            .add(new FileNode("c.txt", 150)));
+    System.out.println("total bytes = " + root.size());   // 500
+  }
+}`
+  },
+  'template-method': {
+    name: 'Complete Example',
+    explanation: 'A complete beverage program: the base class fixes the brew sequence; subclasses fill in the varying steps.',
+    codeExample: `abstract class Beverage {
+  // template method - fixed skeleton
+  public final void prepare() {
+    boilWater();
+    brew();
+    pourInCup();
+    addCondiments();
+  }
+  private void boilWater() { System.out.println("Boiling water"); }
+  private void pourInCup() { System.out.println("Pouring into cup"); }
+  protected abstract void brew();
+  protected abstract void addCondiments();
+}
+
+class Tea extends Beverage {
+  protected void brew()          { System.out.println("Steeping tea"); }
+  protected void addCondiments() { System.out.println("Adding lemon"); }
+}
+class Coffee extends Beverage {
+  protected void brew()          { System.out.println("Dripping coffee"); }
+  protected void addCondiments() { System.out.println("Adding sugar"); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    new Tea().prepare();
+    System.out.println("---");
+    new Coffee().prepare();
+  }
+}`
+  },
+  iterator: {
+    name: 'Complete Example',
+    explanation: 'A complete program with a custom collection that exposes its own Iterator, traversed with a for-each loop.',
+    codeExample: `import java.util.Iterator;
+
+class NameRepository implements Iterable<String> {
+  private final String[] names = { "Ann", "Bob", "Cy" };
+
+  public Iterator<String> iterator() {
+    return new Iterator<>() {
+      private int index = 0;
+      public boolean hasNext() { return index < names.length; }
+      public String next()     { return names[index++]; }
+    };
+  }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    NameRepository repo = new NameRepository();
+    for (String name : repo) {             // uses the custom iterator
+      System.out.println(name);            // Ann, Bob, Cy
+    }
+  }
+}`
+  },
+  'chain-of-responsibility': {
+    name: 'Complete Example',
+    explanation: 'A complete logging program: each handler processes messages at or above its level and passes the rest along the chain.',
+    codeExample: `abstract class Logger {
+  protected int level;
+  protected Logger next;
+  Logger(int level) { this.level = level; }
+  Logger setNext(Logger next) { this.next = next; return next; }
+
+  void log(int level, String msg) {
+    if (this.level <= level) write(msg);
+    if (next != null) next.log(level, msg);   // pass along
+  }
+  abstract void write(String msg);
+}
+
+class ConsoleLogger extends Logger {
+  ConsoleLogger(int level) { super(level); }
+  void write(String msg) { System.out.println("Console: " + msg); }
+}
+class ErrorLogger extends Logger {
+  ErrorLogger(int level) { super(level); }
+  void write(String msg) { System.out.println("ERROR file: " + msg); }
+}
+
+public class Demo {
+  static final int INFO = 1, ERROR = 3;
+  public static void main(String[] args) {
+    Logger chain = new ConsoleLogger(INFO);
+    chain.setNext(new ErrorLogger(ERROR));
+
+    chain.log(INFO,  "starting up");        // Console only
+    chain.log(ERROR, "disk full");          // Console + ERROR file
+  }
+}`
+  },
+  memento: {
+    name: 'Complete Example',
+    explanation: 'A complete text-editor program: snapshots are pushed to a history stack and popped to undo.',
+    codeExample: `import java.util.ArrayDeque;
+import java.util.Deque;
+
+class Editor {
+  private final StringBuilder content = new StringBuilder();
+  void type(String text) { content.append(text); }
+  String text() { return content.toString(); }
+
+  record Memento(String state) {}
+  Memento save()               { return new Memento(content.toString()); }
+  void restore(Memento m)      { content.setLength(0); content.append(m.state()); }
+}
+
+public class Demo {
+  public static void main(String[] args) {
+    Editor editor = new Editor();
+    Deque<Editor.Memento> history = new ArrayDeque<>();
+
+    editor.type("Hello");
+    history.push(editor.save());           // checkpoint
+    editor.type(", World");
+    System.out.println(editor.text());     // Hello, World
+
+    editor.restore(history.pop());         // undo
+    System.out.println(editor.text());     // Hello
+  }
+}`
+  }
+};
+
+// Append the extra tabs (Real-World Usage, Complete Example) to a pattern's details
+const withExtraTabs = (concept) => {
+  const extras = [REAL_WORLD_USAGE[concept.id], COMPLETE_EXAMPLE[concept.id]].filter(Boolean)
+  return extras.length ? [...concept.details, ...extras] : concept.details
+}
+
 function DesignPatterns({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -3223,7 +4186,7 @@ System.out.println(editor.getContent());  // "Hello World"
             </div>
             <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
             <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
-              {concept.details.length} topics - Click to explore
+              {withExtraTabs(concept).length} topics - Click to explore
             </div>
           </div>
         ))}
@@ -3323,7 +4286,7 @@ System.out.println(editor.getContent());  // "Hello World"
 
             {/* Detail Tabs */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {selectedConcept.details.map((detail, i) => (
+              {withExtraTabs(selectedConcept).map((detail, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedDetailIndex(i)}
@@ -3346,7 +4309,7 @@ System.out.println(editor.getContent());  // "Hello World"
 
             {/* Selected Detail Content */}
             {(() => {
-              const detail = selectedConcept.details[selectedDetailIndex]
+              const detail = withExtraTabs(selectedConcept)[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
               const DiagramComponent = selectedConcept.diagram
               return (

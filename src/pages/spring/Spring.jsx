@@ -94,6 +94,176 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
+// =============================================================================
+// STARTUP-SEQUENCE DIAGRAMS
+// =============================================================================
+
+// Vertical numbered timeline shared by refresh() and Boot run() diagrams
+const StepTimeline = ({ title, steps, highlight = [], accent = '#06b6d4' }) => {
+  const top = 56, gap = 48, hi = new Set(highlight)
+  const height = top + steps.length * gap + 10
+  return (
+    <svg viewBox={`0 0 820 ${height}`} style={{ width: '100%', maxWidth: '820px', height: 'auto' }}>
+      <text x="410" y="28" textAnchor="middle" fill="#94a3b8" fontSize="15" fontWeight="bold">{title}</text>
+      <line x1="44" y1={top - 6} x2="44" y2={top + (steps.length - 1) * gap + 6} stroke="#334155" strokeWidth="2" />
+      {steps.map(([n, name, sub], i) => {
+        const y = top + i * gap
+        const on = hi.has(n)
+        return (
+          <g key={n}>
+            {i < steps.length - 1 && (
+              <line x1="44" y1={y + 16} x2="44" y2={y + gap - 16} stroke={accent} strokeWidth="2" markerEnd="url(#stArrow)" />
+            )}
+            <circle cx="44" cy={y} r="15" fill={on ? accent : '#1e293b'} stroke={on ? accent : '#475569'} strokeWidth="2" />
+            <text x="44" y={y + 4} textAnchor="middle" fill={on ? '#0f172a' : '#cbd5e1'} fontSize="12" fontWeight="bold">{n}</text>
+            <rect x="74" y={y - 17} width="724" height="34" rx="7" fill={on ? 'rgba(6,182,212,0.16)' : 'rgba(30,41,59,0.7)'} stroke={on ? accent : '#334155'} strokeWidth="1.5" />
+            <text x="88" y={y - 1} fill="#e2e8f0" fontSize="13" fontWeight="600" fontFamily="monospace">{name}</text>
+            <text x="88" y={y + 13} fill="#94a3b8" fontSize="11">{sub}</text>
+          </g>
+        )
+      })}
+      <defs>
+        <marker id="stArrow" markerWidth="8" markerHeight="8" refX="4" refY="6" orient="auto">
+          <path d="M1,1 L4,6 L7,1" fill="none" stroke={accent} strokeWidth="1.5" />
+        </marker>
+      </defs>
+    </svg>
+  )
+}
+
+const RefreshLifecycleDiagram = () => (
+  <StepTimeline
+    title="AbstractApplicationContext.refresh() — 12 steps"
+    accent="#06b6d4"
+    highlight={['5', '6', '11']}
+    steps={[
+      ['1', 'prepareRefresh()', 'set active flag, validate required properties'],
+      ['2', 'obtainFreshBeanFactory()', 'create factory + LOAD all bean definitions (no instances yet)'],
+      ['3', 'prepareBeanFactory()', 'configure factory, register built-in beans'],
+      ['4', 'postProcessBeanFactory()', 'subclass hook (web contexts)'],
+      ['5', 'invokeBeanFactoryPostProcessors()', 'modify DEFINITIONS · parse @Configuration · resolve @Value'],
+      ['6', 'registerBeanPostProcessors()', 'register instance hooks (autowiring, @PostConstruct, AOP)'],
+      ['7', 'initMessageSource()', 'i18n message handling'],
+      ['8', 'initApplicationEventMulticaster()', 'event publishing mechanism'],
+      ['9', 'onRefresh()', 'subclass hook — Boot starts the embedded web server'],
+      ['10', 'registerListeners()', 'register ApplicationListener beans'],
+      ['11', 'finishBeanFactoryInitialization()', 'INSTANTIATE all non-lazy singletons (your beans)'],
+      ['12', 'finishRefresh()', 'start Lifecycle beans · publish ContextRefreshedEvent']
+    ]}
+  />
+)
+
+const BootRunDiagram = () => (
+  <StepTimeline
+    title="SpringApplication.run() — Boot startup"
+    accent="#22c55e"
+    highlight={['7', '9', '10']}
+    steps={[
+      ['1', 'create SpringApplication', 'deduce web type · load initializers & listeners'],
+      ['2', 'starting()', 'run-listeners signal start'],
+      ['3', 'prepare Environment', 'profiles · property sources · application.yml · args'],
+      ['4', 'print banner', ''],
+      ['5', 'create ApplicationContext', 'instance matching the web type'],
+      ['6', 'prepare context', 'apply initializers · register primary sources'],
+      ['7', 'refresh()', 'auto-configuration · create beans · start web server'],
+      ['8', 'started()', 'publish ApplicationStartedEvent'],
+      ['9', 'run Runners', 'ApplicationRunner / CommandLineRunner beans'],
+      ['10', 'ready()', 'publish ApplicationReadyEvent — now serving']
+    ]}
+  />
+)
+
+// Horizontal snake flow for a single bean's creation
+const BeanCreationDiagram = () => {
+  const box = (x, y, w, title, sub, fill, stroke) => (
+    <g>
+      <rect x={x} y={y} width={w} height="54" rx="8" fill={fill} stroke={stroke} strokeWidth="1.5" />
+      <text x={x + w / 2} y={y + 22} textAnchor="middle" fill="#e2e8f0" fontSize="12.5" fontWeight="600">{title}</text>
+      <text x={x + w / 2} y={y + 40} textAnchor="middle" fill="#94a3b8" fontSize="10.5">{sub}</text>
+    </g>
+  )
+  const dim = { fill: 'rgba(30,41,59,0.8)', stroke: '#475569' }
+  const proxy = { fill: 'rgba(245,158,11,0.18)', stroke: '#f59e0b' }
+  const ready = { fill: 'rgba(34,197,94,0.18)', stroke: '#22c55e' }
+  return (
+    <svg viewBox="0 0 820 300" style={{ width: '100%', maxWidth: '820px', height: 'auto' }}>
+      <defs>
+        <marker id="bcArrow" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+          <path d="M1,1 L7,4.5 L1,8" fill="none" stroke="#64748b" strokeWidth="1.6" />
+        </marker>
+      </defs>
+      <text x="410" y="26" textAnchor="middle" fill="#94a3b8" fontSize="15" fontWeight="bold">Single bean creation order</text>
+      {/* Row 1 (left -> right) */}
+      {box(20, 60, 178, '1 · Instantiate', 'constructor injection', dim.fill, dim.stroke)}
+      {box(228, 60, 178, '2 · Populate', '@Autowired fields/setters', dim.fill, dim.stroke)}
+      {box(436, 60, 178, '3 · Aware callbacks', 'BeanNameAware, *ContextAware', dim.fill, dim.stroke)}
+      {box(644, 60, 156, '4 · BPP before', '@PostConstruct runs', dim.fill, dim.stroke)}
+      <line x1="198" y1="87" x2="226" y2="87" stroke="#64748b" strokeWidth="1.8" markerEnd="url(#bcArrow)" />
+      <line x1="406" y1="87" x2="434" y2="87" stroke="#64748b" strokeWidth="1.8" markerEnd="url(#bcArrow)" />
+      <line x1="614" y1="87" x2="642" y2="87" stroke="#64748b" strokeWidth="1.8" markerEnd="url(#bcArrow)" />
+      {/* Down connector */}
+      <line x1="722" y1="114" x2="722" y2="160" stroke="#64748b" strokeWidth="1.8" markerEnd="url(#bcArrow)" />
+      {/* Row 2 (right -> left) */}
+      {box(644, 166, 156, '5 · Initialization', 'afterPropertiesSet / init-method', dim.fill, dim.stroke)}
+      {box(416, 166, 198, '6 · BPP after', 'AOP / @Transactional PROXY created', proxy.fill, proxy.stroke)}
+      {box(228, 166, 158, '7 · READY', 'cached singleton', ready.fill, ready.stroke)}
+      <line x1="642" y1="193" x2="616" y2="193" stroke="#64748b" strokeWidth="1.8" markerEnd="url(#bcArrow)" />
+      <line x1="414" y1="193" x2="388" y2="193" stroke="#64748b" strokeWidth="1.8" markerEnd="url(#bcArrow)" />
+      <text x="410" y="270" textAnchor="middle" fill="#64748b" fontSize="11">Destruction (reverse): @PreDestroy → DisposableBean.destroy() → custom destroy-method</text>
+    </svg>
+  )
+}
+
+// Two-phase timeline: definitions vs instances
+const PostProcessorDiagram = () => (
+  <svg viewBox="0 0 820 250" style={{ width: '100%', maxWidth: '820px', height: 'auto' }}>
+    <defs>
+      <marker id="ppArrow" markerWidth="10" markerHeight="10" refX="6" refY="5" orient="auto">
+        <path d="M1,1 L8,5 L1,9" fill="none" stroke="#64748b" strokeWidth="1.8" />
+      </marker>
+    </defs>
+    <text x="410" y="26" textAnchor="middle" fill="#94a3b8" fontSize="15" fontWeight="bold">Post-processors: definitions vs instances</text>
+    {/* Timeline arrow */}
+    <line x1="30" y1="70" x2="790" y2="70" stroke="#475569" strokeWidth="2" markerEnd="url(#ppArrow)" />
+    <text x="30" y="58" fill="#64748b" fontSize="11">context.refresh() timeline →</text>
+    {/* Divider: instantiation begins */}
+    <line x1="410" y1="50" x2="410" y2="210" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="5 4" />
+    <text x="410" y="228" textAnchor="middle" fill="#f59e0b" fontSize="11">singleton instantiation begins</text>
+    {/* Left phase: definitions */}
+    <text x="200" y="98" textAnchor="middle" fill="#38bdf8" fontSize="12" fontWeight="bold">Phase 1 — bean DEFINITIONS loaded</text>
+    <rect x="60" y="112" width="300" height="70" rx="10" fill="rgba(56,189,248,0.15)" stroke="#38bdf8" strokeWidth="1.5" />
+    <text x="210" y="140" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontWeight="700" fontFamily="monospace">BeanFactoryPostProcessor</text>
+    <text x="210" y="160" textAnchor="middle" fill="#94a3b8" fontSize="11">edits metadata / BeanDefinitions</text>
+    <text x="210" y="174" textAnchor="middle" fill="#94a3b8" fontSize="11">@Configuration parsing, @Value resolution</text>
+    {/* Right phase: instances */}
+    <text x="610" y="98" textAnchor="middle" fill="#f472b6" fontSize="12" fontWeight="bold">Phase 2 — bean INSTANCES created</text>
+    <rect x="460" y="112" width="300" height="70" rx="10" fill="rgba(244,114,182,0.15)" stroke="#f472b6" strokeWidth="1.5" />
+    <text x="610" y="140" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontWeight="700" fontFamily="monospace">BeanPostProcessor</text>
+    <text x="610" y="160" textAnchor="middle" fill="#94a3b8" fontSize="11">wraps each instance during init</text>
+    <text x="610" y="174" textAnchor="middle" fill="#94a3b8" fontSize="11">@PostConstruct, AOP / @Transactional proxies</text>
+  </svg>
+)
+
+// Small by default, expands to full size on hover
+const HoverZoomDiagram = ({ children }) => {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      title={hovered ? '' : 'Hover to enlarge'}
+      style={{
+        maxWidth: hovered ? '820px' : '340px',
+        margin: '0 auto',
+        transition: 'max-width 0.35s ease',
+        cursor: hovered ? 'zoom-out' : 'zoom-in'
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
 function Spring({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -351,6 +521,192 @@ Common Pitfalls:
       ]
     },
     {
+      id: 'startup-sequence',
+      name: 'Startup Sequence',
+      icon: '⚙️',
+      color: '#06b6d4',
+      description: 'What actually happens when Spring loads: context refresh, post-processors, bean creation order, and Spring Boot run()',
+      details: [
+        {
+          name: 'Overview',
+          diagram: PostProcessorDiagram,
+          explanation: `When a Spring application "loads," the ApplicationContext is built and refreshed in a fixed, well-defined order. Understanding this sequence explains when your beans are created, when configuration is applied, and where you can hook in.
+
+The big picture (in order):
+1. Bootstrap - SpringApplication.run() (Boot) or you construct an ApplicationContext directly.
+2. Environment is prepared - property sources, profiles, and command-line args are resolved.
+3. Bean definitions are loaded - component scanning, @Configuration parsing, and (in Boot) auto-configuration register BeanDefinitions. Nothing is instantiated yet; these are just blueprints.
+4. BeanFactoryPostProcessors run - they can modify bean DEFINITIONS before any bean is created (e.g. property placeholder resolution, @Configuration enhancement).
+5. BeanPostProcessors are registered - they will wrap/modify bean INSTANCES as they are created.
+6. Non-lazy singletons are instantiated - in dependency order, each goes through the full creation lifecycle.
+7. Context finishes - lifecycle beans start, ContextRefreshedEvent is published.
+8. (Boot) ApplicationRunner / CommandLineRunner beans execute, then the app is ready.
+
+Key distinction:
+- BeanFactoryPostProcessor = operates on definitions/metadata, BEFORE instantiation.
+- BeanPostProcessor = operates on instances, DURING initialization.`,
+          codeExample: `// Two entry points produce the same refresh lifecycle:
+
+// 1) Spring Boot - the common case
+@SpringBootApplication
+public class MyApp {
+  public static void main(String[] args) {
+    SpringApplication.run(MyApp.class, args);  // builds + refreshes context
+  }
+}
+
+// 2) Plain Spring - constructing a context refreshes it immediately
+ApplicationContext ctx =
+    new AnnotationConfigApplicationContext(AppConfig.class);
+
+// Observe ordering with an event listener:
+@Component
+class StartupLogger {
+  @EventListener
+  public void onReady(ApplicationReadyEvent e) {
+    System.out.println("Context fully started and ready");
+  }
+}`
+        },
+        {
+          name: 'ApplicationContext.refresh()',
+          diagram: RefreshLifecycleDiagram,
+          explanation: `At the heart of startup is AbstractApplicationContext.refresh() - a single synchronized method that runs these steps in this exact order:
+
+1. prepareRefresh() - set start time, active flag; validate required properties.
+2. obtainFreshBeanFactory() - create the BeanFactory and LOAD all bean definitions (scanning, @Configuration, imports). Still no instances.
+3. prepareBeanFactory() - configure the factory: register the bean expression resolver, ApplicationContextAwareProcessor, environment beans, etc.
+4. postProcessBeanFactory() - subclass hook to register extra BeanPostProcessors (web contexts use this).
+5. invokeBeanFactoryPostProcessors() - run all BeanFactoryPostProcessors and BeanDefinitionRegistryPostProcessors. This is where @Configuration classes are parsed (ConfigurationClassPostProcessor) and @Value placeholders are resolved against definitions.
+6. registerBeanPostProcessors() - find and register all BeanPostProcessors so they can wrap beans created later (AutowiredAnnotationBeanPostProcessor, CommonAnnotationBeanPostProcessor for @PostConstruct, AOP's AnnotationAwareAspectJAutoProxyCreator).
+7. initMessageSource() - set up i18n message handling.
+8. initApplicationEventMulticaster() - set up the event publishing mechanism.
+9. onRefresh() - subclass hook (e.g. Boot creates/starts the embedded web server here).
+10. registerListeners() - register ApplicationListener beans.
+11. finishBeanFactoryInitialization() - instantiate ALL remaining non-lazy singletons (this is the big one - your beans get created here).
+12. finishRefresh() - start Lifecycle beans, publish ContextRefreshedEvent, clear caches.
+
+If anything throws, the context destroys already-created singletons and rethrows - startup fails fast.`,
+          codeExample: `// Simplified from AbstractApplicationContext (Spring framework)
+public void refresh() throws BeansException {
+  synchronized (this.startupShutdownMonitor) {
+    prepareRefresh();
+    ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+    prepareBeanFactory(beanFactory);
+    try {
+      postProcessBeanFactory(beanFactory);
+      invokeBeanFactoryPostProcessors(beanFactory);   // modify DEFINITIONS
+      registerBeanPostProcessors(beanFactory);        // register instance hooks
+      initMessageSource();
+      initApplicationEventMulticaster();
+      onRefresh();                                    // e.g. start web server
+      registerListeners();
+      finishBeanFactoryInitialization(beanFactory);   // create singletons
+      finishRefresh();                                // publish events, start
+    } catch (BeansException ex) {
+      destroyBeans();
+      cancelRefresh(ex);
+      throw ex;
+    }
+  }
+}`
+        },
+        {
+          name: 'Single Bean Creation Order',
+          diagram: BeanCreationDiagram,
+          explanation: `During step 11 (finishBeanFactoryInitialization), each non-lazy singleton is created in dependency order via getBean -> doGetBean -> createBean. For one bean, the precise order is:
+
+1. Resolve & instantiate - choose a constructor (resolving constructor-injected dependencies first), call it. The raw instance now exists.
+2. Populate properties - inject @Autowired fields/setters (AutowiredAnnotationBeanPostProcessor). Dependencies are created on demand if not yet present.
+3. Aware callbacks - BeanNameAware, BeanFactoryAware, then ApplicationContextAware (via ApplicationContextAwareProcessor).
+4. BeanPostProcessor.postProcessBeforeInitialization() - runs for every BPP. This is where @PostConstruct executes (CommonAnnotationBeanPostProcessor).
+5. Initialization - afterPropertiesSet() (InitializingBean), then the custom init-method.
+6. BeanPostProcessor.postProcessAfterInitialization() - runs for every BPP. This is where AOP proxies are created (the returned object may be a PROXY wrapping your bean), and where @Async/@Transactional wrappers are applied.
+7. Bean is fully initialized and cached as a singleton, ready for use.
+
+Destruction (on context close) runs in reverse: @PreDestroy -> DisposableBean.destroy() -> custom destroy-method.
+
+This is why @Transactional and AOP only work through the proxy returned in step 6 - self-invocation calls the raw 'this', bypassing the proxy.`,
+          codeExample: `@Component
+public class ReportService implements ApplicationContextAware {
+
+  private final DataSource ds;
+
+  // (1) constructor injection - resolved & called first
+  public ReportService(DataSource ds) { this.ds = ds; }
+
+  // (2) field injection happens after construction
+  @Autowired private Clock clock;
+
+  // (3) Aware callback
+  @Override
+  public void setApplicationContext(ApplicationContext ctx) { /* ... */ }
+
+  // (4) @PostConstruct - via BeanPostProcessor BEFORE init
+  @PostConstruct
+  public void init() { /* warm caches, validate config */ }
+
+  // (5) then afterPropertiesSet()/init-method if present
+  // (6) then AOP/@Transactional proxy is applied around the bean
+}
+
+// Order of hooks for one bean:
+// constructor -> @Autowired -> *Aware -> @PostConstruct
+//   -> afterPropertiesSet -> init-method -> (proxy) -> READY`
+        },
+        {
+          name: 'Spring Boot run() Sequence',
+          diagram: BootRunDiagram,
+          explanation: `SpringApplication.run() wraps the refresh with Boot-specific startup steps, all firing SpringApplicationRunListener events you can observe:
+
+1. Create SpringApplication - deduce the web application type (SERVLET, REACTIVE, or NONE) from the classpath; load ApplicationContextInitializers and ApplicationListeners from spring.factories / META-INF/spring.
+2. starting() - run listeners signal start.
+3. Prepare Environment - build the Environment, bind command-line args and property sources, activate profiles; fire environmentPrepared(). application.properties / application.yml are loaded here.
+4. Print the banner.
+5. Create the ApplicationContext - instance matching the web type (e.g. AnnotationConfigServletWebServerApplicationContext).
+6. Prepare the context - apply initializers, register the primary source/bean definitions; fire contextPrepared() and contextLoaded().
+7. refresh() - the standard ApplicationContext refresh runs (loads definitions, runs auto-configuration via @EnableAutoConfiguration, creates beans, starts the embedded web server in onRefresh()).
+8. afterRefresh() + started() - context is refreshed; publish ApplicationStartedEvent.
+9. Run ApplicationRunner and CommandLineRunner beans - your post-startup code.
+10. ready() - publish ApplicationReadyEvent; the application is now serving.
+
+Auto-configuration is the Boot-specific magic that happens inside step 7: @SpringBootApplication -> @EnableAutoConfiguration imports AutoConfiguration classes, each guarded by @ConditionalOnClass / @ConditionalOnMissingBean so beans are only created when relevant and not already defined.`,
+          codeExample: `@SpringBootApplication   // = @Configuration + @ComponentScan + @EnableAutoConfiguration
+public class StoreApp {
+  public static void main(String[] args) {
+    SpringApplication.run(StoreApp.class, args);
+  }
+}
+
+// Hook into the post-startup phase:
+@Component
+public class DataSeeder implements CommandLineRunner {
+  private final ProductRepository repo;
+  public DataSeeder(ProductRepository repo) { this.repo = repo; }
+
+  @Override
+  public void run(String... args) {
+    // runs AFTER the context is refreshed and beans are ready (step 9)
+    if (repo.count() == 0) repo.saveAll(defaultProducts());
+  }
+}
+
+// Observe the lifecycle via events:
+@Component
+class Lifecycle {
+  @EventListener(ApplicationReadyEvent.class)
+  void ready() { System.out.println("Serving requests now"); }
+}
+
+// Customize startup before refresh:
+//   new SpringApplicationBuilder(StoreApp.class)
+//       .web(WebApplicationType.SERVLET)
+//       .listeners(event -> { /* ... */ })
+//       .run(args);`
+        }
+      ]
+    },
+    {
       id: 'aop-support',
       name: 'AOP Support',
       icon: '🎯',
@@ -595,6 +951,168 @@ public class BatchProcessor {
         throw e;
       }
     });
+  }
+}`
+        },
+        {
+          name: 'Propagation Behaviors',
+          explanation: `Propagation defines how a transactional method participates in an existing transaction (or starts its own) when called from another transactional context. It is set via @Transactional(propagation = Propagation.XXX); the default is REQUIRED.
+
+The 7 propagation behaviors:
+- REQUIRED (default): Join the current transaction if one exists, otherwise start a new one. The common choice for business logic - everything commits or rolls back together.
+- REQUIRES_NEW: Always start a NEW transaction, suspending the current one until the new one completes. The new transaction commits/rolls back independently. Use for audit logs that must persist even if the caller rolls back.
+- NESTED: Run within a nested transaction using a JDBC savepoint if a current transaction exists; otherwise behaves like REQUIRED. The inner work can roll back to the savepoint without aborting the outer transaction. Requires a savepoint-capable DataSource.
+- SUPPORTS: Join the current transaction if one exists; otherwise run non-transactionally. Use for read methods that work either way.
+- NOT_SUPPORTED: Suspend any current transaction and run non-transactionally. Use for long-running, non-critical work you do not want holding locks.
+- MANDATORY: Must run inside an existing transaction; throw IllegalTransactionStateException if none exists. Enforces that a caller already opened a transaction.
+- NEVER: Must NOT run inside a transaction; throw an exception if one exists.
+
+Key point: REQUIRES_NEW and NOT_SUPPORTED actually SUSPEND the outer transaction (the transaction manager must support suspension). NESTED uses savepoints, so it shares the same physical connection as the outer transaction.`,
+          codeExample: `@Service
+public class OrderService {
+
+  @Autowired private PaymentService payment;
+  @Autowired private AuditService audit;
+
+  // REQUIRED (default): inventory + order commit together
+  @Transactional
+  public void placeOrder(Order order) {
+    reserveInventory(order);   // joins this transaction
+    payment.charge(order);     // joins this transaction
+    audit.log("order placed"); // REQUIRES_NEW - see below
+  }
+}
+
+@Service
+public class AuditService {
+
+  // REQUIRES_NEW: log survives even if placeOrder() rolls back
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void log(String message) {
+    auditRepository.save(new AuditEntry(message));
+  }
+}
+
+@Service
+public class LineItemService {
+
+  // NESTED: a bad line item rolls back to the savepoint,
+  // the rest of the order can still commit
+  @Transactional(propagation = Propagation.NESTED)
+  public void addLineItem(LineItem item) {
+    lineItemRepository.save(item);
+  }
+}
+
+// MANDATORY: caller MUST already be in a transaction
+@Transactional(propagation = Propagation.MANDATORY)
+public void appendToBatch(Item item) { ... }
+
+// NEVER: fails fast if called inside a transaction
+@Transactional(propagation = Propagation.NEVER)
+public Report buildReport() { ... }`
+        },
+        {
+          name: 'Isolation Levels',
+          explanation: `Isolation controls how concurrent transactions see each other's uncommitted/committed changes, trading consistency against concurrency. Set via @Transactional(isolation = Isolation.XXX). The default delegates to the underlying database (often READ_COMMITTED for PostgreSQL/Oracle, REPEATABLE_READ for MySQL InnoDB).
+
+The concurrency anomalies isolation prevents:
+- Dirty read: reading another transaction's UNCOMMITTED change that may be rolled back.
+- Non-repeatable read: re-reading a row returns different values because another transaction committed an UPDATE in between.
+- Phantom read: re-running a range query returns new rows because another transaction committed an INSERT in between.
+
+The levels (weakest to strongest):
+- READ_UNCOMMITTED: allows dirty, non-repeatable, and phantom reads. Highest concurrency, least safe - rarely used.
+- READ_COMMITTED: prevents dirty reads; non-repeatable and phantom reads still possible. The common production default.
+- REPEATABLE_READ: prevents dirty and non-repeatable reads; phantoms may still occur (though InnoDB largely prevents them via next-key locks).
+- SERIALIZABLE: prevents all three; transactions behave as if executed one at a time. Strongest and safest, but lowest concurrency and most deadlock-prone.
+
+Higher isolation = stronger guarantees but more locking/contention. Choose the weakest level that still preserves correctness for your use case.`,
+          codeExample: `@Service
+public class InventoryService {
+
+  // READ_COMMITTED: never see uncommitted stock changes
+  @Transactional(isolation = Isolation.READ_COMMITTED)
+  public int availableStock(Long productId) {
+    return stockRepository.countAvailable(productId);
+  }
+
+  // REPEATABLE_READ: the same row reads consistently for the
+  // whole transaction (no non-repeatable reads)
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void reconcile(Long productId) {
+    int before = stockRepository.countAvailable(productId);
+    // ... business logic ...
+    int after  = stockRepository.countAvailable(productId);
+    // before == after, even if other tx committed updates
+  }
+
+  // SERIALIZABLE: strongest - prevents phantom reads too,
+  // at the cost of concurrency. Use for critical invariants.
+  @Transactional(isolation = Isolation.SERIALIZABLE)
+  public void enforceStockLimit(Long productId, int max) {
+    if (stockRepository.countAvailable(productId) < max) {
+      stockRepository.addStock(productId, 1);
+    }
+  }
+}
+
+// Anomaly prevention by level:
+//                     dirty   non-repeatable   phantom
+// READ_UNCOMMITTED      yes         yes           yes
+// READ_COMMITTED        no          yes           yes
+// REPEATABLE_READ       no          no            maybe
+// SERIALIZABLE          no          no            no`
+        },
+        {
+          name: 'Rollback Rules',
+          explanation: `Rollback rules decide which exceptions cause a transaction to roll back. By default Spring rolls back ONLY on unchecked exceptions (RuntimeException and Error) and commits on checked exceptions (e.g. IOException, SQLException). This surprises many developers.
+
+Customizing rollback behavior:
+- rollbackFor = SomeCheckedException.class - also roll back on the listed checked exceptions.
+- noRollbackFor = SomeRuntimeException.class - commit (do NOT roll back) even though an unchecked exception was thrown.
+- You can pass class arrays to cover multiple exception types.
+
+Programmatic control:
+- TransactionAspectSupport.currentTransactionStatus().setRollbackOnly() forces a rollback without throwing.
+- Once a transaction is marked rollback-only, any attempt to commit it throws UnexpectedRollbackException.
+
+Critical gotchas:
+- Catching an exception and NOT rethrowing it means Spring never sees it, so no rollback happens - the transaction commits.
+- In a REQUIRED inner method, throwing an exception marks the WHOLE shared transaction rollback-only; the outer method then fails with UnexpectedRollbackException even if it catches the inner exception. Use REQUIRES_NEW for truly independent units.`,
+          codeExample: `@Service
+public class BillingService {
+
+  // Default: rolls back on RuntimeException/Error,
+  // but NOT on checked exceptions like InvoiceException
+  @Transactional
+  public void chargeDefault(Invoice inv) throws InvoiceException {
+    save(inv);
+    if (inv.isInvalid()) throw new InvoiceException(); // COMMITS! (checked)
+  }
+
+  // Roll back on the checked exception too
+  @Transactional(rollbackFor = InvoiceException.class)
+  public void charge(Invoice inv) throws InvoiceException {
+    save(inv);
+    if (inv.isInvalid()) throw new InvoiceException(); // now rolls back
+  }
+
+  // Do NOT roll back for a specific runtime exception
+  @Transactional(noRollbackFor = NotifyException.class)
+  public void chargeAndNotify(Invoice inv) {
+    save(inv);
+    notifyUser(inv);  // if this throws NotifyException, invoice still commits
+  }
+
+  // Programmatic rollback without throwing
+  @Transactional
+  public void process(Invoice inv) {
+    save(inv);
+    if (inv.needsReview()) {
+      TransactionAspectSupport.currentTransactionStatus()
+                              .setRollbackOnly();
+    }
   }
 }`
         },
@@ -2520,6 +3038,13 @@ void testWithPreloadedData() { }`
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
                   <div style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left', whiteSpace: 'pre-wrap' }}>{detail.explanation}</div>
+                  {detail.diagram && (
+                    <div style={{ marginTop: '0.5rem', marginBottom: '1.5rem', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '0.75rem', padding: '1rem', border: '1px solid #334155', overflow: 'auto' }}>
+                      <HoverZoomDiagram>
+                        {(() => { const DiagramComponent = detail.diagram; return <DiagramComponent /> })()}
+                      </HoverZoomDiagram>
+                    </div>
+                  )}
                   {detail.codeExample && (
                     <div style={{ marginTop: '1.5rem' }}>
                       <h4 style={{ color: '#4ade80', marginBottom: '0.75rem', fontSize: '1rem' }}>Code Example</h4>

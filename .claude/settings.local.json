@@ -131,7 +131,14 @@
       "Bash(Get-Content \"C:\\\\Users\\\\micha\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-micha-Documents-2026-apr-my-app\\\\67878eaf-0e80-4d72-b363-d7f741d50445\\\\tasks\\\\byb4lnpml.output\" -Tail 40)",
       "Bash(git rm *)",
       "Bash(Select-String -NotMatch \"warning\")",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(git push *)",
+      "Bash(sed -n '2277,2292p' src/App.jsx)",
+      "Bash(sed -n '4178,4182p' src/App.jsx)",
+      "Bash(sed -n '8336,8392p' src/App.jsx)",
+      "Bash(sed -n '5,12p' src/utils/searchIndex.js)",
+      "Bash(sed -n '177,183p' src/utils/searchIndex.js)",
+      "Bash(perl -pi -e 's/withRealWorld/withExtraTabs/g' DesignPatterns.jsx)"
     ],
     "deny": [],
     "ask": []
