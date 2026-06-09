@@ -1711,10 +1711,136 @@ public class Demo {
   }
 };
 
-// Append the extra tabs (Real-World Usage, Complete Example) to a pattern's details
+// =============================================================================
+// TRADE-OFFS & COMPARISONS (rendered as an extra tab per pattern)
+// =============================================================================
+const TRADE_OFFS = {
+  singleton: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: one shared instance, controlled global access, lazy or eager creation. Cons: it is essentially global state - it hides dependencies (callers reach for it instead of receiving it), makes unit testing hard (shared mutable state leaks between tests), and can become a concurrency bottleneck. When NOT to use: if you only ever create one instance by convention, prefer dependency injection (a single Spring bean) over a hard Singleton - you keep one instance but stay testable and mockable. Compared to a static utility class: Singleton can implement interfaces and be passed as an object; a static class cannot. Reach for it only for truly process-wide resources (logging, config, connection pools).',
+  },
+  'factory-method': {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: decouples client from concrete classes, follows Open/Closed (add a new product+creator without touching callers), centralizes creation logic. Cons: a class explosion of creator subclasses, and indirection that can be overkill for simple objects. When NOT to use: if construction is trivial and stable, just call new. Factory Method vs Abstract Factory: Factory Method creates ONE product via subclassing/overriding a method; Abstract Factory creates a FAMILY of related products via composition (you hold a factory object). Factory Method vs a simple static factory: the static factory (e.g. valueOf) is simpler but cannot be overridden by subclasses.',
+  },
+  builder: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: readable construction of objects with many optional fields, supports immutability, validates before building. Cons: more code (a parallel Builder class), and a tiny runtime cost for the intermediate builder object. When NOT to use: for objects with one or two fields a constructor or factory is clearer. Builder vs telescoping constructors: builders avoid the unreadable new User(a,b,null,null,true) problem. Builder vs setters on a mutable object: builders can produce an immutable result and enforce required fields at build() time. Prefer it once you have ~4+ parameters, especially optional ones.',
+  },
+  observer: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: loose coupling between publisher and subscribers, dynamic subscription, supports broadcast. Cons: hard to follow control flow, risk of memory leaks if observers are not unsubscribed, unexpected update cascades, and undefined notification order. When NOT to use: for simple one-to-one callbacks a plain function/lambda is enough. Observer vs Pub/Sub (message broker): Observer is in-process and the subject knows its observers; pub/sub adds a broker/topic and full decoupling across processes. Modern Java often replaces hand-rolled Observer with reactive streams (Flow/Reactor) or Spring events.',
+  },
+  strategy: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: swap algorithms at runtime, eliminate big conditionals, test each strategy in isolation. Cons: clients must know the strategies exist to choose one, and many tiny classes for small variations. When NOT to use: if behavior never varies, a single method is simpler. Strategy vs State: structurally similar (both delegate to an interface) but intent differs - Strategy is chosen by the client and usually does not change itself; State transitions are driven by the object internally as its lifecycle advances. Strategy vs Template Method: Strategy varies behavior via composition (swap an object); Template Method varies it via inheritance (override steps).',
+  },
+  decorator: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: add responsibilities at runtime without subclass explosion, compose behaviors in any order, follows Single Responsibility. Cons: many small wrapper classes, deeply nested layers are hard to debug, and identity checks break (a decorated object != the original). When NOT to use: if behavior is fixed at compile time, subclassing or simple flags may be clearer. Decorator vs Inheritance: decoration is dynamic and combinable; inheritance is static. Decorator vs Proxy: same structure (wrap and delegate) but intent differs - Decorator ADDS behavior, Proxy CONTROLS access. Decorator vs Adapter: Decorator keeps the same interface, Adapter changes it.',
+  },
+  adapter: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: lets incompatible interfaces work together, isolates third-party/legacy code behind your own interface, no need to modify existing classes. Cons: extra indirection, and overuse can mask a design that should be cleaned up instead. When NOT to use: if you control both sides, change the interface directly rather than adapting. Adapter vs Facade: Adapter makes an existing interface match what a client expects (interface conversion); Facade invents a new simpler interface over a complex subsystem. Adapter vs Decorator: Adapter changes the interface; Decorator keeps it and adds behavior. Object adapter (composition) is generally preferred over class adapter (inheritance).',
+  },
+  facade: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: simplifies a complex subsystem to one easy entry point, decouples clients from internals, improves readability. Cons: can become a god object if it accumulates logic, and may hide useful subsystem capabilities. When NOT to use: if the subsystem is already simple, a facade just adds a layer. Facade vs Adapter: Facade defines a new convenient API over many classes; Adapter conforms an existing class to an expected interface. Facade vs Mediator: Facade is one-directional (clients -> subsystem) and the subsystem does not know the facade; Mediator coordinates two-way communication between peers. A facade should delegate, not implement business rules itself.',
+  },
+  command: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: turns requests into objects you can queue, log, schedule, and undo/redo; decouples invoker from receiver. Cons: a class per command can be heavy (lambdas/method refs mitigate this), and undo support adds complexity. When NOT to use: for a single direct call that never needs queuing or undo, just call the method. Command vs Strategy: both wrap behavior in an object, but Command represents a request/action (often with undo and a known receiver) while Strategy represents an interchangeable algorithm. In Java, a Runnable/Callable submitted to an executor is Command in practice.',
+  },
+  proxy: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: control access to an object (lazy loading, security, caching, remoting, logging) without changing it or the client. Cons: extra indirection and potential latency; lazy proxies can hide surprising costs. When NOT to use: if you do not need to intercept access, talk to the object directly. Proxy vs Decorator: identical structure (wrap + delegate) but Proxy CONTROLS/limits access while Decorator ADDS behavior. Proxy vs Adapter: Proxy keeps the same interface; Adapter changes it. Frameworks generate proxies for you - Spring AOP (@Transactional), Hibernate lazy loading, dynamic proxies, Mockito mocks.',
+  },
+  state: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: removes large state-based conditionals, makes each state and its transitions explicit, easy to add new states. Cons: more classes, and transition logic can be scattered across states. When NOT to use: for two or three simple states a boolean/enum + switch may be clearer. State vs Strategy: same structure, different intent - State objects know about and trigger transitions to other states as the object progresses through a lifecycle; Strategy objects are independent algorithms chosen externally and rarely swap themselves. If your conditionals branch on a status field that changes over time, that is State.',
+  },
+  'abstract-factory': {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: creates families of related objects that are guaranteed to be compatible, isolates concrete classes, swaps whole families at once. Cons: rigid - adding a NEW product type means changing every factory; lots of interfaces/classes. When NOT to use: if you only need one product, Factory Method is lighter. Abstract Factory vs Factory Method: Abstract Factory is an object holding several factory methods to build a family (composition); Factory Method builds a single product via subclass override (inheritance). Abstract Factory vs Builder: Abstract Factory emphasizes WHICH family of products; Builder emphasizes step-by-step construction of one complex product.',
+  },
+  prototype: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: create objects by cloning a configured instance (cheaper than rebuilding), avoid subclassing factories, add/remove prototypes at runtime. Cons: deep-copying object graphs with circular references and mutable shared state is error-prone; Java Cloneable is widely considered flawed (prefer copy constructors/factories). When NOT to use: for simple, cheap-to-build objects just construct them. Prototype vs Factory Method: Prototype copies an existing instance; Factory Method instantiates a class. Prototype shines when configuration is expensive but the result is reused with minor tweaks (templates, game entities).',
+  },
+  composite: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: treat individual objects and compositions uniformly, makes recursive tree structures natural, easy to add new node types. Cons: the shared interface can become too general (leaf nodes forced to implement add/remove), and type safety weakens. When NOT to use: if your data is not hierarchical, do not force a tree. Composite vs Decorator: both are recursive wrappers, but Composite builds part-whole TREES (many children) while Decorator adds behavior to ONE wrapped component. Composite pairs naturally with Iterator (to traverse) and Visitor (to operate over the tree).',
+  },
+  'template-method': {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: removes duplicated algorithm skeletons, fixes the invariant steps while letting subclasses fill the varying ones, enforces the overall flow. Cons: inheritance-based (one parent only), can violate the Liskov principle if hooks are misused, and the inverted control flow ("don\'t call us, we\'ll call you") can surprise. When NOT to use: if steps vary independently or you need runtime swapping, prefer Strategy (composition). Template Method vs Strategy: Template Method varies parts of an algorithm via subclassing; Strategy swaps the whole algorithm via composition. Frameworks use it heavily (JdbcTemplate, HttpServlet, JUnit lifecycle).',
+  },
+  iterator: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: traverse a collection without exposing its internals, support multiple simultaneous traversals, uniform iteration across structures. Cons: for simple arrays/lists it is unnecessary overhead, and external iterators add boilerplate. When NOT to use: a plain for-each over a standard collection already IS this pattern - do not hand-roll one. Iterator (external, client pulls next()) vs Internal iteration (forEach/Streams, the collection pushes elements): streams are more declarative and parallelizable. Implement a custom Iterator only for custom data structures (trees, graphs, paginated/remote sources).',
+  },
+  'chain-of-responsibility': {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: decouples sender from receiver, lets you add/reorder handlers dynamically, each handler has a single responsibility. Cons: no guarantee a request is handled (it can fall off the end), harder to debug a long chain, and possible performance cost traversing it. When NOT to use: if exactly one known handler applies, call it directly. Chain of Responsibility vs Decorator: both build a chain of wrappers, but CoR lets a handler STOP the chain (handle and return) while Decorator always passes through and augments. Real uses: Servlet filters, Spring Security filter chain, logging levels, approval workflows.',
+  },
+  memento: {
+    name: 'Trade-offs & Comparisons',
+    explanation: 'Pros: capture and restore state without exposing internals, clean undo/redo and checkpoints, keeps the originator encapsulated. Cons: mementos can be memory-heavy if state is large or snapshots are frequent; managing the history (the caretaker) adds complexity. When NOT to use: if state is trivial to recompute or you can use command-based undo instead. Memento vs Command (for undo): Command undo re-runs an inverse operation (compact, but every action needs an inverse); Memento restores a full snapshot (simple, but stores whole state). Use Memento when reversing operations individually is hard.',
+  }
+};
+
+// GoF classification per pattern id
+const PATTERN_CATEGORY = {
+  singleton: 'Creational',
+  'factory-method': 'Creational',
+  builder: 'Creational',
+  'abstract-factory': 'Creational',
+  prototype: 'Creational',
+  decorator: 'Structural',
+  adapter: 'Structural',
+  facade: 'Structural',
+  proxy: 'Structural',
+  composite: 'Structural',
+  observer: 'Behavioral',
+  strategy: 'Behavioral',
+  command: 'Behavioral',
+  state: 'Behavioral',
+  'template-method': 'Behavioral',
+  iterator: 'Behavioral',
+  'chain-of-responsibility': 'Behavioral',
+  memento: 'Behavioral'
+};
+
+const CATEGORY_COLOR = {
+  Creational: '#22c55e',
+  Structural: '#3b82f6',
+  Behavioral: '#f59e0b'
+};
+
+// Append the extra tabs (Real-World Usage, Complete Example, Trade-offs) to a pattern's details
 const withExtraTabs = (concept) => {
-  const extras = [REAL_WORLD_USAGE[concept.id], COMPLETE_EXAMPLE[concept.id]].filter(Boolean)
+  const extras = [REAL_WORLD_USAGE[concept.id], COMPLETE_EXAMPLE[concept.id], TRADE_OFFS[concept.id]].filter(Boolean)
   return extras.length ? [...concept.details, ...extras] : concept.details
+}
+
+// Small by default, expands to full size on hover (shared with the Spring page behavior)
+const HoverZoomDiagram = ({ children }) => {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      title={hovered ? '' : 'Hover to enlarge'}
+      style={{
+        maxWidth: hovered ? '100%' : '360px',
+        margin: '0 auto',
+        transition: 'max-width 0.35s ease',
+        cursor: hovered ? 'zoom-out' : 'zoom-in'
+      }}
+    >
+      {children}
+    </div>
+  )
 }
 
 function DesignPatterns({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
@@ -4184,6 +4310,22 @@ System.out.println(editor.getContent());  // "Hello World"
               <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
               <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
+            {PATTERN_CATEGORY[concept.id] && (
+              <span style={{
+                display: 'inline-block',
+                marginBottom: '0.75rem',
+                padding: '0.15rem 0.6rem',
+                borderRadius: '999px',
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+                color: CATEGORY_COLOR[PATTERN_CATEGORY[concept.id]],
+                background: `${CATEGORY_COLOR[PATTERN_CATEGORY[concept.id]]}1a`,
+                border: `1px solid ${CATEGORY_COLOR[PATTERN_CATEGORY[concept.id]]}55`
+              }}>
+                {PATTERN_CATEGORY[concept.id]}
+              </span>
+            )}
             <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
             <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
               {withExtraTabs(concept).length} topics - Click to explore
@@ -4237,6 +4379,19 @@ System.out.println(editor.getContent());  // "Hello World"
               }}>
                 <span style={{ fontSize: '2rem' }}>{selectedConcept.icon}</span>
                 {selectedConcept.name}
+                {PATTERN_CATEGORY[selectedConcept.id] && (
+                  <span style={{
+                    padding: '0.15rem 0.6rem',
+                    borderRadius: '999px',
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: CATEGORY_COLOR[PATTERN_CATEGORY[selectedConcept.id]],
+                    background: `${CATEGORY_COLOR[PATTERN_CATEGORY[selectedConcept.id]]}1a`,
+                    border: `1px solid ${CATEGORY_COLOR[PATTERN_CATEGORY[selectedConcept.id]]}55`
+                  }}>
+                    {PATTERN_CATEGORY[selectedConcept.id]}
+                  </span>
+                )}
               </h2>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                 <button
@@ -4323,7 +4478,9 @@ System.out.println(editor.getContent());  // "Hello World"
                       marginBottom: '1.5rem',
                       border: '1px solid #334155'
                     }}>
-                      <DiagramComponent />
+                      <HoverZoomDiagram>
+                        <DiagramComponent />
+                      </HoverZoomDiagram>
                     </div>
                   )}
 
