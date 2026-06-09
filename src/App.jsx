@@ -6,177 +6,177 @@ import GlobalSearch from './components/GlobalSearch.jsx'
 import VoiceNavigation from './components/VoiceNavigation.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
 import { useTheme } from './contexts/ThemeContext'
-import ProgressDashboard from './pages/ProgressDashboard.jsx'
+const ProgressDashboard = lazy(() => import('./pages/ProgressDashboard.jsx'))
 import BookmarkButton from './components/BookmarkButton.jsx'
 import LoadingSpinner from './components/LoadingSpinner.jsx'
 import { KEYS, SHORTCUTS, FocusManager, AriaUtils } from './utils/keyboardNavigation.js'
 import { FocusManager as FocusManagerUtil, focusHistory } from './utils/focusManagement.js'
 // Project pages (DevOps-related)
-import AgileScrum from './pages/projects/AgileScrum.jsx'
-import ProductionSupport from './pages/projects/ProductionSupport.jsx'
-import SecurityOWASP from './pages/projects/SecurityOWASP.jsx'
-import JWT from './pages/security/JWT.jsx'
-import OAuth from './pages/security/OAuth.jsx'
-import OAuth2 from './pages/security/OAuth2.jsx'
-import PingFederate from './pages/security/PingFederate.jsx'
-import Testing from './pages/projects/Testing.jsx'
-import AIInterview from './pages/AIInterview.jsx'
-import Settings from './pages/Settings.jsx'
+const AgileScrum = lazy(() => import('./pages/projects/AgileScrum.jsx'))
+const ProductionSupport = lazy(() => import('./pages/projects/ProductionSupport.jsx'))
+const SecurityOWASP = lazy(() => import('./pages/projects/SecurityOWASP.jsx'))
+const JWT = lazy(() => import('./pages/security/JWT.jsx'))
+const OAuth = lazy(() => import('./pages/security/OAuth.jsx'))
+const OAuth2 = lazy(() => import('./pages/security/OAuth2.jsx'))
+const PingFederate = lazy(() => import('./pages/security/PingFederate.jsx'))
+const Testing = lazy(() => import('./pages/projects/Testing.jsx'))
+const AIInterview = lazy(() => import('./pages/AIInterview.jsx'))
+const Settings = lazy(() => import('./pages/Settings.jsx'))
 
 // Messaging pages
-import ApacheKafka from './pages/messaging/ApacheKafka.jsx'
-import ApacheFlink from './pages/messaging/ApacheFlink.jsx'
-import Solace from './pages/messaging/Solace.jsx'
-import RabbitMQ from './pages/messaging/RabbitMQ.jsx'
-import MuleSoft from './pages/messaging/MuleSoft.jsx'
+const ApacheKafka = lazy(() => import('./pages/messaging/ApacheKafka.jsx'))
+const ApacheFlink = lazy(() => import('./pages/messaging/ApacheFlink.jsx'))
+const Solace = lazy(() => import('./pages/messaging/Solace.jsx'))
+const RabbitMQ = lazy(() => import('./pages/messaging/RabbitMQ.jsx'))
+const MuleSoft = lazy(() => import('./pages/messaging/MuleSoft.jsx'))
 
 // Java pages
-import CoreJava from './pages/java/CoreJava.jsx'
-import FunctionalProgramming from './pages/java/FunctionalProgramming.jsx'
-import Java11 from './pages/java/Java11.jsx'
-import Java8 from './pages/java/Java8.jsx'
-import Java15 from './pages/java/Java15.jsx'
-import Java21 from './pages/java/Java21.jsx'
-import Java24 from './pages/java/Java24.jsx'
-import Java25 from './pages/java/Java25.jsx'
-import Java26 from './pages/java/Java26.jsx'
-import Module from './pages/java/Module.jsx'
-import Class from './pages/java/Class.jsx'
-import Interface from './pages/java/Interface.jsx'
-import Generics from './pages/java/Generics.jsx'
-import CollectionsFramework from './pages/java/CollectionsFramework.jsx'
-import ObjectOrientedProgramming from './pages/java/ObjectOrientedProgramming.jsx'
-import Concurrency from './pages/java/Concurrency.jsx'
-import Multithreading from './pages/java/Multithreading.jsx'
-import ExceptionHandling from './pages/java/ExceptionHandling.jsx'
-import FileIO from './pages/java/FileIO.jsx'
-import JVMInternals from './pages/java/JVMInternals.jsx'
-import SemaphoreInternals from './pages/projects/SemaphoreInternals.jsx'
-import MemoryManagement from './pages/java/MemoryManagement.jsx'
-import Streams from './pages/java/Streams.jsx'
-import Optional from './pages/java/Optional.jsx'
-import StreamsAdvanced from './pages/java/StreamsAdvanced.jsx'
-import Lambdas from './pages/java/Lambdas.jsx'
-import LambdasAdvanced from './pages/java/LambdasAdvanced.jsx'
-import FunctionalInterfaces from './pages/java/FunctionalInterfaces.jsx'
+const CoreJava = lazy(() => import('./pages/java/CoreJava.jsx'))
+const FunctionalProgramming = lazy(() => import('./pages/java/FunctionalProgramming.jsx'))
+const Java11 = lazy(() => import('./pages/java/Java11.jsx'))
+const Java8 = lazy(() => import('./pages/java/Java8.jsx'))
+const Java15 = lazy(() => import('./pages/java/Java15.jsx'))
+const Java21 = lazy(() => import('./pages/java/Java21.jsx'))
+const Java24 = lazy(() => import('./pages/java/Java24.jsx'))
+const Java25 = lazy(() => import('./pages/java/Java25.jsx'))
+const Java26 = lazy(() => import('./pages/java/Java26.jsx'))
+const Module = lazy(() => import('./pages/java/Module.jsx'))
+const Class = lazy(() => import('./pages/java/Class.jsx'))
+const Interface = lazy(() => import('./pages/java/Interface.jsx'))
+const Generics = lazy(() => import('./pages/java/Generics.jsx'))
+const CollectionsFramework = lazy(() => import('./pages/java/CollectionsFramework.jsx'))
+const ObjectOrientedProgramming = lazy(() => import('./pages/java/ObjectOrientedProgramming.jsx'))
+const Concurrency = lazy(() => import('./pages/java/Concurrency.jsx'))
+const Multithreading = lazy(() => import('./pages/java/Multithreading.jsx'))
+const ExceptionHandling = lazy(() => import('./pages/java/ExceptionHandling.jsx'))
+const FileIO = lazy(() => import('./pages/java/FileIO.jsx'))
+const JVMInternals = lazy(() => import('./pages/java/JVMInternals.jsx'))
+const SemaphoreInternals = lazy(() => import('./pages/projects/SemaphoreInternals.jsx'))
+const MemoryManagement = lazy(() => import('./pages/java/MemoryManagement.jsx'))
+const Streams = lazy(() => import('./pages/java/Streams.jsx'))
+const Optional = lazy(() => import('./pages/java/Optional.jsx'))
+const StreamsAdvanced = lazy(() => import('./pages/java/StreamsAdvanced.jsx'))
+const Lambdas = lazy(() => import('./pages/java/Lambdas.jsx'))
+const LambdasAdvanced = lazy(() => import('./pages/java/LambdasAdvanced.jsx'))
+const FunctionalInterfaces = lazy(() => import('./pages/java/FunctionalInterfaces.jsx'))
 
 // Spring pages
-import DependencyInjection from './pages/spring/DependencyInjection.jsx'
-import Spring from './pages/spring/Spring.jsx'
-import SpringBoot from './pages/spring/SpringBoot.jsx'
-import RestAPI from './pages/spring/RestAPI.jsx'
-import Hibernate from './pages/spring/Hibernate.jsx'
-import Actuator from './pages/frameworks/Actuator.jsx'
-import Zipkin from './pages/frameworks/Zipkin.jsx'
-import SpringBatch from './pages/frameworks/SpringBatch.jsx'
-import SpringData from './pages/frameworks/SpringData.jsx'
-import SpringSecurity from './pages/frameworks/SpringSecurity.jsx'
-import Ehcache from './pages/frameworks/Ehcache.jsx'
-import Angular from './pages/frameworks/Angular.jsx'
-import GraphQL from './pages/frameworks/GraphQL.jsx'
-import ShellScripting from './pages/frameworks/ShellScripting.jsx'
-import BFF from './pages/frameworks/BFF.jsx'
-import GRPC from './pages/spring/GRPC.jsx'
-import SOAP from './pages/spring/SOAP.jsx'
-import ReactFramework from './pages/spring/ReactFramework.jsx'
+const DependencyInjection = lazy(() => import('./pages/spring/DependencyInjection.jsx'))
+const Spring = lazy(() => import('./pages/spring/Spring.jsx'))
+const SpringBoot = lazy(() => import('./pages/spring/SpringBoot.jsx'))
+const RestAPI = lazy(() => import('./pages/spring/RestAPI.jsx'))
+const Hibernate = lazy(() => import('./pages/spring/Hibernate.jsx'))
+const Actuator = lazy(() => import('./pages/frameworks/Actuator.jsx'))
+const Zipkin = lazy(() => import('./pages/frameworks/Zipkin.jsx'))
+const SpringBatch = lazy(() => import('./pages/frameworks/SpringBatch.jsx'))
+const SpringData = lazy(() => import('./pages/frameworks/SpringData.jsx'))
+const SpringSecurity = lazy(() => import('./pages/frameworks/SpringSecurity.jsx'))
+const Ehcache = lazy(() => import('./pages/frameworks/Ehcache.jsx'))
+const Angular = lazy(() => import('./pages/frameworks/Angular.jsx'))
+const GraphQL = lazy(() => import('./pages/frameworks/GraphQL.jsx'))
+const ShellScripting = lazy(() => import('./pages/frameworks/ShellScripting.jsx'))
+const BFF = lazy(() => import('./pages/frameworks/BFF.jsx'))
+const GRPC = lazy(() => import('./pages/spring/GRPC.jsx'))
+const SOAP = lazy(() => import('./pages/spring/SOAP.jsx'))
+const ReactFramework = lazy(() => import('./pages/spring/ReactFramework.jsx'))
 
 // Question pages
-import JavaQuestions from './pages/questions/JavaQuestions.jsx'
-import CoreJavaQuestions from './pages/questions/CoreJavaQuestions.jsx'
-import Java8Questions from './pages/questions/Java8Questions.jsx'
-import Java11Questions from './pages/questions/Java11Questions.jsx'
-import Java15Questions from './pages/questions/Java15Questions.jsx'
-import Java21Questions from './pages/questions/Java21Questions.jsx'
-import Java24Questions from './pages/questions/Java24Questions.jsx'
-import Java25Questions from './pages/questions/Java25Questions.jsx'
-import Java26Questions from './pages/questions/Java26Questions.jsx'
-import SQLQuestions from './pages/questions/SQLQuestions.jsx'
-import NoSQLQuestions from './pages/questions/NoSQLQuestions.jsx'
-import ORMQuestions from './pages/questions/ORMQuestions.jsx'
-import HibernateQuestions from './pages/questions/HibernateQuestions.jsx'
-import PostgreSQLQuestions from './pages/questions/PostgreSQLQuestions.jsx'
-import SQLFundamentalsQuestions from './pages/questions/SQLFundamentalsQuestions.jsx'
-import KafkaQuestions from './pages/questions/KafkaQuestions.jsx'
-import ApacheFlinkQuestions from './pages/questions/ApacheFlinkQuestions.jsx'
-import RabbitMQQuestions from './pages/questions/RabbitMQQuestions.jsx'
-import SolaceQuestions from './pages/questions/SolaceQuestions.jsx'
-import RestAPIQuestions from './pages/questions/RestAPIQuestions.jsx'
-import JenkinsQuestions from './pages/questions/JenkinsQuestions.jsx'
-import TeamCityQuestions from './pages/questions/TeamCityQuestions.jsx'
-import PrometheusQuestions from './pages/questions/PrometheusQuestions.jsx'
-import GrafanaQuestions from './pages/questions/GrafanaQuestions.jsx'
-import ZipkinQuestions from './pages/questions/ZipkinQuestions.jsx'
-import ActuatorQuestions from './pages/questions/ActuatorQuestions.jsx'
-import SpringCoreQuestions from './pages/questions/SpringCoreQuestions.jsx'
-import SpringBootQuestions from './pages/questions/SpringBootQuestions.jsx'
-import SpringSecurityQuestions from './pages/questions/SpringSecurityQuestions.jsx'
-import SpringDataJPAQuestions from './pages/questions/SpringDataJPAQuestions.jsx'
-import SpringAnnotationsQuestions from './pages/questions/SpringAnnotationsQuestions.jsx'
-import EtradingQuestions from './pages/questions/EtradingQuestions.jsx'
-import SystemDesignQuestions from './pages/questions/SystemDesignQuestions.jsx'
-import SystemDesignFundamentalsQuestions from './pages/questions/SystemDesignFundamentalsQuestions.jsx'
-import DataStorageQuestions from './pages/questions/DataStorageQuestions.jsx'
-import ArchitectureQuestions from './pages/questions/ArchitectureQuestions.jsx'
-import CommunicationQuestions from './pages/questions/CommunicationQuestions.jsx'
-import JMeterQuestions from './pages/questions/JMeterQuestions.jsx'
-import JFRQuestions from './pages/questions/JFRQuestions.jsx'
-import DynatraceQuestions from './pages/questions/DynatraceQuestions.jsx'
-import ThreadingQuestions from './pages/questions/ThreadingQuestions.jsx'
+const JavaQuestions = lazy(() => import('./pages/questions/JavaQuestions.jsx'))
+const CoreJavaQuestions = lazy(() => import('./pages/questions/CoreJavaQuestions.jsx'))
+const Java8Questions = lazy(() => import('./pages/questions/Java8Questions.jsx'))
+const Java11Questions = lazy(() => import('./pages/questions/Java11Questions.jsx'))
+const Java15Questions = lazy(() => import('./pages/questions/Java15Questions.jsx'))
+const Java21Questions = lazy(() => import('./pages/questions/Java21Questions.jsx'))
+const Java24Questions = lazy(() => import('./pages/questions/Java24Questions.jsx'))
+const Java25Questions = lazy(() => import('./pages/questions/Java25Questions.jsx'))
+const Java26Questions = lazy(() => import('./pages/questions/Java26Questions.jsx'))
+const SQLQuestions = lazy(() => import('./pages/questions/SQLQuestions.jsx'))
+const NoSQLQuestions = lazy(() => import('./pages/questions/NoSQLQuestions.jsx'))
+const ORMQuestions = lazy(() => import('./pages/questions/ORMQuestions.jsx'))
+const HibernateQuestions = lazy(() => import('./pages/questions/HibernateQuestions.jsx'))
+const PostgreSQLQuestions = lazy(() => import('./pages/questions/PostgreSQLQuestions.jsx'))
+const SQLFundamentalsQuestions = lazy(() => import('./pages/questions/SQLFundamentalsQuestions.jsx'))
+const KafkaQuestions = lazy(() => import('./pages/questions/KafkaQuestions.jsx'))
+const ApacheFlinkQuestions = lazy(() => import('./pages/questions/ApacheFlinkQuestions.jsx'))
+const RabbitMQQuestions = lazy(() => import('./pages/questions/RabbitMQQuestions.jsx'))
+const SolaceQuestions = lazy(() => import('./pages/questions/SolaceQuestions.jsx'))
+const RestAPIQuestions = lazy(() => import('./pages/questions/RestAPIQuestions.jsx'))
+const JenkinsQuestions = lazy(() => import('./pages/questions/JenkinsQuestions.jsx'))
+const TeamCityQuestions = lazy(() => import('./pages/questions/TeamCityQuestions.jsx'))
+const PrometheusQuestions = lazy(() => import('./pages/questions/PrometheusQuestions.jsx'))
+const GrafanaQuestions = lazy(() => import('./pages/questions/GrafanaQuestions.jsx'))
+const ZipkinQuestions = lazy(() => import('./pages/questions/ZipkinQuestions.jsx'))
+const ActuatorQuestions = lazy(() => import('./pages/questions/ActuatorQuestions.jsx'))
+const SpringCoreQuestions = lazy(() => import('./pages/questions/SpringCoreQuestions.jsx'))
+const SpringBootQuestions = lazy(() => import('./pages/questions/SpringBootQuestions.jsx'))
+const SpringSecurityQuestions = lazy(() => import('./pages/questions/SpringSecurityQuestions.jsx'))
+const SpringDataJPAQuestions = lazy(() => import('./pages/questions/SpringDataJPAQuestions.jsx'))
+const SpringAnnotationsQuestions = lazy(() => import('./pages/questions/SpringAnnotationsQuestions.jsx'))
+const EtradingQuestions = lazy(() => import('./pages/questions/EtradingQuestions.jsx'))
+const SystemDesignQuestions = lazy(() => import('./pages/questions/SystemDesignQuestions.jsx'))
+const SystemDesignFundamentalsQuestions = lazy(() => import('./pages/questions/SystemDesignFundamentalsQuestions.jsx'))
+const DataStorageQuestions = lazy(() => import('./pages/questions/DataStorageQuestions.jsx'))
+const ArchitectureQuestions = lazy(() => import('./pages/questions/ArchitectureQuestions.jsx'))
+const CommunicationQuestions = lazy(() => import('./pages/questions/CommunicationQuestions.jsx'))
+const JMeterQuestions = lazy(() => import('./pages/questions/JMeterQuestions.jsx'))
+const JFRQuestions = lazy(() => import('./pages/questions/JFRQuestions.jsx'))
+const DynatraceQuestions = lazy(() => import('./pages/questions/DynatraceQuestions.jsx'))
+const ThreadingQuestions = lazy(() => import('./pages/questions/ThreadingQuestions.jsx'))
 
 // Database pages
-import SQL from './pages/databases/SQL.jsx'
-import NoSQL from './pages/databases/NoSQL.jsx'
-import Oracle from './pages/databases/Oracle.jsx'
-import ORM from './pages/databases/ORM.jsx'
-import Redis from './pages/databases/Redis.jsx'
-import PLSQL from './pages/databases/PLSQL.jsx'
-import StoredProcedures from './pages/databases/StoredProcedures.jsx'
-import DatabaseOptimization from './pages/databases/DatabaseOptimization.jsx'
-import PostgreSQL from './pages/databases/PostgreSQL.jsx'
-import SQLFundamentals from './pages/databases/SQLFundamentals.jsx'
-import Databases from './pages/databases/Databases.jsx'
+const SQL = lazy(() => import('./pages/databases/SQL.jsx'))
+const NoSQL = lazy(() => import('./pages/databases/NoSQL.jsx'))
+const Oracle = lazy(() => import('./pages/databases/Oracle.jsx'))
+const ORM = lazy(() => import('./pages/databases/ORM.jsx'))
+const Redis = lazy(() => import('./pages/databases/Redis.jsx'))
+const PLSQL = lazy(() => import('./pages/databases/PLSQL.jsx'))
+const StoredProcedures = lazy(() => import('./pages/databases/StoredProcedures.jsx'))
+const DatabaseOptimization = lazy(() => import('./pages/databases/DatabaseOptimization.jsx'))
+const PostgreSQL = lazy(() => import('./pages/databases/PostgreSQL.jsx'))
+const SQLFundamentals = lazy(() => import('./pages/databases/SQLFundamentals.jsx'))
+const Databases = lazy(() => import('./pages/databases/Databases.jsx'))
 
 // DevOps pages
-import Deployment from './pages/devops/Deployment.jsx'
-import Docker from './pages/devops/Docker.jsx'
-import Kubernetes from './pages/devops/Kubernetes.jsx'
-import CICD from './pages/devops/CICD.jsx'
-import DevOpsPage from './pages/devops/DevOpsPage.jsx'
-import TeamCity from './pages/devops/TeamCity.jsx'
-import Jenkins from './pages/devops/Jenkins.jsx'
-import Prometheus from './pages/devops/Prometheus.jsx'
-import Grafana from './pages/devops/Grafana.jsx'
-import Ansible from './pages/devops/Ansible.jsx'
-import UnixScripting from './pages/devops/UnixScripting.jsx'
-import JavaFlightRecorder from './pages/devops/JavaFlightRecorder.jsx'
-import JMeter from './pages/devops/JMeter.jsx'
-import Dynatrace from './pages/devops/Dynatrace.jsx'
-import Maven from './pages/devops/Maven.jsx'
+const Deployment = lazy(() => import('./pages/devops/Deployment.jsx'))
+const Docker = lazy(() => import('./pages/devops/Docker.jsx'))
+const Kubernetes = lazy(() => import('./pages/devops/Kubernetes.jsx'))
+const CICD = lazy(() => import('./pages/devops/CICD.jsx'))
+const DevOpsPage = lazy(() => import('./pages/devops/DevOpsPage.jsx'))
+const TeamCity = lazy(() => import('./pages/devops/TeamCity.jsx'))
+const Jenkins = lazy(() => import('./pages/devops/Jenkins.jsx'))
+const Prometheus = lazy(() => import('./pages/devops/Prometheus.jsx'))
+const Grafana = lazy(() => import('./pages/devops/Grafana.jsx'))
+const Ansible = lazy(() => import('./pages/devops/Ansible.jsx'))
+const UnixScripting = lazy(() => import('./pages/devops/UnixScripting.jsx'))
+const JavaFlightRecorder = lazy(() => import('./pages/devops/JavaFlightRecorder.jsx'))
+const JMeter = lazy(() => import('./pages/devops/JMeter.jsx'))
+const Dynatrace = lazy(() => import('./pages/devops/Dynatrace.jsx'))
+const Maven = lazy(() => import('./pages/devops/Maven.jsx'))
 
 // Security pages
-import SecurityPage from './pages/SecurityPage.jsx'
+const SecurityPage = lazy(() => import('./pages/SecurityPage.jsx'))
 
 // Cloud pages
-import AWS from './pages/cloud/AWS.jsx'
-import GCP from './pages/cloud/GCP.jsx'
-import Azure from './pages/cloud/Azure.jsx'
-import Cloud from './pages/cloud/Cloud.jsx'
-import Messaging from './pages/messaging/Messaging.jsx'
-import ETrading from './pages/etrading/ETrading.jsx'
-import RFQSystems from './pages/etrading/RFQSystems.jsx'
-import FixedIncomeTrading from './pages/etrading/FixedIncomeTrading.jsx'
-import AeronMessaging from './pages/etrading/AeronMessaging.jsx'
-import LowLatency from './pages/etrading/LowLatency.jsx'
-import LatencyMeasurement from './pages/etrading/LatencyMeasurement.jsx'
-import OrderManagement from './pages/etrading/OrderManagement.jsx'
-import ExecutionAlgorithms from './pages/etrading/ExecutionAlgorithms.jsx'
-import AutomatedHedging from './pages/etrading/AutomatedHedging.jsx'
-import FIXProtocol from './pages/etrading/FIXProtocol.jsx'
-import JavaTrading from './pages/etrading/JavaTrading.jsx'
-import RiskManagement from './pages/etrading/RiskManagement.jsx'
-import PriceContribution from './pages/etrading/PriceContribution.jsx'
-import DistributedSystems from './pages/etrading/DistributedSystems.jsx'
-import DisruptorPattern from './pages/etrading/DisruptorPattern.jsx'
+const AWS = lazy(() => import('./pages/cloud/AWS.jsx'))
+const GCP = lazy(() => import('./pages/cloud/GCP.jsx'))
+const Azure = lazy(() => import('./pages/cloud/Azure.jsx'))
+const Cloud = lazy(() => import('./pages/cloud/Cloud.jsx'))
+const Messaging = lazy(() => import('./pages/messaging/Messaging.jsx'))
+const ETrading = lazy(() => import('./pages/etrading/ETrading.jsx'))
+const RFQSystems = lazy(() => import('./pages/etrading/RFQSystems.jsx'))
+const FixedIncomeTrading = lazy(() => import('./pages/etrading/FixedIncomeTrading.jsx'))
+const AeronMessaging = lazy(() => import('./pages/etrading/AeronMessaging.jsx'))
+const LowLatency = lazy(() => import('./pages/etrading/LowLatency.jsx'))
+const LatencyMeasurement = lazy(() => import('./pages/etrading/LatencyMeasurement.jsx'))
+const OrderManagement = lazy(() => import('./pages/etrading/OrderManagement.jsx'))
+const ExecutionAlgorithms = lazy(() => import('./pages/etrading/ExecutionAlgorithms.jsx'))
+const AutomatedHedging = lazy(() => import('./pages/etrading/AutomatedHedging.jsx'))
+const FIXProtocol = lazy(() => import('./pages/etrading/FIXProtocol.jsx'))
+const JavaTrading = lazy(() => import('./pages/etrading/JavaTrading.jsx'))
+const RiskManagement = lazy(() => import('./pages/etrading/RiskManagement.jsx'))
+const PriceContribution = lazy(() => import('./pages/etrading/PriceContribution.jsx'))
+const DistributedSystems = lazy(() => import('./pages/etrading/DistributedSystems.jsx'))
+const DisruptorPattern = lazy(() => import('./pages/etrading/DisruptorPattern.jsx'))
 
 // Algorithm pages - lazy loaded for better performance
 const Arrays = lazy(() => import('./pages/algorithms/Arrays.jsx'))
@@ -227,69 +227,69 @@ const L4SystemDesign = lazy(() => import('./pages/design/L4SystemDesign.jsx'))
 const L5SystemDesign = lazy(() => import('./pages/design/L5SystemDesign.jsx'))
 
 // System Design Concept pages
-import LoadBalancing from './pages/concepts/LoadBalancing.jsx'
-import CachingStrategies from './pages/concepts/CachingStrategies.jsx'
-import DatabaseSharding from './pages/concepts/DatabaseSharding.jsx'
-import CAPTheorem from './pages/concepts/CAPTheorem.jsx'
-import ConsistencyPatterns from './pages/concepts/ConsistencyPatterns.jsx'
-import APIDesign from './pages/concepts/APIDesign.jsx'
-import MessageQueues from './pages/concepts/MessageQueues.jsx'
-import CDN from './pages/concepts/CDN.jsx'
-import DatabaseReplication from './pages/concepts/DatabaseReplication.jsx'
-import Scaling from './pages/concepts/Scaling.jsx'
-import Proxies from './pages/concepts/Proxies.jsx'
-import DataPartitioning from './pages/concepts/DataPartitioning.jsx'
-import SQLvsNoSQL from './pages/concepts/SQLvsNoSQL.jsx'
-import ConsistentHashing from './pages/concepts/ConsistentHashing.jsx'
-import WebSockets from './pages/concepts/WebSockets.jsx'
-import BlobStorage from './pages/concepts/BlobStorage.jsx'
-import Microservices from './pages/concepts/Microservices.jsx'
-import EventDriven from './pages/concepts/EventDriven.jsx'
+const LoadBalancing = lazy(() => import('./pages/concepts/LoadBalancing.jsx'))
+const CachingStrategies = lazy(() => import('./pages/concepts/CachingStrategies.jsx'))
+const DatabaseSharding = lazy(() => import('./pages/concepts/DatabaseSharding.jsx'))
+const CAPTheorem = lazy(() => import('./pages/concepts/CAPTheorem.jsx'))
+const ConsistencyPatterns = lazy(() => import('./pages/concepts/ConsistencyPatterns.jsx'))
+const APIDesign = lazy(() => import('./pages/concepts/APIDesign.jsx'))
+const MessageQueues = lazy(() => import('./pages/concepts/MessageQueues.jsx'))
+const CDN = lazy(() => import('./pages/concepts/CDN.jsx'))
+const DatabaseReplication = lazy(() => import('./pages/concepts/DatabaseReplication.jsx'))
+const Scaling = lazy(() => import('./pages/concepts/Scaling.jsx'))
+const Proxies = lazy(() => import('./pages/concepts/Proxies.jsx'))
+const DataPartitioning = lazy(() => import('./pages/concepts/DataPartitioning.jsx'))
+const SQLvsNoSQL = lazy(() => import('./pages/concepts/SQLvsNoSQL.jsx'))
+const ConsistentHashing = lazy(() => import('./pages/concepts/ConsistentHashing.jsx'))
+const WebSockets = lazy(() => import('./pages/concepts/WebSockets.jsx'))
+const BlobStorage = lazy(() => import('./pages/concepts/BlobStorage.jsx'))
+const Microservices = lazy(() => import('./pages/concepts/Microservices.jsx'))
+const EventDriven = lazy(() => import('./pages/concepts/EventDriven.jsx'))
 
 // Root level navigation pages
-import Practice from './pages/Practice.jsx'
-import Questions from './pages/Questions.jsx'
-import Java from './pages/Java.jsx'
-import Python from './pages/Python.jsx'
-import DataScience from './pages/python/DataScience.jsx'
-import MachineLearning from './pages/python/MachineLearning.jsx'
-import WebFrameworks from './pages/python/WebFrameworks.jsx'
-import AsyncPython from './pages/python/AsyncPython.jsx'
-import IndexSlicing from './pages/python/IndexSlicing.jsx'
-import BitwiseOperations from './pages/python/BitwiseOperations.jsx'
-import ListComprehension from './pages/python/ListComprehension.jsx'
-import LambdaFunctions from './pages/python/LambdaFunctions.jsx'
-import BisectFunctions from './pages/python/BisectFunctions.jsx'
-import SetOperations from './pages/practice/SetOperations.jsx'
-import MapOperations from './pages/practice/MapOperations.jsx'
-import PythonAdvanced from './pages/python/PythonAdvanced.jsx'
-import CorePython from './pages/python/CorePython.jsx'
-import PythonOOP from './pages/python/PythonOOP.jsx'
-import PythonSetOperations from './pages/python/PythonSetOperations.jsx'
-import PythonDictOperations from './pages/python/PythonDictOperations.jsx'
-import PythonTuples from './pages/python/PythonTuples.jsx'
-import PythonMapFunctions from './pages/python/PythonMapFunctions.jsx'
-import PythonStringMethods from './pages/python/PythonStringMethods.jsx'
-import PythonHeaps from './pages/python/PythonHeapsReference.jsx'
-import PythonPitfalls from './pages/python/PythonPitfalls.jsx'
-import PythonRegex from './pages/python/PythonRegex.jsx'
-import PythonCombinations from './pages/python/PythonCombinations.jsx'
-import Itertools from './pages/python/Itertools.jsx'
-import CollectionsModule from './pages/python/CollectionsModule.jsx'
-import SortingFunctions from './pages/python/SortingFunctions.jsx'
-import LeetCodePatterns from './pages/python/LeetCodePatterns.jsx'
-import SortingAlgorithms from './pages/python/SortingAlgorithms.jsx'
-import StringAlgorithms from './pages/python/StringAlgorithms.jsx'
-import GraphAlgorithms from './pages/python/GraphAlgorithms.jsx'
-import PythonVsJava from './pages/python/PythonVsJava.jsx'
-import MathFunctions from './pages/python/MathFunctions.jsx'
-import BuiltinFunctions from './pages/python/BuiltinFunctions.jsx'
-import Functools from './pages/python/Functools.jsx'
-import CopyModule from './pages/python/CopyModule.jsx'
-import Decorators from './pages/python/Decorators.jsx'
-import Generators from './pages/python/Generators.jsx'
-import Frameworks from './pages/Frameworks.jsx'
-import RecursionPatterns from './pages/RecursionPatterns.jsx'
+const Practice = lazy(() => import('./pages/Practice.jsx'))
+const Questions = lazy(() => import('./pages/Questions.jsx'))
+const Java = lazy(() => import('./pages/Java.jsx'))
+const Python = lazy(() => import('./pages/Python.jsx'))
+const DataScience = lazy(() => import('./pages/python/DataScience.jsx'))
+const MachineLearning = lazy(() => import('./pages/python/MachineLearning.jsx'))
+const WebFrameworks = lazy(() => import('./pages/python/WebFrameworks.jsx'))
+const AsyncPython = lazy(() => import('./pages/python/AsyncPython.jsx'))
+const IndexSlicing = lazy(() => import('./pages/python/IndexSlicing.jsx'))
+const BitwiseOperations = lazy(() => import('./pages/python/BitwiseOperations.jsx'))
+const ListComprehension = lazy(() => import('./pages/python/ListComprehension.jsx'))
+const LambdaFunctions = lazy(() => import('./pages/python/LambdaFunctions.jsx'))
+const BisectFunctions = lazy(() => import('./pages/python/BisectFunctions.jsx'))
+const SetOperations = lazy(() => import('./pages/practice/SetOperations.jsx'))
+const MapOperations = lazy(() => import('./pages/practice/MapOperations.jsx'))
+const PythonAdvanced = lazy(() => import('./pages/python/PythonAdvanced.jsx'))
+const CorePython = lazy(() => import('./pages/python/CorePython.jsx'))
+const PythonOOP = lazy(() => import('./pages/python/PythonOOP.jsx'))
+const PythonSetOperations = lazy(() => import('./pages/python/PythonSetOperations.jsx'))
+const PythonDictOperations = lazy(() => import('./pages/python/PythonDictOperations.jsx'))
+const PythonTuples = lazy(() => import('./pages/python/PythonTuples.jsx'))
+const PythonMapFunctions = lazy(() => import('./pages/python/PythonMapFunctions.jsx'))
+const PythonStringMethods = lazy(() => import('./pages/python/PythonStringMethods.jsx'))
+const PythonHeaps = lazy(() => import('./pages/python/PythonHeapsReference.jsx'))
+const PythonPitfalls = lazy(() => import('./pages/python/PythonPitfalls.jsx'))
+const PythonRegex = lazy(() => import('./pages/python/PythonRegex.jsx'))
+const PythonCombinations = lazy(() => import('./pages/python/PythonCombinations.jsx'))
+const Itertools = lazy(() => import('./pages/python/Itertools.jsx'))
+const CollectionsModule = lazy(() => import('./pages/python/CollectionsModule.jsx'))
+const SortingFunctions = lazy(() => import('./pages/python/SortingFunctions.jsx'))
+const LeetCodePatterns = lazy(() => import('./pages/python/LeetCodePatterns.jsx'))
+const SortingAlgorithms = lazy(() => import('./pages/python/SortingAlgorithms.jsx'))
+const StringAlgorithms = lazy(() => import('./pages/python/StringAlgorithms.jsx'))
+const GraphAlgorithms = lazy(() => import('./pages/python/GraphAlgorithms.jsx'))
+const PythonVsJava = lazy(() => import('./pages/python/PythonVsJava.jsx'))
+const MathFunctions = lazy(() => import('./pages/python/MathFunctions.jsx'))
+const BuiltinFunctions = lazy(() => import('./pages/python/BuiltinFunctions.jsx'))
+const Functools = lazy(() => import('./pages/python/Functools.jsx'))
+const CopyModule = lazy(() => import('./pages/python/CopyModule.jsx'))
+const Decorators = lazy(() => import('./pages/python/Decorators.jsx'))
+const Generators = lazy(() => import('./pages/python/Generators.jsx'))
+const Frameworks = lazy(() => import('./pages/Frameworks.jsx'))
+const RecursionPatterns = lazy(() => import('./pages/RecursionPatterns.jsx'))
 import StudyGuideModal from './components/StudyGuideModal.jsx'
 import AccountDropdown from './components/AccountDropdown.jsx'
 import KeyboardGuide from './components/KeyboardGuide.jsx'
@@ -9294,7 +9294,9 @@ function App() {
           transition: 'top 0.3s ease-in-out',
           pointerEvents: 'auto'
         }}>
-          {renderSelectedComponent()}
+          <Suspense fallback={<LoadingSpinner fullScreen text="Loading…" />}>
+            {renderSelectedComponent()}
+          </Suspense>
         </div>
       )}
 
