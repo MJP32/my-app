@@ -1818,8 +1818,227 @@ const CATEGORY_COLOR = {
 };
 
 // Append the extra tabs (Real-World Usage, Complete Example, Trade-offs) to a pattern's details
+// =============================================================================
+// WHERE IT'S USED IN SPRING / JAVA FRAMEWORKS (rendered as an extra tab)
+// =============================================================================
+const FRAMEWORK_USAGE = {
+  singleton: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: this is the DEFAULT bean scope - every @Component/@Service/@Bean is a singleton-scoped bean, one shared instance per ApplicationContext, managed by DefaultSingletonBeanRegistry (note: a Spring singleton is one-per-container, not the strict one-per-JVM of the GoF pattern). Java/JDK: java.lang.Runtime.getRuntime(), java.awt.Desktop.getDesktop(), java.lang.System (static holder of in/out/err), and the security/logging managers are all singletons.',
+    codeExample: `// Spring: singleton-scoped bean is the default
+@Service                       // one instance shared everywhere
+public class PricingService { }
+
+@Configuration
+class Cfg {
+  @Bean                        // also singleton by default
+  PricingService pricing() { return new PricingService(); }
+  // @Scope("prototype") would opt OUT of singleton
+}
+
+// JDK singletons
+Runtime rt = Runtime.getRuntime();`
+  },
+  'factory-method': {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: the FactoryBean<T> interface is Factory Method made explicit - getObject() is the factory method (e.g. SqlSessionFactoryBean, LocalContainerEntityManagerFactoryBean). BeanFactory.getBean(...) and @Bean methods are factory methods too. Java/JDK: Calendar.getInstance(), NumberFormat.getInstance(), DriverManager.getConnection(), Charset.forName(), and Object-returning valueOf() methods (Integer.valueOf).',
+    codeExample: `// Spring FactoryBean - getObject() IS the factory method
+public class MyClientFactoryBean implements FactoryBean<MyClient> {
+  public MyClient getObject() { return MyClient.connect(url); }
+  public Class<?> getObjectType() { return MyClient.class; }
+}
+
+// JDK factory methods
+Calendar cal = Calendar.getInstance();
+NumberFormat nf = NumberFormat.getCurrencyInstance();`
+  },
+  builder: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: builders are everywhere - UriComponentsBuilder, BeanDefinitionBuilder, MockMvcRequestBuilders, ResponseEntity.status(...).body(...), and the fluent WebClient.builder() / RestClient.builder(). Java/JDK: StringBuilder, Stream.builder(), HttpRequest.newBuilder() (java.net.http), Locale.Builder, and Calendar.Builder.',
+    codeExample: `// Spring builders
+URI uri = UriComponentsBuilder.fromUriString("/api/{id}")
+    .queryParam("verbose", true).build(42);
+
+ResponseEntity<String> resp = ResponseEntity.ok().header("X-A","1").body("hi");
+
+// JDK builder
+HttpRequest req = HttpRequest.newBuilder(URI.create(url)).GET().build();`
+  },
+  observer: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: the application event system IS Observer - ApplicationEventPublisher.publishEvent() notifies ApplicationListener beans and @EventListener methods (ContextRefreshedEvent, custom domain events). Spring Data emits lifecycle events similarly. Java/JDK: java.beans.PropertyChangeListener, the java.util.concurrent.Flow API (reactive Publisher/Subscriber), and Swing/AWT listeners (ActionListener). java.util.Observer/Observable existed but was deprecated in Java 9.',
+    codeExample: `// Spring: publisher + listeners = Observer
+publisher.publishEvent(new OrderPlacedEvent(order));
+
+@Component
+class EmailListener {
+  @EventListener
+  void on(OrderPlacedEvent e) { sendEmail(e.order()); }
+}`
+  },
+  strategy: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: pluggable strategy interfaces are a core idiom - PlatformTransactionManager (JPA vs JDBC vs JTA), PasswordEncoder (BCrypt vs Argon2), ViewResolver, HandlerMapping, ClientHttpRequestFactory, and the ResourceLoader/Resource abstraction. You inject the strategy you want. Java/JDK: Comparator (Collections.sort), ThreadFactory, RejectedExecutionHandler in ThreadPoolExecutor, and the Charset encoders.',
+    codeExample: `// Spring: choose a strategy via configuration / injection
+@Bean
+PasswordEncoder passwordEncoder() {
+  return new BCryptPasswordEncoder();      // swap for Argon2/Pbkdf2 freely
+}
+
+// JDK strategy
+list.sort(Comparator.comparing(User::name)); // pass the comparison strategy`
+  },
+  decorator: {
+    name: 'Spring & Java Framework',
+    explanation: 'Java/JDK: the java.io streams are the textbook example - new BufferedReader(new InputStreamReader(in)) layers behavior; also Collections.synchronizedList / unmodifiableList. Spring: TransactionAwareCacheDecorator wraps a Cache, TransactionAwareDataSourceProxy and LazyConnectionDataSourceProxy wrap a DataSource, HttpServletRequestWrapper / ContentCachingRequestWrapper decorate servlet requests, and BeanDefinitionDecorator decorates bean definitions.',
+    codeExample: `// JDK: layered decorators
+BufferedReader r = new BufferedReader(new InputStreamReader(in));
+
+// Spring: decorate a DataSource with lazy-connection behavior
+DataSource ds = new LazyConnectionDataSourceProxy(realDataSource);`
+  },
+  adapter: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring MVC: HandlerAdapter (e.g. RequestMappingHandlerAdapter) lets the DispatcherServlet invoke wildly different handler types through one interface - a textbook Adapter. Legacy WebMvcConfigurerAdapter / HandlerInterceptorAdapter were adapters too. Java/JDK: java.io.InputStreamReader adapts a byte stream to a character stream, Arrays.asList adapts an array to a List, and the AWT *Adapter classes (WindowAdapter) adapt listener interfaces.',
+    codeExample: `// Spring MVC: DispatcherServlet uses a HandlerAdapter
+// to call @Controller methods, HttpRequestHandlers, etc.
+HandlerAdapter ha = getHandlerAdapter(handler);
+ModelAndView mv = ha.handle(request, response, handler);
+
+// JDK: byte stream adapted to a character stream
+Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);`
+  },
+  facade: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: the *Template classes are facades over verbose, error-prone APIs - JdbcTemplate hides JDBC connection/statement/exception/result-set handling, JmsTemplate over JMS, RestTemplate/RestClient over HTTP. ApplicationContext is itself a facade over the bean factory, resource loading, and event subsystems. Java/JDK: java.net.URL hides protocol handling; the SLF4J facade fronts logging backends.',
+    codeExample: `// Spring: JdbcTemplate is a facade over raw JDBC
+List<User> users = jdbcTemplate.query(
+    "SELECT * FROM users WHERE active = ?",
+    (rs, i) -> new User(rs.getLong("id"), rs.getString("name")),
+    true);
+// No manual Connection/PreparedStatement/ResultSet/try-finally`
+  },
+  command: {
+    name: 'Spring & Java Framework',
+    explanation: 'Java/JDK: java.lang.Runnable and Callable are commands submitted to an ExecutorService for later/async execution. Spring: the *Callback interfaces are commands the templates execute within a managed context - JdbcTemplate uses ConnectionCallback / StatementCallback, and TransactionTemplate.execute(TransactionCallback) runs your command inside a transaction. Spring Batch models work as Tasklet/Step commands.',
+    codeExample: `// Spring: a command run inside a managed transaction
+transactionTemplate.execute(status -> {
+    repository.save(order);
+    return order.id();
+});
+
+// JDK: a command handed to an executor
+executor.submit(() -> processBatch(items));`
+  },
+  proxy: {
+    name: 'Spring & Java Framework',
+    explanation: 'This is arguably the most important pattern in Spring. Spring AOP wraps your beans in PROXIES (JDK dynamic proxies when an interface exists, CGLIB subclass proxies otherwise) so cross-cutting annotations work: @Transactional, @Async, @Cacheable, @PreAuthorize, @Retryable. Hibernate/JPA returns lazy-loading proxies for un-fetched associations. Java/JDK: java.lang.reflect.Proxy + InvocationHandler; RMI stubs; Mockito mocks are proxies. (This is why self-invocation skips @Transactional - the call bypasses the proxy.)',
+    codeExample: `// Spring wraps this bean in a proxy that opens/commits a tx
+@Service
+public class OrderService {
+  @Transactional                 // proxy intercepts the call
+  public void place(Order o) { repo.save(o); }
+}
+
+// Under the hood (conceptually):
+//   proxy.place(o) -> begin tx -> realService.place(o) -> commit`
+  },
+  state: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: the dedicated Spring Statemachine project models states and transitions explicitly; Spring Web Flow models view states. Java/JDK: java.lang.Thread.State is an enum of lifecycle states, and many protocol/connection classes switch behavior by internal state. State is less pervasive in core Spring than Strategy/Proxy, but appears wherever the behavior of an object must change as its lifecycle advances (order/payment workflows often implement it by hand).',
+    codeExample: `// Spring Statemachine: states + transitions declared explicitly
+builder.configureStates()
+    .withStates().initial(OrderState.CREATED)
+    .states(EnumSet.allOf(OrderState.class));
+builder.configureTransitions()
+    .withExternal().source(OrderState.CREATED)
+    .target(OrderState.PAID).event(OrderEvent.PAY);`
+  },
+  'abstract-factory': {
+    name: 'Spring & Java Framework',
+    explanation: 'Java/JDK: the JAXP factories are classic Abstract Factories - DocumentBuilderFactory, SAXParserFactory, TransformerFactory each create a family of related parsing/transform objects; so do the JDBC driver families behind DriverManager. Spring: BeanFactory acts as a configurable factory of beans; JMS ConnectionFactory produces related Connection/Session objects. (Spring leans more on Factory Method via FactoryBean than on classic Abstract Factory.)',
+    codeExample: `// JDK Abstract Factory (JAXP): builds a family of XML objects
+DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+DocumentBuilder builder = factory.newDocumentBuilder();
+Document doc = builder.parse(inputStream);`
+  },
+  prototype: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: prototype-scoped beans (@Scope("prototype")) hand out a NEW instance on every getBean/injection - the container creates per-request copies rather than one shared singleton. Java/JDK: Object.clone() with the Cloneable marker interface is the language-level Prototype (widely considered flawed - copy constructors/factories are preferred); ArrayList(Collection) and similar copy constructors duplicate state.',
+    codeExample: `// Spring: a fresh instance each time it is requested
+@Component
+@Scope("prototype")
+public class ShoppingCart { }   // not shared - new per lookup
+
+// JDK clone (prototype at the language level)
+ArrayList<String> copy = new ArrayList<>(original);`
+  },
+  composite: {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: several Composite types combine many delegates behind one interface - CompositeCacheManager (many CacheManagers), CompositePropertySource, and CompositeUriComponentsContributor. Java/JDK: Swing/AWT UI trees (Component / Container, where a Container is itself a Component), the JSF UIComponent tree, and nested java.io.File directory structures.',
+    codeExample: `// Spring: treat several cache managers as one
+CompositeCacheManager cm = new CompositeCacheManager(
+    redisCacheManager, caffeineCacheManager);
+
+// Swing: a Container IS a Component (part-whole tree)
+JPanel panel = new JPanel();   // Component
+panel.add(new JButton("OK"));  // contains Components`
+  },
+  'template-method': {
+    name: 'Spring & Java Framework',
+    explanation: 'Spring: the *Template classes ARE Template Method - JdbcTemplate/JmsTemplate/RestTemplate define the fixed flow (acquire resource, run your callback, handle exceptions, release) and call your varying step. AbstractApplicationContext.refresh() is a template method orchestrating the fixed startup sequence. Java/JDK: HttpServlet.service() dispatches to doGet/doPost (you override the steps), java.util.AbstractList/AbstractMap, and InputStream.read(byte[]) delegating to read().',
+    codeExample: `// Spring: JdbcTemplate fixes the algorithm, you supply the step
+jdbcTemplate.execute((Connection con) -> {
+    // your varying step runs inside the managed flow
+    return con.prepareStatement("...").executeUpdate();
+});
+
+// Servlet: service() is the template, you override doGet/doPost
+protected void doGet(HttpServletRequest req, HttpServletResponse res) { }`
+  },
+  iterator: {
+    name: 'Spring & Java Framework',
+    explanation: 'Java/JDK: this pattern is built into the language - java.util.Iterator / Iterable power the for-each loop; also ListIterator, the older Enumeration, and Scanner. Spring: Spring Data returns Streamable and CloseableIterator for cursor/stream-based reads, and Spring Batch ItemReader pulls items one at a time. You rarely hand-write an Iterator unless you build a custom data structure.',
+    codeExample: `// JDK: Iterable/Iterator power for-each
+for (User u : users) { process(u); }   // uses users.iterator()
+
+// Spring Data: stream a large result with a closeable iterator
+try (Stream<User> stream = repository.findAllByActive(true)) {
+    stream.forEach(this::handle);
+}`
+  },
+  'chain-of-responsibility': {
+    name: 'Spring & Java Framework',
+    explanation: 'Java/JDK: the Servlet FilterChain is the canonical example - each Filter processes the request and calls chain.doFilter() to pass it on. Spring: Spring Security is built on this - FilterChainProxy runs an ordered SecurityFilterChain of filters; Spring MVC runs a chain of HandlerInterceptor objects (HandlerExecutionChain); Spring Integration and the WebClient/RestClient request interceptors chain similarly.',
+    codeExample: `// Servlet / Spring Security: each filter passes along the chain
+public class AuthFilter implements Filter {
+  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+      throws IOException, ServletException {
+    if (authorized(req)) chain.doFilter(req, res);  // pass on
+    else ((HttpServletResponse) res).sendError(403);
+  }
+}`
+  },
+  memento: {
+    name: 'Spring & Java Framework',
+    explanation: 'Memento is the least common of these in core frameworks. Java/JDK: the javax.swing.undo package (UndoManager, UndoableEdit) is a Memento-style undo system, and java.sql.Savepoint lets a JDBC transaction roll back to a captured point. Spring: not used as a named pattern in the core, though transaction savepoint support (SavepointManager, used by Propagation.NESTED) is the same idea - capture a point, restore to it later.',
+    codeExample: `// JDBC Savepoint: capture state, roll back to it (Memento-like)
+Savepoint sp = connection.setSavepoint("beforeRisky");
+try {
+    doRiskyUpdates(connection);
+} catch (SQLException e) {
+    connection.rollback(sp);   // restore to the saved point
+}`
+  }
+};
+
 const withExtraTabs = (concept) => {
-  const extras = [REAL_WORLD_USAGE[concept.id], COMPLETE_EXAMPLE[concept.id], TRADE_OFFS[concept.id]].filter(Boolean)
+  const extras = [
+    REAL_WORLD_USAGE[concept.id],
+    FRAMEWORK_USAGE[concept.id],
+    COMPLETE_EXAMPLE[concept.id],
+    TRADE_OFFS[concept.id]
+  ].filter(Boolean)
   return extras.length ? [...concept.details, ...extras] : concept.details
 }
 
