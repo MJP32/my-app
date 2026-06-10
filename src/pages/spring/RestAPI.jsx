@@ -1128,6 +1128,150 @@ public SecurityFilterChain filterChain(
       ]
     },
     {
+      id: 'http-clients',
+      name: 'HTTP Clients',
+      icon: '🌐',
+      color: '#0ea5e9',
+      description: 'Calling other REST APIs from Spring: RestTemplate, RestClient, WebClient, and Feign',
+      details: [
+        {
+          name: 'RestTemplate',
+          explanation: 'The original synchronous, blocking HTTP client in Spring. Simple template-method API (getForObject, postForObject, exchange). As of Spring 5 it is in maintenance mode - still supported and widely used in existing code, but no new features are added, and the docs steer new synchronous code toward RestClient. Build it from a RestTemplateBuilder so timeouts, interceptors, and message converters are configured consistently.',
+          codeExample: `// RestTemplate (classic, synchronous) - maintenance mode since Spring 5
+@Bean
+RestTemplate restTemplate(RestTemplateBuilder builder) {
+    return builder
+        .setConnectTimeout(Duration.ofSeconds(2))
+        .setReadTimeout(Duration.ofSeconds(5))
+        .build();
+}
+
+// GET a single object
+User user = restTemplate.getForObject(
+    "https://api.example.com/users/{id}", User.class, 42);
+
+// GET with full response (status, headers)
+ResponseEntity<User> resp =
+    restTemplate.getForEntity("https://api.example.com/users/42", User.class);
+
+// POST
+User created = restTemplate.postForObject(
+    "https://api.example.com/users", newUser, User.class);
+
+// Typed collections need ParameterizedTypeReference + exchange()
+ResponseEntity<List<User>> list = restTemplate.exchange(
+    "https://api.example.com/users", HttpMethod.GET, null,
+    new ParameterizedTypeReference<List<User>>() {});`
+        },
+        {
+          name: 'RestClient',
+          explanation: 'The modern synchronous client introduced in Spring Framework 6.1 / Spring Boot 3.2. It keeps the blocking, easy-to-reason-about model of RestTemplate but exposes a fluent, WebClient-style API (get().uri().retrieve().body()). This is the recommended choice for new synchronous code. It also supports fluent status-based error handling via onStatus().',
+          codeExample: `// RestClient - modern synchronous fluent API (Spring 6.1+ / Boot 3.2+)
+@Bean
+RestClient restClient(RestClient.Builder builder) {
+    return builder.baseUrl("https://api.example.com").build();
+}
+
+// GET
+User user = restClient.get()
+    .uri("/users/{id}", 42)
+    .retrieve()
+    .body(User.class);
+
+// POST with a JSON body
+User created = restClient.post()
+    .uri("/users")
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(newUser)
+    .retrieve()
+    .body(User.class);
+
+// Fluent error handling
+User u = restClient.get()
+    .uri("/users/{id}", id)
+    .retrieve()
+    .onStatus(HttpStatusCode::is4xxClientError,
+              (req, res) -> { throw new UserNotFoundException(id); })
+    .body(User.class);`
+        },
+        {
+          name: 'WebClient',
+          explanation: 'The non-blocking, reactive HTTP client from Spring WebFlux (spring-boot-starter-webflux). It returns Mono (0..1) and Flux (0..N) instead of blocking, so a few threads can handle huge numbers of concurrent calls - ideal for high concurrency, streaming responses, or fully reactive apps. It can be called in a blocking way with block(), but doing so in a normal flow throws away its main advantage; prefer it where you actually compose reactive pipelines.',
+          codeExample: `// WebClient - non-blocking / reactive (needs spring-boot-starter-webflux)
+@Bean
+WebClient webClient(WebClient.Builder builder) {
+    return builder.baseUrl("https://api.example.com").build();
+}
+
+// Mono = async single value
+Mono<User> userMono = webClient.get()
+    .uri("/users/{id}", 42)
+    .retrieve()
+    .bodyToMono(User.class);
+
+// Flux = async stream of values
+Flux<User> users = webClient.get()
+    .uri("/users")
+    .retrieve()
+    .bodyToFlux(User.class);
+
+// Compose without blocking (preferred in reactive code)
+userMono.map(User::name).subscribe(System.out::println);
+
+// block() only when you truly need it synchronously
+User user = userMono.block();`
+        },
+        {
+          name: 'Feign Client',
+          explanation: 'A declarative HTTP client from Spring Cloud OpenFeign (spring-cloud-starter-openfeign). You define a Java interface annotated with @FeignClient and the usual Spring MVC mapping annotations; Spring Cloud generates the implementation at runtime. It integrates with service discovery (Eureka) and client-side load balancing (Spring Cloud LoadBalancer), so it is the go-to for service-to-service calls in a microservices stack. Enable it with @EnableFeignClients.',
+          codeExample: `// OpenFeign - declarative client (spring-cloud-starter-openfeign)
+@SpringBootApplication
+@EnableFeignClients
+public class App { }
+
+// Just declare an interface - no implementation needed
+@FeignClient(name = "user-service", url = "https://api.example.com")
+public interface UserClient {
+
+    @GetMapping("/users/{id}")
+    User getUser(@PathVariable("id") Long id);
+
+    @PostMapping("/users")
+    User create(@RequestBody User user);
+}
+
+// With service discovery you omit url and Feign resolves "user-service"
+// via Eureka + load balancing:
+//   @FeignClient(name = "user-service")
+
+// Inject and call it like a local bean
+@Service
+class UserFacade {
+    private final UserClient client;
+    UserFacade(UserClient client) { this.client = client; }
+    User find(Long id) { return client.getUser(id); }
+}`
+        },
+        {
+          name: 'Choosing a Client',
+          explanation: 'RestTemplate: synchronous and blocking, classic, in maintenance mode - keep using it in existing code, but prefer RestClient for new synchronous work. RestClient: synchronous, modern fluent API (Spring 6.1+), the recommended replacement for RestTemplate. WebClient: non-blocking/reactive (Mono/Flux), best for high concurrency, streaming, or WebFlux apps. Feign: declarative interface-based client, best for microservice-to-microservice calls with service discovery and load balancing. Rule of thumb: new sync code -> RestClient; reactive/streaming/scale -> WebClient; service-to-service in Spring Cloud -> Feign; legacy -> RestTemplate still works.',
+          codeExample: `// Quick comparison
+//
+//  Client        Style                 Use when
+//  -----------   -------------------   --------------------------------------
+//  RestTemplate  sync, blocking        existing code (maintenance mode)
+//  RestClient    sync, blocking        NEW synchronous code (Spring 6.1+)
+//  WebClient     async, reactive       high concurrency, streaming, WebFlux
+//  Feign         declarative iface     microservices + discovery/load-balance
+//
+//  new sync code            -> RestClient
+//  reactive / streaming     -> WebClient
+//  service-to-service       -> Feign (@FeignClient + Spring Cloud)
+//  already on RestTemplate  -> fine to keep (still supported)`
+        }
+      ]
+    },
+    {
       id: 'api-security',
       name: 'API Security',
       icon: '🔐',
