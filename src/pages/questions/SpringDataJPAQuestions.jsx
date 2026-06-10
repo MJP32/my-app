@@ -1614,6 +1614,96 @@ No first-level cache, no dirty checking, no cascades — just fast INSERTs.
 - Enable \`reWriteBatchedInserts=true\` (Postgres) or \`rewriteBatchedStatements=true\` (MySQL) in the JDBC URL
 - Always \`flush() + clear()\` periodically in big loops
 - For one-off ETL of millions of rows, use \`JdbcTemplate.batchUpdate\` instead of JPA`
+    },
+    {
+      id: 12,
+      category: 'Transactions',
+      difficulty: 'Medium',
+      question: 'How does @Transactional work and what are its key attributes?',
+      answer: `**\`@Transactional\` makes a method run inside a database transaction** — Spring begins a tx before the method, commits on normal return, and rolls back on failure.
+
+It works through an **AOP proxy**: Spring wraps the bean, and the proxy begins/commits/rolls back around your method. This is why self-invocation and non-public methods do not work — the call must pass through the proxy.
+
+**Put it on the service layer** (public methods), not on repositories or controllers.
+
+\`\`\`java
+@Service
+public class OrderService {
+
+    @Transactional
+    public void placeOrder(Order order) {
+        orderRepo.save(order);
+        inventoryRepo.decrement(order.items());
+        // commit on normal return; rollback on RuntimeException
+    }
+}
+\`\`\`
+
+**Key attributes:**
+
+| Attribute | Purpose | Default |
+|-----------|---------|---------|
+| \`propagation\` | How it joins/creates a tx | \`REQUIRED\` |
+| \`isolation\` | Concurrency isolation level | \`DEFAULT\` (DB default) |
+| \`readOnly\` | Hint for query-only methods | \`false\` |
+| \`timeout\` | Seconds before forced rollback | -1 (none) |
+| \`rollbackFor\` | Extra exceptions that trigger rollback | — |
+| \`noRollbackFor\` | Exceptions that do NOT roll back | — |
+
+**Rollback rule (the big gotcha):** by default Spring rolls back ONLY on **unchecked** exceptions (\`RuntimeException\`, \`Error\`). **Checked** exceptions do NOT roll back unless you ask:
+
+\`\`\`java
+@Transactional(rollbackFor = Exception.class)   // roll back on checked too
+public void process() throws IOException { ... }
+\`\`\`
+
+**readOnly** disables Hibernate dirty checking and hints the driver/DB:
+
+\`\`\`java
+@Transactional(readOnly = true)
+public List<User> findAll() { return userRepo.findAll(); }
+\`\`\`
+
+**Common pitfalls:**
+- Self-invocation (\`this.method()\`) bypasses the proxy → no transaction
+- \`@Transactional\` on a \`private\` or non-public method → ignored
+- Catching an exception without rethrowing → no rollback
+- Expecting checked exceptions to roll back → they do not, by default`
+    },
+    {
+      id: 13,
+      category: 'Transactions',
+      difficulty: 'Hard',
+      question: 'Explain transaction isolation levels in Spring/JPA',
+      answer: `**Isolation controls how much one transaction sees of other concurrent, uncommitted transactions** — trading consistency against concurrency.
+
+Set it via \`@Transactional(isolation = Isolation.X)\`. The default (\`DEFAULT\`) uses the database's own default — \`READ_COMMITTED\` for PostgreSQL/Oracle/SQL Server, \`REPEATABLE_READ\` for MySQL InnoDB.
+
+**The concurrency anomalies (what isolation prevents):**
+- **Dirty read** — reading another transaction's UNcommitted change (may be rolled back)
+- **Non-repeatable read** — re-reading a row returns a different value (another tx UPDATEd + committed in between)
+- **Phantom read** — re-running a range query returns new rows (another tx INSERTed + committed)
+
+**The 4 isolation levels (weakest to strongest):**
+
+| Level | Dirty read | Non-repeatable | Phantom |
+|-------|-----------|----------------|---------|
+| \`READ_UNCOMMITTED\` | possible | possible | possible |
+| \`READ_COMMITTED\` | prevented | possible | possible |
+| \`REPEATABLE_READ\` | prevented | prevented | possible |
+| \`SERIALIZABLE\` | prevented | prevented | prevented |
+
+\`\`\`java
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public void transfer(Long from, Long to, BigDecimal amount) { ... }
+\`\`\`
+
+**Trade-off:** higher isolation = fewer anomalies but more locking/contention and lower throughput. \`SERIALIZABLE\` effectively serializes conflicting transactions and raises deadlock/timeout risk.
+
+**Rule of thumb:**
+- Stick with the DB default (usually \`READ_COMMITTED\`); raise it only for a specific invariant that needs it
+- For lost-update protection prefer **optimistic locking** (\`@Version\`) over \`SERIALIZABLE\`
+- \`isolation\` applies when a new physical transaction starts — combining it with \`REQUIRES_NEW\` is fine, but most nested \`REQUIRED\` calls just inherit the outer transaction's level`
     }
   ]
 
