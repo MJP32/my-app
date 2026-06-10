@@ -183,7 +183,7 @@ export const createSearchIndex = () => {
     // Frameworks
     { value: 'Spring', title: 'Spring Framework', description: 'Spring framework including dependency injection, AOP, MVC, and enterprise application development.', keywords: ['spring', 'dependency', 'injection', 'aop', 'mvc', 'framework'] },
     { value: 'Spring Boot', title: 'Spring Boot', description: 'Opinionated framework for rapid application development with auto-configuration and embedded servers.', keywords: ['springboot', 'boot', 'auto', 'configuration', 'starter', 'actuator'] },
-    { value: 'REST API', title: 'REST API', description: 'RESTful web services design with HTTP methods, status codes, and API best practices.', keywords: ['rest', 'api', 'restful', 'http', 'web', 'services', 'endpoint'] },
+    { value: 'REST API', title: 'REST API', description: 'RESTful web services design with HTTP methods, status codes, API best practices, and HTTP clients (RestTemplate, RestClient, WebClient, Feign).', keywords: ['rest', 'api', 'restful', 'http', 'web', 'services', 'endpoint', 'resttemplate', 'restclient', 'rest client', 'webclient', 'web client', 'feign', 'feignclient', 'http client', 'openfeign'] },
     { value: 'Dependency Injection', title: 'Dependency Injection', description: 'DI design pattern with IoC containers, constructor injection, and Spring DI.', keywords: ['dependency', 'injection', 'ioc', 'inversion', 'control', 'di'] },
     { value: 'Hibernate', title: 'Hibernate', description: 'Hibernate ORM framework for Java persistence, entity mapping, and database operations.', keywords: ['hibernate', 'orm', 'jpa', 'persistence', 'entity', 'mapping'] },
     { value: 'gRPC', title: 'gRPC', description: 'High-performance RPC framework using Protocol Buffers and HTTP/2.', keywords: ['grpc', 'rpc', 'protobuf', 'protocol', 'buffers', 'http2', 'streaming'] },
@@ -282,7 +282,7 @@ export const createSearchIndex = () => {
     { page: 'Spring', sectionId: 'dependency-injection', title: 'Dependency Injection', icon: '🌱', keywords: ['di', 'injection', 'autowired', 'spring'] },
     { page: 'Spring', sectionId: 'bean-lifecycle', title: 'Bean Lifecycle', icon: '🌱', keywords: ['bean', 'lifecycle', 'init', 'destroy', 'spring'] },
     { page: 'Spring', sectionId: 'aop-support', title: 'AOP Support', icon: '🌱', keywords: ['aop', 'aspect', 'pointcut', 'advice', 'spring'] },
-    { page: 'Spring', sectionId: 'transaction-management', title: 'Transaction Management', icon: '🌱', keywords: ['transaction', 'transactional', 'rollback', 'spring'] },
+    { page: 'Spring', sectionId: 'transaction-management', title: 'Transaction Management', icon: '🌱', keywords: ['transaction', 'transactional', 'propagation', 'isolation', 'rollback', 'required', 'requires_new', 'nested', 'readonly', 'acid', 'spring'] },
     { page: 'Spring', sectionId: 'auto-configuration', title: 'Auto Configuration', icon: '🌱', keywords: ['auto', 'configuration', 'spring'] },
     { page: 'Spring', sectionId: 'actuator', title: 'Spring Actuator', icon: '🌱', keywords: ['actuator', 'health', 'metrics', 'spring'] },
     { page: 'Spring', sectionId: 'spring-data-jpa', title: 'Spring Data JPA', icon: '🌱', keywords: ['data', 'jpa', 'repository', 'spring'] },
@@ -306,6 +306,7 @@ export const createSearchIndex = () => {
     { page: 'REST API', sectionId: 'http-methods', title: 'HTTP Methods & Status Codes', icon: '🌐', keywords: ['http', 'get', 'post', 'put', 'delete', 'status'] },
     { page: 'REST API', sectionId: 'resource-design', title: 'Resource Design', icon: '🌐', keywords: ['resource', 'uri', 'naming', 'rest'] },
     { page: 'REST API', sectionId: 'spring-boot-rest', title: 'Spring Boot REST', icon: '🌐', keywords: ['spring', 'boot', 'restcontroller', 'rest'] },
+    { page: 'REST API', sectionId: 'http-clients', title: 'HTTP Clients (RestTemplate, RestClient, WebClient, Feign)', icon: '🌐', keywords: ['http client', 'resttemplate', 'restclient', 'rest client', 'webclient', 'web client', 'feign', 'feignclient', 'openfeign', 'reactive', 'webflux', 'rest'] },
     { page: 'REST API', sectionId: 'api-security', title: 'API Security', icon: '🌐', keywords: ['api', 'security', 'oauth', 'jwt', 'rest'] },
     { page: 'REST API', sectionId: 'api-documentation', title: 'API Documentation', icon: '🌐', keywords: ['swagger', 'openapi', 'documentation', 'rest'] },
     { page: 'REST API', sectionId: 'api-best-practices', title: 'API Best Practices', icon: '🌐', keywords: ['best', 'practices', 'versioning', 'pagination', 'rest'] },
@@ -753,10 +754,15 @@ export const searchContent = (query, searchIndex) => {
       }
 
       // ===== TYPE BOOSTS =====
-      if (item.type === 'component') score += 30
-      if (item.type === 'section') score += 25
-      if (item.type === 'subcategory') score += 20
-      if (item.type === 'category') score += 10
+      // Only boost items that actually matched the query, so an unmatched
+      // item never scores above 0 just because of its type (which would
+      // flood every search with all components/sections).
+      if (score > 0) {
+        if (item.type === 'component') score += 30
+        if (item.type === 'section') score += 25
+        if (item.type === 'subcategory') score += 20
+        if (item.type === 'category') score += 10
+      }
 
       return {
         ...item,
