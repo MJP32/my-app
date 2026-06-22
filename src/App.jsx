@@ -243,8 +243,12 @@ const SQLvsNoSQL = lazy(() => import('./pages/concepts/SQLvsNoSQL.jsx'))
 const ConsistentHashing = lazy(() => import('./pages/concepts/ConsistentHashing.jsx'))
 const WebSockets = lazy(() => import('./pages/concepts/WebSockets.jsx'))
 const BlobStorage = lazy(() => import('./pages/concepts/BlobStorage.jsx'))
-const Microservices = lazy(() => import('./pages/concepts/Microservices.jsx'))
 const EventDriven = lazy(() => import('./pages/concepts/EventDriven.jsx'))
+const BackendRoadmap = lazy(() => import('./pages/concepts/BackendRoadmap.jsx'))
+const NetworkProtocols = lazy(() => import('./pages/concepts/NetworkProtocols.jsx'))
+const WebServerInternals = lazy(() => import('./pages/concepts/WebServerInternals.jsx'))
+const ServiceMesh = lazy(() => import('./pages/concepts/ServiceMesh.jsx'))
+const WebSecurityFundamentals = lazy(() => import('./pages/security/WebSecurityFundamentals.jsx'))
 
 // Root level navigation pages
 const Practice = lazy(() => import('./pages/Practice.jsx'))
@@ -4566,6 +4570,52 @@ function App() {
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
+    if (selectedOption === 'Backend Roadmap') {
+      const roadmapNavigate = (target) => {
+        const modalSetters = {
+          'Docker': setShowDockerModal,
+          'Maven': setShowMavenModal,
+          'Prometheus': setShowPrometheusModal,
+          'Grafana': setShowGrafanaModal
+        }
+        if (modalSetters[target]) {
+          modalSetters[target](true)
+        } else {
+          setSelectedOptionAndRef(target)
+        }
+      }
+      return <BackendRoadmap onNavigate={roadmapNavigate} onBack={() => setSelectedOptionAndRef('')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''),
+        topic: 'Backend Engineering Roadmap'
+      }} />
+    }
+    if (selectedOption === 'Network Protocols') {
+      return <NetworkProtocols onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
+        topic: 'Network Protocols',
+        colors: BREADCRUMB_COLORS.Design
+      }} />
+    }
+    if (selectedOption === 'Web Server Internals') {
+      return <WebServerInternals onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
+        topic: 'Web Server Internals',
+        colors: BREADCRUMB_COLORS.Design
+      }} />
+    }
+    if (selectedOption === 'Service Mesh') {
+      return <ServiceMesh onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
+        topic: 'Service Mesh',
+        colors: BREADCRUMB_COLORS.Design
+      }} />
+    }
+    if (selectedOption === 'Web Security Fundamentals') {
+      return <WebSecurityFundamentals onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
+        topic: 'Web Security Fundamentals',
+        colors: BREADCRUMB_COLORS.Design
+      }} />
+    }
     if (selectedOption === 'Blob Storage') {
       return <BlobStorage onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
@@ -4574,11 +4624,11 @@ function App() {
       }} />
     }
     if (selectedOption === 'Microservices') {
-      return <Microservices onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
-        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
-        topic: 'Microservices Architecture',
-        colors: BREADCRUMB_COLORS.Design
-      }} />
+      // Merged into Microservice Design Patterns (which now also covers
+      // operational challenges and real-world adoption). Redirect there.
+      setShowMicroservicePatternsModal(true)
+      setSelectedOptionAndRef('')
+      return null
     }
     if (selectedOption === 'Event-Driven') {
       return <EventDriven onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },

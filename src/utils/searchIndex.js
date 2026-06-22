@@ -16,7 +16,7 @@ const categoryGroups = {
   'System Design Topics': {
     icon: '🏗️',
     color: '#8b5cf6',
-    items: ['Load Balancing', 'Caching Strategies', 'Database Sharding', 'CAP Theorem', 'Consistency Patterns', 'API Design', 'Message Queues', 'CDN', 'Database Replication', 'Scaling', 'Proxies', 'Data Partitioning', 'SQL vs NoSQL', 'Consistent Hashing', 'WebSockets', 'Blob Storage', 'Microservices', 'Event-Driven']
+    items: ['Backend Roadmap', 'Load Balancing', 'Caching Strategies', 'Database Sharding', 'CAP Theorem', 'Consistency Patterns', 'API Design', 'Message Queues', 'CDN', 'Database Replication', 'Scaling', 'Proxies', 'Network Protocols', 'Web Server Internals', 'Service Mesh', 'Web Security Fundamentals', 'Data Partitioning', 'SQL vs NoSQL', 'Consistent Hashing', 'WebSockets', 'Blob Storage', 'Event-Driven']
   },
   'Databases': {
     icon: '🗃️',

@@ -892,6 +892,138 @@ public class CustomCollectorExample {
 }`
         },
         {
+          name: 'Implementing the Collector Interface',
+          explanation: 'For reusable, named collectors you can implement the Collector<T, A, R> interface directly instead of using Collector.of(). You override the same five pieces — supplier(), accumulator(), combiner(), finisher(), and characteristics() — but as a proper class you get a descriptive type name, can hold configuration in fields, and can unit-test each function. T is the input element type, A is the mutable accumulator type, and R is the final result type. When A and R are the same, the finisher is Function.identity() and you should declare IDENTITY_FINISH so the JDK skips the finishing step.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+import java.util.function.*;
+
+// Reusable Collector that builds a word -> count frequency map by
+// implementing Collector directly (A == R, so it is IDENTITY_FINISH).
+public class FrequencyCollector
+        implements Collector<String, Map<String, Integer>, Map<String, Integer>> {
+
+    @Override
+    public Supplier<Map<String, Integer>> supplier() {
+        return HashMap::new;                          // create the accumulator
+    }
+
+    @Override
+    public BiConsumer<Map<String, Integer>, String> accumulator() {
+        return (map, word) -> map.merge(word, 1, Integer::sum);
+    }
+
+    @Override
+    public BinaryOperator<Map<String, Integer>> combiner() {
+        return (m1, m2) -> {                          // merge partials (parallel)
+            m2.forEach((k, v) -> m1.merge(k, v, Integer::sum));
+            return m1;
+        };
+    }
+
+    @Override
+    public Function<Map<String, Integer>, Map<String, Integer>> finisher() {
+        return Function.identity();                   // no transform needed
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Set.of(Characteristics.UNORDERED, Characteristics.IDENTITY_FINISH);
+    }
+
+    public static void main(String[] args) {
+        List<String> words =
+            List.of("apple", "banana", "apple", "cherry", "banana", "apple");
+
+        Map<String, Integer> freq = words.stream().collect(new FrequencyCollector());
+        System.out.println(freq);   // {banana=2, cherry=1, apple=3}
+    }
+}`
+        },
+        {
+          name: 'Collector Characteristics',
+          explanation: 'The characteristics() set tells the stream framework how it may optimize a collection. IDENTITY_FINISH means the finisher is the identity function, so the framework skips calling it and casts the accumulator directly to the result. UNORDERED means the result does not depend on encounter order, allowing reordering optimizations in parallel/unordered streams. CONCURRENT means a single accumulator instance can be shared and mutated by multiple threads at once — so the accumulator container MUST be thread-safe (e.g. ConcurrentHashMap), and CONCURRENT is only used when the stream is also UNORDERED or the source is concurrent. Choosing the right characteristics is purely a performance/correctness contract; getting CONCURRENT wrong on a non-thread-safe container causes data races.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+import java.util.concurrent.*;
+
+public class CollectorCharacteristics {
+    public static void main(String[] args) {
+        List<String> items = List.of("a", "b", "c", "a", "b");
+
+        // IDENTITY_FINISH: accumulator type == result type, finisher skipped.
+        Collector<String, List<String>, List<String>> identityFinish = Collector.of(
+            ArrayList::new,
+            List::add,
+            (l1, l2) -> { l1.addAll(l2); return l1; },
+            Collector.Characteristics.IDENTITY_FINISH
+        );
+
+        // UNORDERED: result independent of encounter order -> safe to reorder.
+        Collector<String, ?, Map<String, Long>> unordered = Collector.of(
+            HashMap::new,
+            (Map<String, Long> m, String s) -> m.merge(s, 1L, Long::sum),
+            (m1, m2) -> { m2.forEach((k, v) -> m1.merge(k, v, Long::sum)); return m1; },
+            Collector.Characteristics.UNORDERED,
+            Collector.Characteristics.IDENTITY_FINISH
+        );
+
+        // CONCURRENT + UNORDERED: one shared accumulator across threads, so the
+        // container MUST be thread-safe (ConcurrentHashMap here).
+        Collector<String, ?, Map<String, Long>> concurrent = Collector.of(
+            ConcurrentHashMap::new,
+            (Map<String, Long> m, String s) -> m.merge(s, 1L, Long::sum),
+            (m1, m2) -> { m2.forEach((k, v) -> m1.merge(k, v, Long::sum)); return m1; },
+            Collector.Characteristics.CONCURRENT,
+            Collector.Characteristics.UNORDERED
+        );
+
+        System.out.println(items.stream().collect(identityFinish));
+        System.out.println(items.parallelStream().collect(unordered));
+        System.out.println(items.parallelStream().collect(concurrent));
+    }
+}`
+        },
+        {
+          name: 'Top-N Collector',
+          explanation: 'A practical custom collector: keep only the N largest (or smallest) elements without sorting the entire stream. The accumulator is a bounded min-heap (PriorityQueue) of size N — each element is offered, and if the heap exceeds N the smallest is dropped, so the heap always holds the current top N. This runs in O(k log N) time and O(N) space instead of the O(k log k) of a full sort. The combiner merges two heaps the same way (for parallel streams), and the finisher drains the heap into a list sorted from largest to smallest.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+
+public class TopNCollector {
+    // Generic factory: keep the N greatest elements by the given comparator.
+    static <T> Collector<T, ?, List<T>> topN(int n, Comparator<? super T> comparator) {
+        return Collector.of(
+            () -> new PriorityQueue<>(comparator),     // min-heap, size <= n
+            (pq, item) -> {
+                pq.offer(item);
+                if (pq.size() > n) pq.poll();          // evict the smallest
+            },
+            (pq1, pq2) -> {                            // combine for parallel
+                pq2.forEach(item -> {
+                    pq1.offer(item);
+                    if (pq1.size() > n) pq1.poll();
+                });
+                return pq1;
+            },
+            pq -> {                                    // finisher: largest first
+                List<T> result = new ArrayList<>(pq);
+                result.sort(comparator.reversed());
+                return result;
+            }
+        );
+    }
+
+    public static void main(String[] args) {
+        List<Integer> scores = List.of(45, 92, 78, 99, 60, 85, 73, 91);
+
+        List<Integer> top3 = scores.stream()
+            .collect(topN(3, Comparator.naturalOrder()));
+        System.out.println(top3);   // [99, 92, 91]
+    }
+}`
+        },
+        {
           name: 'collectingAndThen',
           explanation: 'Collectors.collectingAndThen() applies a finisher function after collection completes. This is useful for wrapping results in immutable collections, computing derived values, or performing post-processing. It takes a downstream collector and a finisher function.',
           codeExample: `import java.util.*;

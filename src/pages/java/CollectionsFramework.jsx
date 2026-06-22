@@ -1248,6 +1248,113 @@ public class HashMap<K,V> {
 }`
         },
         {
+          name: 'put() & get() Walkthrough',
+          explanation: 'Both operations start by spreading the key hash and masking it to a bucket index: i = (n - 1) & hash, which is a fast bitwise modulo that only works because capacity n is always a power of two. Within a bucket, HashMap compares the cached int hash FIRST and only calls equals() when the hashes match — the cheap int comparison short-circuits the vast majority of mismatches before the potentially expensive equals(). get() returns null both for an absent key and for a key mapped to null, which is why containsKey() exists.',
+          codeExample: `// --- GET: locate the value for a key ---
+public V get(Object key) {
+    int hash = hash(key);            // spread bits: h ^ (h >>> 16)
+    int i = (n - 1) & hash;          // bucket index (n is a power of 2)
+    Node<K,V> e = table[i];          // head node of the bucket
+    while (e != null) {
+        // cheap int hash compare first, then identity, then equals()
+        if (e.hash == hash &&
+            (e.key == key || (key != null && key.equals(e.key))))
+            return e.value;          // hit
+        e = e.next;                  // walk the chain (or tree)
+    }
+    return null;                     // miss (or value really is null)
+}
+
+// --- PUT: insert or update (putVal outline) ---
+// 1. h = hash(key);  i = (n - 1) & h
+// 2. if table[i] == null        -> place a new Node directly
+// 3. else walk the bin:
+//      - matching key (hash && equals) -> overwrite value, return old
+//      - reach end of chain             -> append a new Node
+// 4. if the bin now holds 8 nodes -> treeifyBin(table, hash)
+// 5. if ++size > threshold         -> resize()`
+        },
+        {
+          name: 'Resize & Rehashing',
+          explanation: 'When size exceeds threshold (capacity * loadFactor, default 0.75), capacity doubles and entries are redistributed. Since Java 8 there is no per-entry hash recomputation: because capacity is a power of two, doubling adds exactly one significant bit to the index, so each entry either stays at its old index j or moves to j + oldCap. A single bit test, (hash & oldCap), decides which. The old bucket is split into a "lo" chain and a "hi" chain in one pass, preserving relative order (which is what eliminated the Java 7 resize-under-concurrency infinite-loop).',
+          codeExample: `// Doubling: oldCap -> newCap = oldCap << 1. Each old bin splits in two.
+final void resize() {
+    Node<K,V>[] oldTab = table;
+    int oldCap = oldTab.length;
+    Node<K,V>[] newTab = new Node[oldCap << 1];   // double capacity
+
+    for (int j = 0; j < oldCap; j++) {
+        Node<K,V> e = oldTab[j];
+        if (e == null) continue;
+
+        Node<K,V> loHead = null, loTail = null;   // stays at index j
+        Node<K,V> hiHead = null, hiTail = null;   // moves to j + oldCap
+        do {
+            Node<K,V> next = e.next;
+            if ((e.hash & oldCap) == 0) {         // new bit == 0 -> low bin
+                if (loTail == null) loHead = e; else loTail.next = e;
+                loTail = e;
+            } else {                              // new bit == 1 -> high bin
+                if (hiTail == null) hiHead = e; else hiTail.next = e;
+                hiTail = e;
+            }
+        } while ((e = next) != null);
+
+        if (loTail != null) { loTail.next = null; newTab[j]          = loHead; }
+        if (hiTail != null) { hiTail.next = null; newTab[j + oldCap] = hiHead; }
+    }
+    table = newTab;   // threshold also doubles
+}`
+        },
+        {
+          name: 'Treeification (Red-Black Bins)',
+          explanation: 'A bin (bucket) converts from a linked list to a Red-Black tree when it reaches 8 nodes AND the table has at least 64 buckets — otherwise HashMap resizes instead, since spreading entries usually fixes a crowded small table. Tree bins give O(log n) worst-case lookup instead of O(n), defending against poor hashCode() implementations and hash-flooding attacks. A tree bin reverts to a list when it shrinks back to 6 nodes; the 8-vs-6 gap (hysteresis) prevents thrashing. Tree nodes are ordered by hash, then by Comparable key if available, with an identity tie-break otherwise.',
+          codeExample: `static final int TREEIFY_THRESHOLD    = 8;   // list -> tree at 8 nodes in a bin
+static final int UNTREEIFY_THRESHOLD  = 6;   // tree -> list when bin shrinks to 6
+static final int MIN_TREEIFY_CAPACITY = 64;  // ...but only if table.length >= 64
+
+// In putVal, right after appending a node to the bin:
+if (binCount >= TREEIFY_THRESHOLD - 1)       // this was the 8th node
+    treeifyBin(tab, hash);
+
+final void treeifyBin(Node<K,V>[] tab, int hash) {
+    if (tab == null || tab.length < MIN_TREEIFY_CAPACITY)
+        resize();                            // small table -> grow, don't treeify
+    else {
+        // Convert the bin's Nodes into TreeNodes forming a Red-Black tree,
+        // ordered by hash, then Comparable key, then a deterministic tie-break.
+    }
+}`
+        },
+        {
+          name: 'hashCode() & equals() Contract',
+          explanation: 'HashMap correctness depends on two rules: (1) if a.equals(b) then a.hashCode() == b.hashCode(); (2) a key\'s hashCode must not change while it is in the map. The reverse is not required — unequal objects may share a hashCode (a collision, handled by chaining). Overriding only one of the pair breaks the map: equals() without hashCode() scatters equal keys into different buckets (silent duplicates); hashCode() without equals() finds the right bucket but never matches on lookup. Mutating a key after insertion changes its bucket and effectively loses the entry.',
+          codeExample: `class Point {
+    final int x, y;
+    Point(int x, int y) { this.x = x; this.y = y; }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Point p)) return false;
+        return x == p.x && y == p.y;
+    }
+    @Override public int hashCode() {
+        return Objects.hash(x, y);          // consistent with equals()
+    }
+}
+
+// PITFALL: mutating a key after it is stored
+Set<List<Integer>> set = new HashSet<>();
+List<Integer> key = new ArrayList<>(List.of(1, 2));
+set.add(key);
+key.add(3);                                  // hashCode now changes...
+set.contains(key);                           // false! lands in a new bucket
+
+// Overriding only one method -> a broken map:
+//   equals() without hashCode() -> equal keys split across buckets (duplicates)
+//   hashCode() without equals()  -> right bucket, but lookups never match`
+        },
+        {
           name: 'TreeMap Implementation',
           explanation: 'TreeMap is a Red-Black tree implementation providing O(log n) operations. Keys are sorted by natural order or Comparator. Provides NavigableMap methods for range queries: subMap(), headMap(), tailMap(), firstKey(), lastKey(). No null keys allowed (throws NPE). Useful when you need sorted key iteration or efficient range queries. Thread-unsafe like HashMap.',
           codeExample: `// TreeMap - sorted by keys

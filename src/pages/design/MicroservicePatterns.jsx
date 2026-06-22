@@ -921,6 +921,56 @@ public class ServiceDiscoveryHelper {
       diagram: SagaPatternDiagram,
       details: [
         {
+          name: 'Saga vs Two-Phase Commit (2PC)',
+          explanation: `Both coordinate a transaction that spans multiple services/databases, but they make opposite trade-offs.
+
+Two-Phase Commit (2PC) - atomic & synchronous:
+- Phase 1 (Prepare/Vote): a coordinator asks every participant to prepare; each locks its resources and replies "yes" (ready) or "no".
+- Phase 2 (Commit/Abort): if ALL vote yes, the coordinator tells everyone to commit; any "no" -> everyone aborts.
+- Gives ACID across services (strong, immediate consistency) but is a BLOCKING protocol: participants hold locks until phase 2, and if the coordinator crashes after prepare, participants can block indefinitely. Requires XA/JTA-capable resources.
+
+Saga - eventual & asynchronous:
+- A sequence of LOCAL transactions; each commits independently and triggers the next step via an event or command.
+- On failure, earlier steps are undone with COMPENSATING transactions (semantic undo, e.g. "refund payment"), not an ACID rollback.
+- No distributed locks -> high availability and loose coupling, but only eventual consistency and NO isolation (intermediate states are visible; use semantic locks or commutative updates as countermeasures).
+
+Quick comparison:
+- Consistency:   2PC strong / immediate    |  Saga eventual
+- Atomicity:     2PC true rollback         |  Saga compensation (no rollback)
+- Locking:       2PC cross-service locks   |  Saga no distributed locks
+- Availability:  2PC low (blocks)          |  Saga high
+- Coupling:      2PC tight (all up + XA)   |  Saga loose (async events)
+- Isolation:     2PC isolated              |  Saga not isolated (dirty reads)
+
+Use 2PC for short transactions inside one trust boundary with XA resources where strong consistency is mandatory. Use Saga for long-lived business transactions across independently-deployed microservices that must stay available.`,
+          codeExample: `// ---- Two-Phase Commit (JTA / XA) ----
+// One global transaction spans two XA datasources. The transaction
+// manager runs PREPARE on both, then COMMIT on both (or rolls back).
+@Transactional // JTA-backed: coordinator drives 2PC across enlisted resources
+public void placeOrderWith2PC(Order order, Payment payment) {
+  orderXaRepository.save(order);      // enlisted XA resource #1
+  paymentXaRepository.save(payment);  // enlisted XA resource #2
+  // On commit: TM sends PREPARE to both; if both vote YES -> COMMIT both,
+  // otherwise ROLLBACK both. Locks are held until this completes.
+}
+
+// ---- Saga (orchestration) ----
+// Each step is its own local commit; failure triggers compensation.
+public void placeOrderWithSaga(Order order) {
+  String reservationId = null, paymentId = null;
+  try {
+    reservationId = inventory.reserve(order);   // local tx, commits now
+    paymentId     = payment.charge(order);      // local tx, commits now
+    shipping.schedule(order);                   // local tx, commits now
+  } catch (Exception e) {
+    // No global rollback - undo completed steps with compensations:
+    if (paymentId != null)     payment.refund(paymentId);        // compensate
+    if (reservationId != null) inventory.release(reservationId); // compensate
+    throw new SagaFailedException(order.getId(), e);
+  }
+}`
+        },
+        {
           name: 'Orchestration-Based Saga',
           explanation: `Saga pattern manages distributed transactions using a sequence of local transactions with compensating actions. Unlike two-phase commit, sagas provide eventual consistency.
 
@@ -1771,6 +1821,85 @@ public class ConfigWatcherSidecar {
     }
   }
 }`
+        }
+      ]
+    },
+    {
+      id: 'challenges',
+      name: 'Operational Challenges',
+      icon: '⚠️',
+      color: '#ef4444',
+      description: 'The hard problems microservices introduce that a monolith does not — and the patterns and tooling used to tame each one.',
+      details: [
+        {
+          name: 'Network Latency & Reliability',
+          explanation: `Inter-service calls travel over the network, adding latency and new failure modes (timeouts, partial failures) that in-process monolith calls never had.
+
+Solution: cache aggressively, prefer async / event-driven communication where possible, and wrap every remote call with timeouts, retries, and circuit breakers (see the Circuit Breaker pattern).`
+        },
+        {
+          name: 'Distributed Tracing',
+          explanation: `A single user request can fan out across dozens of services, making "why was this slow?" or "where did it fail?" hard to answer.
+
+Solution: propagate a correlation / trace ID across every hop and collect spans in a distributed tracing system such as Jaeger or Zipkin, paired with structured, centralized logs.`
+        },
+        {
+          name: 'Data Consistency',
+          explanation: `With a database-per-service there is no single ACID transaction spanning services, so keeping data consistent is hard.
+
+Solution: embrace eventual consistency, coordinate cross-service workflows with the Saga pattern (compensating transactions), and use event sourcing / the outbox pattern to publish changes reliably.`
+        },
+        {
+          name: 'Deployment Complexity',
+          explanation: `Operating dozens or hundreds of independently deployable services is far more complex than shipping one artifact.
+
+Solution: containerize services (Docker), orchestrate them (Kubernetes), and automate everything through CI/CD pipelines and infrastructure-as-code.`
+        },
+        {
+          name: 'Monitoring & Observability',
+          explanation: `Health and performance are now spread across many moving parts, so a single log file is not enough.
+
+Solution: centralize logs (ELK / Loki), collect metrics (Prometheus + Grafana), and adopt APM tooling. Treat the three pillars — logs, metrics, and traces — as first-class.`
+        },
+        {
+          name: 'Security',
+          explanation: `Every service-to-service hop is a new attack surface, and authentication must work across boundaries.
+
+Solution: encrypt traffic with mTLS (often via a service mesh), centralize authentication / authorization at the API gateway, and apply least-privilege between services.`
+        }
+      ]
+    },
+    {
+      id: 'adoption',
+      name: 'Real-World Adoption',
+      icon: '🌍',
+      color: '#22c55e',
+      description: 'How leading engineering organizations run microservices at scale, and the technology stack that powers them.',
+      details: [
+        {
+          name: 'Netflix',
+          explanation: `Runs 700+ microservices handling billions of API requests per day. Netflix pioneered much of the modern toolkit — Hystrix (circuit breaking), Eureka (service discovery), and Zuul (API gateway) — and open-sourced it as the Netflix OSS stack.`
+        },
+        {
+          name: 'Amazon',
+          explanation: `Famously migrated from a monolith to microservices, organizing engineering around small "two-pizza teams" that own their services end-to-end (you build it, you run it). This service-oriented culture became the foundation for AWS.`
+        },
+        {
+          name: 'Uber',
+          explanation: `Operates 2000+ microservices spanning ride-hailing, payments, and mapping. Uber relies on a service mesh built on Envoy for traffic management and observability across that fleet.`
+        },
+        {
+          name: 'Spotify',
+          explanation: `Autonomous "squads" own microservices end-to-end, and the platform leans heavily on event-driven architecture to power real-time features like playback and recommendations.`
+        },
+        {
+          name: 'Typical Technology Stack',
+          explanation: `Orchestration: Kubernetes, Docker Swarm, Nomad
+Service Mesh: Istio, Linkerd, Consul Connect
+API Gateway: Kong, AWS API Gateway, Apigee
+Service Discovery: Consul, Eureka, etcd, ZooKeeper
+Monitoring: Prometheus, Grafana, Datadog, New Relic
+Tracing: Jaeger, Zipkin, AWS X-Ray`
         }
       ]
     }

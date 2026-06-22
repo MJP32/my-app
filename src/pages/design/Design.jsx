@@ -19,7 +19,7 @@ const tabCategories = {
   patterns: { label: 'Software Patterns', ids: ['Design Patterns', 'Class', 'Module', 'Function', 'Interface'] },
   architecture: { label: 'Architecture', ids: ['System Design', 'Microservice Design Patterns', 'Event Driven Architecture', 'Domain Driven Design'] },
   interview: { label: 'Design Interview', ids: ['L3 System Design', 'L4 System Design', 'L5 System Design'] },
-  concepts: { label: 'Design Topics', ids: ['Load Balancing', 'Caching Strategies', 'CAP Theorem', 'Consistency Patterns', 'Database Sharding', 'Database Replication', 'Consistent Hashing', 'Message Queues', 'CDN', 'Proxies', 'API Design', 'Scaling', 'Data Partitioning', 'SQL vs NoSQL', 'WebSockets', 'Blob Storage'] }
+  concepts: { label: 'Design Topics', ids: ['Backend Roadmap', 'Load Balancing', 'Caching Strategies', 'CAP Theorem', 'Consistency Patterns', 'Database Sharding', 'Database Replication', 'Consistent Hashing', 'Message Queues', 'CDN', 'Proxies', 'Network Protocols', 'Web Server Internals', 'Service Mesh', 'Web Security Fundamentals', 'API Design', 'Scaling', 'Data Partitioning', 'SQL vs NoSQL', 'WebSockets', 'Blob Storage'] }
 }
 
 function Design({ onBack, onSelectItem, initialCategory, onInitialCategoryUsed, breadcrumb }) {
@@ -261,6 +261,46 @@ function Design({ onBack, onSelectItem, initialCategory, onInitialCategoryUsed, 
       color: '#1e3a8a',
       complexity: 'Intermediate',
       description: 'Store and serve large binary objects like images, videos, and files. Covers object storage services (S3, GCS, Azure Blob), access patterns, lifecycle policies, and integration with CDNs.'
+    },
+    {
+      id: 'Backend Roadmap',
+      name: 'Backend Engineering Roadmap',
+      icon: '🧭',
+      color: '#14b8a6',
+      complexity: 'All Levels',
+      description: 'A guided learning path across the 10 pillars of backend engineering — protocols, web servers, databases, caching, messaging, APIs, security, observability, and core skills. Each topic links to its dedicated page.'
+    },
+    {
+      id: 'Network Protocols',
+      name: 'Network Protocols',
+      icon: '🔌',
+      color: '#0d9488',
+      complexity: 'Intermediate',
+      description: 'How services talk over the wire. Covers TCP (handshake, reliability, flow control) vs UDP (connectionless, low-latency), and the evolution of HTTP/1.1, HTTP/2 (multiplexing), and HTTP/3 (QUIC over UDP).'
+    },
+    {
+      id: 'Web Server Internals',
+      name: 'Web Server Internals',
+      icon: '⚙️',
+      color: '#0f766e',
+      complexity: 'Advanced',
+      description: 'How web servers handle requests at scale. Covers process/thread/event-driven architectures, blocking vs non-blocking threading models (the C10K problem), and NGINX, Apache, and Node.js internals.'
+    },
+    {
+      id: 'Service Mesh',
+      name: 'Service Mesh',
+      icon: '🕸️',
+      color: '#115e59',
+      complexity: 'Advanced',
+      description: 'A dedicated infrastructure layer for service-to-service communication. Covers the sidecar proxy pattern, data plane vs control plane, mTLS, TLS termination, traffic management, and Istio + Envoy.'
+    },
+    {
+      id: 'Web Security Fundamentals',
+      name: 'Web Security Fundamentals',
+      icon: '🔒',
+      color: '#dc2626',
+      complexity: 'Intermediate',
+      description: 'Core defenses every backend engineer needs. Covers TLS/SSL and the handshake, common web attacks (SQL injection, XSS, CSRF) and their fixes, secret storage, firewalls and port management, and DDoS basics.'
     }
   ]
 
