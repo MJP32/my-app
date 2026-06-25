@@ -17,7 +17,7 @@ const categories = {
   all: { label: 'All', ids: null },
   containerization: { label: 'Containers & Orchestration', ids: ['Docker', 'Kubernetes'] },
   cicd: { label: 'CI/CD & Build Tools', ids: ['CI/CD', 'Deployment', 'Jenkins', 'TeamCity', 'Maven'] },
-  monitoring: { label: 'Monitoring & Observability', ids: ['Prometheus', 'Grafana', 'Production Support', 'JavaFlightRecorder', 'JMeter', 'Dynatrace'] },
+  monitoring: { label: 'Monitoring & Observability', ids: ['Prometheus', 'Grafana', 'ELK Stack', 'Production Support', 'JavaFlightRecorder', 'JMeter', 'Dynatrace'] },
   security: { label: 'Security & Auth', ids: ['Security OWASP', 'JWT', 'OAuth', 'OAuth2', 'PingFederate'] },
   methodology: { label: 'Methodology & Quality', ids: ['Agile Scrum', 'Testing', 'Ansible', 'UnixScripting'] },
   messaging: { label: 'Messaging & Streaming', ids: ['Kafka', 'Apache Flink', 'RabbitMQ', 'Solace', 'MuleSoft'] }
@@ -99,6 +99,13 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       icon: '📈',
       color: '#f57c00',
       description: 'Open-source analytics and monitoring platform. Dashboards, data sources, alerting, and provisioning.'
+    },
+    {
+      id: 'ELK Stack',
+      name: 'ELK Stack',
+      icon: '🔍',
+      color: '#00bfb3',
+      description: 'Elasticsearch, Logstash, Kibana & Beats for centralized logging. Ingest pipelines, search, dashboards, and index lifecycle management.'
     },
     {
       id: 'Production Support',

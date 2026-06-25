@@ -31,7 +31,7 @@ const categoryGroups = {
   'DevOps': {
     icon: '🛠️',
     color: '#0ea5e9',
-    items: ['DevOps', 'Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Maven', 'Prometheus', 'Grafana', 'Ansible', 'Unix Scripting', 'Java Flight Recorder', 'JMeter', 'Dynatrace']
+    items: ['DevOps', 'Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Maven', 'Prometheus', 'Grafana', 'ELK Stack', 'Ansible', 'Unix Scripting', 'Java Flight Recorder', 'JMeter', 'Dynatrace']
   },
   'Messaging': {
     icon: '📨',

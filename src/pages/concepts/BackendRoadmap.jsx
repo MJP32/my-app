@@ -132,7 +132,7 @@ const SECTIONS = [
     color: 'indigo',
     items: [
       { label: 'Application metrics', target: 'Prometheus' },
-      { label: 'Centralized logging', target: 'Grafana' },
+      { label: 'Centralized logging', target: 'ELK Stack' },
       { label: 'Distributed tracing', target: 'Zipkin' },
       { label: 'Alerting', target: 'Grafana' },
       { label: 'Health checks', target: 'Prometheus' },

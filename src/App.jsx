@@ -146,6 +146,7 @@ const TeamCity = lazy(() => import('./pages/devops/TeamCity.jsx'))
 const Jenkins = lazy(() => import('./pages/devops/Jenkins.jsx'))
 const Prometheus = lazy(() => import('./pages/devops/Prometheus.jsx'))
 const Grafana = lazy(() => import('./pages/devops/Grafana.jsx'))
+const ELKStack = lazy(() => import('./pages/devops/ELKStack.jsx'))
 const Ansible = lazy(() => import('./pages/devops/Ansible.jsx'))
 const UnixScripting = lazy(() => import('./pages/devops/UnixScripting.jsx'))
 const JavaFlightRecorder = lazy(() => import('./pages/devops/JavaFlightRecorder.jsx'))
@@ -567,7 +568,7 @@ const getFrameworksComponentIndex = (componentName) => {
   return FRAMEWORKS_COMPONENTS_ORDER.indexOf(componentName)
 }
 
-const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Maven', 'Prometheus', 'Grafana', 'Ansible', 'UnixScripting', 'JavaFlightRecorder', 'JMeter', 'Dynatrace', 'SecurityOWASP', 'JWT', 'OAuth', 'OAuth2', 'PingFederate', 'Kafka', 'ApacheFlink', 'RabbitMQ', 'Solace', 'MuleSoft']
+const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Maven', 'Prometheus', 'Grafana', 'ELKStack', 'Ansible', 'UnixScripting', 'JavaFlightRecorder', 'JMeter', 'Dynatrace', 'SecurityOWASP', 'JWT', 'OAuth', 'OAuth2', 'PingFederate', 'Kafka', 'ApacheFlink', 'RabbitMQ', 'Solace', 'MuleSoft']
 
 // Display names for devops components
 const DEVOPS_DISPLAY_NAMES = {
@@ -583,6 +584,7 @@ const DEVOPS_DISPLAY_NAMES = {
   'Maven': 'Maven',
   'Prometheus': 'Prometheus',
   'Grafana': 'Grafana',
+  'ELKStack': 'ELK Stack',
   'Ansible': 'Ansible',
   'UnixScripting': 'Unix Scripting',
   'JavaFlightRecorder': 'Java Flight Recorder',
@@ -864,6 +866,7 @@ function App() {
   const [showMavenModal, setShowMavenModal] = useState(false)
   const [showPrometheusModal, setShowPrometheusModal] = useState(false)
   const [showGrafanaModal, setShowGrafanaModal] = useState(false)
+  const [showELKStackModal, setShowELKStackModal] = useState(false)
   const [showAnsibleModal, setShowAnsibleModal] = useState(false)
   const [showUnixScriptingModal, setShowUnixScriptingModal] = useState(false)
   const [showJavaFlightRecorderModal, setShowJavaFlightRecorderModal] = useState(false)
@@ -1330,6 +1333,8 @@ function App() {
       'Maven': setShowMavenModal,
       'Prometheus': setShowPrometheusModal,
       'Grafana': setShowGrafanaModal,
+      'ELK Stack': setShowELKStackModal,
+      'ELKStack': setShowELKStackModal,
       'Ansible': setShowAnsibleModal,
       'Unix Scripting': setShowUnixScriptingModal,
       'UnixScripting': setShowUnixScriptingModal,
@@ -1356,6 +1361,7 @@ function App() {
       setShowMavenModal(false)
       setShowPrometheusModal(false)
       setShowGrafanaModal(false)
+      setShowELKStackModal(false)
       setShowAnsibleModal(false)
       setShowUnixScriptingModal(false)
       setShowJavaFlightRecorderModal(false)
@@ -2070,6 +2076,7 @@ function App() {
       setShowMavenModal(false)
       setShowPrometheusModal(false)
       setShowGrafanaModal(false)
+      setShowELKStackModal(false)
       setShowAnsibleModal(false)
       setShowUnixScriptingModal(false)
       setShowJavaFlightRecorderModal(false)
@@ -2107,6 +2114,8 @@ function App() {
         setShowPrometheusModal(true)
       } else if (componentName === 'Grafana') {
         setShowGrafanaModal(true)
+      } else if (componentName === 'ELKStack') {
+        setShowELKStackModal(true)
       } else if (componentName === 'Ansible') {
         setShowAnsibleModal(true)
       } else if (componentName === 'UnixScripting') {
@@ -3123,6 +3132,7 @@ function App() {
             [showMavenModal, setShowMavenModal],
             [showPrometheusModal, setShowPrometheusModal],
             [showGrafanaModal, setShowGrafanaModal],
+            [showELKStackModal, setShowELKStackModal],
             [showAnsibleModal, setShowAnsibleModal],
             [showUnixScriptingModal, setShowUnixScriptingModal],
             [showJavaFlightRecorderModal, setShowJavaFlightRecorderModal],
@@ -3419,6 +3429,7 @@ function App() {
     showMavenModal,
     showPrometheusModal,
     showGrafanaModal,
+    showELKStackModal,
     showAnsibleModal,
     showUnixScriptingModal,
     showJavaFlightRecorderModal,
@@ -3632,6 +3643,7 @@ function App() {
     'ProductionSupport': { name: 'Monitoring & Observability', id: 'monitoring' },
     'Prometheus': { name: 'Monitoring & Observability', id: 'monitoring' },
     'Grafana': { name: 'Monitoring & Observability', id: 'monitoring' },
+    'ELKStack': { name: 'Monitoring & Observability', id: 'monitoring' },
     'Ansible': { name: 'Infrastructure & Config', id: 'infrastructure' },
     'UnixScripting': { name: 'Infrastructure & Config', id: 'infrastructure' },
     'JavaFlightRecorder': { name: 'Monitoring & Observability', id: 'monitoring' },
@@ -5960,6 +5972,25 @@ function App() {
             <Grafana onBack={() => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Grafana')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Grafana'].name, onClick: () => { setShowGrafanaModal(false); goToDevopsCategory(devopsTopicCategories['Grafana'].id) } },
               topic: 'Grafana',
+              colors: BREADCRUMB_COLORS.DevOps
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* ELK Stack Modal */}
+      {showELKStackModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowELKStackModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <ELKStack onBack={() => { setShowELKStackModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('ELKStack')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowELKStackModal(false); setSelectedOptionAndRef('DevOps') } },
+              category: { name: devopsTopicCategories['ELKStack'].name, onClick: () => { setShowELKStackModal(false); goToDevopsCategory(devopsTopicCategories['ELKStack'].id) } },
+              topic: 'ELK Stack',
               colors: BREADCRUMB_COLORS.DevOps
             }} />
           </div>
