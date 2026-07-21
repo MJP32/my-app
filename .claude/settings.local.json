@@ -143,7 +143,11 @@
       "Bash(git branch *)",
       "PowerShell(git *)",
       "Bash(sed -n '1,30p' src/pages/devops/Grafana.jsx)",
-      "Bash(sed -n '96,110p' src/pages/devops/DevOpsPage.jsx)"
+      "Bash(sed -n '96,110p' src/pages/devops/DevOpsPage.jsx)",
+      "Bash(git -C .claude/worktrees/thirsty-khorana status --short)",
+      "Bash(git -C .claude/worktrees/thirsty-khorana add -A)",
+      "Bash(git -C .claude/worktrees/thirsty-khorana commit -m ' *)",
+      "Bash(git worktree *)"
     ],
     "deny": [],
     "ask": []
