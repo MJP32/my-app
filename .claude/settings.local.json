@@ -138,7 +138,12 @@
       "Bash(sed -n '8336,8392p' src/App.jsx)",
       "Bash(sed -n '5,12p' src/utils/searchIndex.js)",
       "Bash(sed -n '177,183p' src/utils/searchIndex.js)",
-      "Bash(perl -pi -e 's/withRealWorld/withExtraTabs/g' DesignPatterns.jsx)"
+      "Bash(perl -pi -e 's/withRealWorld/withExtraTabs/g' DesignPatterns.jsx)",
+      "Skill(run)",
+      "Bash(git branch *)",
+      "PowerShell(git *)",
+      "Bash(sed -n '1,30p' src/pages/devops/Grafana.jsx)",
+      "Bash(sed -n '96,110p' src/pages/devops/DevOpsPage.jsx)"
     ],
     "deny": [],
     "ask": []
