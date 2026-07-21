@@ -29,8 +29,32 @@ const JAVA_CMD = process.platform === 'linux' ?
   '/mnt/c/Program Files/Java/jdk-21/bin/java.exe' : 'java';
 const IS_WSL_USING_WINDOWS_JAVA = process.platform === 'linux';
 
-// Detect Python command (python on Windows, python3 on Linux/Mac)
-const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
+// Detect Python command by probing candidates in order.
+// On Windows, bare `python`/`python3` often resolve to the Microsoft Store
+// app-execution alias, which is a stub that prints an install message instead
+// of running anything - so verify each candidate actually reports a version.
+function probePython(cmd) {
+  return new Promise((resolve) => {
+    exec(`${cmd} --version`, { timeout: 5000 }, (error, stdout, stderr) => {
+      const output = `${stdout || ''}${stderr || ''}`.trim();
+      const isStoreStub = /Microsoft Store|was not found/i.test(output);
+      const isReal = !error && !isStoreStub && /^Python \d/i.test(output);
+      resolve(isReal ? { cmd, version: output } : null);
+    });
+  });
+}
+
+const PYTHON_CANDIDATES = process.platform === 'win32'
+  ? ['py -3', 'python', 'python3']
+  : ['python3', 'python'];
+
+let pythonInfo = null;
+for (const candidate of PYTHON_CANDIDATES) {
+  pythonInfo = await probePython(candidate);
+  if (pythonInfo) break;
+}
+
+const PYTHON_CMD = pythonInfo?.cmd ?? PYTHON_CANDIDATES[0];
 
 // Convert WSL path to Windows path for Windows executables
 function toWindowsPath(wslPath) {
@@ -1062,14 +1086,13 @@ app.get('/api/health', async (req, res) => {
     });
   });
 
-  const pythonCheck = await new Promise((resolve) => {
-    exec('python3 --version', (error, stdout, stderr) => {
-      resolve({
-        installed: !error,
-        version: stdout || stderr || 'unknown'
-      });
-    });
-  });
+  const pythonCheck = pythonInfo
+    ? { installed: true, command: PYTHON_CMD, version: pythonInfo.version }
+    : {
+        installed: false,
+        command: null,
+        version: `no working Python found (tried: ${PYTHON_CANDIDATES.join(', ')})`
+      };
 
   res.json({
     status: javaCheck.installed || pythonCheck.installed ? 'ok' : 'error',
@@ -1084,6 +1107,9 @@ app.listen(PORT, () => {
   console.log(`   POST /api/execute-java       - Execute Java code`);
   console.log(`   POST /api/execute-java-tests - Execute Java code with test cases`);
   console.log(`   POST /api/execute-python     - Execute Python code`);
+  console.log(pythonInfo
+    ? `🐍 Python: ${pythonInfo.version} (via "${PYTHON_CMD}")`
+    : `⚠️  Python: not found - tried ${PYTHON_CANDIDATES.join(', ')}`);
   console.log(`   POST /api/execute-python-tests - Execute Python code with test cases`);
   console.log(`   GET  /api/health             - Check server and language status\n`);
 });
