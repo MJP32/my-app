@@ -196,9 +196,7 @@ export const getAllPracticeProblems = () => {
     'LRUCache': 7,
     'RateLimiter': 6,
     'NotificationSystem': 6,
-    'Newsfeed': 5,
     'TypeAhead': 5,
-    'TinyURL': 5,
     // System Design Case Studies
     'Twitter': 5,
     'Netflix': 6,
@@ -210,7 +208,6 @@ export const getAllPracticeProblems = () => {
     'Amazon': 7,
     'GoogleDocs': 5,
     'RideShare': 5,
-    'FoodDelivery': 7,
     // Java Interview Questions
     'JavaQuestions': 10,
     'CoreJavaQuestions': 12,

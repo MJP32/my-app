@@ -332,9 +332,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'LRU Cache', problems: 7, icon: '💾', description: 'Least Recently Used cache implementation' },
       { name: 'Rate Limiter', problems: 6, icon: '⏱️', description: 'Rate limiting algorithms and implementations' },
       { name: 'Notification System', problems: 6, icon: '🔔', description: 'Push notifications architecture' },
-      { name: 'Newsfeed', problems: 5, icon: '📰', description: 'Social media feed design' },
       { name: 'TypeAhead', problems: 5, icon: '🔍', description: 'Autocomplete and search suggestions' },
-      { name: 'TinyURL', problems: 5, icon: '🔗', description: 'URL shortener service design' },
     ]},
     // System Design Case Studies
     { category: 'System Design Case Studies', difficulty: 'Advanced', color: '#ef4444', topics: [
@@ -348,7 +346,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'Amazon', problems: 7, icon: '🛒', description: 'E-commerce platform design' },
       { name: 'Google Docs', problems: 5, icon: '📝', description: 'Collaborative editing system' },
       { name: 'RideShare', problems: 5, icon: '🚗', description: 'Ride-sharing service design' },
-      { name: 'Food Delivery', problems: 7, icon: '🍕', description: 'Food delivery platform design' },
     ]},
     // Java Interview Questions
     { category: 'Java Interview Questions', difficulty: 'Intermediate', color: '#f97316', topics: [
@@ -626,7 +623,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'LRU Cache', problems: 5, icon: '💾', description: 'Cache implementation' },
       { name: 'Rate Limiter', problems: 4, icon: '⏱️', description: 'Rate limiting algorithms' },
       { name: 'Notification System', problems: 4, icon: '🔔', description: 'Push notifications' },
-      { name: 'TinyURL', problems: 4, icon: '🔗', description: 'URL shortener' },
     ]},
     // System Design Case Studies
     { category: 'System Design Case Studies', difficulty: 'Advanced', color: '#ef4444', topics: [
@@ -766,7 +762,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
       'Notification System': 'NotificationSystem',
       // System Design Case Studies
       'Google Docs': 'GoogleDocs',
-      'Food Delivery': 'FoodDelivery',
       // Java Interview Questions
       'Java Questions': 'JavaQuestions',
       'Core Java Questions': 'CoreJavaQuestions',

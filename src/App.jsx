@@ -217,6 +217,8 @@ const SystemDesign = lazy(() => import('./pages/design/SystemDesign.jsx'))
 const LRUCache = lazy(() => import('./pages/design/LRUCache.jsx'))
 const RateLimiter = lazy(() => import('./pages/design/RateLimiter.jsx'))
 const FileUploader = lazy(() => import('./pages/design/FileUploader.jsx'))
+const ApartmentAlarmSystem = lazy(() => import('./pages/design/ApartmentAlarmSystem.jsx'))
+const MobileWeatherApp = lazy(() => import('./pages/design/MobileWeatherApp.jsx'))
 const SpringBatchProcess = lazy(() => import('./pages/design/SpringBatchProcess.jsx'))
 const DesignProblems = lazy(() => import('./pages/design/DesignProblems.jsx'))
 const DesignPatternsInteractive = lazy(() => import('./pages/design/DesignPatternsInteractive.jsx'))
@@ -925,6 +927,8 @@ function App() {
   const [showRateLimiterModal, setShowRateLimiterModal] = useState(false)
   const [showDesignProblemsModal, setShowDesignProblemsModal] = useState(false)
   const [showFileUploaderModal, setShowFileUploaderModal] = useState(false)
+  const [showApartmentAlarmSystemModal, setShowApartmentAlarmSystemModal] = useState(false)
+  const [showMobileWeatherAppModal, setShowMobileWeatherAppModal] = useState(false)
   const [showSpringBatchProcessModal, setShowSpringBatchProcessModal] = useState(false)
   const [showHibernateModal, setShowHibernateModal] = useState(false)
   const [showActuatorModal, setShowActuatorModal] = useState(false)
@@ -3188,6 +3192,8 @@ function App() {
             [showRateLimiterModal, setShowRateLimiterModal],
             [showDesignProblemsModal, setShowDesignProblemsModal],
             [showFileUploaderModal, setShowFileUploaderModal],
+            [showApartmentAlarmSystemModal, setShowApartmentAlarmSystemModal],
+            [showMobileWeatherAppModal, setShowMobileWeatherAppModal],
             [showSpringBatchProcessModal, setShowSpringBatchProcessModal],
             [showHibernateModal, setShowHibernateModal],
             [showActuatorModal, setShowActuatorModal],
@@ -3485,6 +3491,8 @@ function App() {
     showRateLimiterModal,
     showDesignProblemsModal,
     showFileUploaderModal,
+    showApartmentAlarmSystemModal,
+    showMobileWeatherAppModal,
     showSpringBatchProcessModal,
     showHibernateModal,
     showActuatorModal,
@@ -4930,6 +4938,8 @@ function App() {
             case 'Rate Limiter': setShowRateLimiterModal(true); break;
             case 'Design Problems': setShowDesignProblemsModal(true); break;
             case 'File Uploader': setShowFileUploaderModal(true); break;
+            case 'Apartment Alarm System': setShowApartmentAlarmSystemModal(true); break;
+            case 'Mobile Weather App': setShowMobileWeatherAppModal(true); break;
             case 'Spring Batch Process': setShowSpringBatchProcessModal(true); break;
             case 'AI Interview': setSelectedOptionAndRef('AI Interview'); break;
             case 'Two Pointers': setShowTwoPointersModal(true); break;
@@ -8153,6 +8163,88 @@ function App() {
               <FileUploader
                 onBack={() => { setShowFileUploaderModal(false); setSelectedOptionAndRef('Practice') }}
                 {...createNavigationCallbacks('File Uploader')}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
+
+      {showApartmentAlarmSystemModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowApartmentAlarmSystemModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <Suspense fallback={<LoadingSpinner text="Loading Apartment Alarm System..." />}>
+              <ApartmentAlarmSystem
+                onBack={() => { setShowApartmentAlarmSystemModal(false); setSelectedOptionAndRef('Practice') }}
+                {...createNavigationCallbacks('Apartment Alarm System')}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
+
+      {showMobileWeatherAppModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowMobileWeatherAppModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <Suspense fallback={<LoadingSpinner text="Loading Mobile Weather App..." />}>
+              <MobileWeatherApp
+                onBack={() => { setShowMobileWeatherAppModal(false); setSelectedOptionAndRef('Practice') }}
+                {...createNavigationCallbacks('Mobile Weather App')}
               />
             </Suspense>
           </div>

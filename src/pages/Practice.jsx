@@ -1497,7 +1497,7 @@ System.setOut(original);   // restore` },
           icon: '🛠️',
           color: '#ec4899',
           count: 29,
-          items: ['Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems', 'File Uploader', 'Spring Batch Process']
+          items: ['Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems', 'File Uploader', 'Spring Batch Process', 'Apartment Alarm System', 'Mobile Weather App']
         }
       ]
     },
