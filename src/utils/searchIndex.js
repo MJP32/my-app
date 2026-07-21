@@ -74,7 +74,7 @@ const categoryGroups = {
       },
       'Algorithms': {
         icon: '🎯',
-        items: ['Searching', 'Binary Search', 'Sorting', 'Recursion', 'Dynamic Programming', 'Dynamic Programming Patterns', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Sliding Window', 'Backtracking']
+        items: ['Searching', 'Binary Search', 'Sorting', 'Dynamic Programming', 'Dynamic Programming Patterns', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Sliding Window', 'Backtracking']
       },
       'Java Features': {
         icon: '☕',

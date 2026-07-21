@@ -164,7 +164,6 @@ export const getAllPracticeProblems = () => {
     'Sorting': 4,
     'LinkedLists': 12,
     // Intermediate
-    'Recursion': 8,
     'Trees': 6,
     'BinaryTrees': 17,
     'BinarySearchTrees': 3,
@@ -179,7 +178,7 @@ export const getAllPracticeProblems = () => {
     // Advanced Algorithms
     'DynamicProgramming': 17,
     'DynamicProgrammingPatterns': 89,
-    'Backtracking': 11,
+    'Backtracking': 13,
     'GreedyAlgorithms': 4,
     'AdvancedGraphs': 5,
     'BitManipulation': 7,
@@ -209,7 +208,6 @@ export const getAllPracticeProblems = () => {
     'GoogleDocs': 5,
     'RideShare': 5,
     // Java Interview Questions
-    'JavaQuestions': 10,
     'CoreJavaQuestions': 12,
     'Java8Questions': 15,
     'Java11Questions': 8,
@@ -305,7 +303,6 @@ export const getCategoryGroupings = () => {
       'Linked Lists',
       'Math & Geometry',
       'Queues',
-      'Recursion',
       'Searching',
       'Sliding Window',
       'Sorting',

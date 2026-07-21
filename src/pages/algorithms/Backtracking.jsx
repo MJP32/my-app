@@ -860,6 +860,143 @@ function Backtracking({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, 
       },
       timeComplexity: 'O(n!)',
       spaceComplexity: 'O(n^2)'
+    },
+    {
+      id: 12,
+      title: 'N-Queens II',
+      difficulty: 'Hard',
+      leetcodeUrl: 'https://leetcode.com/problems/n-queens-ii/',
+      description: 'Return the number of distinct solutions to the n-queens puzzle.',
+      examples: [
+        { input: 'n = 4', output: '2' },
+        { input: 'n = 1', output: '1' }
+      ],
+      code: {
+        java: {
+          starterCode: `public int totalNQueens(int n) {
+}`,
+          solution: `public int totalNQueens(int n) {
+    return backtrack(0, new HashSet<>(), new HashSet<>(), new HashSet<>(), n);
+}
+
+private int backtrack(int row, Set<Integer> cols, Set<Integer> diag1, Set<Integer> diag2, int n) {
+    if (row == n) {
+        return 1;
+    }
+
+    int count = 0;
+
+    for (int col = 0; col < n; col++) {
+        int d1 = row - col;
+        int d2 = row + col;
+
+        if (cols.contains(col) || diag1.contains(d1) || diag2.contains(d2)) {
+            continue;
+        }
+
+        cols.add(col);
+        diag1.add(d1);
+        diag2.add(d2);
+
+        count += backtrack(row + 1, cols, diag1, diag2, n);
+
+        cols.remove(col);
+        diag1.remove(d1);
+        diag2.remove(d2);
+    }
+
+    return count;
+}`
+        },
+        python: {
+          starterCode: `def totalNQueens(self, n: int) -> int:
+    pass`,
+          solution: `def totalNQueens(self, n: int) -> int:
+    def backtrack(row, cols, diag1, diag2):
+        if row == n:
+            return 1
+
+        count = 0
+
+        for col in range(n):
+            d1 = row - col
+            d2 = row + col
+
+            if col in cols or d1 in diag1 or d2 in diag2:
+                continue
+
+            cols.add(col)
+            diag1.add(d1)
+            diag2.add(d2)
+
+            count += backtrack(row + 1, cols, diag1, diag2)
+
+            cols.remove(col)
+            diag1.remove(d1)
+            diag2.remove(d2)
+
+        return count
+
+    return backtrack(0, set(), set(), set())`
+        }
+      },
+      timeComplexity: 'O(n!)',
+      spaceComplexity: 'O(n)'
+    },
+    {
+      id: 13,
+      title: 'Combinations',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/combinations/',
+      description: 'Return all possible combinations of k numbers chosen from range [1, n].',
+      examples: [
+        { input: 'n = 4, k = 2', output: '[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]' }
+      ],
+      code: {
+        java: {
+          starterCode: `public List<List<Integer>> combine(int n, int k) {
+}`,
+          solution: `public List<List<Integer>> combine(int n, int k) {
+    List<List<Integer>> result = new ArrayList<>();
+    backtrack(result, new ArrayList<>(), 1, n, k);
+    return result;
+}
+
+private void backtrack(List<List<Integer>> result, List<Integer> current, int start, int n, int k) {
+    if (current.size() == k) {
+        result.add(new ArrayList<>(current));
+        return;
+    }
+
+    for (int i = start; i <= n; i++) {
+        current.add(i);
+        backtrack(result, current, i + 1, n, k);
+        current.remove(current.size() - 1);
+    }
+}`
+        },
+        python: {
+          starterCode: `def combine(self, n: int, k: int) -> List[List[int]]:
+    pass`,
+          solution: `def combine(self, n: int, k: int) -> List[List[int]]:
+    result = []
+
+    def backtrack(start, current):
+        if len(current) == k:
+            result.append(current[:])
+            return
+
+        for i in range(start, n + 1):
+            current.append(i)
+            backtrack(i + 1, current)
+            current.pop()
+
+    backtrack(1, [])
+    return result`
+        }
+      },
+      timeComplexity: 'O(C(n,k) * k)',
+      spaceComplexity: 'O(k)'
     }
   ]
 

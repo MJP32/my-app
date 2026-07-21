@@ -1323,11 +1323,10 @@ System.setOut(original);   // restore` },
     'Searching': 2,
     'Binary Search': 5,
     'Sorting': 4,
-    'Recursion': 8,
     'Dynamic Programming': 17,
     'Dynamic Programming Patterns': 89,
     'Sliding Window': 9,
-    'Backtracking': 11,
+    'Backtracking': 13,
     'Intervals': 7,
     'Math & Geometry': 9,
     'Advanced Graphs': 5,
@@ -1443,7 +1442,7 @@ System.setOut(original);   // restore` },
           icon: '🎯',
           color: '#8b5cf6',
           count: 195,
-          items: ['Searching', 'Binary Search', 'Sorting', 'Recursion', 'Dynamic Programming', 'Dynamic Programming Patterns', 'Sliding Window', 'Backtracking', 'Intervals', 'Math & Geometry', 'Advanced Graphs', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Bit Manipulation', 'Data Structures']
+          items: ['Searching', 'Binary Search', 'Sorting', 'Dynamic Programming', 'Dynamic Programming Patterns', 'Sliding Window', 'Backtracking', 'Intervals', 'Math & Geometry', 'Advanced Graphs', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Bit Manipulation', 'Data Structures']
         }
       ]
     },

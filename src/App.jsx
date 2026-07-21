@@ -46,7 +46,6 @@ const Interface = lazy(() => import('./pages/java/Interface.jsx'))
 const Generics = lazy(() => import('./pages/java/Generics.jsx'))
 const CollectionsFramework = lazy(() => import('./pages/java/CollectionsFramework.jsx'))
 const ObjectOrientedProgramming = lazy(() => import('./pages/java/ObjectOrientedProgramming.jsx'))
-const Concurrency = lazy(() => import('./pages/java/Concurrency.jsx'))
 const Multithreading = lazy(() => import('./pages/java/Multithreading.jsx'))
 const ExceptionHandling = lazy(() => import('./pages/java/ExceptionHandling.jsx'))
 const FileIO = lazy(() => import('./pages/java/FileIO.jsx'))
@@ -81,7 +80,6 @@ const SOAP = lazy(() => import('./pages/spring/SOAP.jsx'))
 const ReactFramework = lazy(() => import('./pages/spring/ReactFramework.jsx'))
 
 // Question pages
-const JavaQuestions = lazy(() => import('./pages/questions/JavaQuestions.jsx'))
 const CoreJavaQuestions = lazy(() => import('./pages/questions/CoreJavaQuestions.jsx'))
 const Java8Questions = lazy(() => import('./pages/questions/Java8Questions.jsx'))
 const Java11Questions = lazy(() => import('./pages/questions/Java11Questions.jsx'))
@@ -188,7 +186,6 @@ const Stacks = lazy(() => import('./pages/algorithms/Stacks.jsx'))
 const Queues = lazy(() => import('./pages/algorithms/Queues.jsx'))
 const Sorting = lazy(() => import('./pages/algorithms/Sorting.jsx'))
 const BinarySearch = lazy(() => import('./pages/algorithms/BinarySearch.jsx'))
-const Recursion = lazy(() => import('./pages/algorithms/Recursion.jsx'))
 const DataStructures = lazy(() => import('./pages/algorithms/DataStructures.jsx'))
 const DynamicProgramming = lazy(() => import('./pages/algorithms/DynamicProgramming.jsx'))
 const DynamicProgrammingPatterns = lazy(() => import('./pages/practice/DynamicProgrammingPatterns.jsx'))
@@ -897,7 +894,6 @@ function App() {
   const [showLinkedListsModal, setShowLinkedListsModal] = useState(false)
   const [showSortingModal, setShowSortingModal] = useState(false)
   const [showBinarySearchModal, setShowBinarySearchModal] = useState(false)
-  const [showRecursionModal, setShowRecursionModal] = useState(false)
   const [showDynamicProgrammingModal, setShowDynamicProgrammingModal] = useState(false)
   const [showSlidingWindowModal, setShowSlidingWindowModal] = useState(false)
   const [showBacktrackingModal, setShowBacktrackingModal] = useState(false)
@@ -910,7 +906,6 @@ function App() {
   const [showLambdasAdvancedModal, setShowLambdasAdvancedModal] = useState(false)
   const [showFunctionalInterfacesModal, setShowFunctionalInterfacesModal] = useState(false)
   const [showCollectionsFrameworkModal, setShowCollectionsFrameworkModal] = useState(false)
-  const [showConcurrencyModal, setShowConcurrencyModal] = useState(false)
   const [showMultithreadingModal, setShowMultithreadingModal] = useState(false)
   const [showOptionalModal, setShowOptionalModal] = useState(false)
   const [showObjectOrientedProgrammingModal, setShowObjectOrientedProgrammingModal] = useState(false)
@@ -944,7 +939,6 @@ function App() {
   const [showGRPCModal, setShowGRPCModal] = useState(false)
   const [showSOAPModal, setShowSOAPModal] = useState(false)
   const [showReactModal, setShowReactModal] = useState(false)
-  const [showJavaQuestionsModal, setShowJavaQuestionsModal] = useState(false)
   const [showCoreJavaQuestionsModal, setShowCoreJavaQuestionsModal] = useState(false)
   const [showJava8QuestionsModal, setShowJava8QuestionsModal] = useState(false)
   const [showJava11QuestionsModal, setShowJava11QuestionsModal] = useState(false)
@@ -987,7 +981,6 @@ function App() {
   const [showThreadingQuestionsModal, setShowThreadingQuestionsModal] = useState(false)
 
   const questionModalConfigs = [
-    { id: 'Java', show: showJavaQuestionsModal, setShow: setShowJavaQuestionsModal, Component: JavaQuestions, topic: 'Java', width: '1400px' },
     { id: 'Core Java', show: showCoreJavaQuestionsModal, setShow: setShowCoreJavaQuestionsModal, Component: CoreJavaQuestions, topic: 'Core Java', width: '1400px' },
     { id: 'Java 8', show: showJava8QuestionsModal, setShow: setShowJava8QuestionsModal, Component: Java8Questions, topic: 'Java 8', width: '1400px' },
     { id: 'Java 11', show: showJava11QuestionsModal, setShow: setShowJava11QuestionsModal, Component: Java11Questions, topic: 'Java 11', width: '1400px' },
@@ -1115,7 +1108,6 @@ function App() {
         setShowLinkedListsModal(false)
         setShowSortingModal(false)
         setShowBinarySearchModal(false)
-        setShowRecursionModal(false)
         setShowDynamicProgrammingModal(false)
         setShowSlidingWindowModal(false)
         setShowBacktrackingModal(false)
@@ -1134,7 +1126,6 @@ function App() {
         setShowLambdasAdvancedModal(false)
         setShowFunctionalInterfacesModal(false)
         setShowCollectionsFrameworkModal(false)
-        setShowConcurrencyModal(false)
         setShowMultithreadingModal(false)
         setShowObjectOrientedProgrammingModal(false)
         setShowExceptionHandlingModal(false)
@@ -1545,7 +1536,8 @@ function App() {
       'Linked Lists': setShowLinkedListsModal,
       'Sorting': setShowSortingModal,
       'Binary Search': setShowBinarySearchModal,
-      'Recursion': setShowRecursionModal,
+      // algorithms/Recursion merged into Backtracking
+      'Recursion': setShowBacktrackingModal,
       'Dynamic Programming': setShowDynamicProgrammingModal,
       'Streams': setShowStreamsModal,
       'Streams Advanced': setShowStreamsAdvancedModal,
@@ -1553,7 +1545,8 @@ function App() {
       'Lambdas Advanced': setShowLambdasAdvancedModal,
       'Functional Interfaces': setShowFunctionalInterfacesModal,
       'Collections Framework': setShowCollectionsFrameworkModal,
-      'Concurrency': setShowConcurrencyModal,
+      // java/Concurrency merged into Multithreading
+      'Concurrency': setShowMultithreadingModal,
       'Multithreading': setShowMultithreadingModal,
       'Optional': setShowOptionalModal,
       'Object-Oriented Programming': setShowObjectOrientedProgrammingModal,
@@ -1609,7 +1602,7 @@ function App() {
         'Linked Lists': () => setShowLinkedListsModal(false),
         'Sorting': () => setShowSortingModal(false),
         'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowRecursionModal(false),
+        'Recursion': () => setShowBacktrackingModal(false),
         'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
@@ -1617,7 +1610,7 @@ function App() {
         'Lambdas Advanced': () => setShowLambdasAdvancedModal(false),
         'Functional Interfaces': () => setShowFunctionalInterfacesModal(false),
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
-        'Concurrency': () => setShowConcurrencyModal(false),
+        'Concurrency': () => setShowMultithreadingModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
         'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
@@ -1657,7 +1650,7 @@ function App() {
         'Linked Lists': () => setShowLinkedListsModal(false),
         'Sorting': () => setShowSortingModal(false),
         'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowRecursionModal(false),
+        'Recursion': () => setShowBacktrackingModal(false),
         'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
@@ -1665,7 +1658,7 @@ function App() {
         'Lambdas Advanced': () => setShowLambdasAdvancedModal(false),
         'Functional Interfaces': () => setShowFunctionalInterfacesModal(false),
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
-        'Concurrency': () => setShowConcurrencyModal(false),
+        'Concurrency': () => setShowMultithreadingModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
         'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
@@ -1715,7 +1708,7 @@ function App() {
         'Linked Lists': () => setShowLinkedListsModal(false),
         'Sorting': () => setShowSortingModal(false),
         'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowRecursionModal(false),
+        'Recursion': () => setShowBacktrackingModal(false),
         'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
@@ -1723,7 +1716,7 @@ function App() {
         'Lambdas Advanced': () => setShowLambdasAdvancedModal(false),
         'Functional Interfaces': () => setShowFunctionalInterfacesModal(false),
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
-        'Concurrency': () => setShowConcurrencyModal(false),
+        'Concurrency': () => setShowMultithreadingModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
         'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
@@ -1763,7 +1756,7 @@ function App() {
         'Linked Lists': () => setShowLinkedListsModal(false),
         'Sorting': () => setShowSortingModal(false),
         'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowRecursionModal(false),
+        'Recursion': () => setShowBacktrackingModal(false),
         'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
@@ -1771,7 +1764,7 @@ function App() {
         'Lambdas Advanced': () => setShowLambdasAdvancedModal(false),
         'Functional Interfaces': () => setShowFunctionalInterfacesModal(false),
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
-        'Concurrency': () => setShowConcurrencyModal(false),
+        'Concurrency': () => setShowMultithreadingModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
         'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
@@ -1811,7 +1804,7 @@ function App() {
       'Linked Lists': () => setShowLinkedListsModal(false),
       'Sorting': () => setShowSortingModal(false),
       'Binary Search': () => setShowBinarySearchModal(false),
-      'Recursion': () => setShowRecursionModal(false),
+      'Recursion': () => setShowBacktrackingModal(false),
       'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
       'Streams': () => setShowStreamsModal(false),
       'Streams Advanced': () => setShowStreamsAdvancedModal(false),
@@ -1819,7 +1812,7 @@ function App() {
       'Lambdas Advanced': () => setShowLambdasAdvancedModal(false),
       'Functional Interfaces': () => setShowFunctionalInterfacesModal(false),
       'Collections Framework': () => setShowCollectionsFrameworkModal(false),
-      'Concurrency': () => setShowConcurrencyModal(false),
+      'Concurrency': () => setShowMultithreadingModal(false),
       'Multithreading': () => setShowMultithreadingModal(false),
       'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
       'Exception Handling': () => setShowExceptionHandlingModal(false),
@@ -3164,7 +3157,6 @@ function App() {
             [showLinkedListsModal, setShowLinkedListsModal],
             [showSortingModal, setShowSortingModal],
             [showBinarySearchModal, setShowBinarySearchModal],
-            [showRecursionModal, setShowRecursionModal],
             [showDynamicProgrammingModal, setShowDynamicProgrammingModal],
             [showSearchingModal, setShowSearchingModal],
             [showGreedyAlgorithmsModal, setShowGreedyAlgorithmsModal],
@@ -3175,7 +3167,6 @@ function App() {
             [showLambdasAdvancedModal, setShowLambdasAdvancedModal],
             [showFunctionalInterfacesModal, setShowFunctionalInterfacesModal],
             [showCollectionsFrameworkModal, setShowCollectionsFrameworkModal],
-            [showConcurrencyModal, setShowConcurrencyModal],
             [showMultithreadingModal, setShowMultithreadingModal],
             [showOptionalModal, setShowOptionalModal],
             [showObjectOrientedProgrammingModal, setShowObjectOrientedProgrammingModal],
@@ -3213,7 +3204,6 @@ function App() {
 
           // Question modals that should use handleQuestionModalBack for proper Learning Path navigation
           const questionModalClosers = [
-            [showJavaQuestionsModal, setShowJavaQuestionsModal],
             [showCoreJavaQuestionsModal, setShowCoreJavaQuestionsModal],
             [showJava8QuestionsModal, setShowJava8QuestionsModal],
             [showJava11QuestionsModal, setShowJava11QuestionsModal],
@@ -3463,7 +3453,6 @@ function App() {
     showLinkedListsModal,
     showSortingModal,
     showBinarySearchModal,
-    showRecursionModal,
     showDynamicProgrammingModal,
     showSearchingModal,
     showGreedyAlgorithmsModal,
@@ -3474,7 +3463,6 @@ function App() {
     showLambdasAdvancedModal,
     showFunctionalInterfacesModal,
     showCollectionsFrameworkModal,
-    showConcurrencyModal,
     showMultithreadingModal,
     showOptionalModal,
     showObjectOrientedProgrammingModal,
@@ -3506,7 +3494,6 @@ function App() {
     showGRPCModal,
     showSOAPModal,
     showReactModal,
-    showJavaQuestionsModal,
     showCoreJavaQuestionsModal,
     showJava8QuestionsModal,
     showJava11QuestionsModal,
@@ -3931,7 +3918,8 @@ function App() {
           }
           // Handle question topics by opening their modals
           const questionModals = {
-            'Java Questions': setShowJavaQuestionsModal,
+            // 'Java Questions' merged into Core Java Questions - redirect legacy links
+            'Java Questions': setShowCoreJavaQuestionsModal,
             'Core Java Questions': setShowCoreJavaQuestionsModal,
             'Java 8 Questions': setShowJava8QuestionsModal,
             'Java 11 Questions': setShowJava11QuestionsModal,
@@ -4749,7 +4737,7 @@ function App() {
       return null
     }
     if (selectedOption === 'Concurrency') {
-      setShowConcurrencyModal(true)
+      setShowMultithreadingModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -4906,7 +4894,7 @@ function App() {
             case 'Linked Lists': setShowLinkedListsModal(true); break;
             case 'Sorting': setShowSortingModal(true); break;
             case 'Binary Search': setShowBinarySearchModal(true); break;
-            case 'Recursion': setShowRecursionModal(true); break;
+            case 'Recursion': setShowBacktrackingModal(true); break;
             case 'Dynamic Programming': setShowDynamicProgrammingModal(true); break;
             case 'Dynamic Programming Patterns': setSelectedOptionAndRef('Dynamic Programming Patterns'); break;
             case 'Sliding Window': setShowSlidingWindowModal(true); break;
@@ -4923,7 +4911,7 @@ function App() {
             case 'Lambdas Advanced': setShowLambdasAdvancedModal(true); break;
             case 'Functional Interfaces': setShowFunctionalInterfacesModal(true); break;
             case 'Collections Framework': setShowCollectionsFrameworkModal(true); break;
-            case 'Concurrency': setShowConcurrencyModal(true); break;
+            case 'Concurrency': setShowMultithreadingModal(true); break;
             case 'Multithreading': setShowMultithreadingModal(true); break;
             case 'Object-Oriented Programming': setShowObjectOrientedProgrammingModal(true); break;
             case 'Exception Handling': setShowExceptionHandlingModal(true); break;
@@ -4961,7 +4949,7 @@ function App() {
           // Open the appropriate modal based on the item name
           console.log('Questions item clicked:', item);
           switch (item) {
-            case 'Java Questions': setShowJavaQuestionsModal(true); break;
+            case 'Java Questions': setShowCoreJavaQuestionsModal(true); break;
             case 'Core Java Questions': setShowCoreJavaQuestionsModal(true); break;
             case 'Java 8 Questions': setShowJava8QuestionsModal(true); break;
             case 'Java 11 Questions': setShowJava11QuestionsModal(true); break;
@@ -6832,47 +6820,6 @@ function App() {
         </div>
       )}
 
-      {showRecursionModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowRecursionModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Recursion..." />}>
-              <Recursion
-                onBack={() => { setShowRecursionModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Recursion')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
 
       {showDynamicProgrammingModal && (
         <div
@@ -7496,48 +7443,6 @@ function App() {
               {...createNavigationCallbacks('Collections Framework')}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowCollectionsFrameworkModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Collections Framework'
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {showConcurrencyModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowConcurrencyModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Concurrency
-              onBack={() => { setShowConcurrencyModal(false); setSelectedOptionAndRef('Java') }}
-              {...createNavigationCallbacks('Concurrency')}
-              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowConcurrencyModal(false); setSelectedOptionAndRef('Java') } },
-                topic: 'Concurrency'
               }}
             />
           </div>

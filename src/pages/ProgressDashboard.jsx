@@ -77,7 +77,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
         'Memory Management': 'MemoryManagement',
         'Java 8': 'Java8', 'Java 11': 'Java11', 'Java 15': 'Java15',
         'Java 21': 'Java21', 'Java 24': 'Java24',
-        'Java Questions': 'JavaQuestions',
         'Core Java Questions': 'CoreJavaQuestions',
         'Java 8 Questions': 'Java8Questions',
         'Java 11 Questions': 'Java11Questions',
@@ -231,7 +230,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
     ]},
     // Intermediate (Medium)
     { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
-      { name: 'Recursion', problems: 8, icon: '🔄', description: 'Recursive problem-solving patterns' },
       { name: 'Trees', problems: 6, icon: '🌳', description: 'Tree traversals and manipulations' },
       { name: 'Binary Trees', problems: 17, icon: '🌲', description: 'Binary tree specific algorithms' },
       { name: 'Binary Search Trees', problems: 3, icon: '🌿', description: 'BST operations and properties' },
@@ -349,7 +347,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
     ]},
     // Java Interview Questions
     { category: 'Java Interview Questions', difficulty: 'Intermediate', color: '#f97316', topics: [
-      { name: 'Java Questions', problems: 10, icon: '☕', description: 'General Java interview questions' },
       { name: 'Core Java Questions', problems: 12, icon: '📚', description: 'Core Java fundamentals and concepts' },
       { name: 'Java 8 Questions', problems: 15, icon: '🎯', description: 'Java 8 features interview questions' },
       { name: 'Java 11 Questions', problems: 8, icon: '🔧', description: 'Java 11 features interview questions' },
@@ -424,7 +421,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
     { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
       { name: 'Binary Trees', problems: 3, icon: '🌲', description: 'Core tree problems' },
       { name: 'Heaps', problems: 2, icon: '⛰️', description: 'Priority queue basics' },
-      { name: 'Recursion', problems: 2, icon: '🔄', description: 'Key recursion patterns' },
     ]},
     // Advanced Data Structures (7)
     { category: 'Advanced Data Structures', difficulty: 'Medium-Hard', color: '#8b5cf6', topics: [
@@ -542,7 +538,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
     ]},
     // Intermediate
     { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
-      { name: 'Recursion', problems: 5, icon: '🔄', description: 'Recursive patterns' },
       { name: 'Trees', problems: 4, icon: '🌳', description: 'Tree traversals' },
       { name: 'Binary Trees', problems: 12, icon: '🌲', description: 'Binary tree algorithms' },
       { name: 'Binary Search Trees', problems: 3, icon: '🌿', description: 'BST operations' },
@@ -634,7 +629,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
     ]},
     // Java Interview Questions
     { category: 'Java Interview Questions', difficulty: 'Intermediate', color: '#f97316', topics: [
-      { name: 'Java Questions', problems: 5, icon: '☕', description: 'General Java questions' },
       { name: 'Core Java Questions', problems: 8, icon: '📚', description: 'Core Java concepts' },
       { name: 'Java 8 Questions', problems: 10, icon: '🎯', description: 'Java 8 features' },
       { name: 'Java 21 Questions', problems: 5, icon: '🚀', description: 'Modern Java' },
@@ -763,7 +757,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
       // System Design Case Studies
       'Google Docs': 'GoogleDocs',
       // Java Interview Questions
-      'Java Questions': 'JavaQuestions',
       'Core Java Questions': 'CoreJavaQuestions',
       'Java 8 Questions': 'Java8Questions',
       'Java 11 Questions': 'Java11Questions',
