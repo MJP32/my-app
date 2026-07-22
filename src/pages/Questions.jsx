@@ -175,7 +175,7 @@ function Questions({ onBack, onSelectItem, initialCategory, onInitialCategoryUse
       icon: '📖',
       color: '#06b6d4',
       complexity: 'Beginner to Intermediate',
-      description: 'Core SQL concepts: JOINs, subqueries, CTEs, window functions, and aggregates.'
+      description: 'SQL command families (DDL/DML/DCL/TCL), subqueries, aggregates, NULL handling, and execution order.'
     },
     // Messaging & Streaming
     {

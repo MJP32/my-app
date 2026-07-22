@@ -471,7 +471,7 @@ const LazyEvaluationDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function Streams({ onBack, breadcrumb }) {
+function Streams({ onBack, breadcrumb, onNavigateTopic }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
@@ -1528,50 +1528,6 @@ Map<String, String> joinedNames = people.stream()
         )
     ));
 // {Engineering="Alice, Charlie", Sales="Bob, David"}`
-        },
-        {
-          name: 'Custom Collectors',
-          explanation: 'Create custom collectors using Collector.of() with supplier, accumulator, combiner, and finisher functions. This allows implementing any collection strategy not covered by built-in collectors.',
-          codeExample: `// Custom Collector structure
-Collector<T, A, R> collector = Collector.of(
-    supplier,     // () -> A (create accumulator)
-    accumulator,  // (A, T) -> void (add element)
-    combiner,     // (A, A) -> A (merge accumulators)
-    finisher,     // A -> R (final transformation)
-    characteristics  // CONCURRENT, UNORDERED, IDENTITY_FINISH
-);
-
-// Example: Collect to ArrayList with initial capacity
-Collector<String, List<String>, List<String>> toSizedList =
-    Collector.of(
-        () -> new ArrayList<>(100),      // supplier
-        List::add,                        // accumulator
-        (left, right) -> {               // combiner
-            left.addAll(right);
-            return left;
-        },
-        Function.identity(),              // finisher
-        Collector.Characteristics.IDENTITY_FINISH
-    );
-
-// Example: Collect statistics
-Collector<Integer, int[], double[]> statsCollector =
-    Collector.of(
-        () -> new int[]{0, 0},           // [sum, count]
-        (acc, val) -> {
-            acc[0] += val;
-            acc[1]++;
-        },
-        (left, right) -> new int[]{
-            left[0] + right[0],
-            left[1] + right[1]
-        },
-        acc -> new double[]{
-            acc[0],                       // sum
-            acc[1],                       // count
-            (double) acc[0] / acc[1]      // average
-        }
-    );`
         }
       ]
     },
@@ -2105,6 +2061,18 @@ public static <T> Collector<T, ?, List<T>> toListWithLogging() {
 
   return (
     <div style={containerStyle}>
+
+      <div style={{ margin: '1rem 0', padding: '0.9rem 1.2rem', backgroundColor: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.35)', borderRadius: '12px', color: '#e5e7eb' }}>
+        Writing your own Collector &mdash; the Collector interface, characteristics, top-N, collectingAndThen, teeing and Spliterator &mdash; is covered on the Advanced Java Streams page.
+        {onNavigateTopic && (
+          <button
+            onClick={() => onNavigateTopic('Streams Advanced')}
+            style={{ marginLeft: '0.75rem', background: 'rgb(59, 130, 246)', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Go to Advanced Streams &rarr;
+          </button>
+        )}
+      </div>
       {/* Header with title and back button */}
       <div style={headerStyle}>
         <h1 style={titleStyle}>Java Streams API</h1>

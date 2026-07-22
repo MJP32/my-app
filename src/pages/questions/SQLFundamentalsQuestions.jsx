@@ -5,7 +5,7 @@ import Breadcrumb from '../../components/Breadcrumb'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
-function SQLFundamentalsQuestions({ onBack, breadcrumb, problemLimit }) {
+function SQLFundamentalsQuestions({ onBack, breadcrumb, problemLimit, onNavigateTopic }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const [activeCategory, setActiveCategory] = useState('All')
@@ -162,81 +162,6 @@ COMMIT;  -- Or ROLLBACK if error
     },
     {
       id: 2,
-      category: 'JOINs',
-      question: 'Explain all types of SQL JOINs with examples',
-      answer: `**INNER JOIN:**
-Returns only rows with matches in BOTH tables.
-
-\`\`\`sql
-SELECT u.name, o.order_date
-FROM users u
-INNER JOIN orders o ON u.id = o.user_id;
--- Only users WITH orders appear
-\`\`\`
-
-**LEFT JOIN (LEFT OUTER JOIN):**
-Returns ALL rows from left table + matching rows from right.
-
-\`\`\`sql
-SELECT u.name, o.order_date
-FROM users u
-LEFT JOIN orders o ON u.id = o.user_id;
--- ALL users appear, order_date is NULL if no orders
-\`\`\`
-
-**RIGHT JOIN (RIGHT OUTER JOIN):**
-Returns ALL rows from right table + matching rows from left.
-
-\`\`\`sql
-SELECT u.name, o.order_date
-FROM users u
-RIGHT JOIN orders o ON u.id = o.user_id;
--- ALL orders appear, name is NULL if user deleted
-\`\`\`
-
-**FULL OUTER JOIN:**
-Returns ALL rows from BOTH tables.
-
-\`\`\`sql
-SELECT u.name, o.order_date
-FROM users u
-FULL OUTER JOIN orders o ON u.id = o.user_id;
--- ALL users AND all orders, NULLs where no match
-\`\`\`
-
-**CROSS JOIN:**
-Cartesian product - every row with every row.
-
-\`\`\`sql
-SELECT u.name, p.product_name
-FROM users u
-CROSS JOIN products p;
--- 10 users × 5 products = 50 rows
-\`\`\`
-
-**SELF JOIN:**
-Join table to itself (must use aliases).
-
-\`\`\`sql
-SELECT e.name AS employee, m.name AS manager
-FROM employees e
-LEFT JOIN employees m ON e.manager_id = m.id;
-\`\`\`
-
-**Visual Summary:**
-- INNER: Intersection (∩)
-- LEFT: All left + intersection
-- RIGHT: All right + intersection
-- FULL: Union of both (∪)
-- CROSS: Cartesian product (×)
-
-**Common Use Cases:**
-- INNER: Related data (orders with customers)
-- LEFT: All items even without matches (users with/without orders)
-- SELF: Hierarchies (employee-manager)`
-    },
-    {
-      id: 3,
       category: 'Subqueries',
       question: 'What are the different types of subqueries?',
       answer: `**1. Scalar Subquery:**
@@ -321,170 +246,7 @@ WHERE salary > ALL (SELECT salary FROM employees WHERE role = 'Manager');
 \`\`\``
     },
     {
-      id: 4,
-      category: 'CTEs',
-      question: 'What are CTEs and when should you use them?',
-      answer: `**CTE (Common Table Expression):**
-Named temporary result set defined with WITH clause.
-
-**Basic CTE:**
-\`\`\`sql
-WITH high_earners AS (
-    SELECT * FROM employees WHERE salary > 100000
-)
-SELECT department, COUNT(*) AS count
-FROM high_earners
-GROUP BY department;
-\`\`\`
-
-**Multiple CTEs:**
-\`\`\`sql
-WITH
-active_users AS (
-    SELECT id, name FROM users WHERE status = 'active'
-),
-user_totals AS (
-    SELECT user_id, SUM(amount) AS total
-    FROM orders
-    GROUP BY user_id
-)
-SELECT au.name, ut.total
-FROM active_users au
-JOIN user_totals ut ON au.id = ut.user_id;
-\`\`\`
-
-**Recursive CTE:**
-Essential for hierarchical data (org charts, categories, graphs).
-
-\`\`\`sql
--- Employee hierarchy
-WITH RECURSIVE org_chart AS (
-    -- Anchor: top-level (no manager)
-    SELECT id, name, manager_id, 1 AS level
-    FROM employees
-    WHERE manager_id IS NULL
-
-    UNION ALL
-
-    -- Recursive: employees with managers
-    SELECT e.id, e.name, e.manager_id, oc.level + 1
-    FROM employees e
-    JOIN org_chart oc ON e.manager_id = oc.id
-)
-SELECT * FROM org_chart ORDER BY level, name;
-\`\`\`
-
-**CTE vs Subquery:**
-
-| CTE | Subquery |
-|-----|----------|
-| Named, reusable | Anonymous |
-| Better readability | More compact |
-| Can reference itself (recursive) | Cannot recurse |
-| May not inline (optimization fence) | Usually inlined |
-
-**When to Use CTEs:**
-- Complex multi-step queries
-- Recursive/hierarchical queries
-- Query needs to reference same subquery multiple times
-- Improving code readability
-
-**CTE with INSERT/UPDATE/DELETE (PostgreSQL):**
-\`\`\`sql
-WITH deleted AS (
-    DELETE FROM orders WHERE status = 'cancelled'
-    RETURNING *
-)
-INSERT INTO order_archive SELECT * FROM deleted;
-\`\`\``
-    },
-    {
-      id: 5,
-      category: 'Window Functions',
-      question: 'Explain window functions and the OVER clause',
-      answer: `**Window Functions:**
-Perform calculations across related rows WITHOUT collapsing them (unlike GROUP BY).
-
-**Basic Syntax:**
-\`\`\`sql
-function_name() OVER (
-    PARTITION BY column    -- Groups rows
-    ORDER BY column        -- Orders within partition
-    ROWS/RANGE frame       -- Defines window frame
-)
-\`\`\`
-
-**Ranking Functions:**
-\`\`\`sql
-SELECT name, department, salary,
-    ROW_NUMBER() OVER (ORDER BY salary DESC) AS row_num,
-    RANK() OVER (ORDER BY salary DESC) AS rank,
-    DENSE_RANK() OVER (ORDER BY salary DESC) AS dense_rank
-FROM employees;
-
--- For salary: 100, 100, 90, 80
--- ROW_NUMBER: 1, 2, 3, 4 (always unique)
--- RANK:       1, 1, 3, 4 (gaps after ties)
--- DENSE_RANK: 1, 1, 2, 3 (no gaps)
-\`\`\`
-
-**PARTITION BY:**
-\`\`\`sql
--- Rank within each department
-SELECT name, department, salary,
-    ROW_NUMBER() OVER (
-        PARTITION BY department
-        ORDER BY salary DESC
-    ) AS dept_rank
-FROM employees;
-\`\`\`
-
-**LAG and LEAD:**
-\`\`\`sql
-SELECT date, sales,
-    LAG(sales, 1) OVER (ORDER BY date) AS prev_day,
-    LEAD(sales, 1) OVER (ORDER BY date) AS next_day,
-    sales - LAG(sales) OVER (ORDER BY date) AS daily_change
-FROM daily_sales;
-\`\`\`
-
-**Running Totals:**
-\`\`\`sql
-SELECT date, amount,
-    SUM(amount) OVER (ORDER BY date) AS running_total
-FROM transactions;
-\`\`\`
-
-**Moving Average:**
-\`\`\`sql
-SELECT date, sales,
-    AVG(sales) OVER (
-        ORDER BY date
-        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-    ) AS moving_avg_7day
-FROM daily_sales;
-\`\`\`
-
-**Frame Specifications:**
-\`\`\`sql
-ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW  -- Default
-ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING          -- Centered window
-ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING  -- Current to end
-\`\`\`
-
-**Top N per Group:**
-\`\`\`sql
-WITH ranked AS (
-    SELECT *, ROW_NUMBER() OVER (
-        PARTITION BY department ORDER BY salary DESC
-    ) AS rn
-    FROM employees
-)
-SELECT * FROM ranked WHERE rn <= 3;
-\`\`\``
-    },
-    {
-      id: 6,
+      id: 3,
       category: 'Aggregates',
       question: 'Explain GROUP BY, HAVING, and aggregate functions',
       answer: `**Common Aggregate Functions:**
@@ -569,7 +331,7 @@ GROUP BY department;
 \`\`\``
     },
     {
-      id: 7,
+      id: 4,
       category: 'Basics',
       question: 'What is NULL and how do you handle it?',
       answer: `**What is NULL:**
@@ -642,156 +404,7 @@ SELECT * FROM users ORDER BY phone NULLS FIRST;  -- NULLs at start
 \`\`\``
     },
     {
-      id: 8,
-      category: 'Performance',
-      question: 'When should you use indexes?',
-      answer: `**When to Create Indexes:**
-
-**Good Candidates:**
-- Primary keys (automatic)
-- Foreign keys
-- Columns in WHERE clauses
-- Columns in JOIN conditions
-- Columns in ORDER BY
-- Columns with high selectivity (many unique values)
-
-\`\`\`sql
--- Single column index
-CREATE INDEX idx_users_email ON users(email);
-
--- Composite index (order matters!)
-CREATE INDEX idx_orders_user_date ON orders(user_id, created_at);
-
--- Partial index (only index subset)
-CREATE INDEX idx_active ON users(email) WHERE status = 'active';
-
--- Covering index (includes all needed columns)
-CREATE INDEX idx_cover ON orders(user_id) INCLUDE (total, status);
-\`\`\`
-
-**When NOT to Use Indexes:**
-- Small tables (< few hundred rows)
-- Low selectivity columns (gender, boolean, status with few values)
-- Columns rarely used in queries
-- Tables with frequent INSERT/UPDATE/DELETE
-
-**Index Types:**
-- B-tree (default): Equality, range, sorting
-- Hash: Equality only
-- GIN: Arrays, JSONB, full-text
-- GiST: Geometric, range types
-- BRIN: Large sequential tables
-
-**Index Overhead:**
-- Slows down INSERT (must update index)
-- Slows down UPDATE (if indexed column changes)
-- Slows down DELETE (must update index)
-- Uses disk space
-
-**Checking Index Usage:**
-\`\`\`sql
--- EXPLAIN shows if index is used
-EXPLAIN SELECT * FROM users WHERE email = 'test@example.com';
-
--- Check for unused indexes
-SELECT indexrelname, idx_scan
-FROM pg_stat_user_indexes
-ORDER BY idx_scan ASC;
-\`\`\`
-
-**Best Practices:**
-1. Don't over-index (max 4-5 per table)
-2. Always index foreign keys
-3. Consider query patterns before creating
-4. Monitor slow queries
-5. Drop unused indexes
-6. Use composite indexes wisely (leftmost prefix rule)`
-    },
-    {
-      id: 9,
-      category: 'Transactions',
-      question: 'What are ACID properties?',
-      answer: `**ACID Properties:**
-
-**A - Atomicity:**
-"All or nothing" - Transaction fully completes or fully rolls back.
-
-\`\`\`sql
-BEGIN;
-UPDATE accounts SET balance = balance - 100 WHERE id = 1;  -- Withdraw
-UPDATE accounts SET balance = balance + 100 WHERE id = 2;  -- Deposit
-COMMIT;  -- Both succeed or both fail
-\`\`\`
-If deposit fails, withdrawal is rolled back.
-
-**C - Consistency:**
-Database moves from one valid state to another valid state. All constraints are enforced.
-
-\`\`\`sql
--- Constraint ensures consistency
-ALTER TABLE accounts ADD CONSTRAINT positive_balance CHECK (balance >= 0);
--- Transaction will fail if it violates constraint
-\`\`\`
-
-**I - Isolation:**
-Concurrent transactions don't interfere with each other.
-
-**Isolation Levels:**
-| Level | Dirty Read | Non-Repeatable | Phantom |
-|-------|------------|----------------|---------|
-| Read Uncommitted | Yes | Yes | Yes |
-| Read Committed | No | Yes | Yes |
-| Repeatable Read | No | No | Yes* |
-| Serializable | No | No | No |
-
-*PostgreSQL's Repeatable Read prevents phantoms
-
-\`\`\`sql
-SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-BEGIN;
--- Transaction sees consistent snapshot
-COMMIT;
-\`\`\`
-
-**D - Durability:**
-Committed transactions are permanent, surviving crashes.
-
-\`\`\`sql
-BEGIN;
-INSERT INTO orders (...) VALUES (...);
-COMMIT;  -- After COMMIT, data survives power failure
-\`\`\`
-
-**Transaction Example:**
-\`\`\`sql
-BEGIN;
-
--- Transfer money
-UPDATE accounts SET balance = balance - 500 WHERE id = 1;
-UPDATE accounts SET balance = balance + 500 WHERE id = 2;
-
--- Check balance didn't go negative
-IF (SELECT balance FROM accounts WHERE id = 1) < 0 THEN
-    ROLLBACK;  -- Undo everything
-ELSE
-    COMMIT;    -- Finalize changes
-END IF;
-\`\`\`
-
-**Savepoints:**
-\`\`\`sql
-BEGIN;
-INSERT INTO orders (...);
-SAVEPOINT before_items;
-INSERT INTO order_items (...);  -- Might fail
--- If failed:
-ROLLBACK TO SAVEPOINT before_items;
--- Continue with order
-COMMIT;
-\`\`\``
-    },
-    {
-      id: 10,
+      id: 5,
       category: 'Basics',
       question: 'What is the SQL execution order?',
       answer: `**Written Order vs Execution Order:**
@@ -925,6 +538,18 @@ FROM → WHERE → GROUP → HAVING → SELECT → ORDER → LIMIT
 
       <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
+      <div style={{ margin: '1rem 0', padding: '1rem 1.25rem', backgroundColor: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.35)', borderRadius: '12px', color: '#e5e7eb' }}>
+        JOINs, CTEs, window functions, indexes and ACID are covered in depth on the SQL Questions page, along with normalization, EXPLAIN plans, locking and stored procedures.
+        {onNavigateTopic && (
+          <button
+            onClick={() => onNavigateTopic('SQL Questions')}
+            style={{ marginLeft: '0.75rem', background: '#0891b2', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Go to SQL Questions →
+          </button>
+        )}
+      </div>
+
       <CollapsibleSidebar
         items={displayQuestions}
         selectedIndex={expandedQuestion ? displayQuestions.findIndex(q => q.id === expandedQuestion) : -1}
@@ -936,7 +561,7 @@ FROM → WHERE → GROUP → HAVING → SELECT → ORDER → LIMIT
       />
 
       <p style={{ fontSize: '1.1rem', color: '#d1d5db', textAlign: 'left', marginBottom: '2rem', lineHeight: '1.6' }}>
-        Core SQL interview questions covering JOINs, subqueries, CTEs, window functions, and essential SQL concepts.
+        Core SQL interview questions covering command families, subqueries, aggregates, NULL semantics, and execution order.
       </p>
 
 

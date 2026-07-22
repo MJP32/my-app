@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 
-export default function DatabaseSharding({ onBack, breadcrumb }) {
+export default function DatabaseSharding({ onBack, breadcrumb, onNavigate }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
@@ -139,6 +139,14 @@ export default function DatabaseSharding({ onBack, breadcrumb }) {
                   </ul>
                 </div>
               </div>
+              {onNavigate && (
+                <button
+                  onClick={() => onNavigate('Data Partitioning')}
+                  className="mt-6 inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold px-6 py-3 rounded-xl border border-green-400 transition-colors"
+                >
+                  Vertical and functional partitioning: Data Partitioning →
+                </button>
+              )}
             </div>
           </div>
         )}

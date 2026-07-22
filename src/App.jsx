@@ -2156,7 +2156,7 @@ function App() {
     } : null
     const nextName = currentIndex < DEVOPS_COMPONENTS_ORDER.length - 1 ? DEVOPS_DISPLAY_NAMES[DEVOPS_COMPONENTS_ORDER[currentIndex + 1]] : null
 
-    return { onPrevious, onNext, previousName, nextName, currentSubcategory: 'DevOps' }
+    return { onPrevious, onNext, previousName, nextName, onNavigateComponent: navigateToDevOpsComponent, currentSubcategory: 'DevOps' }
   }
 
   // Create navigation callbacks for cloud components
@@ -4488,7 +4488,7 @@ function App() {
       }} />
     }
     if (selectedOption === 'Database Sharding') {
-      return <DatabaseSharding onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <DatabaseSharding onNavigate={setSelectedOptionAndRef} onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Database Sharding',
         colors: BREADCRUMB_COLORS.Design
@@ -4551,7 +4551,7 @@ function App() {
       }} />
     }
     if (selectedOption === 'Data Partitioning') {
-      return <DataPartitioning onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <DataPartitioning onNavigate={setSelectedOptionAndRef} onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Data Partitioning',
         colors: BREADCRUMB_COLORS.Design
@@ -7231,6 +7231,7 @@ function App() {
             }}
           >
             <Streams
+              onNavigateTopic={(t) => { setShowStreamsModal(false); if (t === 'Streams Advanced') setShowStreamsAdvancedModal(true) }}
               onBack={() => { setShowStreamsModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Streams')}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsModal(false); setSelectedOptionAndRef('Java') } },
@@ -7273,6 +7274,7 @@ function App() {
             }}
           >
             <StreamsAdvanced
+              onNavigateTopic={(t) => { setShowStreamsAdvancedModal(false); if (t === 'Streams') setShowStreamsModal(true) }}
               onBack={() => { setShowStreamsAdvancedModal(false); setSelectedOptionAndRef('Java') }}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsAdvancedModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Streams Advanced'
@@ -8270,6 +8272,11 @@ function App() {
                 <QComponent
                   onBack={() => handleQuestionModalBack(m.setShow)}
                   problemLimit={problemLimit}
+                  onNavigateTopic={(topic) => {
+                    m.setShow(false)
+                    if (topic === 'SQL Questions') setShowSQLQuestionsModal(true)
+                    else if (topic === 'System Design Questions') setShowSystemDesignQuestionsModal(true)
+                  }}
                   {...(m.topic ? { breadcrumb: { onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { m.setShow(false); setSelectedOptionAndRef('Questions') } }, topic: m.topic, colors: BREADCRUMB_COLORS.Questions } } : {})}
                 />
               </Suspense>

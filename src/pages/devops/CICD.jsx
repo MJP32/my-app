@@ -493,7 +493,7 @@ const BestPracticesDiagram = () => (
   </svg>
 )
 
-function CICD({ onBack, onPrevious, onNext, previousName, nextName, breadcrumb }) {
+function CICD({ onBack, onPrevious, onNext, previousName, nextName, breadcrumb, onNavigateComponent }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -1236,297 +1236,6 @@ deploy_production:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
   allow_failure: false`
-        },
-        {
-          name: 'Blue-Green Deployment',
-          explanation: 'Maintain two identical production environments. Blue is live, Green receives new deployment. Switch traffic once Green is validated. Instant rollback by switching back to Blue. Zero downtime deployment. Full production testing before switch. Resource-intensive (double infrastructure). Ideal for critical applications.',
-          codeExample: `# Kubernetes Blue-Green with Service selector
-# blue-deployment.yaml (current production)
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: myapp-blue
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: myapp
-      version: blue
-  template:
-    metadata:
-      labels:
-        app: myapp
-        version: blue
-
----
-# green-deployment.yaml (new version)
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: myapp-green
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: myapp
-      version: green
-  template:
-    metadata:
-      labels:
-        app: myapp
-        version: green
-
----
-# service.yaml - Switch traffic by changing selector
-apiVersion: v1
-kind: Service
-metadata:
-  name: myapp
-spec:
-  selector:
-    app: myapp
-    version: blue  # Change to 'green' to switch
-
----
-# Switch script
-#!/bin/bash
-CURRENT=\$(kubectl get svc myapp -o jsonpath='{.spec.selector.version}')
-if [ "$CURRENT" = "blue" ]; then
-  kubectl patch svc myapp -p '{"spec":{"selector":{"version":"green"}}}'
-else
-  kubectl patch svc myapp -p '{"spec":{"selector":{"version":"blue"}}}'
-fi`
-        },
-        {
-          name: 'Canary Releases',
-          explanation: 'Gradually roll out changes to subset of users. Start with 1-5% of traffic. Monitor for errors and performance. Increase percentage if successful. Roll back if issues detected. Reduces blast radius of problems. A/B testing capabilities. Requires sophisticated traffic management and monitoring.',
-          codeExample: `# Argo Rollouts Canary Strategy
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: myapp
-spec:
-  replicas: 10
-  strategy:
-    canary:
-      canaryService: myapp-canary
-      stableService: myapp-stable
-      trafficRouting:
-        istio:
-          virtualService:
-            name: myapp-vsvc
-      steps:
-        - setWeight: 5     # 5% traffic to canary
-        - pause: {duration: 2m}
-        - setWeight: 20
-        - pause: {duration: 5m}
-        - setWeight: 50
-        - pause: {duration: 10m}
-        - setWeight: 80
-        - pause: {duration: 5m}
-      analysis:
-        templates:
-          - templateName: success-rate
-        startingStep: 2
-        args:
-          - name: service-name
-            value: myapp-canary
-
----
-# Analysis Template for automated rollback
-apiVersion: argoproj.io/v1alpha1
-kind: AnalysisTemplate
-metadata:
-  name: success-rate
-spec:
-  args:
-    - name: service-name
-  metrics:
-    - name: success-rate
-      interval: 1m
-      successCondition: result[0] >= 0.95
-      failureLimit: 3
-      provider:
-        prometheus:
-          address: http://prometheus:9090
-          query: |
-            sum(rate(http_requests_total{service="{{args.service-name}}",status=~"2.."}[5m]))
-            /
-            sum(rate(http_requests_total{service="{{args.service-name}}"}[5m]))`
-        }
-      ]
-    },
-    {
-      id: 'jenkins',
-      name: 'Jenkins Pipelines',
-      icon: '🔧',
-      color: '#d24939',
-      description: 'Declarative pipelines for structured, versioned workflows defined in Jenkinsfile. Agents specify execution environment, parallel stages for concurrency. Webhooks trigger on code push. Shared libraries centralize reusable steps across teams.',
-      diagram: JenkinsDiagram,
-      details: [
-        {
-          name: 'Declarative Pipeline',
-          explanation: 'Modern, structured syntax for Jenkins pipelines. Defined in Jenkinsfile. Pipeline block contains stages and steps. Agent directive specifies where to run. Environment for variables. Post block for cleanup and notifications. Easier to read and maintain. Built-in validation and error handling. Recommended for most use cases.',
-          codeExample: `pipeline {
-    agent any
-    environment {
-        DOCKER_REGISTRY = 'registry.example.com'
-    }
-    stages {
-        stage('Build') {
-            steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
-        stage('Test') {
-            parallel {
-                stage('Unit Tests') {
-                    steps { sh 'mvn test' }
-                }
-                stage('Integration Tests') {
-                    steps { sh 'mvn verify' }
-                }
-            }
-        }
-        stage('Deploy') {
-            when { branch 'main' }
-            steps {
-                sh 'kubectl apply -f k8s/'
-            }
-        }
-    }
-    post {
-        success { slackSend message: 'Build succeeded' }
-        failure { slackSend message: 'Build failed' }
-    }
-}`
-        },
-        {
-          name: 'Scripted Pipeline',
-          explanation: 'Groovy-based pipeline with full programming flexibility. More powerful but complex. Use when declarative is too limiting. Try-catch for error handling. Functions for code reuse. Access to Jenkins APIs. Can mix with declarative. Harder to validate before running.',
-          codeExample: `node {
-    try {
-        stage('Checkout') {
-            checkout scm
-        }
-        stage('Build') {
-            sh 'mvn clean package'
-        }
-        stage('Deploy') {
-            if (env.BRANCH_NAME == 'main') {
-                deployToProduction()
-            }
-        }
-    } catch (e) {
-        slackSend message: "Build failed: \${e.message}"
-        throw e
-    }
-}
-
-def deployToProduction() {
-    input message: 'Deploy to production?'
-    sh 'kubectl apply -f k8s/'
-}`
-        },
-        {
-          name: 'Shared Libraries',
-          explanation: 'Reusable code across multiple pipelines. Stored in Git repository. Version controlled like application code. Import with @Library annotation. Define custom steps and functions. Centralize common patterns. Reduce duplication across teams. Test libraries before using in production pipelines.',
-          codeExample: `// vars/standardPipeline.groovy (Shared Library)
-def call(Map config) {
-    pipeline {
-        agent any
-        stages {
-            stage('Build') {
-                steps {
-                    sh "mvn clean package -DskipTests"
-                }
-            }
-            stage('Test') {
-                steps {
-                    sh "mvn test"
-                }
-            }
-            stage('Deploy') {
-                when { branch 'main' }
-                steps {
-                    deployToKubernetes(
-                        namespace: config.namespace,
-                        image: config.image
-                    )
-                }
-            }
-        }
-    }
-}
-
-// vars/deployToKubernetes.groovy
-def call(Map args) {
-    sh """
-        kubectl set image deployment/\${args.namespace} \\
-            app=\${args.image}:\${env.BUILD_NUMBER}
-    """
-}
-
----
-// Jenkinsfile using shared library
-@Library('my-shared-library@main') _
-
-standardPipeline(
-    namespace: 'production',
-    image: 'myapp'
-)`
-        },
-        {
-          name: 'Jenkins Configuration',
-          explanation: 'Jenkins Configuration as Code (JCasC) for setup. Manage plugins declaratively. Credentials management with secrets. Distributed builds with agents. Pipeline triggers: webhooks, schedules, upstream jobs. Build matrix for multiple configurations. Resource management and quotas. Integration with source control systems.',
-          codeExample: `# jenkins.yaml (Configuration as Code)
-jenkins:
-  systemMessage: "Jenkins configured via JCasC"
-  numExecutors: 0  # Controller doesn't run builds
-
-  securityRealm:
-    ldap:
-      configurations:
-        - server: ldap.example.com
-
-  authorizationStrategy:
-    roleBased:
-      roles:
-        global:
-          - name: "admin"
-            permissions:
-              - "Overall/Administer"
-          - name: "developer"
-            permissions:
-              - "Job/Build"
-              - "Job/Read"
-
-  nodes:
-    - permanent:
-        name: "build-agent-1"
-        remoteFS: "/home/jenkins"
-        launcher:
-          ssh:
-            host: "agent1.example.com"
-            credentialsId: "ssh-agent-key"
-
-credentials:
-  system:
-    domainCredentials:
-      - credentials:
-          - usernamePassword:
-              id: "docker-hub"
-              username: "\${DOCKER_USER}"
-              password: "\${DOCKER_PASS}"
-          - string:
-              id: "sonar-token"
-              secret: "\${SONAR_TOKEN}"
-
-unclassified:
-  gitHubPluginConfig:
-    configs:
-      - credentialsId: "github-token"
-        name: "GitHub"`
         }
       ]
     },
@@ -2733,6 +2442,23 @@ flyway undo
           onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={CICD_COLORS}
         />
+        {onNavigateComponent && (
+          <div style={{ marginTop: '1rem', padding: '0.9rem 1.2rem', backgroundColor: 'rgba(210, 73, 57, 0.08)', border: '1px solid rgba(210, 73, 57, 0.35)', borderRadius: '12px', color: '#e5e7eb', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
+            <span>Jenkins pipeline internals (declarative/scripted syntax, shared libraries, agents) and full Blue-Green / Canary implementations live on their own pages:</span>
+            <button
+              onClick={() => onNavigateComponent('Jenkins')}
+              style={{ background: '#d24939', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              Jenkins →
+            </button>
+            <button
+              onClick={() => onNavigateComponent('Deployment')}
+              style={{ background: '#8b5cf6', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              Deployment Strategies →
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={{

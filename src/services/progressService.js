@@ -226,7 +226,7 @@ export const getAllPracticeProblems = () => {
     'ORMQuestions': 8,
     'HibernateQuestions': 5,
     'PostgreSQLQuestions': 10,
-    'SQLFundamentalsQuestions': 10,
+    'SQLFundamentalsQuestions': 5,
     // Messaging & Streaming Questions
     'KafkaQuestions': 18,
     'RabbitMQQuestions': 4,

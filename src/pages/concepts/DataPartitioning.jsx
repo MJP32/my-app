@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 
-export default function DataPartitioning({ onBack, breadcrumb }) {
+export default function DataPartitioning({ onBack, breadcrumb, onNavigate }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
@@ -118,33 +118,16 @@ export default function DataPartitioning({ onBack, breadcrumb }) {
           <div className="space-y-8">
             <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-2xl p-8 border-2 border-blue-700">
               <h2 className="text-3xl font-bold text-white mb-6">↔️ Horizontal Partitioning (Sharding)</h2>
-              <p className="text-gray-300 text-lg mb-4">Split rows across multiple tables/databases with same schema.</p>
-              <div className="bg-gray-800 p-6 rounded-xl border border-blue-700 mb-4">
-                <h3 className="font-bold text-blue-400 mb-3">Example:</h3>
-                <div className="bg-blue-900/30 p-4 rounded-lg text-gray-300 space-y-1 text-sm">
-                  <div>Partition 1: Users with ID 1-1,000,000</div>
-                  <div>Partition 2: Users with ID 1,000,001-2,000,000</div>
-                  <div>Partition 3: Users with ID 2,000,001-3,000,000</div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
-                  <h4 className="font-bold text-blue-400 mb-2">✅ Advantages:</h4>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>• Scales to multiple servers</li>
-                    <li>• Smaller indexes, faster queries</li>
-                    <li>• Parallel processing</li>
-                  </ul>
-                </div>
-                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
-                  <h4 className="font-bold text-red-400 mb-2">❌ Challenges:</h4>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>• Cross-partition queries expensive</li>
-                    <li>• Rebalancing complexity</li>
-                    <li>• Need good partition key</li>
-                  </ul>
-                </div>
-              </div>
+              <p className="text-gray-300 text-lg mb-4">Split rows across multiple tables/databases with the same schema. Each partition holds a distinct subset of rows &mdash; for example, users 1&ndash;1,000,000 in one and 1,000,001&ndash;2,000,000 in the next.</p>
+              <p className="text-gray-300 mb-6">Horizontal partitioning across separate servers is what the industry calls <strong className="text-blue-400">sharding</strong>. It has its own page covering range, hash, directory and geographic strategies, shard-key selection, rebalancing and cross-shard queries.</p>
+              {onNavigate && (
+                <button
+                  onClick={() => onNavigate('Database Sharding')}
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl border border-blue-400 transition-colors"
+                >
+                  Read the full guide: Database Sharding →
+                </button>
+              )}
             </div>
 
             <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-2xl p-8 border-2 border-green-700">

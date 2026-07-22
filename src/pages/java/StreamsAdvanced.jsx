@@ -442,7 +442,7 @@ const InfiniteStreamsDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function StreamsAdvanced({ onBack, breadcrumb }) {
+function StreamsAdvanced({ onBack, breadcrumb, onNavigateTopic }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
@@ -772,55 +772,6 @@ public class DownstreamCollectors {
 }`
         },
         {
-          name: 'Partitioning',
-          explanation: 'Collectors.partitioningBy() is a specialized form of grouping that divides elements into exactly two groups based on a predicate. The result is a Map<Boolean, List<T>> where true contains elements matching the predicate and false contains the rest. This is more efficient than groupingBy when you only need two groups.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-import static java.util.stream.Collectors.*;
-
-public class PartitioningExample {
-    public static void main(String[] args) {
-        List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
-        // Simple partitioning: even vs odd
-        Map<Boolean, List<Integer>> evenOdd = numbers.stream()
-            .collect(partitioningBy(n -> n % 2 == 0));
-        // {false=[1, 3, 5, 7, 9], true=[2, 4, 6, 8, 10]}
-
-        // Partitioning with downstream collector
-        Map<Boolean, Long> evenOddCount = numbers.stream()
-            .collect(partitioningBy(
-                n -> n % 2 == 0,
-                counting()
-            ));
-        // {false=5, true=5}
-
-        // Partitioning with sum downstream
-        Map<Boolean, Integer> evenOddSum = numbers.stream()
-            .collect(partitioningBy(
-                n -> n % 2 == 0,
-                summingInt(Integer::intValue)
-            ));
-        // {false=25, true=30}
-
-        // Practical example: passing vs failing students
-        record Student(String name, int score) {}
-        List<Student> students = List.of(
-            new Student("Alice", 85),
-            new Student("Bob", 45),
-            new Student("Charlie", 72),
-            new Student("Diana", 58)
-        );
-
-        Map<Boolean, List<Student>> passedFailed = students.stream()
-            .collect(partitioningBy(s -> s.score() >= 60));
-
-        System.out.println("Passed: " + passedFailed.get(true));
-        System.out.println("Failed: " + passedFailed.get(false));
-    }
-}`
-        },
-        {
           name: 'Custom Collectors',
           diagram: CustomCollectorDiagram,
           explanation: 'Create custom collectors using Collector.of() with four functions: supplier (creates accumulator), accumulator (adds elements), combiner (merges partial results for parallel), and finisher (transforms final result). The characteristics parameter optimizes behavior (CONCURRENT, UNORDERED, IDENTITY_FINISH).',
@@ -1088,180 +1039,6 @@ public class CollectingAndThenExample {
       diagram: FlatMapDiagram,
       details: [
         {
-          name: 'flatMap Transformations',
-          diagram: FlatMapDiagram,
-          explanation: 'flatMap is used to flatten nested structures by mapping each element to a stream and then concatenating all streams into one. It transforms Stream<Stream<T>> into Stream<T>. Common use cases include flattening nested collections, Optional chaining, and one-to-many transformations.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-
-public class FlatMapExamples {
-    public static void main(String[] args) {
-        // 1. Flatten nested lists
-        List<List<String>> nestedWords = List.of(
-            List.of("hello world"),
-            List.of("java streams")
-        );
-
-        List<String> words = nestedWords.stream()
-            .flatMap(List::stream)
-            .flatMap(s -> Arrays.stream(s.split(" ")))
-            .collect(Collectors.toList());
-        // [hello, world, java, streams]
-
-        // 2. Flatten arrays
-        String[][] arrays = {{"a", "b"}, {"c", "d"}, {"e", "f"}};
-        List<String> flat = Arrays.stream(arrays)
-            .flatMap(Arrays::stream)
-            .collect(Collectors.toList());
-        // [a, b, c, d, e, f]
-
-        // 3. One-to-many transformation
-        record Order(int id, List<String> items) {}
-        List<Order> orders = List.of(
-            new Order(1, List.of("Phone", "Case")),
-            new Order(2, List.of("Laptop", "Mouse", "Keyboard"))
-        );
-
-        List<String> allItems = orders.stream()
-            .flatMap(order -> order.items().stream())
-            .collect(Collectors.toList());
-        // [Phone, Case, Laptop, Mouse, Keyboard]
-
-        // 4. Optional flatMap (avoid nested Optional)
-        Optional<String> name = Optional.of("  Alice  ");
-        Optional<String> trimmed = name
-            .flatMap(s -> {
-                String t = s.trim();
-                return t.isEmpty() ? Optional.empty() : Optional.of(t);
-            });
-
-        // 5. flatMapToInt for primitives
-        int sum = nestedWords.stream()
-            .flatMap(List::stream)
-            .flatMapToInt(s -> s.chars())
-            .sum();
-
-        System.out.println("Words: " + words);
-        System.out.println("All items: " + allItems);
-    }
-}`
-        },
-        {
-          name: 'reduce Operations',
-          diagram: ReduceOperationDiagram,
-          explanation: 'reduce() combines all stream elements into a single result using an accumulator function. Three variants exist: reduce(accumulator) returns Optional, reduce(identity, accumulator) returns T, and reduce(identity, accumulator, combiner) supports parallel processing. The identity must be neutral (x op identity = x).',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-
-public class ReduceExamples {
-    public static void main(String[] args) {
-        List<Integer> numbers = List.of(1, 2, 3, 4, 5);
-
-        // 1. reduce with identity - guaranteed result
-        int sum = numbers.stream()
-            .reduce(0, (a, b) -> a + b);
-        // Alternative: .reduce(0, Integer::sum);
-        System.out.println("Sum: " + sum); // 15
-
-        int product = numbers.stream()
-            .reduce(1, (a, b) -> a * b);
-        System.out.println("Product: " + product); // 120
-
-        // 2. reduce without identity - returns Optional
-        Optional<Integer> max = numbers.stream()
-            .reduce(Integer::max);
-        System.out.println("Max: " + max.orElse(-1)); // 5
-
-        // 3. reduce with combiner for parallel
-        int parallelSum = numbers.parallelStream()
-            .reduce(0, Integer::sum, Integer::sum);
-
-        // 4. String concatenation with reduce
-        List<String> words = List.of("Hello", "World", "Java");
-        String sentence = words.stream()
-            .reduce("", (s1, s2) -> s1.isEmpty() ? s2 : s1 + " " + s2);
-        System.out.println("Sentence: " + sentence); // Hello World Java
-
-        // 5. Complex reduction: find longest string
-        Optional<String> longest = words.stream()
-            .reduce((s1, s2) -> s1.length() >= s2.length() ? s1 : s2);
-
-        // 6. Reduction to compute statistics
-        record Stats(int count, int sum) {
-            Stats add(int n) { return new Stats(count + 1, sum + n); }
-            Stats combine(Stats other) {
-                return new Stats(count + other.count, sum + other.sum);
-            }
-        }
-
-        Stats stats = numbers.stream()
-            .reduce(new Stats(0, 0), Stats::add, Stats::combine);
-        System.out.println("Count: " + stats.count() + ", Sum: " + stats.sum());
-    }
-}`
-        },
-        {
-          name: 'peek for Debugging',
-          explanation: 'peek() is an intermediate operation that performs an action on each element without modifying the stream. It is primarily used for debugging to observe elements as they flow through the pipeline. Note: peek() actions may not execute if the stream is short-circuited or if no terminal operation is invoked.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-
-public class PeekDebugging {
-    public static void main(String[] args) {
-        List<String> names = List.of("Alice", "Bob", "Charlie", "Diana");
-
-        // Using peek to debug stream pipeline
-        List<String> result = names.stream()
-            .peek(s -> System.out.println("Original: " + s))
-            .filter(s -> s.length() > 3)
-            .peek(s -> System.out.println("After filter: " + s))
-            .map(String::toUpperCase)
-            .peek(s -> System.out.println("After map: " + s))
-            .sorted()
-            .peek(s -> System.out.println("After sort: " + s))
-            .collect(Collectors.toList());
-
-        /* Output:
-        Original: Alice
-        After filter: Alice
-        After map: ALICE
-        Original: Bob
-        Original: Charlie
-        After filter: Charlie
-        After map: CHARLIE
-        Original: Diana
-        After filter: Diana
-        After map: DIANA
-        After sort: ALICE
-        After sort: CHARLIE
-        After sort: DIANA
-        */
-
-        // Peek with logging
-        List<Integer> numbers = IntStream.rangeClosed(1, 10)
-            .peek(n -> {
-                if (n % 2 == 0) {
-                    System.out.println("Even number found: " + n);
-                }
-            })
-            .filter(n -> n % 2 == 0)
-            .boxed()
-            .collect(Collectors.toList());
-
-        // WARNING: peek is lazy - no terminal operation = no execution
-        Stream.of(1, 2, 3)
-            .peek(System.out::println); // Nothing prints!
-
-        // peek for side effects (not recommended for production)
-        List<Integer> debugList = new ArrayList<>();
-        List<Integer> squared = List.of(1, 2, 3, 4).stream()
-            .peek(debugList::add)  // Side effect - use with caution
-            .map(n -> n * n)
-            .collect(Collectors.toList());
-    }
-}`
-        },
-        {
           name: 'takeWhile & dropWhile',
           explanation: 'Java 9 introduced takeWhile() and dropWhile() for ordered streams. takeWhile() takes elements while the predicate is true and stops at the first false. dropWhile() skips elements while predicate is true and takes all remaining. These are short-circuiting operations useful for processing sorted data.',
           codeExample: `import java.util.*;
@@ -1374,245 +1151,12 @@ public class TeeingCollector {
     },
     {
       id: 'parallel-streams',
-      name: 'Parallel Processing',
+      name: 'Spliterator & Low-Level Streams',
       icon: '\u26A1',
       color: '#f59e0b',
       description: 'Leverage multi-core processors with parallel streams, understand fork-join pool, and avoid common pitfalls.',
       diagram: ParallelStreamsDiagram,
       details: [
-        {
-          name: 'Parallel Streams Basics',
-          diagram: ParallelStreamsDiagram,
-          explanation: 'Parallel streams split the source data into multiple chunks, process them concurrently using the ForkJoinPool.commonPool(), and combine results. Use .parallel() on sequential streams or .parallelStream() on collections. Parallel processing is beneficial for CPU-intensive operations on large datasets but has overhead for small datasets.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-
-public class ParallelBasics {
-    public static void main(String[] args) {
-        // Create parallel stream
-        List<Integer> numbers = IntStream.rangeClosed(1, 1_000_000)
-            .boxed()
-            .collect(Collectors.toList());
-
-        // Method 1: parallelStream() from collection
-        long sum1 = numbers.parallelStream()
-            .mapToLong(Integer::longValue)
-            .sum();
-
-        // Method 2: .parallel() on existing stream
-        long sum2 = numbers.stream()
-            .parallel()
-            .mapToLong(Integer::longValue)
-            .sum();
-
-        // Sum of squares - good for parallel (CPU intensive)
-        long sumOfSquares = IntStream.rangeClosed(1, 1_000_000)
-            .parallel()
-            .mapToLong(n -> (long) n * n)
-            .sum();
-        System.out.println("Sum of squares: " + sumOfSquares);
-
-        // Check which thread processes each element
-        List.of("a", "b", "c", "d", "e").parallelStream()
-            .forEach(s -> System.out.println(
-                s + " processed by " + Thread.currentThread().getName()
-            ));
-
-        // Convert back to sequential if needed
-        List<Integer> result = numbers.parallelStream()
-            .filter(n -> n % 2 == 0)
-            .sequential()  // Switch to sequential
-            .sorted()
-            .limit(10)
-            .collect(Collectors.toList());
-
-        // Check if stream is parallel
-        Stream<Integer> stream = numbers.stream().parallel();
-        System.out.println("Is parallel: " + stream.isParallel()); // true
-    }
-}`
-        },
-        {
-          name: 'When to Use Parallel',
-          explanation: 'Parallel streams are beneficial when: (1) Data source is large (>10,000 elements), (2) Operations are CPU-intensive, (3) Data source splits efficiently (ArrayList, arrays), (4) Operations are stateless and non-interfering. Avoid parallel for: small datasets, I/O operations, ordered operations, shared mutable state, or when order matters.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-import java.util.concurrent.*;
-
-public class WhenToUseParallel {
-    public static void main(String[] args) {
-        // GOOD: Large dataset, CPU-intensive operation
-        long start = System.currentTimeMillis();
-        double result = IntStream.rangeClosed(1, 10_000_000)
-            .parallel()
-            .mapToDouble(i -> Math.sin(i) * Math.cos(i))
-            .sum();
-        System.out.println("Parallel time: " + (System.currentTimeMillis() - start) + "ms");
-
-        // Compare with sequential
-        start = System.currentTimeMillis();
-        result = IntStream.rangeClosed(1, 10_000_000)
-            .mapToDouble(i -> Math.sin(i) * Math.cos(i))
-            .sum();
-        System.out.println("Sequential time: " + (System.currentTimeMillis() - start) + "ms");
-
-        // BAD: Small dataset - overhead exceeds benefit
-        List<Integer> small = List.of(1, 2, 3, 4, 5);
-        // Sequential is faster for small data
-        int sum = small.stream().mapToInt(Integer::intValue).sum();
-
-        // BAD: LinkedList doesn't split well
-        LinkedList<Integer> linked = new LinkedList<>();
-        // linked.parallelStream() - inefficient splitting
-
-        // GOOD: ArrayList and arrays split efficiently
-        ArrayList<Integer> arrayList = new ArrayList<>(List.of(1, 2, 3, 4, 5));
-        int[] array = {1, 2, 3, 4, 5};
-
-        // BAD: Ordered operations limit parallelism
-        List<Integer> numbers = IntStream.rangeClosed(1, 1000)
-            .boxed().collect(Collectors.toList());
-
-        // limit() with parallel can be inefficient
-        // because it needs to maintain encounter order
-        numbers.parallelStream()
-            .limit(10)  // Forces ordering
-            .collect(Collectors.toList());
-
-        // findAny() is better than findFirst() for parallel
-        Optional<Integer> any = numbers.parallelStream()
-            .filter(n -> n > 500)
-            .findAny();  // Any matching element, no ordering needed
-    }
-}`
-        },
-        {
-          name: 'Thread Safety Concerns',
-          explanation: 'Parallel streams share the ForkJoinPool and execute operations concurrently. Avoid shared mutable state, non-thread-safe collectors, and side effects. Use thread-safe alternatives: AtomicInteger for counters, ConcurrentHashMap for maps, and collect() instead of forEach() with external state.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-public class ThreadSafetyConcerns {
-    public static void main(String[] args) {
-        List<Integer> numbers = IntStream.rangeClosed(1, 10000)
-            .boxed().collect(Collectors.toList());
-
-        // BAD: Shared mutable state - race condition!
-        List<Integer> unsafeList = new ArrayList<>();
-        numbers.parallelStream()
-            .filter(n -> n % 2 == 0)
-            .forEach(unsafeList::add);  // NOT THREAD SAFE!
-        System.out.println("Unsafe size (varies): " + unsafeList.size());
-
-        // GOOD: Use collect() instead
-        List<Integer> safeList = numbers.parallelStream()
-            .filter(n -> n % 2 == 0)
-            .collect(Collectors.toList());
-        System.out.println("Safe size: " + safeList.size()); // Always 5000
-
-        // BAD: Non-atomic counter
-        int[] unsafeCounter = {0};
-        numbers.parallelStream()
-            .forEach(n -> unsafeCounter[0]++);  // Race condition!
-        System.out.println("Unsafe count (varies): " + unsafeCounter[0]);
-
-        // GOOD: Use AtomicInteger
-        AtomicInteger safeCounter = new AtomicInteger(0);
-        numbers.parallelStream()
-            .forEach(n -> safeCounter.incrementAndGet());
-        System.out.println("Safe count: " + safeCounter.get()); // Always 10000
-
-        // GOOD: Use counting() collector
-        long count = numbers.parallelStream().count();
-
-        // BAD: HashMap with parallel
-        Map<Integer, String> unsafeMap = new HashMap<>();
-        // numbers.parallelStream().forEach(n -> unsafeMap.put(n, "val")); // UNSAFE!
-
-        // GOOD: Use ConcurrentHashMap or collect()
-        Map<Integer, String> safeMap = numbers.parallelStream()
-            .collect(Collectors.toConcurrentMap(
-                n -> n,
-                n -> "value-" + n
-            ));
-
-        // GOOD: Using forEachOrdered to maintain order
-        numbers.parallelStream()
-            .filter(n -> n <= 10)
-            .forEachOrdered(System.out::println);  // Prints 1-10 in order
-    }
-}`
-        },
-        {
-          name: 'Custom Thread Pool',
-          explanation: 'By default, parallel streams use ForkJoinPool.commonPool() shared across the JVM. For isolation or different parallelism levels, submit parallel stream operations to a custom ForkJoinPool. This prevents one stream from starving another and allows control over thread count.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-import java.util.concurrent.*;
-
-public class CustomThreadPool {
-    public static void main(String[] args) throws Exception {
-        List<Integer> numbers = IntStream.rangeClosed(1, 100)
-            .boxed().collect(Collectors.toList());
-
-        // Default: uses ForkJoinPool.commonPool()
-        // Parallelism = Runtime.getRuntime().availableProcessors() - 1
-
-        // Custom ForkJoinPool with specific parallelism
-        ForkJoinPool customPool = new ForkJoinPool(4); // 4 threads
-
-        try {
-            // Submit parallel stream to custom pool
-            List<Integer> result = customPool.submit(() ->
-                numbers.parallelStream()
-                    .map(n -> {
-                        // Simulate CPU work
-                        System.out.println("Processing " + n + " on " +
-                            Thread.currentThread().getName());
-                        return n * 2;
-                    })
-                    .collect(Collectors.toList())
-            ).get(); // Wait for completion
-
-            System.out.println("Result size: " + result.size());
-
-            // Multiple parallel operations isolated
-            ForkJoinPool pool1 = new ForkJoinPool(2);
-            ForkJoinPool pool2 = new ForkJoinPool(2);
-
-            Future<Long> task1 = pool1.submit(() ->
-                numbers.parallelStream()
-                    .filter(n -> n % 2 == 0)
-                    .count()
-            );
-
-            Future<Long> task2 = pool2.submit(() ->
-                numbers.parallelStream()
-                    .filter(n -> n % 2 != 0)
-                    .count()
-            );
-
-            System.out.println("Even count: " + task1.get());
-            System.out.println("Odd count: " + task2.get());
-
-            pool1.shutdown();
-            pool2.shutdown();
-
-        } finally {
-            customPool.shutdown();
-        }
-
-        // Set system property for common pool parallelism
-        // Must be set before first use of common pool
-        // System.setProperty(
-        //     "java.util.concurrent.ForkJoinPool.common.parallelism",
-        //     "8"
-        // );
-    }
-}`
-        },
         {
           name: 'Spliterator Deep Dive',
           explanation: 'Spliterator (splitting iterator) is the mechanism behind parallel stream splitting. It defines how a data source can be partitioned for parallel processing. Key methods: tryAdvance(), trySplit(), estimateSize(), and characteristics(). Custom spliterators enable parallel streams on custom data sources.',
@@ -1694,85 +1238,12 @@ public class SpliteratorDeepDive {
     },
     {
       id: 'stream-creation',
-      name: 'Stream Creation & Infinite Streams',
+      name: 'Infinite Streams & Custom Sources',
       icon: '\u221E',
       color: '#22c55e',
       description: 'Create streams from various sources including infinite generators, and learn lazy evaluation patterns.',
       diagram: InfiniteStreamsDiagram,
       details: [
-        {
-          name: 'Stream Creation Methods',
-          explanation: 'Streams can be created from collections (stream(), parallelStream()), arrays (Arrays.stream()), values (Stream.of()), ranges (IntStream.range()), builders (Stream.builder()), and generators (Stream.generate(), Stream.iterate()). Each method has specific use cases and characteristics.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-import java.io.*;
-import java.nio.file.*;
-
-public class StreamCreation {
-    public static void main(String[] args) throws IOException {
-        // 1. From Collection
-        List<String> list = List.of("a", "b", "c");
-        Stream<String> fromList = list.stream();
-
-        // 2. From Array
-        String[] array = {"x", "y", "z"};
-        Stream<String> fromArray = Arrays.stream(array);
-        Stream<String> fromArrayPartial = Arrays.stream(array, 0, 2); // x, y
-
-        // 3. From values
-        Stream<Integer> fromValues = Stream.of(1, 2, 3, 4, 5);
-
-        // 4. Empty stream
-        Stream<Object> empty = Stream.empty();
-
-        // 5. Single element (nullable)
-        Stream<String> nullable = Stream.ofNullable(null); // empty stream
-        Stream<String> present = Stream.ofNullable("value"); // single element
-
-        // 6. Primitive streams
-        IntStream ints = IntStream.of(1, 2, 3);
-        IntStream range = IntStream.range(0, 10);        // 0-9
-        IntStream rangeClosed = IntStream.rangeClosed(1, 10); // 1-10
-        LongStream longs = LongStream.range(0, 1_000_000);
-        DoubleStream doubles = DoubleStream.of(1.0, 2.0, 3.0);
-
-        // 7. From String
-        IntStream chars = "Hello".chars(); // character codes
-        Stream<String> lines = "line1\\nline2\\nline3".lines();
-
-        // 8. Stream.builder()
-        Stream<String> built = Stream.<String>builder()
-            .add("one")
-            .add("two")
-            .add("three")
-            .build();
-
-        // 9. From Files
-        // Stream<String> fileLines = Files.lines(Path.of("file.txt"));
-
-        // 10. From BufferedReader
-        // BufferedReader reader = new BufferedReader(new FileReader("file.txt"));
-        // Stream<String> readerLines = reader.lines();
-
-        // 11. Concatenate streams
-        Stream<String> concat = Stream.concat(
-            Stream.of("a", "b"),
-            Stream.of("c", "d")
-        );
-
-        // 12. From Iterator
-        Iterator<Integer> iter = List.of(1, 2, 3).iterator();
-        Stream<Integer> fromIter = StreamSupport.stream(
-            Spliterators.spliteratorUnknownSize(iter, Spliterator.ORDERED),
-            false
-        );
-
-        // Demo outputs
-        System.out.println("Range: " + range.boxed().collect(Collectors.toList()));
-        System.out.println("Built: " + built.collect(Collectors.toList()));
-    }
-}`
-        },
         {
           name: 'Infinite Streams',
           diagram: InfiniteStreamsDiagram,
@@ -1838,79 +1309,6 @@ public class InfiniteStreams {
             .takeWhile(n -> n < 100)
             .collect(Collectors.toList());
         System.out.println("Under 100: " + underHundred); // [1, 2, 4, 8, 16, 32, 64]
-    }
-}`
-        },
-        {
-          name: 'Lazy Evaluation',
-          explanation: 'Streams are lazily evaluated - intermediate operations (filter, map) do not execute until a terminal operation (collect, forEach) is invoked. This enables optimizations like short-circuiting (findFirst, limit) and fusion (combining operations). Understanding laziness is crucial for debugging and performance.',
-          codeExample: `import java.util.*;
-import java.util.stream.*;
-
-public class LazyEvaluation {
-    public static void main(String[] args) {
-        List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
-        // Lazy: Nothing executes without terminal operation
-        Stream<Integer> lazy = numbers.stream()
-            .filter(n -> {
-                System.out.println("Filtering: " + n);
-                return n % 2 == 0;
-            })
-            .map(n -> {
-                System.out.println("Mapping: " + n);
-                return n * 2;
-            });
-        System.out.println("Stream created, no output yet...");
-
-        // Terminal operation triggers execution
-        System.out.println("\\nTriggering with collect:");
-        List<Integer> result = numbers.stream()
-            .filter(n -> {
-                System.out.println("Filtering: " + n);
-                return n % 2 == 0;
-            })
-            .map(n -> {
-                System.out.println("Mapping: " + n);
-                return n * 2;
-            })
-            .collect(Collectors.toList());
-
-        // Short-circuit: findFirst stops after first match
-        System.out.println("\\nShort-circuit with findFirst:");
-        Optional<Integer> first = numbers.stream()
-            .filter(n -> {
-                System.out.println("Checking: " + n);
-                return n > 5;
-            })
-            .findFirst(); // Only processes 1-6
-        System.out.println("Found: " + first.orElse(-1));
-
-        // Short-circuit: limit stops after n elements
-        System.out.println("\\nShort-circuit with limit:");
-        List<Integer> limited = numbers.stream()
-            .peek(n -> System.out.println("Processing: " + n))
-            .limit(3)
-            .collect(Collectors.toList()); // Only processes 1-3
-
-        // anyMatch short-circuits on first true
-        System.out.println("\\nShort-circuit with anyMatch:");
-        boolean hasEven = numbers.stream()
-            .peek(n -> System.out.println("Checking even: " + n))
-            .anyMatch(n -> n % 2 == 0); // Stops at 2
-
-        // allMatch short-circuits on first false
-        System.out.println("\\nShort-circuit with allMatch:");
-        boolean allPositive = numbers.stream()
-            .peek(n -> System.out.println("Checking positive: " + n))
-            .allMatch(n -> n > 0); // Processes all (all positive)
-
-        // Fusion: operations combined internally
-        numbers.stream()
-            .map(n -> n * 2)    // These are fused
-            .map(n -> n + 1)    // into single pass
-            .filter(n -> n > 5) // through data
-            .collect(Collectors.toList());
     }
 }`
         },
@@ -2222,6 +1620,18 @@ public class CustomStreamSource {
 
   return (
     <div style={containerStyle}>
+
+      <div style={{ margin: '1rem 0', padding: '0.9rem 1.2rem', backgroundColor: 'rgba(6, 182, 212, 0.08)', border: '1px solid rgba(6, 182, 212, 0.35)', borderRadius: '12px', color: '#e5e7eb' }}>
+        Stream basics &mdash; creation, lazy evaluation, flatMap, reduce, peek, partitioning and parallel streams &mdash; are covered on the Java Streams API page. This page starts at custom collectors.
+        {onNavigateTopic && (
+          <button
+            onClick={() => onNavigateTopic('Streams')}
+            style={{ marginLeft: '0.75rem', background: 'rgb(6, 182, 212)', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Go to Java Streams API &rarr;
+          </button>
+        )}
+      </div>
       {/* Header */}
       <div style={headerStyle}>
         <h1 style={titleStyle}>Advanced Java Streams</h1>

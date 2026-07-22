@@ -369,7 +369,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'ORM Questions', problems: 8, icon: '🔗', description: 'Object-Relational Mapping concepts' },
       { name: 'Hibernate Questions', problems: 5, icon: '🐻', description: 'Hibernate ORM framework' },
       { name: 'PostgreSQL Questions', problems: 10, icon: '🐘', description: 'PostgreSQL features and internals' },
-      { name: 'SQL Fundamentals Questions', problems: 10, icon: '📖', description: 'Core SQL concepts: JOINs, CTEs, window functions' },
+      { name: 'SQL Fundamentals Questions', problems: 5, icon: '📖', description: 'DDL/DML/DCL/TCL, subqueries, aggregates, NULL handling, execution order' },
     ]},
     // Messaging & Streaming Questions
     { category: 'Messaging & Streaming Questions', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
