@@ -4251,7 +4251,7 @@ function App() {
     }
     if (selectedOption === 'Java 8') {
       const navCallbacks = createLearningNavigationCallbacks('Java 8')
-      return <Java8 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 8'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 8'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 8' }} />
+      return <Java8 onBack={() => setSelectedOptionAndRef('Java')} onNavigateTopic={(t) => { setSelectedOptionAndRef(''); if (t === 'Lambdas') setShowLambdasModal(true); else if (t === 'Streams') setShowStreamsModal(true); else if (t === 'Optional') setShowOptionalModal(true); }} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 8'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 8'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 8' }} />
     }
     if (selectedOption === 'Java 15') {
       const navCallbacks = createLearningNavigationCallbacks('Java 15')

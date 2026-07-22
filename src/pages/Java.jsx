@@ -242,7 +242,7 @@ function Java({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCate
     { id: 'Concurrency', name: 'Concurrency', icon: '🔄', color: '#10b981', description: 'Thread safety, locks, atomic operations, semaphores, and concurrent collections.' },
     { id: 'Multithreading', name: 'Multithreading', icon: '🧵', color: '#059669', description: 'Thread lifecycle, synchronization, thread pools, and parallel processing.' },
     // Modern Java
-    { id: 'Java 8', name: 'Java 8', icon: '🎯', color: '#3b82f6', description: 'Lambda expressions, Stream API, Optional, functional interfaces, and Date/Time API.' },
+    { id: 'Java 8', name: 'Java 8', icon: '🎯', color: '#3b82f6', description: 'Java 8 release features: Date/Time API, default methods, Nashorn, and JVM improvements (links out to Lambdas/Streams/Optional).' },
     { id: 'Module', name: 'Module System', icon: '📦', color: '#8b5cf6', description: 'Java Platform Module System (JPMS), module declarations, and encapsulation.' },
     { id: 'Java 11', name: 'Java 11 LTS', icon: '🔧', color: '#06b6d4', description: 'Local variable type inference, HTTP Client, module system, and performance improvements.' },
     { id: 'Java 15', name: 'Java 15', icon: '📝', color: '#8b5cf6', description: 'Text blocks, sealed classes preview, pattern matching, and hidden classes.' },
