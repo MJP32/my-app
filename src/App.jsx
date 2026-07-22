@@ -3855,7 +3855,7 @@ function App() {
           <L3SystemDesign onBack={() => {
             setDesignInitialCategory('interview')
             setSelectedOptionAndRef('Design')
-          }} />
+          }} onNavigateTopic={(t) => { if (t === 'LRU Cache') { setSelectedOptionAndRef(''); setShowLRUCacheModal(true); } }} />
         </Suspense>
       )
     }

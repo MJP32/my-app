@@ -320,7 +320,7 @@ const TaskSchedulerDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function L3SystemDesign({ onBack, breadcrumb }) {
+function L3SystemDesign({ onBack, breadcrumb, onNavigateTopic }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -1389,156 +1389,6 @@ public User updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest req
       ]
     },
     {
-      id: 'lru-cache',
-      name: 'LRU Cache',
-      icon: '💾',
-      color: '#06b6d4',
-      description: 'Design a Least Recently Used cache with O(1) operations.',
-      diagram: LRUCacheDiagram,
-      details: [
-        {
-          name: 'Data Structures',
-          explanation: 'HashMap provides O(1) key lookup to node reference. Doubly Linked List enables O(1) insert/remove and maintains access order. Node contains key, value, prev, and next pointers. Head points to most recently used, tail to least recently used.',
-          codeExample: `public class LRUCache<K, V> {
-    private final int capacity;
-    private final Map<K, Node<K, V>> map;
-    private final Node<K, V> head;  // Dummy head
-    private final Node<K, V> tail;  // Dummy tail
-
-    private static class Node<K, V> {
-        K key;
-        V value;
-        Node<K, V> prev;
-        Node<K, V> next;
-
-        Node(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-    }
-
-    public LRUCache(int capacity) {
-        this.capacity = capacity;
-        this.map = new HashMap<>();
-
-        // Initialize dummy head and tail
-        this.head = new Node<>(null, null);
-        this.tail = new Node<>(null, null);
-        head.next = tail;
-        tail.prev = head;
-    }
-}`
-        },
-        {
-          name: 'Get & Put Operations',
-          explanation: 'GET: If key exists, move node to head (most recent), return value. PUT: If key exists, update value and move to head. If key does not exist, create node at head. If capacity exceeded, remove tail node (least recent) and delete from HashMap.',
-          codeExample: `public class LRUCache<K, V> {
-
-    public V get(K key) {
-        Node<K, V> node = map.get(key);
-        if (node == null) {
-            return null;  // or throw exception
-        }
-        // Move to head (most recently used)
-        moveToHead(node);
-        return node.value;
-    }
-
-    public void put(K key, V value) {
-        Node<K, V> node = map.get(key);
-
-        if (node != null) {
-            // Update existing
-            node.value = value;
-            moveToHead(node);
-        } else {
-            // Create new node
-            Node<K, V> newNode = new Node<>(key, value);
-            map.put(key, newNode);
-            addToHead(newNode);
-
-            // Evict if over capacity
-            if (map.size() > capacity) {
-                Node<K, V> lru = removeTail();
-                map.remove(lru.key);
-            }
-        }
-    }
-
-    private void moveToHead(Node<K, V> node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    private void addToHead(Node<K, V> node) {
-        node.prev = head;
-        node.next = head.next;
-        head.next.prev = node;
-        head.next = node;
-    }
-
-    private void removeNode(Node<K, V> node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-
-    private Node<K, V> removeTail() {
-        Node<K, V> lru = tail.prev;
-        removeNode(lru);
-        return lru;
-    }
-}`
-        },
-        {
-          name: 'Thread Safety',
-          explanation: 'For concurrent access, use synchronized methods or ReentrantReadWriteLock. Read operations can use read lock (shared), write operations use write lock (exclusive). Consider using ConcurrentHashMap with synchronized list operations. Complexity remains O(1) for both get and put.',
-          codeExample: `public class ConcurrentLRUCache<K, V> {
-    private final int capacity;
-    private final Map<K, Node<K, V>> map;
-    private final Node<K, V> head;
-    private final Node<K, V> tail;
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
-    public V get(K key) {
-        lock.writeLock().lock();  // Need write lock to move node
-        try {
-            Node<K, V> node = map.get(key);
-            if (node == null) return null;
-            moveToHead(node);
-            return node.value;
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-    public void put(K key, V value) {
-        lock.writeLock().lock();
-        try {
-            Node<K, V> node = map.get(key);
-            if (node != null) {
-                node.value = value;
-                moveToHead(node);
-            } else {
-                Node<K, V> newNode = new Node<>(key, value);
-                map.put(key, newNode);
-                addToHead(newNode);
-                if (map.size() > capacity) {
-                    Node<K, V> lru = removeTail();
-                    map.remove(lru.key);
-                }
-            }
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-    // Time: O(1) for both get and put
-    // Space: O(capacity)
-}`
-        }
-      ]
-    },
-    {
       id: 'leaderboard',
       name: 'Leaderboard System',
       icon: '🏆',
@@ -2161,6 +2011,12 @@ public class DistributedTaskScheduler {
           onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={TOPIC_COLORS}
         />
+        {onNavigateTopic && (
+          <div style={{ marginTop: '1rem', padding: '0.9rem 1.2rem', backgroundColor: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.35)', borderRadius: '12px', color: '#e5e7eb', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
+            <span>LRU Cache has its own dedicated page covering the HashMap + doubly-linked-list design, the LinkedHashMap variant, thread safety, TTL/expiry, LFU and distributed caching:</span>
+            <button onClick={() => onNavigateTopic('LRU Cache')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>LRU Cache &rarr;</button>
+          </div>
+        )}
       </div>
 
       {/* Collapsible Sidebar for quick concept navigation */}
