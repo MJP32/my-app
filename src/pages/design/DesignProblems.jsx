@@ -219,7 +219,7 @@ const LFUCacheDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function DesignProblems({ onBack, breadcrumb }) {
+function DesignProblems({ onBack, breadcrumb, onNavigateTopic }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -682,139 +682,6 @@ class CounterReadWriteLock {
 }`
         }
       ]
-    },
-    {
-      id: 'lfu-cache',
-      name: 'LFU Cache',
-      icon: 'LFU',
-      color: '#6366f1',
-      description: 'Design a Least Frequently Used cache with O(1) get and put operations. Evict the least frequently used item when full, using LRU as tie-breaker for same frequency.',
-      diagram: LFUCacheDiagram,
-      details: [
-        {
-          name: 'Core Data Structures',
-          explanation: 'LFU Cache requires three maps: keyToValue (stores values), keyToFreq (tracks access frequency), and freqToKeys (maps frequency to ordered set of keys). The freqToKeys uses LinkedHashSet or doubly linked list for O(1) removal and LRU ordering within each frequency bucket.',
-          codeExample: `class LFUCache {
-    private int capacity;
-    private int minFreq;
-    private Map<Integer, Integer> keyToValue;
-    private Map<Integer, Integer> keyToFreq;
-    private Map<Integer, LinkedHashSet<Integer>> freqToKeys;
-
-    public LFUCache(int capacity) {
-        this.capacity = capacity;
-        this.minFreq = 0;
-        this.keyToValue = new HashMap<>();
-        this.keyToFreq = new HashMap<>();
-        this.freqToKeys = new HashMap<>();
-    }
-}
-
-// Example state:
-// keyToValue: {1->A, 2->B, 3->C}
-// keyToFreq: {1->3, 2->1, 3->2}
-// freqToKeys: {1->[2], 2->[3], 3->[1]}
-// minFreq: 1 (key 2 is LFU)`
-        },
-        {
-          name: 'Get Operation',
-          explanation: 'Get retrieves the value and updates the key\'s frequency. It removes the key from its current frequency bucket, adds it to the next frequency bucket, and updates minFreq if the old bucket is now empty. All operations are O(1) with proper data structures.',
-          codeExample: `public int get(int key) {
-    if (!keyToValue.containsKey(key)) {
-        return -1;
-    }
-
-    updateFrequency(key);
-    return keyToValue.get(key);
-}
-
-private void updateFrequency(int key) {
-    int oldFreq = keyToFreq.get(key);
-    int newFreq = oldFreq + 1;
-
-    // Remove from old frequency bucket
-    freqToKeys.get(oldFreq).remove(key);
-
-    // Update minFreq if old bucket is now empty
-    if (freqToKeys.get(oldFreq).isEmpty() && oldFreq == minFreq) {
-        minFreq = newFreq;
-    }
-
-    // Add to new frequency bucket
-    keyToFreq.put(key, newFreq);
-    freqToKeys.putIfAbsent(newFreq, new LinkedHashSet<>());
-    freqToKeys.get(newFreq).add(key);
-}`
-        },
-        {
-          name: 'Put Operation',
-          explanation: 'Put handles three cases: update existing key (just update value and frequency), insert when under capacity (add with frequency 1), or insert when at capacity (evict LFU first). The eviction removes the first key from the minFreq bucket (LRU among same frequency).',
-          codeExample: `public void put(int key, int value) {
-    if (capacity == 0) return;
-
-    // Case 1: Update existing key
-    if (keyToValue.containsKey(key)) {
-        keyToValue.put(key, value);
-        updateFrequency(key);
-        return;
-    }
-
-    // Case 2: Evict if at capacity
-    if (keyToValue.size() >= capacity) {
-        // Remove LRU key from minimum frequency bucket
-        int evictKey = freqToKeys.get(minFreq).iterator().next();
-        freqToKeys.get(minFreq).remove(evictKey);
-        keyToValue.remove(evictKey);
-        keyToFreq.remove(evictKey);
-    }
-
-    // Case 3: Insert new key with frequency 1
-    keyToValue.put(key, value);
-    keyToFreq.put(key, 1);
-    freqToKeys.putIfAbsent(1, new LinkedHashSet<>());
-    freqToKeys.get(1).add(key);
-    minFreq = 1;  // New key always has freq 1
-}`
-        },
-        {
-          name: 'Python Implementation',
-          explanation: 'Python\'s OrderedDict maintains insertion order and supports O(1) popitem(last=False) for removing the oldest item. This makes the LFU implementation cleaner by using OrderedDict for each frequency bucket instead of manually managing doubly linked lists.',
-          codeExample: `from collections import defaultdict, OrderedDict
-
-class LFUCache:
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.min_freq = 0
-        self.key_to_val = {}
-        self.key_to_freq = {}
-        self.freq_to_keys = defaultdict(OrderedDict)
-
-    def get(self, key: int) -> int:
-        if key not in self.key_to_val:
-            return -1
-        self._update_frequency(key)
-        return self.key_to_val[key]
-
-    def put(self, key: int, value: int) -> None:
-        if self.capacity == 0: return
-
-        if key in self.key_to_val:
-            self.key_to_val[key] = value
-            self._update_frequency(key)
-            return
-
-        if len(self.key_to_val) >= self.capacity:
-            # popitem(last=False) removes oldest (LRU)
-            evict_key, _ = self.freq_to_keys[self.min_freq].popitem(last=False)
-            del self.key_to_val[evict_key]
-            del self.key_to_freq[evict_key]
-
-        self.key_to_val[key] = value
-        self.key_to_freq[key] = 1
-        self.freq_to_keys[1][key] = None
-        self.min_freq = 1`
-        }
-      ]
     }
   ]
 
@@ -961,6 +828,12 @@ class LFUCache:
           onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={TOPIC_COLORS}
         />
+        {onNavigateTopic && (
+          <div style={{ marginTop: '1rem', padding: '0.9rem 1.2rem', backgroundColor: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '12px', color: '#e5e7eb', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
+            <span>Looking for LFU Cache? It is covered in depth &mdash; alongside LRU, LinkedHashMap, TTL/expiry and distributed caching &mdash; on the LRU Cache page.</span>
+            <button onClick={() => onNavigateTopic('LRU Cache')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>LRU / LFU Cache &rarr;</button>
+          </div>
+        )}
       </div>
 
       {/* Collapsible Sidebar for quick concept navigation */}

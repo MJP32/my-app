@@ -8233,6 +8233,7 @@ function App() {
             <Suspense fallback={<LoadingSpinner text="Loading Design Problems..." />}>
               <DesignProblems
                 onBack={() => { setShowDesignProblemsModal(false); setSelectedOptionAndRef('System Design') }}
+                onNavigateTopic={(t) => { if (t === 'LRU Cache') { setShowDesignProblemsModal(false); setShowLRUCacheModal(true); } }}
                 {...createNavigationCallbacks('Design Problems')}
               />
             </Suspense>
