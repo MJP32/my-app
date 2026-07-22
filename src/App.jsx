@@ -5215,7 +5215,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <FunctionalProgramming onBack={() => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Function')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Function'].name, onClick: () => { setShowFunctionModal(false); goToDesignCategory(designTopicCategories['Function'].id); } }, topic: 'Functional Programming', colors: BREADCRUMB_COLORS.Design }} />
+            <FunctionalProgramming onBack={() => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); }} onNavigateTopic={(t) => { setShowFunctionModal(false); if (t === 'Lambdas') setShowLambdasModal(true); else if (t === 'Streams') setShowStreamsModal(true); }} {...createDesignNavigationCallbacks('Function')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Function'].name, onClick: () => { setShowFunctionModal(false); goToDesignCategory(designTopicCategories['Function'].id); } }, topic: 'Functional Programming', colors: BREADCRUMB_COLORS.Design }} />
           </div>
         </div>
       )}

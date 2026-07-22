@@ -65,7 +65,7 @@ function Design({ onBack, onSelectItem, initialCategory, onInitialCategoryUsed, 
       icon: '⚡',
       color: '#7e22ce',
       complexity: 'Intermediate to Advanced',
-      description: 'Functional programming paradigms, lambda expressions, stream processing, and immutability.'
+      description: 'Functional programming paradigms: pure functions, immutability, referential transparency, and reactive streams.'
     },
     {
       id: 'Interface',
