@@ -17,7 +17,6 @@ const PRACTICE_COLORS = {
 
 const tabCategories = {
   all: { label: 'All', ids: null },
-  fundamentals: { label: 'Core Fundamentals', ids: ['Data Structures', 'Algorithms'] },
   languages: { label: 'Programming Languages', ids: ['Java Features', 'Core Java Fundamentals', 'Concurrency', 'Python Operations'] },
   design: { label: 'System Design', ids: ['System Design'] },
   interview: { label: 'Interview Prep', ids: ['AI Interview'] }
@@ -1306,36 +1305,6 @@ System.setOut(original);   // restore` },
 
   // Map of subcategory items to their problem counts
   const problemCounts = {
-    // Data Structures
-    'Arrays': 21,
-    'Strings': 11,
-    'Linked Lists': 12,
-    'Stacks': 8,
-    'Queues': 4,
-    'Hash Tables': 11,
-    'Trees': 6,
-    'Binary Trees': 17,
-    'Binary Search Trees': 3,
-    'Heaps': 6,
-    'Graphs': 9,
-    'Trie': 5,
-    // Algorithms
-    'Searching': 2,
-    'Binary Search': 5,
-    'Sorting': 4,
-    'Dynamic Programming': 17,
-    'Dynamic Programming Patterns': 89,
-    'Sliding Window': 9,
-    'Backtracking': 13,
-    'Intervals': 7,
-    'Math & Geometry': 9,
-    'Advanced Graphs': 5,
-    'Greedy Algorithms': 4,
-    'Famous Algorithms': 3,
-    'Union Find': 4,
-    'Two Pointers': 5,
-    'Bit Manipulation': 7,
-    'Data Structures': 1,
     // Java Features
     'Streams': 0,
     'Streams Advanced': 0,
@@ -1423,29 +1392,6 @@ System.setOut(original);   // restore` },
 
   // Organized into logical groups
   const categoryGroups = [
-    {
-      title: 'Core Fundamentals',
-      icon: '📚',
-      color: '#3b82f6',
-      categories: [
-        {
-          id: 'Data Structures',
-          name: 'Data Structures',
-          icon: '📊',
-          color: '#3b82f6',
-          count: 113,
-          items: ['Arrays', 'Strings', 'Linked Lists', 'Stacks', 'Queues', 'Hash Tables', 'Trees', 'Binary Trees', 'Binary Search Trees', 'Heaps', 'Graphs', 'Trie']
-        },
-        {
-          id: 'Algorithms',
-          name: 'Algorithms',
-          icon: '🎯',
-          color: '#8b5cf6',
-          count: 195,
-          items: ['Searching', 'Binary Search', 'Sorting', 'Dynamic Programming', 'Dynamic Programming Patterns', 'Sliding Window', 'Backtracking', 'Intervals', 'Math & Geometry', 'Advanced Graphs', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Bit Manipulation', 'Data Structures']
-        }
-      ]
-    },
     {
       title: 'Programming Languages',
       icon: '💻',

@@ -68,14 +68,6 @@ const categoryGroups = {
     color: '#10b981',
     hasSubcategories: true,
     subcategories: {
-      'Data Structures': {
-        icon: '📊',
-        items: ['Arrays', 'Strings', 'Linked Lists', 'Stacks', 'Queues', 'Hash Tables', 'Trees', 'Binary Trees', 'Binary Search Trees', 'Heaps', 'Graphs', 'Tries']
-      },
-      'Algorithms': {
-        icon: '🎯',
-        items: ['Searching', 'Binary Search', 'Sorting', 'Dynamic Programming', 'Dynamic Programming Patterns', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Sliding Window', 'Backtracking']
-      },
       'Java Features': {
         icon: '☕',
         items: ['Streams', 'Streams Advanced', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Collections Framework', 'Optional']
@@ -86,7 +78,7 @@ const categoryGroups = {
       },
       'Core Java Fundamentals': {
         icon: '⚙️',
-        items: ['Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Data Structures', 'Strings', 'Generics']
+        items: ['Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Generics']
       },
       'System Design': {
         icon: '🛠️',

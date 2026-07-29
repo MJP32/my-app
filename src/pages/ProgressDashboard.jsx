@@ -50,22 +50,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
     // Find the first section that is not 100% complete
     const getTopicProgressLocal = (topicName) => {
       const topicIdMap = {
-        'Binary Search': 'BinarySearch',
-        'Dynamic Programming': 'DynamicProgramming',
-        'Dynamic Programming Patterns': 'DynamicProgrammingPatterns',
-        'Hash Tables': 'HashTables',
-        'Linked Lists': 'LinkedLists',
-        'Two Pointers': 'TwoPointers',
-        'Sliding Window': 'SlidingWindow',
-        'Binary Trees': 'BinaryTrees',
-        'Binary Search Trees': 'BinarySearchTrees',
-        'Advanced Graphs': 'AdvancedGraphs',
-        'Greedy Algorithms': 'GreedyAlgorithms',
-        'Bit Manipulation': 'BitManipulation',
-        'Union Find': 'UnionFind',
-        'Math & Geometry': 'MathGeometry',
-        'Famous Algorithms': 'FamousAlgorithms',
-        'Data Structures': 'DataStructures',
         'Streams Advanced': 'StreamsAdvanced',
         'Lambdas Advanced': 'LambdasAdvanced',
         'Functional Interfaces': 'FunctionalInterfaces',
@@ -213,46 +197,18 @@ function ProgressDashboard({ onBack, onNavigate }) {
   const learningPath = [
     // Fundamentals (Easiest)
     { category: 'Fundamentals', difficulty: 'Beginner', color: '#10b981', topics: [
-      { name: 'Arrays', problems: 21, icon: '📊', description: 'Basic array operations and manipulations' },
-      { name: 'Strings', problems: 11, icon: '📝', description: 'String manipulation and pattern matching' },
-      { name: 'Hash Tables', problems: 11, icon: '#️⃣', description: 'Hash maps, sets, and frequency counting' },
-      { name: 'Stacks', problems: 8, icon: '📚', description: 'LIFO data structure and applications' },
-      { name: 'Queues', problems: 4, icon: '🚶', description: 'FIFO data structure and BFS preparation' },
     ]},
     // Core Algorithms (Easy-Medium)
     { category: 'Core Algorithms', difficulty: 'Easy-Medium', color: '#3b82f6', topics: [
-      { name: 'Two Pointers', problems: 5, icon: '👆', description: 'Efficient array traversal techniques' },
-      { name: 'Sliding Window', problems: 9, icon: '🪟', description: 'Subarray and substring problems' },
-      { name: 'Binary Search', problems: 5, icon: '🔍', description: 'Efficient searching in sorted data' },
-      { name: 'Searching', problems: 2, icon: '🔎', description: 'Linear and binary search algorithms' },
-      { name: 'Sorting', problems: 4, icon: '📈', description: 'Sorting algorithms and applications' },
-      { name: 'Linked Lists', problems: 12, icon: '🔗', description: 'Node-based data structures' },
     ]},
     // Intermediate (Medium)
     { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
-      { name: 'Trees', problems: 6, icon: '🌳', description: 'Tree traversals and manipulations' },
-      { name: 'Binary Trees', problems: 17, icon: '🌲', description: 'Binary tree specific algorithms' },
-      { name: 'Binary Search Trees', problems: 3, icon: '🌿', description: 'BST operations and properties' },
-      { name: 'Heaps', problems: 6, icon: '⛰️', description: 'Priority queues and heap operations' },
-      { name: 'Math & Geometry', problems: 9, icon: '📐', description: 'Mathematical and geometric algorithms' },
     ]},
     // Advanced Data Structures (Medium-Hard)
     { category: 'Advanced Data Structures', difficulty: 'Medium-Hard', color: '#8b5cf6', topics: [
-      { name: 'Graphs', problems: 9, icon: '🕸️', description: 'Graph traversal and basic algorithms' },
-      { name: 'Trie', problems: 5, icon: '🔤', description: 'Prefix trees for string operations' },
-      { name: 'Union Find', problems: 4, icon: '🔗', description: 'Disjoint set data structure' },
-      { name: 'Intervals', problems: 7, icon: '📏', description: 'Interval merging and scheduling' },
-      { name: 'Data Structures', problems: 1, icon: '🏗️', description: 'Custom data structure implementations' },
     ]},
     // Advanced Algorithms (Hard)
     { category: 'Advanced Algorithms', difficulty: 'Hard', color: '#ef4444', topics: [
-      { name: 'Dynamic Programming', problems: 17, icon: '🧩', description: 'Optimization and memoization' },
-      { name: 'Dynamic Programming Patterns', problems: 89, icon: '🎨', description: 'Advanced DP patterns and techniques' },
-      { name: 'Backtracking', problems: 11, icon: '↩️', description: 'Exhaustive search with pruning' },
-      { name: 'Greedy Algorithms', problems: 4, icon: '🎯', description: 'Local optimal choices' },
-      { name: 'Advanced Graphs', problems: 5, icon: '🗺️', description: 'Shortest paths, MST, topological sort' },
-      { name: 'Bit Manipulation', problems: 7, icon: '💻', description: 'Binary operations and tricks' },
-      { name: 'Famous Algorithms', problems: 3, icon: '🏆', description: 'Classic algorithms every developer should know' },
     ]},
     // Java Features
     { category: 'Java Features', difficulty: 'Intermediate', color: '#f97316', topics: [
@@ -405,34 +361,18 @@ function ProgressDashboard({ onBack, onNavigate }) {
   const top100Path = [
     // Fundamentals (11)
     { category: 'Fundamentals', difficulty: 'Beginner', color: '#10b981', topics: [
-      { name: 'Arrays', problems: 4, icon: '📊', description: 'Top 4 essential array problems' },
-      { name: 'Strings', problems: 2, icon: '📝', description: 'Must-know string problems' },
-      { name: 'Hash Tables', problems: 3, icon: '#️⃣', description: 'Key hash map problems' },
-      { name: 'Stacks', problems: 2, icon: '📚', description: 'Essential stack problems' },
     ]},
     // Core Algorithms (9)
     { category: 'Core Algorithms', difficulty: 'Easy-Medium', color: '#3b82f6', topics: [
-      { name: 'Two Pointers', problems: 2, icon: '👆', description: 'Essential two pointer patterns' },
-      { name: 'Sliding Window', problems: 2, icon: '🪟', description: 'Key sliding window problems' },
-      { name: 'Binary Search', problems: 2, icon: '🔍', description: 'Must-know binary search' },
-      { name: 'Linked Lists', problems: 3, icon: '🔗', description: 'Essential linked list problems' },
     ]},
     // Intermediate (7)
     { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
-      { name: 'Binary Trees', problems: 3, icon: '🌲', description: 'Core tree problems' },
-      { name: 'Heaps', problems: 2, icon: '⛰️', description: 'Priority queue basics' },
     ]},
     // Advanced Data Structures (7)
     { category: 'Advanced Data Structures', difficulty: 'Medium-Hard', color: '#8b5cf6', topics: [
-      { name: 'Graphs', problems: 3, icon: '🕸️', description: 'Essential graph problems' },
-      { name: 'Trie', problems: 2, icon: '🔤', description: 'Prefix tree basics' },
-      { name: 'Intervals', problems: 2, icon: '📏', description: 'Interval problems' },
     ]},
     // Advanced Algorithms (9)
     { category: 'Advanced Algorithms', difficulty: 'Hard', color: '#ef4444', topics: [
-      { name: 'Dynamic Programming', problems: 4, icon: '🧩', description: 'Top 4 DP problems' },
-      { name: 'Backtracking', problems: 3, icon: '↩️', description: 'Key backtracking' },
-      { name: 'Greedy Algorithms', problems: 2, icon: '🎯', description: 'Greedy essentials' },
     ]},
     // Java Features (4)
     { category: 'Java Features', difficulty: 'Intermediate', color: '#f97316', topics: [
@@ -522,43 +462,18 @@ function ProgressDashboard({ onBack, onNavigate }) {
   const top400Path = [
     // Fundamentals
     { category: 'Fundamentals', difficulty: 'Beginner', color: '#10b981', topics: [
-      { name: 'Arrays', problems: 15, icon: '📊', description: 'Comprehensive array problems' },
-      { name: 'Strings', problems: 8, icon: '📝', description: 'String manipulation' },
-      { name: 'Hash Tables', problems: 8, icon: '#️⃣', description: 'Hash map mastery' },
-      { name: 'Stacks', problems: 6, icon: '📚', description: 'Stack applications' },
-      { name: 'Queues', problems: 3, icon: '🚶', description: 'Queue fundamentals' },
     ]},
     // Core Algorithms
     { category: 'Core Algorithms', difficulty: 'Easy-Medium', color: '#3b82f6', topics: [
-      { name: 'Two Pointers', problems: 4, icon: '👆', description: 'Two pointer techniques' },
-      { name: 'Sliding Window', problems: 6, icon: '🪟', description: 'Sliding window mastery' },
-      { name: 'Binary Search', problems: 4, icon: '🔍', description: 'Binary search patterns' },
-      { name: 'Linked Lists', problems: 8, icon: '🔗', description: 'Linked list mastery' },
-      { name: 'Sorting', problems: 3, icon: '📈', description: 'Sorting algorithms' },
     ]},
     // Intermediate
     { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
-      { name: 'Trees', problems: 4, icon: '🌳', description: 'Tree traversals' },
-      { name: 'Binary Trees', problems: 12, icon: '🌲', description: 'Binary tree algorithms' },
-      { name: 'Binary Search Trees', problems: 3, icon: '🌿', description: 'BST operations' },
-      { name: 'Heaps', problems: 5, icon: '⛰️', description: 'Priority queues' },
-      { name: 'Math & Geometry', problems: 5, icon: '📐', description: 'Math algorithms' },
     ]},
     // Advanced Data Structures
     { category: 'Advanced Data Structures', difficulty: 'Medium-Hard', color: '#8b5cf6', topics: [
-      { name: 'Graphs', problems: 7, icon: '🕸️', description: 'Graph algorithms' },
-      { name: 'Trie', problems: 4, icon: '🔤', description: 'Prefix trees' },
-      { name: 'Union Find', problems: 3, icon: '🔗', description: 'Disjoint sets' },
-      { name: 'Intervals', problems: 5, icon: '📏', description: 'Interval problems' },
     ]},
     // Advanced Algorithms
     { category: 'Advanced Algorithms', difficulty: 'Hard', color: '#ef4444', topics: [
-      { name: 'Dynamic Programming', problems: 12, icon: '🧩', description: 'DP fundamentals' },
-      { name: 'Dynamic Programming Patterns', problems: 20, icon: '🎨', description: 'Top DP patterns' },
-      { name: 'Backtracking', problems: 8, icon: '↩️', description: 'Backtracking problems' },
-      { name: 'Greedy Algorithms', problems: 3, icon: '🎯', description: 'Greedy approach' },
-      { name: 'Advanced Graphs', problems: 4, icon: '🗺️', description: 'Advanced graph algorithms' },
-      { name: 'Bit Manipulation', problems: 5, icon: '💻', description: 'Bit operations' },
     ]},
     // Java Features
     { category: 'Java Features', difficulty: 'Intermediate', color: '#f97316', topics: [
@@ -689,22 +604,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
   const getTopicProgress = (topicName) => {
     const topicIdMap = {
       // Algorithm topics
-      'Binary Search': 'BinarySearch',
-      'Dynamic Programming': 'DynamicProgramming',
-      'Dynamic Programming Patterns': 'DynamicProgrammingPatterns',
-      'Hash Tables': 'HashTables',
-      'Linked Lists': 'LinkedLists',
-      'Two Pointers': 'TwoPointers',
-      'Sliding Window': 'SlidingWindow',
-      'Binary Trees': 'BinaryTrees',
-      'Binary Search Trees': 'BinarySearchTrees',
-      'Advanced Graphs': 'AdvancedGraphs',
-      'Greedy Algorithms': 'GreedyAlgorithms',
-      'Bit Manipulation': 'BitManipulation',
-      'Union Find': 'UnionFind',
-      'Math & Geometry': 'MathGeometry',
-      'Famous Algorithms': 'FamousAlgorithms',
-      'Data Structures': 'DataStructures',
       // Java topics
       'Streams Advanced': 'StreamsAdvanced',
       'Lambdas Advanced': 'LambdasAdvanced',

@@ -150,39 +150,6 @@ export const isProblemCompleted = (problemId) => {
 export const getAllPracticeProblems = () => {
   // Define all practice topics and their problem counts (matching Learning Path)
   return {
-    // Fundamentals
-    'Arrays': 21,
-    'Strings': 11,
-    'HashTables': 11,
-    'Stacks': 8,
-    'Queues': 4,
-    // Core Algorithms
-    'TwoPointers': 5,
-    'SlidingWindow': 9,
-    'BinarySearch': 5,
-    'Searching': 2,
-    'Sorting': 4,
-    'LinkedLists': 12,
-    // Intermediate
-    'Trees': 6,
-    'BinaryTrees': 17,
-    'BinarySearchTrees': 3,
-    'Heaps': 6,
-    'MathGeometry': 9,
-    // Advanced Data Structures
-    'Graphs': 9,
-    'Trie': 5,
-    'UnionFind': 4,
-    'Intervals': 7,
-    'DataStructures': 1,
-    // Advanced Algorithms
-    'DynamicProgramming': 17,
-    'DynamicProgrammingPatterns': 89,
-    'Backtracking': 13,
-    'GreedyAlgorithms': 4,
-    'AdvancedGraphs': 5,
-    'BitManipulation': 7,
-    'FamousAlgorithms': 3,
     // Java Features
     'Lambdas': 4,
     'FunctionalInterfaces': 4,
@@ -284,35 +251,6 @@ export const getProgressStats = () => {
 // Define category groupings
 export const getCategoryGroupings = () => {
   return {
-    'Practice - Algorithms': [
-      'Advanced Graphs',
-      'Arrays',
-      'Backtracking',
-      'Binary Search',
-      'Binary Search Trees',
-      'Binary Trees',
-      'Bit Manipulation',
-      'Data Structures',
-      'Dynamic Programming',
-      'Famous Algorithms',
-      'Graphs',
-      'Greedy Algorithms',
-      'Hash Tables',
-      'Heaps',
-      'Intervals',
-      'Linked Lists',
-      'Math & Geometry',
-      'Queues',
-      'Searching',
-      'Sliding Window',
-      'Sorting',
-      'Stacks',
-      'Strings',
-      'Trees',
-      'Trie',
-      'Two Pointers',
-      'Union Find'
-    ],
     'Practice - Java Features': [
       'Streams',
       'StreamsAdvanced',

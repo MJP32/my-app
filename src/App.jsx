@@ -178,34 +178,6 @@ const DistributedSystems = lazy(() => import('./pages/etrading/DistributedSystem
 const DisruptorPattern = lazy(() => import('./pages/etrading/DisruptorPattern.jsx'))
 
 // Algorithm pages - lazy loaded for better performance
-const Arrays = lazy(() => import('./pages/algorithms/Arrays.jsx'))
-const HashTables = lazy(() => import('./pages/algorithms/HashTables.jsx'))
-const Strings = lazy(() => import('./pages/algorithms/Strings.jsx'))
-const LinkedLists = lazy(() => import('./pages/algorithms/LinkedLists.jsx'))
-const Stacks = lazy(() => import('./pages/algorithms/Stacks.jsx'))
-const Queues = lazy(() => import('./pages/algorithms/Queues.jsx'))
-const Sorting = lazy(() => import('./pages/algorithms/Sorting.jsx'))
-const BinarySearch = lazy(() => import('./pages/algorithms/BinarySearch.jsx'))
-const DataStructures = lazy(() => import('./pages/algorithms/DataStructures.jsx'))
-const DynamicProgramming = lazy(() => import('./pages/algorithms/DynamicProgramming.jsx'))
-const DynamicProgrammingPatterns = lazy(() => import('./pages/practice/DynamicProgrammingPatterns.jsx'))
-const Trees = lazy(() => import('./pages/algorithms/Trees.jsx'))
-const BinaryTrees = lazy(() => import('./pages/algorithms/BinaryTrees.jsx'))
-const BinarySearchTrees = lazy(() => import('./pages/algorithms/BinarySearchTrees.jsx'))
-const Graphs = lazy(() => import('./pages/algorithms/Graphs.jsx'))
-const Heaps = lazy(() => import('./pages/algorithms/Heaps.jsx'))
-const UnionFind = lazy(() => import('./pages/algorithms/UnionFind.jsx'))
-const Trie = lazy(() => import('./pages/algorithms/Trie.jsx'))
-const Searching = lazy(() => import('./pages/algorithms/Searching.jsx'))
-const GreedyAlgorithms = lazy(() => import('./pages/algorithms/GreedyAlgorithms.jsx'))
-const FamousAlgorithms = lazy(() => import('./pages/algorithms/FamousAlgorithms.jsx'))
-const SlidingWindow = lazy(() => import('./pages/algorithms/SlidingWindow.jsx'))
-const Backtracking = lazy(() => import('./pages/algorithms/Backtracking.jsx'))
-const Intervals = lazy(() => import('./pages/algorithms/Intervals.jsx'))
-const MathGeometry = lazy(() => import('./pages/algorithms/MathGeometry.jsx'))
-const AdvancedGraphs = lazy(() => import('./pages/algorithms/AdvancedGraphs.jsx'))
-const BitManipulation = lazy(() => import('./pages/algorithms/BitManipulation.jsx'))
-const TwoPointers = lazy(() => import('./pages/algorithms/TwoPointers.jsx'))
 
 // Design pages - lazy loaded for better performance
 const DesignPatterns = lazy(() => import('./pages/design/DesignPatterns.jsx'))
@@ -418,31 +390,25 @@ const categoryGroups = {
 
 // Order of practice components for navigation
 const PRACTICE_COMPONENTS_ORDER = [
-  // Data Structures
-  'Arrays', 'Hash Tables', 'Stacks', 'Queues', 'Trees', 'Graphs', 'Heaps', 'Linked Lists',
-  // Algorithms
-  'Sorting', 'Binary Search', 'Recursion', 'Dynamic Programming', 'Union Find', 'Trie',
   // Java Features
   'Streams', 'Streams Advanced', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Collections Framework',
   // Concurrency
   'Concurrency', 'Multithreading',
   // Core Java Fundamentals
-  'Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Strings', 'Generics',
+  'Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Generics',
   // System Design
   'Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems'
 ]
 
 // Subcategory groupings
 const PRACTICE_SUBCATEGORIES = {
-  'Data Structures': ['Arrays', 'Hash Tables', 'Stacks', 'Queues', 'Trees', 'Graphs', 'Heaps', 'Linked Lists'],
-  'Algorithms': ['Sorting', 'Binary Search', 'Recursion', 'Dynamic Programming', 'Union Find', 'Trie'],
   'Java Features': ['Streams', 'Streams Advanced', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Collections Framework'],
   'Concurrency': ['Concurrency', 'Multithreading'],
-  'Core Java Fundamentals': ['Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Data Structures', 'Strings', 'Generics'],
+  'Core Java Fundamentals': ['Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Generics'],
   'System Design': ['Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems']
 }
 
-const SUBCATEGORY_ORDER = ['Data Structures', 'Algorithms', 'Java Features', 'Concurrency', 'Core Java Fundamentals', 'System Design']
+const SUBCATEGORY_ORDER = ['Java Features', 'Concurrency', 'Core Java Fundamentals', 'System Design']
 
 // Order of questions components for navigation
 const QUESTIONS_COMPONENTS_ORDER = [
@@ -880,26 +846,6 @@ function App() {
   const [showAWSModal, setShowAWSModal] = useState(false)
   const [showGCPModal, setShowGCPModal] = useState(false)
   const [showAzureModal, setShowAzureModal] = useState(false)
-  const [showArraysModal, setShowArraysModal] = useState(false)
-  const [showHashTablesModal, setShowHashTablesModal] = useState(false)
-  const [showStacksModal, setShowStacksModal] = useState(false)
-  const [showQueuesModal, setShowQueuesModal] = useState(false)
-  const [showTreesModal, setShowTreesModal] = useState(false)
-  const [showBinaryTreesModal, setShowBinaryTreesModal] = useState(false)
-  const [showBinarySearchTreesModal, setShowBinarySearchTreesModal] = useState(false)
-  const [showGraphsModal, setShowGraphsModal] = useState(false)
-  const [showHeapsModal, setShowHeapsModal] = useState(false)
-  const [showUnionFindModal, setShowUnionFindModal] = useState(false)
-  const [showTrieModal, setShowTrieModal] = useState(false)
-  const [showLinkedListsModal, setShowLinkedListsModal] = useState(false)
-  const [showSortingModal, setShowSortingModal] = useState(false)
-  const [showBinarySearchModal, setShowBinarySearchModal] = useState(false)
-  const [showDynamicProgrammingModal, setShowDynamicProgrammingModal] = useState(false)
-  const [showSlidingWindowModal, setShowSlidingWindowModal] = useState(false)
-  const [showBacktrackingModal, setShowBacktrackingModal] = useState(false)
-  const [showIntervalsModal, setShowIntervalsModal] = useState(false)
-  const [showMathGeometryModal, setShowMathGeometryModal] = useState(false)
-  const [showAdvancedGraphsModal, setShowAdvancedGraphsModal] = useState(false)
   const [showStreamsModal, setShowStreamsModal] = useState(false)
   const [showStreamsAdvancedModal, setShowStreamsAdvancedModal] = useState(false)
   const [showLambdasModal, setShowLambdasModal] = useState(false)
@@ -914,8 +860,6 @@ function App() {
   const [showJVMInternalsModal, setShowJVMInternalsModal] = useState(false)
   const [showSemaphoreInternalsModal, setShowSemaphoreInternalsModal] = useState(false)
   const [showMemoryManagementModal, setShowMemoryManagementModal] = useState(false)
-  const [showDataStructuresModal, setShowDataStructuresModal] = useState(false)
-  const [showStringsModal, setShowStringsModal] = useState(false)
   const [showGenericsModal, setShowGenericsModal] = useState(false)
   const [showDesignPatternsPracticeModal, setShowDesignPatternsPracticeModal] = useState(false)
   const [showLRUCacheModal, setShowLRUCacheModal] = useState(false)
@@ -1022,11 +966,6 @@ function App() {
     { id: 'Spring Security', show: showSpringSecurityQuestionsModal, setShow: setShowSpringSecurityQuestionsModal, Component: SpringSecurityQuestions, topic: 'Spring Security', width: '1400px' },
     { id: 'Spring Data JPA', show: showSpringDataJPAQuestionsModal, setShow: setShowSpringDataJPAQuestionsModal, Component: SpringDataJPAQuestions, topic: 'Spring Data JPA', width: '1400px' },
   ]
-  const [showSearchingModal, setShowSearchingModal] = useState(false)
-  const [showGreedyAlgorithmsModal, setShowGreedyAlgorithmsModal] = useState(false)
-  const [showFamousAlgorithmsModal, setShowFamousAlgorithmsModal] = useState(false)
-  const [showTwoPointersModal, setShowTwoPointersModal] = useState(false)
-  const [showBitManipulationModal, setShowBitManipulationModal] = useState(false)
   const [showAccountDropdown, setShowAccountDropdown] = useState(false)
   const [showKeyboardGuide, setShowKeyboardGuide] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
@@ -1094,32 +1033,6 @@ function App() {
     // Handle navigation based on the passed item
     if (item && item.page) {
         // Close all modals first
-        setShowArraysModal(false)
-        setShowHashTablesModal(false)
-        setShowStacksModal(false)
-        setShowQueuesModal(false)
-        setShowTreesModal(false)
-        setShowBinaryTreesModal(false)
-        setShowBinarySearchTreesModal(false)
-        setShowGraphsModal(false)
-        setShowHeapsModal(false)
-        setShowUnionFindModal(false)
-        setShowTrieModal(false)
-        setShowLinkedListsModal(false)
-        setShowSortingModal(false)
-        setShowBinarySearchModal(false)
-        setShowDynamicProgrammingModal(false)
-        setShowSlidingWindowModal(false)
-        setShowBacktrackingModal(false)
-        setShowIntervalsModal(false)
-        setShowMathGeometryModal(false)
-        setShowAdvancedGraphsModal(false)
-        setShowSearchingModal(false)
-        setShowGreedyAlgorithmsModal(false)
-        setShowFamousAlgorithmsModal(false)
-        setShowTwoPointersModal(false)
-        setShowBitManipulationModal(false)
-        setShowStringsModal(false)
         setShowStreamsModal(false)
         setShowStreamsAdvancedModal(false)
         setShowLambdasModal(false)
@@ -1132,7 +1045,6 @@ function App() {
         setShowFileIOModal(false)
         setShowJVMInternalsModal(false)
         setShowMemoryManagementModal(false)
-        setShowDataStructuresModal(false)
         setShowGenericsModal(false)
         setShowDesignPatternsPracticeModal(false)
         setShowLRUCacheModal(false)
@@ -1451,7 +1363,6 @@ function App() {
   const navigateToPracticeComponent = (componentName) => {
     // Map grouped category names (from progress service) to first component in subcategory
     const categoryToFirstComponentMap = {
-      'Practice - Algorithms': 'Arrays',
       'Practice - Java Features': 'Streams',
       'Practice - Concurrency': 'Concurrency',
       'Practice - Core Java Fundamentals': 'Object-Oriented Programming',
@@ -1510,12 +1421,6 @@ function App() {
       'DesignProblems': 'Design Problems',
       'LRUCache': 'LRU Cache',
       'RateLimiter': 'Rate Limiter',
-      'BinarySearch': 'Binary Search',
-      'DynamicProgramming': 'Dynamic Programming',
-      'HashTables': 'Hash Tables',
-      'LinkedLists': 'Linked Lists',
-      'UnionFind': 'Union Find',
-      'DataStructures': 'Data Structures',
       'JVMInternals': 'JVM Internals'
     }
 
@@ -1526,19 +1431,6 @@ function App() {
 
     // Map component names to their modal setters
     const componentModalMap = {
-      'Arrays': setShowArraysModal,
-      'Hash Tables': setShowHashTablesModal,
-      'Stacks': setShowStacksModal,
-      'Queues': setShowQueuesModal,
-      'Trees': setShowTreesModal,
-      'Graphs': setShowGraphsModal,
-      'Heaps': setShowHeapsModal,
-      'Linked Lists': setShowLinkedListsModal,
-      'Sorting': setShowSortingModal,
-      'Binary Search': setShowBinarySearchModal,
-      // algorithms/Recursion merged into Backtracking
-      'Recursion': setShowBacktrackingModal,
-      'Dynamic Programming': setShowDynamicProgrammingModal,
       'Streams': setShowStreamsModal,
       'Streams Advanced': setShowStreamsAdvancedModal,
       'Lambdas': setShowLambdasModal,
@@ -1554,27 +1446,11 @@ function App() {
       'File I/O': setShowFileIOModal,
       'JVM Internals': setShowJVMInternalsModal,
       'Memory Management': setShowMemoryManagementModal,
-      'Data Structures': setShowDataStructuresModal,
-      'Strings': setShowStringsModal,
       'Generics': setShowGenericsModal,
       'Design Patterns Practice': setShowDesignPatternsPracticeModal,
       'LRU Cache': setShowLRUCacheModal,
       'Rate Limiter': setShowRateLimiterModal,
       'Design Problems': setShowDesignProblemsModal,
-      'Union Find': setShowUnionFindModal,
-      'Trie': setShowTrieModal,
-      'Backtracking': setShowBacktrackingModal,
-      'Advanced Graphs': setShowAdvancedGraphsModal,
-      'Greedy Algorithms': setShowGreedyAlgorithmsModal,
-      'Intervals': setShowIntervalsModal,
-      'Math & Geometry': setShowMathGeometryModal,
-      'Sliding Window': setShowSlidingWindowModal,
-      'Famous Algorithms': setShowFamousAlgorithmsModal,
-      'Two Pointers': setShowTwoPointersModal,
-      'Bit Manipulation': setShowBitManipulationModal,
-      'Binary Trees': setShowBinaryTreesModal,
-      'Binary Search Trees': setShowBinarySearchTreesModal,
-      'Searching': setShowSearchingModal,
       'System Design': setShowSystemDesignModal
     }
 
@@ -1590,20 +1466,6 @@ function App() {
     const onPrevious = currentIndex > 0 ? () => {
       // Close current modal
       const closeMap = {
-        'Arrays': () => setShowArraysModal(false),
-        'Hash Tables': () => setShowHashTablesModal(false),
-        'Stacks': () => setShowStacksModal(false),
-        'Queues': () => setShowQueuesModal(false),
-        'Trees': () => setShowTreesModal(false),
-        'Binary Trees': () => setShowBinaryTreesModal(false),
-        'Binary Search Trees': () => setShowBinarySearchTreesModal(false),
-        'Graphs': () => setShowGraphsModal(false),
-        'Heaps': () => setShowHeapsModal(false),
-        'Linked Lists': () => setShowLinkedListsModal(false),
-        'Sorting': () => setShowSortingModal(false),
-        'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowBacktrackingModal(false),
-        'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
         'Lambdas': () => setShowLambdasModal(false),
@@ -1618,15 +1480,11 @@ function App() {
         'File I/O': () => setShowFileIOModal(false),
         'JVM Internals': () => setShowJVMInternalsModal(false),
         'Memory Management': () => setShowMemoryManagementModal(false),
-        'Data Structures': () => setShowDataStructuresModal(false),
-        'Strings': () => setShowStringsModal(false),
         'Generics': () => setShowGenericsModal(false),
         'Design Patterns Practice': () => setShowDesignPatternsPracticeModal(false),
         'LRU Cache': () => setShowLRUCacheModal(false),
         'Rate Limiter': () => setShowRateLimiterModal(false),
         'Design Problems': () => setShowDesignProblemsModal(false),
-        'Union Find': () => setShowUnionFindModal(false),
-        'Trie': () => setShowTrieModal(false)
       }
 
       closeMap[currentComponentName]()
@@ -1638,20 +1496,6 @@ function App() {
     const onNext = currentIndex < PRACTICE_COMPONENTS_ORDER.length - 1 ? () => {
       // Close current modal
       const closeMap = {
-        'Arrays': () => setShowArraysModal(false),
-        'Hash Tables': () => setShowHashTablesModal(false),
-        'Stacks': () => setShowStacksModal(false),
-        'Queues': () => setShowQueuesModal(false),
-        'Trees': () => setShowTreesModal(false),
-        'Binary Trees': () => setShowBinaryTreesModal(false),
-        'Binary Search Trees': () => setShowBinarySearchTreesModal(false),
-        'Graphs': () => setShowGraphsModal(false),
-        'Heaps': () => setShowHeapsModal(false),
-        'Linked Lists': () => setShowLinkedListsModal(false),
-        'Sorting': () => setShowSortingModal(false),
-        'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowBacktrackingModal(false),
-        'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
         'Lambdas': () => setShowLambdasModal(false),
@@ -1666,15 +1510,11 @@ function App() {
         'File I/O': () => setShowFileIOModal(false),
         'JVM Internals': () => setShowJVMInternalsModal(false),
         'Memory Management': () => setShowMemoryManagementModal(false),
-        'Data Structures': () => setShowDataStructuresModal(false),
-        'Strings': () => setShowStringsModal(false),
         'Generics': () => setShowGenericsModal(false),
         'Design Patterns Practice': () => setShowDesignPatternsPracticeModal(false),
         'LRU Cache': () => setShowLRUCacheModal(false),
         'Rate Limiter': () => setShowRateLimiterModal(false),
         'Design Problems': () => setShowDesignProblemsModal(false),
-        'Union Find': () => setShowUnionFindModal(false),
-        'Trie': () => setShowTrieModal(false)
       }
 
       closeMap[currentComponentName]()
@@ -1696,20 +1536,6 @@ function App() {
     // Subcategory navigation handlers (navigate to first component of target subcategory)
     const onPreviousSubcategory = previousSubcategory ? () => {
       const closeMap = {
-        'Arrays': () => setShowArraysModal(false),
-        'Hash Tables': () => setShowHashTablesModal(false),
-        'Stacks': () => setShowStacksModal(false),
-        'Queues': () => setShowQueuesModal(false),
-        'Trees': () => setShowTreesModal(false),
-        'Binary Trees': () => setShowBinaryTreesModal(false),
-        'Binary Search Trees': () => setShowBinarySearchTreesModal(false),
-        'Graphs': () => setShowGraphsModal(false),
-        'Heaps': () => setShowHeapsModal(false),
-        'Linked Lists': () => setShowLinkedListsModal(false),
-        'Sorting': () => setShowSortingModal(false),
-        'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowBacktrackingModal(false),
-        'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
         'Lambdas': () => setShowLambdasModal(false),
@@ -1724,15 +1550,11 @@ function App() {
         'File I/O': () => setShowFileIOModal(false),
         'JVM Internals': () => setShowJVMInternalsModal(false),
         'Memory Management': () => setShowMemoryManagementModal(false),
-        'Data Structures': () => setShowDataStructuresModal(false),
-        'Strings': () => setShowStringsModal(false),
         'Generics': () => setShowGenericsModal(false),
         'Design Patterns Practice': () => setShowDesignPatternsPracticeModal(false),
         'LRU Cache': () => setShowLRUCacheModal(false),
         'Rate Limiter': () => setShowRateLimiterModal(false),
         'Design Problems': () => setShowDesignProblemsModal(false),
-        'Union Find': () => setShowUnionFindModal(false),
-        'Trie': () => setShowTrieModal(false)
       }
 
       const firstComponentInPreviousSubcategory = PRACTICE_SUBCATEGORIES[previousSubcategory][0]
@@ -1744,20 +1566,6 @@ function App() {
 
     const onNextSubcategory = nextSubcategory ? () => {
       const closeMap = {
-        'Arrays': () => setShowArraysModal(false),
-        'Hash Tables': () => setShowHashTablesModal(false),
-        'Stacks': () => setShowStacksModal(false),
-        'Queues': () => setShowQueuesModal(false),
-        'Trees': () => setShowTreesModal(false),
-        'Binary Trees': () => setShowBinaryTreesModal(false),
-        'Binary Search Trees': () => setShowBinarySearchTreesModal(false),
-        'Graphs': () => setShowGraphsModal(false),
-        'Heaps': () => setShowHeapsModal(false),
-        'Linked Lists': () => setShowLinkedListsModal(false),
-        'Sorting': () => setShowSortingModal(false),
-        'Binary Search': () => setShowBinarySearchModal(false),
-        'Recursion': () => setShowBacktrackingModal(false),
-        'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
         'Streams': () => setShowStreamsModal(false),
         'Streams Advanced': () => setShowStreamsAdvancedModal(false),
         'Lambdas': () => setShowLambdasModal(false),
@@ -1772,15 +1580,11 @@ function App() {
         'File I/O': () => setShowFileIOModal(false),
         'JVM Internals': () => setShowJVMInternalsModal(false),
         'Memory Management': () => setShowMemoryManagementModal(false),
-        'Data Structures': () => setShowDataStructuresModal(false),
-        'Strings': () => setShowStringsModal(false),
         'Generics': () => setShowGenericsModal(false),
         'Design Patterns Practice': () => setShowDesignPatternsPracticeModal(false),
         'LRU Cache': () => setShowLRUCacheModal(false),
         'Rate Limiter': () => setShowRateLimiterModal(false),
         'Design Problems': () => setShowDesignProblemsModal(false),
-        'Union Find': () => setShowUnionFindModal(false),
-        'Trie': () => setShowTrieModal(false)
       }
 
       const firstComponentInNextSubcategory = PRACTICE_SUBCATEGORIES[nextSubcategory][0]
@@ -1792,20 +1596,6 @@ function App() {
 
     // Create close function for current component
     const closeCurrentModal = {
-      'Arrays': () => setShowArraysModal(false),
-      'Hash Tables': () => setShowHashTablesModal(false),
-      'Stacks': () => setShowStacksModal(false),
-      'Queues': () => setShowQueuesModal(false),
-      'Trees': () => setShowTreesModal(false),
-      'Binary Trees': () => setShowBinaryTreesModal(false),
-      'Binary Search Trees': () => setShowBinarySearchTreesModal(false),
-      'Graphs': () => setShowGraphsModal(false),
-      'Heaps': () => setShowHeapsModal(false),
-      'Linked Lists': () => setShowLinkedListsModal(false),
-      'Sorting': () => setShowSortingModal(false),
-      'Binary Search': () => setShowBinarySearchModal(false),
-      'Recursion': () => setShowBacktrackingModal(false),
-      'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
       'Streams': () => setShowStreamsModal(false),
       'Streams Advanced': () => setShowStreamsAdvancedModal(false),
       'Lambdas': () => setShowLambdasModal(false),
@@ -1819,25 +1609,11 @@ function App() {
       'File I/O': () => setShowFileIOModal(false),
       'JVM Internals': () => setShowJVMInternalsModal(false),
       'Memory Management': () => setShowMemoryManagementModal(false),
-      'Data Structures': () => setShowDataStructuresModal(false),
-      'Strings': () => setShowStringsModal(false),
       'Generics': () => setShowGenericsModal(false),
       'Design Patterns Practice': () => setShowDesignPatternsPracticeModal(false),
       'LRU Cache': () => setShowLRUCacheModal(false),
       'Rate Limiter': () => setShowRateLimiterModal(false),
       'Design Problems': () => setShowDesignProblemsModal(false),
-      'Union Find': () => setShowUnionFindModal(false),
-      'Trie': () => setShowTrieModal(false),
-      'Advanced Graphs': () => setShowAdvancedGraphsModal(false),
-      'Backtracking': () => setShowBacktrackingModal(false),
-      'Greedy Algorithms': () => setShowGreedyAlgorithmsModal(false),
-      'Intervals': () => setShowIntervalsModal(false),
-      'Math Geometry': () => setShowMathGeometryModal(false),
-      'Searching': () => setShowSearchingModal(false),
-      'Sliding Window': () => setShowSlidingWindowModal(false),
-      'Two Pointers': () => setShowTwoPointersModal(false),
-      'Famous Algorithms': () => setShowFamousAlgorithmsModal(false),
-      'Bit Manipulation': () => setShowBitManipulationModal(false)
     }[currentComponentName]
 
     // Breadcrumb for Practice section navigation (legacy format)
@@ -2512,66 +2288,10 @@ function App() {
     ],
     'Practice Topics': [
       {
-        value: 'Arrays',
-        label: '📋 Arrays',
-        description: 'Array data structure fundamentals, operations, and algorithms.',
-        metrics: ['Array Operations', 'Traversal', 'Search', 'Sort'],
-        complexity: 'Beginner to Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Hash Tables',
-        label: '🗂️ Hash Tables',
-        description: 'Hash table implementation, collision handling, and optimization.',
-        metrics: ['Hashing', 'Collision Resolution', 'Performance', 'HashMap'],
-        complexity: 'Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Sorting',
-        label: '🔄 Sorting',
-        description: 'Sorting algorithms and their applications.',
-        metrics: ['QuickSort', 'MergeSort', 'HeapSort', 'Complexity'],
-        complexity: 'Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Stacks',
-        label: '📚 Stacks',
-        description: 'Stack data structure and LIFO operations.',
-        metrics: ['Push/Pop', 'LIFO', 'Stack Applications', 'Memory'],
-        complexity: 'Beginner to Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Strings',
-        label: '📝 Strings',
-        description: 'String manipulation and algorithms.',
-        metrics: ['String Operations', 'Pattern Matching', 'StringBuilder', 'RegEx'],
-        complexity: 'Beginner to Intermediate',
-        industry: 'Software Development'
-      },
-      {
         value: 'Generics',
         label: '🔤 Generics',
         description: 'Java Generics for type-safe collections and methods. Learn type parameters, bounded types, wildcards, and generic classes/methods.',
         metrics: ['Type Parameters', 'Bounded Types', 'Wildcards', 'Generic Methods'],
-        complexity: 'Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Binary Search',
-        label: '🔍 Binary Search',
-        description: 'Binary search algorithm and variations.',
-        metrics: ['Search Algorithm', 'Divide & Conquer', 'Complexity', 'Optimization'],
-        complexity: 'Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Linked Lists',
-        label: '🔗 Linked Lists',
-        description: 'Linked list data structures and operations.',
-        metrics: ['Singly Linked', 'Doubly Linked', 'Circular', 'Operations'],
         complexity: 'Intermediate',
         industry: 'Software Development'
       },
@@ -2605,14 +2325,6 @@ function App() {
         description: 'Java Collections Framework and utilities.',
         metrics: ['List', 'Set', 'Map', 'Queue'],
         complexity: 'Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Data Structures',
-        label: '🏗️ Data Structures',
-        description: 'Core data structures and their applications.',
-        metrics: ['Trees', 'Graphs', 'Heaps', 'Tries'],
-        complexity: 'Intermediate to Advanced',
         industry: 'Software Development'
       },
       {
@@ -2692,62 +2404,6 @@ function App() {
         label: '🔌 Functional Interfaces',
         description: 'Built-in and custom functional interfaces in Java.',
         metrics: ['Predicate', 'Function', 'Consumer', 'Supplier'],
-        complexity: 'Intermediate',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Dynamic Programming',
-        label: '🎯 Dynamic Programming',
-        description: 'Optimization problems using memoization and tabulation techniques.',
-        metrics: ['Memoization', 'Tabulation', 'Optimal Substructure', 'Overlapping Subproblems'],
-        complexity: 'Advanced',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Union Find',
-        label: '🔗 Union Find',
-        description: 'Disjoint Set Union data structure with path compression and union by rank for efficient set operations.',
-        metrics: ['Path Compression', 'Union by Rank', 'Connected Components', 'Cycle Detection'],
-        complexity: 'Intermediate to Advanced',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Trie',
-        label: '🌲 Trie',
-        description: 'Prefix tree data structure for efficient string searching and prefix matching.',
-        metrics: ['Insert', 'Search', 'Prefix Match', 'Word Search'],
-        complexity: 'Intermediate to Advanced',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Trees',
-        label: '🌳 Trees',
-        description: 'Binary tree algorithms, traversals, and BST operations.',
-        metrics: ['Tree Traversal', 'BST Validation', 'LCA', 'Depth & Diameter'],
-        complexity: 'Intermediate to Advanced',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Graphs',
-        label: '🔗 Graphs',
-        description: 'Graph traversal, shortest path, and cycle detection algorithms.',
-        metrics: ['DFS', 'BFS', 'Dijkstra', 'Topological Sort'],
-        complexity: 'Advanced',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Heaps',
-        label: '📊 Heaps',
-        description: 'Priority queue implementation and heap-based algorithms.',
-        metrics: ['Min/Max Heap', 'Priority Queue', 'Kth Element', 'Median Finding'],
-        complexity: 'Intermediate to Advanced',
-        industry: 'Software Development'
-      },
-      {
-        value: 'Queues',
-        label: '📥 Queues',
-        description: 'Queue implementations and variations including circular queues.',
-        metrics: ['FIFO Operations', 'Circular Queue', 'Sliding Window', 'Deque'],
         complexity: 'Intermediate',
         industry: 'Software Development'
       },
@@ -3143,24 +2799,6 @@ function App() {
             [showAWSModal, setShowAWSModal],
             [showGCPModal, setShowGCPModal],
             [showAzureModal, setShowAzureModal],
-            [showArraysModal, setShowArraysModal],
-            [showHashTablesModal, setShowHashTablesModal],
-            [showStacksModal, setShowStacksModal],
-            [showQueuesModal, setShowQueuesModal],
-            [showTreesModal, setShowTreesModal],
-            [showBinaryTreesModal, setShowBinaryTreesModal],
-            [showBinarySearchTreesModal, setShowBinarySearchTreesModal],
-            [showGraphsModal, setShowGraphsModal],
-            [showHeapsModal, setShowHeapsModal],
-            [showUnionFindModal, setShowUnionFindModal],
-            [showTrieModal, setShowTrieModal],
-            [showLinkedListsModal, setShowLinkedListsModal],
-            [showSortingModal, setShowSortingModal],
-            [showBinarySearchModal, setShowBinarySearchModal],
-            [showDynamicProgrammingModal, setShowDynamicProgrammingModal],
-            [showSearchingModal, setShowSearchingModal],
-            [showGreedyAlgorithmsModal, setShowGreedyAlgorithmsModal],
-            [showFamousAlgorithmsModal, setShowFamousAlgorithmsModal],
             [showStreamsModal, setShowStreamsModal],
             [showStreamsAdvancedModal, setShowStreamsAdvancedModal],
             [showLambdasModal, setShowLambdasModal],
@@ -3175,8 +2813,6 @@ function App() {
             [showJVMInternalsModal, setShowJVMInternalsModal],
             [showSemaphoreInternalsModal, setShowSemaphoreInternalsModal],
             [showMemoryManagementModal, setShowMemoryManagementModal],
-            [showDataStructuresModal, setShowDataStructuresModal],
-            [showStringsModal, setShowStringsModal],
             [showGenericsModal, setShowGenericsModal],
             [showDesignPatternsPracticeModal, setShowDesignPatternsPracticeModal],
             [showLRUCacheModal, setShowLRUCacheModal],
@@ -3439,24 +3075,6 @@ function App() {
     showAWSModal,
     showGCPModal,
     showAzureModal,
-    showArraysModal,
-    showHashTablesModal,
-    showStacksModal,
-    showQueuesModal,
-    showTreesModal,
-    showBinaryTreesModal,
-    showBinarySearchTreesModal,
-    showGraphsModal,
-    showHeapsModal,
-    showUnionFindModal,
-    showTrieModal,
-    showLinkedListsModal,
-    showSortingModal,
-    showBinarySearchModal,
-    showDynamicProgrammingModal,
-    showSearchingModal,
-    showGreedyAlgorithmsModal,
-    showFamousAlgorithmsModal,
     showStreamsModal,
     showStreamsAdvancedModal,
     showLambdasModal,
@@ -3471,8 +3089,6 @@ function App() {
     showJVMInternalsModal,
     showSemaphoreInternalsModal,
     showMemoryManagementModal,
-    showDataStructuresModal,
-    showStringsModal,
     showGenericsModal,
     showDesignPatternsPracticeModal,
     showLRUCacheModal,
@@ -3805,9 +3421,6 @@ function App() {
     }
     if (selectedOption === 'LeetCode Patterns') {
       return <LeetCodePatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'LeetCode Patterns' }} />
-    }
-    if (selectedOption === 'DP Patterns') {
-      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'DP Patterns' }} />
     }
     if (selectedOption === 'Sorting Algorithms') {
       return <SortingAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Sorting Algorithms' }} />
@@ -4675,43 +4288,8 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
-    if (selectedOption === 'Arrays') {
-      setShowArraysModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Hash Tables') {
-      setShowHashTablesModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Strings') {
-      setShowStringsModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
     if (selectedOption === 'Generics') {
       setShowGenericsModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Linked Lists') {
-      setShowLinkedListsModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Stacks') {
-      setShowStacksModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Sorting') {
-      setShowSortingModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Binary Search') {
-      setShowBinarySearchModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -4723,11 +4301,6 @@ function App() {
     }
     if (selectedOption === 'Collections Framework') {
       setShowCollectionsFrameworkModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Data Structures') {
-      setShowDataStructuresModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -4801,56 +4374,6 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
-    if (selectedOption === 'Dynamic Programming') {
-      setShowDynamicProgrammingModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Dynamic Programming Patterns') {
-      console.log('✅ Navigating to Dynamic Programming Patterns')
-      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Practice')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Practice', icon: '📝', onClick: () => setSelectedOptionAndRef('Practice') }, topic: 'Dynamic Programming Patterns', colors: BREADCRUMB_COLORS.Practice }} />
-    }
-    console.log('❌ Did not match Dynamic Programming Patterns, selectedOption:', selectedOption)
-    if (selectedOption === 'Trees') {
-      setShowTreesModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Binary Trees') {
-      setShowBinaryTreesModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Graphs') {
-      setShowGraphsModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Heaps') {
-      setShowHeapsModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Queues') {
-      setShowQueuesModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Two Pointers') {
-      setShowTwoPointersModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Sliding Window') {
-      setShowSlidingWindowModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
-    if (selectedOption === 'Backtracking') {
-      setShowBacktrackingModal(true)
-      setSelectedOptionAndRef('')
-      return null
-    }
     if (selectedOption === 'LRU Cache') {
       setShowLRUCacheModal(true)
       setSelectedOptionAndRef('')
@@ -4880,31 +4403,7 @@ function App() {
         onSelectItem={(item) => {
           // Open the appropriate modal based on the item name
           switch (item) {
-            case 'Arrays': setShowArraysModal(true); break;
-            case 'Hash Tables': setShowHashTablesModal(true); break;
-            case 'Stacks': setShowStacksModal(true); break;
-            case 'Queues': setShowQueuesModal(true); break;
-            case 'Trees': setShowTreesModal(true); break;
-            case 'Binary Trees': setShowBinaryTreesModal(true); break;
-            case 'Binary Search Trees': setShowBinarySearchTreesModal(true); break;
-            case 'Graphs': setShowGraphsModal(true); break;
-            case 'Heaps': setShowHeapsModal(true); break;
-            case 'Union Find': setShowUnionFindModal(true); break;
-            case 'Trie': setShowTrieModal(true); break;
-            case 'Linked Lists': setShowLinkedListsModal(true); break;
-            case 'Sorting': setShowSortingModal(true); break;
-            case 'Binary Search': setShowBinarySearchModal(true); break;
-            case 'Recursion': setShowBacktrackingModal(true); break;
-            case 'Dynamic Programming': setShowDynamicProgrammingModal(true); break;
             case 'Dynamic Programming Patterns': setSelectedOptionAndRef('Dynamic Programming Patterns'); break;
-            case 'Sliding Window': setShowSlidingWindowModal(true); break;
-            case 'Backtracking': setShowBacktrackingModal(true); break;
-            case 'Intervals': setShowIntervalsModal(true); break;
-            case 'Math & Geometry': setShowMathGeometryModal(true); break;
-            case 'Advanced Graphs': setShowAdvancedGraphsModal(true); break;
-            case 'Searching': setShowSearchingModal(true); break;
-            case 'Greedy Algorithms': setShowGreedyAlgorithmsModal(true); break;
-            case 'Famous Algorithms': setShowFamousAlgorithmsModal(true); break;
             case 'Streams': setShowStreamsModal(true); break;
             case 'Streams Advanced': setShowStreamsAdvancedModal(true); break;
             case 'Lambdas': setShowLambdasModal(true); break;
@@ -4918,8 +4417,6 @@ function App() {
             case 'File I/O': setShowFileIOModal(true); break;
             case 'JVM Internals': setShowJVMInternalsModal(true); break;
             case 'Memory Management': setShowMemoryManagementModal(true); break;
-            case 'Data Structures': setShowDataStructuresModal(true); break;
-            case 'Strings': setShowStringsModal(true); break;
             case 'Generics': setShowGenericsModal(true); break;
             case 'Design Patterns Practice': setShowDesignPatternsPracticeModal(true); break;
             case 'LRU Cache': setShowLRUCacheModal(true); break;
@@ -4930,8 +4427,6 @@ function App() {
             case 'Mobile Weather App': setShowMobileWeatherAppModal(true); break;
             case 'Spring Batch Process': setShowSpringBatchProcessModal(true); break;
             case 'AI Interview': setSelectedOptionAndRef('AI Interview'); break;
-            case 'Two Pointers': setShowTwoPointersModal(true); break;
-            case 'Bit Manipulation': setShowBitManipulationModal(true); break;
             case 'Set Operations': setSelectedOptionAndRef('Set Operations'); break;
             case 'Map Operations': setSelectedOptionAndRef('Map Operations'); break;
             default: break;
@@ -6386,818 +5881,6 @@ function App() {
         </div>
       )}
 
-      {showArraysModal && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setShowArraysModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={modalContentStyle}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Arrays..." />}>
-              <Arrays
-                onBack={() => { setShowArraysModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Arrays')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showHashTablesModal && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setShowHashTablesModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={modalContentStyle}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Hash Tables..." />}>
-              <HashTables
-                onBack={() => { setShowHashTablesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Hash Tables')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showStacksModal && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setShowStacksModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={modalContentStyle}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Stacks..." />}>
-              <Stacks
-                onBack={() => { setShowStacksModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Stacks')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showQueuesModal && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setShowQueuesModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={modalContentStyle}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Queues..." />}>
-              <Queues
-                onBack={() => { setShowQueuesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Queues')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showTreesModal && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setShowTreesModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={modalContentStyle}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Trees..." />}>
-              <Trees
-                onBack={() => { setShowTreesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Trees')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showBinaryTreesModal && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setShowBinaryTreesModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={modalContentStyle}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Binary Trees..." />}>
-              <BinaryTrees
-                onBack={() => { setShowBinaryTreesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Binary Trees')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showBinarySearchTreesModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowBinarySearchTreesModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Binary Search Trees..." />}>
-              <BinarySearchTrees
-                onBack={() => { setShowBinarySearchTreesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Binary Search Trees')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showGraphsModal && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setShowGraphsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={modalContentStyle}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Graphs..." />}>
-              <Graphs
-                onBack={() => { setShowGraphsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Graphs')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showHeapsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowHeapsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Heaps..." />}>
-              <Heaps
-                onBack={() => { setShowHeapsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Heaps')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showUnionFindModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowUnionFindModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Union Find..." />}>
-              <UnionFind
-                onBack={() => { setShowUnionFindModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('UnionFind')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showTrieModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowTrieModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Trie..." />}>
-              <Trie
-                onBack={() => { setShowTrieModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Trie')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showLinkedListsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowLinkedListsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Linked Lists..." />}>
-              <LinkedLists
-                onBack={() => { setShowLinkedListsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Linked Lists')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showSortingModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowSortingModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Sorting..." />}>
-              <Sorting
-                onBack={() => { setShowSortingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Sorting')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showBinarySearchModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowBinarySearchModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Binary Search..." />}>
-              <BinarySearch
-                onBack={() => { setShowBinarySearchModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Binary Search')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-
-      {showDynamicProgrammingModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowDynamicProgrammingModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Dynamic Programming..." />}>
-              <DynamicProgramming
-                onBack={() => { setShowDynamicProgrammingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Dynamic Programming')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showSlidingWindowModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowSlidingWindowModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Sliding Window..." />}>
-              <SlidingWindow
-                onBack={() => { setShowSlidingWindowModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Sliding Window')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showBacktrackingModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowBacktrackingModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Backtracking..." />}>
-              <Backtracking
-                onBack={() => { setShowBacktrackingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Backtracking')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showIntervalsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowIntervalsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Intervals..." />}>
-              <Intervals
-                onBack={() => { setShowIntervalsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Intervals')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showMathGeometryModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowMathGeometryModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Math & Geometry..." />}>
-              <MathGeometry
-                onBack={() => { setShowMathGeometryModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Math & Geometry')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showAdvancedGraphsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowAdvancedGraphsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Advanced Graphs..." />}>
-              <AdvancedGraphs
-                onBack={() => { setShowAdvancedGraphsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Advanced Graphs')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showSearchingModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowSearchingModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Searching..." />}>
-              <Searching
-                onBack={() => { setShowSearchingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Searching')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showGreedyAlgorithmsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowGreedyAlgorithmsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Greedy Algorithms..." />}>
-              <GreedyAlgorithms
-                onBack={() => { setShowGreedyAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Greedy Algorithms')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showFamousAlgorithmsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowFamousAlgorithmsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Famous Algorithms..." />}>
-              <FamousAlgorithms
-                onBack={() => { setShowFamousAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Famous Algorithms')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
 
       {showStreamsModal && (
         <div
@@ -7782,90 +6465,6 @@ function App() {
                 topic: 'Memory Management'
               }}
             />
-          </div>
-        </div>
-      )}
-
-      {showDataStructuresModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowDataStructuresModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Data Structures..." />}>
-              <DataStructures
-                onBack={() => { setShowDataStructuresModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Data Structures')}
-              />
-            </Suspense>
-          </div>
-        </div>
-      )}
-
-      {showStringsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
-          onClick={() => setShowStringsModal(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: colors.bgSecondary,
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
-          >
-            <Suspense fallback={<LoadingSpinner text="Loading Strings..." />}>
-              <Strings
-                onBack={() => { setShowStringsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
-                problemLimit={problemLimit}
-                {...createNavigationCallbacks('Strings')}
-              />
-            </Suspense>
           </div>
         </div>
       )}
