@@ -147,7 +147,17 @@
       "Bash(git -C .claude/worktrees/thirsty-khorana status --short)",
       "Bash(git -C .claude/worktrees/thirsty-khorana add -A)",
       "Bash(git -C .claude/worktrees/thirsty-khorana commit -m ' *)",
-      "Bash(git worktree *)"
+      "Bash(git worktree *)",
+      "Bash(py -0p)",
+      "Bash(where python *)",
+      "Bash(where python3 *)",
+      "Bash(where py *)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(sed 's/.*>//')",
+      "Bash(py -3 \"C:\\\\Users\\\\micha\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-micha-Documents-2026-jul-my-app\\\\ea873cfc-8504-4181-a18a-2a6806c89282\\\\scratchpad\\\\strip1.py\")",
+      "Bash(py -3 -c ' *)",
+      "Bash(npx esbuild *)",
+      "Bash(git restore *)"
     ],
     "deny": [],
     "ask": []
