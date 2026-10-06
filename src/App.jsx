@@ -237,8 +237,6 @@ const BitwiseOperations = lazy(() => import('./pages/python/BitwiseOperations.js
 const ListComprehension = lazy(() => import('./pages/python/ListComprehension.jsx'))
 const LambdaFunctions = lazy(() => import('./pages/python/LambdaFunctions.jsx'))
 const BisectFunctions = lazy(() => import('./pages/python/BisectFunctions.jsx'))
-const SetOperations = lazy(() => import('./pages/practice/SetOperations.jsx'))
-const MapOperations = lazy(() => import('./pages/practice/MapOperations.jsx'))
 const PythonAdvanced = lazy(() => import('./pages/python/PythonAdvanced.jsx'))
 const CorePython = lazy(() => import('./pages/python/CorePython.jsx'))
 const PythonOOP = lazy(() => import('./pages/python/PythonOOP.jsx'))
@@ -1367,8 +1365,7 @@ function App() {
       'Practice - Java Features': 'Streams',
       'Practice - Concurrency': 'Concurrency',
       'Practice - Core Java Fundamentals': 'Object-Oriented Programming',
-      'Practice - System Design': 'System Design',
-      'Practice - Python Operations': 'Set Operations' // First Python topic
+      'Practice - System Design': 'System Design'
     }
 
     // Check if this is a grouped category name and map to first component
@@ -1384,8 +1381,6 @@ function App() {
 
     // Python topics use setSelectedOptionAndRef instead of modals
     const pythonTopicsMap = {
-      'SetOperations': 'Set Operations',
-      'MapOperations': 'Map Operations',
       'PythonSetOperations': 'Python Set Operations',
       'PythonMapFunctions': 'Python Map Functions',
       'PythonDictOps': 'Python Dict Operations',
@@ -1400,7 +1395,7 @@ function App() {
 
     // Also handle already-mapped Python topic names
     const pythonSelectedOptions = [
-      'Set Operations', 'Map Operations', 'Python Set Operations',
+      'Python Set Operations',
       'Python Map Functions', 'Python Dict Operations', 'Python Regex'
     ]
     if (pythonSelectedOptions.includes(componentName)) {
@@ -3348,12 +3343,6 @@ function App() {
     if (selectedOption === 'Bisect Functions') {
       return <BisectFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Bisect Functions' }} />
     }
-    if (selectedOption === 'Set Operations') {
-      return <SetOperations onBack={() => setSelectedOptionAndRef('Practice')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Practice', icon: '📝', onClick: () => setSelectedOptionAndRef('Practice') }, topic: 'Set Operations', colors: BREADCRUMB_COLORS.Practice }} />
-    }
-    if (selectedOption === 'Map Operations') {
-      return <MapOperations onBack={() => setSelectedOptionAndRef('Practice')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Practice', icon: '📝', onClick: () => setSelectedOptionAndRef('Practice') }, topic: 'Map Operations', colors: BREADCRUMB_COLORS.Practice }} />
-    }
     if (selectedOption === 'Python Advanced') {
       return <PythonAdvanced onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Python Advanced' }} />
     }
@@ -4438,8 +4427,6 @@ function App() {
             case 'Mobile Weather App': setShowMobileWeatherAppModal(true); break;
             case 'Spring Batch Process': setShowSpringBatchProcessModal(true); break;
             case 'AI Interview': setSelectedOptionAndRef('AI Interview'); break;
-            case 'Set Operations': setSelectedOptionAndRef('Set Operations'); break;
-            case 'Map Operations': setSelectedOptionAndRef('Map Operations'); break;
             default: break;
           }
         }}

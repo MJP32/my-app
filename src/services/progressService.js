@@ -150,14 +150,6 @@ export const isProblemCompleted = (problemId) => {
 export const getAllPracticeProblems = () => {
   // Define all practice topics and their problem counts (matching Learning Path)
   return {
-    // Java Features
-    'Lambdas': 4,
-    'FunctionalInterfaces': 4,
-    // Core Java Fundamentals
-    'FileIO': 6,
-    'Generics': 4,
-    'JVMInternals': 5,
-    'MemoryManagement': 4,
     // System Design Components
     'LRUCache': 7,
     'RateLimiter': 6,
@@ -251,40 +243,12 @@ export const getProgressStats = () => {
 // Define category groupings
 export const getCategoryGroupings = () => {
   return {
-    'Practice - Java Features': [
-      'Streams',
-      'StreamsAdvanced',
-      'Lambdas',
-      'LambdasAdvanced',
-      'FunctionalInterfaces',
-      'CollectionsFramework'
-    ],
-    'Practice - Concurrency': [
-      'Concurrency',
-      'Multithreading'
-    ],
-    'Practice - Core Java Fundamentals': [
-      'ObjectOrientedProgramming',
-      'ExceptionHandling',
-      'FileIO',
-      'JVMInternals',
-      'MemoryManagement',
-      'Generics'
-    ],
     'Practice - System Design': [
       'System Design',
       'DesignPatternsInteractive',
       'DesignProblems',
       'LRUCache',
       'RateLimiter'
-    ],
-    'Practice - Python Operations': [
-      'SetOperations',
-      'MapOperations',
-      'PythonSetOperations',
-      'PythonMapFunctions',
-      'PythonDictOps',
-      'PythonRegex'
     ]
   }
 }

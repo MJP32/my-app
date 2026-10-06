@@ -17,7 +17,7 @@ const PRACTICE_COLORS = {
 
 const tabCategories = {
   all: { label: 'All', ids: null },
-  languages: { label: 'Programming Languages', ids: ['Java Features', 'Core Java Fundamentals', 'Concurrency', 'Python Operations'] },
+  languages: { label: 'Programming Languages', ids: ['Java Features', 'Core Java Fundamentals', 'Concurrency'] },
   design: { label: 'System Design', ids: ['System Design'] },
   interview: { label: 'Interview Prep', ids: ['AI Interview'] }
 }
@@ -1305,34 +1305,13 @@ System.setOut(original);   // restore` },
 
   // Map of subcategory items to their problem counts
   const problemCounts = {
-    // Java Features
-    'Streams': 0,
-    'Streams Advanced': 0,
-    'Lambdas': 4,
-    'Lambdas Advanced': 0,
-    'Functional Interfaces': 4,
-    'Collections Framework': 0,
-    'Optional': 0,
-    // Concurrency
-    'Concurrency': 0,
-    'Multithreading': 0,
-    // Core Java Fundamentals
-    'Object-Oriented Programming': 0,
-    'Exception Handling': 0,
-    'File I/O': 6,
-    'JVM Internals': 5,
-    'Memory Management': 4,
-    'Generics': 4,
     // System Design
     'Design Patterns Practice': 4,
     'LRU Cache': 4,
     'Rate Limiter': 4,
     'Design Problems': 5,
     'File Uploader': 4,
-    'Spring Batch Process': 8,
-    // Python Operations
-    'Set Operations': 8,
-    'Map Operations': 10
+    'Spring Batch Process': 8
   }
 
   // Calculate completion progress for each item
@@ -1402,7 +1381,7 @@ System.setOut(original);   // restore` },
           name: 'Java Features',
           icon: '☕',
           color: '#f59e0b',
-          count: 8,
+          count: 0,
           items: ['Streams', 'Streams Advanced', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Collections Framework', 'Optional']
         },
         {
@@ -1410,7 +1389,7 @@ System.setOut(original);   // restore` },
           name: 'Core Java Fundamentals',
           icon: '⚙️',
           color: '#6366f1',
-          count: 19,
+          count: 0,
           items: ['Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Generics']
         },
         {
@@ -1420,14 +1399,6 @@ System.setOut(original);   // restore` },
           color: '#10b981',
           count: 0,
           items: ['Concurrency', 'Multithreading']
-        },
-        {
-          id: 'Python Operations',
-          name: 'Python Operations',
-          icon: '🐍',
-          color: '#3776ab',
-          count: 18,
-          items: ['Set Operations', 'Map Operations']
         }
       ]
     },
@@ -1691,14 +1662,16 @@ System.setOut(original);   // restore` },
                     )
                   })()}
 
-                  <p style={{
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: '#d1d5db',
-                    margin: '0.5rem 0'
-                  }}>
-                    {subcategory.count} Total Problems
-                  </p>
+                  {subcategory.count > 0 && (
+                    <p style={{
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      color: '#d1d5db',
+                      margin: '0.5rem 0'
+                    }}>
+                      {subcategory.count} Total Problems
+                    </p>
+                  )}
 
                   <div style={{
                     fontSize: '0.85rem',

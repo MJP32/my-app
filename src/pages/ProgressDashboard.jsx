@@ -214,9 +214,9 @@ function ProgressDashboard({ onBack, onNavigate }) {
     { category: 'Java Features', difficulty: 'Intermediate', color: '#f97316', topics: [
       { name: 'Streams', problems: 0, icon: '🌊', description: 'Java Stream API for functional data processing' },
       { name: 'Streams Advanced', problems: 0, icon: '🌀', description: 'Advanced stream operations and collectors' },
-      { name: 'Lambdas', problems: 4, icon: 'λ', description: 'Lambda expressions and method references' },
+      { name: 'Lambdas', problems: 0, icon: 'λ', description: 'Lambda expressions and method references' },
       { name: 'Lambdas Advanced', problems: 0, icon: '⚡', description: 'Advanced lambda patterns and techniques' },
-      { name: 'Functional Interfaces', problems: 4, icon: '🔗', description: 'Predicate, Function, Consumer, Supplier' },
+      { name: 'Functional Interfaces', problems: 0, icon: '🔗', description: 'Predicate, Function, Consumer, Supplier' },
       { name: 'Collections Framework', problems: 0, icon: '📦', description: 'Lists, Sets, Maps, and Queues' },
       { name: 'Optional', problems: 0, icon: '❓', description: 'Null-safe programming with Optional' },
     ]},
@@ -232,20 +232,15 @@ function ProgressDashboard({ onBack, onNavigate }) {
     { category: 'Core Java Fundamentals', difficulty: 'Beginner-Intermediate', color: '#06b6d4', topics: [
       { name: 'Object-Oriented Programming', problems: 0, icon: '🎭', description: 'Classes, inheritance, polymorphism, encapsulation' },
       { name: 'Exception Handling', problems: 0, icon: '⚠️', description: 'Try-catch, custom exceptions, best practices' },
-      { name: 'File I/O', problems: 6, icon: '📁', description: 'File reading, writing, and NIO' },
-      { name: 'Generics', problems: 4, icon: '🔷', description: 'Type parameters and generic programming' },
-      { name: 'JVM Internals', problems: 5, icon: '⚙️', description: 'JVM architecture, class loading, bytecode' },
-      { name: 'Memory Management', problems: 4, icon: '🧠', description: 'Heap, stack, garbage collection' },
+      { name: 'File I/O', problems: 0, icon: '📁', description: 'File reading, writing, and NIO' },
+      { name: 'Generics', problems: 0, icon: '🔷', description: 'Type parameters and generic programming' },
+      { name: 'JVM Internals', problems: 0, icon: '⚙️', description: 'JVM architecture, class loading, bytecode' },
+      { name: 'Memory Management', problems: 0, icon: '🧠', description: 'Heap, stack, garbage collection' },
     ]},
     // Concurrency
     { category: 'Concurrency', difficulty: 'Advanced', color: '#a855f7', topics: [
       { name: 'Concurrency', problems: 0, icon: '🔀', description: 'Concurrent programming fundamentals' },
       { name: 'Multithreading', problems: 0, icon: '🧵', description: 'Threads, synchronization, locks' },
-    ]},
-    // Python Operations
-    { category: 'Python Operations', difficulty: 'Beginner', color: '#22c55e', topics: [
-      { name: 'Set Operations', problems: 0, icon: '🔢', description: 'Python set operations and methods' },
-      { name: 'Map Operations', problems: 0, icon: '🗺️', description: 'Dictionary operations and comprehensions' },
     ]},
     // System Design Fundamentals
     { category: 'System Design Fundamentals', difficulty: 'Intermediate', color: '#ec4899', topics: [
@@ -620,9 +615,6 @@ function ProgressDashboard({ onBack, onNavigate }) {
       'Java 15': 'Java15',
       'Java 21': 'Java21',
       'Java 24': 'Java24',
-      // Python topics
-      'Set Operations': 'SetOperations',
-      'Map Operations': 'MapOperations',
       // System Design Fundamentals - all map to SystemDesignFundamentalsQuestions
       'System Design': 'SystemDesignFundamentalsQuestions',
       'CAP Theorem': 'SystemDesignFundamentalsQuestions',
