@@ -197,6 +197,7 @@ const DomainDrivenDesign = lazy(() => import('./pages/design/DomainDrivenDesign.
 const L3SystemDesign = lazy(() => import('./pages/design/L3SystemDesign.jsx'))
 const L4SystemDesign = lazy(() => import('./pages/design/L4SystemDesign.jsx'))
 const L5SystemDesign = lazy(() => import('./pages/design/L5SystemDesign.jsx'))
+const L6SystemDesign = lazy(() => import('./pages/design/L6SystemDesign.jsx'))
 
 // System Design Concept pages
 const LoadBalancing = lazy(() => import('./pages/concepts/LoadBalancing.jsx'))
@@ -3486,6 +3487,16 @@ function App() {
       return (
         <Suspense fallback={<LoadingSpinner text="Loading L5 System Design..." />}>
           <L5SystemDesign onBack={() => {
+            setDesignInitialCategory('interview')
+            setSelectedOptionAndRef('Design')
+          }} />
+        </Suspense>
+      )
+    }
+    if (selectedOption === 'L6 System Design') {
+      return (
+        <Suspense fallback={<LoadingSpinner text="Loading L6 System Design..." />}>
+          <L6SystemDesign onBack={() => {
             setDesignInitialCategory('interview')
             setSelectedOptionAndRef('Design')
           }} />

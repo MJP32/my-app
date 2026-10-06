@@ -18,7 +18,7 @@ const tabCategories = {
   all: { label: 'All', ids: null },
   patterns: { label: 'Software Patterns', ids: ['Design Patterns', 'Class', 'Module', 'Function', 'Interface'] },
   architecture: { label: 'Architecture', ids: ['System Design', 'Microservice Design Patterns', 'Event Driven Architecture', 'Domain Driven Design'] },
-  interview: { label: 'Design Interview', ids: ['L3 System Design', 'L4 System Design', 'L5 System Design'] },
+  interview: { label: 'Design Interview', ids: ['L3 System Design', 'L4 System Design', 'L5 System Design', 'L6 System Design'] },
   concepts: { label: 'Design Topics', ids: ['Backend Roadmap', 'Load Balancing', 'Caching Strategies', 'CAP Theorem', 'Consistency Patterns', 'Database Sharding', 'Database Replication', 'Consistent Hashing', 'Message Queues', 'CDN', 'Proxies', 'Network Protocols', 'Web Server Internals', 'Service Mesh', 'Web Security Fundamentals', 'API Design', 'Scaling', 'Data Partitioning', 'SQL vs NoSQL', 'WebSockets', 'Blob Storage'] }
 }
 
@@ -127,11 +127,19 @@ function Design({ onBack, onSelectItem, initialCategory, onInitialCategoryUsed, 
     },
     {
       id: 'L5 System Design',
-      name: 'L5-L6+ Level (Senior)',
+      name: 'L5 Level (Senior)',
       icon: '⭐',
       color: '#a855f7',
       complexity: 'Advanced',
-      description: 'Design YouTube, Google Search, Google Maps, distributed cache, Google Drive, Gmail, Google Photos, Google Docs, rate limiter, notification system, and WhatsApp.'
+      description: 'Design a distributed cache, rate limiter, notification system, ticket booking system, credit card portal, payment system, Google Drive, Gmail, Google Photos, WhatsApp, Instagram, and Twitter.'
+    },
+    {
+      id: 'L6 System Design',
+      name: 'L6+ Level (Staff)',
+      icon: '🏆',
+      color: '#f59e0b',
+      complexity: 'Expert',
+      description: 'Design YouTube, Google Search, Google Maps, Google Docs, Netflix, Amazon, Zoom, and a ride-sharing platform.'
     },
     // System Design Topics
     {

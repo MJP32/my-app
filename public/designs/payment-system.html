@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Payment System — System Design Round</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Public+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C1320;
+  --panel:#131E2E;
+  --panel-2:#1B2839;
+  --panel-3:#22344A;
+  --rule:#2A3B52;
+  --paper:#E9EFF5;
+  --muted:#8598B0;
+  --dim:#5E7590;
+  --amber:#F2A93B;     /* pending / authorization hold */
+  --settled:#4FD1A5;   /* posted / settled */
+  --declined:#FF6F61;  /* declined / failure */
+  --violet:#9B8CFF;    /* async / event backbone */
+  --canvas:#0A1119;    /* the surface diagrams and code sit on */
+  --figure:#FFD45E;    /* figures, and only figures */
+  --maxw:1180px;
+  --r:10px;
+  color-scheme:dark;
+}
+
+/* ---------- light ---------------------------------------------------------
+   Same hues, inverted surfaces. The accent family darkens so amber, green,
+   violet and red stay legible as TEXT on a white panel, which they are not
+   at the dark-mode brightness.                                            */
+[data-theme="light"]{
+  --ink:#F2F5F9;
+  --panel:#FFFFFF;
+  --panel-2:#F7F9FC;
+  --panel-3:#ECF1F7;
+  --rule:#D2DBE6;
+  --paper:#121D2B;
+  --muted:#4E6076;
+  --dim:#75879B;
+  --amber:#A96605;
+  --settled:#0E7A5B;
+  --declined:#C0392B;
+  --violet:#5A46D6;
+  --canvas:#FBFCFE;
+  --figure:#8A6200;
+  color-scheme:light;
+}
+/* tints authored for a dark canvas are too faint on white — lift them */
+[data-theme="light"] .dg .nrect{fill:#FFFFFF}
+[data-theme="light"] .dg .node.aws .nrect{fill:rgba(14,122,91,.07);stroke:rgba(14,122,91,.45)}
+[data-theme="light"] .dg .node.aws .ndec{stroke:rgba(14,122,91,.45)}
+[data-theme="light"] .dg .node.aws .ndot{fill:rgba(14,122,91,.45)}
+[data-theme="light"] .dg .xbox{fill:rgba(169,102,5,.06);stroke:rgba(169,102,5,.55)}
+[data-theme="light"] .dg .pcirect{fill:rgba(192,57,43,.05);stroke:rgba(192,57,43,.55)}
+[data-theme="light"] .dg .uc-b{fill:rgba(90,70,214,.04)}
+[data-theme="light"] .smdg .st.ok{fill:rgba(14,122,91,.10);stroke:rgba(14,122,91,.55)}
+[data-theme="light"] .smdg .st.bad{fill:rgba(192,57,43,.08);stroke:rgba(192,57,43,.5)}
+[data-theme="light"] .trdg .trb{fill:#E3E9F1}
+[data-theme="light"] .trdg .trb.hot{fill:rgba(169,102,5,.35);stroke:rgba(169,102,5,.8)}
+[data-theme="light"] .dg .awg.net{stroke:#6B3FD4} [data-theme="light"] .dg .awt.net{fill:rgba(107,63,212,.10)}
+[data-theme="light"] .dg .awg.db{stroke:#A31DA9}  [data-theme="light"] .dg .awt.db{fill:rgba(163,29,169,.10)}
+[data-theme="light"] .dg .awg.sto{stroke:#5C7A10} [data-theme="light"] .dg .awt.sto{fill:rgba(92,122,16,.12)}
+[data-theme="light"] .dg .awg.str{stroke:#C01262} [data-theme="light"] .dg .awt.str{fill:rgba(192,18,98,.10)}
+[data-theme="light"] .dg .awg.sec{stroke:#C0392B} [data-theme="light"] .dg .awt.sec{fill:rgba(192,57,43,.10)}
+[data-theme="light"] .ucdg .uc-e.key{fill:rgba(169,102,5,.12);stroke:rgba(169,102,5,.6)}
+[data-theme="light"] .ucdg .uc-e.sup{fill:rgba(14,122,91,.07);stroke:rgba(14,122,91,.42)}
+[data-theme="light"] .ucdg .uc-e.key ~ .uc-t{fill:#5C3800}
+
+[data-theme="light"] body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #E4EBF5 0%, transparent 60%),
+    radial-gradient(900px 500px at 95% 0%, #E8EEF6 0%, transparent 55%),
+    var(--ink);
+}
+[data-theme="light"] pre{color:#26333F}
+[data-theme="light"] .sim{background:linear-gradient(180deg,var(--panel) 0%,#EEF2F8 100%)}
+[data-theme="light"] .btn{color:#FFFFFF}
+[data-theme="light"] .dg.pfocus .node.pon .nt{fill:#3D2CB0}
+[data-theme="light"] .pmark text.lit{fill:#3D2CB0}
+[data-theme="light"] .themetgl{box-shadow:0 2px 10px rgba(18,29,43,.10)}
+/* 1.4px hairlines at --rule read too faint on white — darken the connectors only */
+[data-theme="light"] .dg .edge,
+[data-theme="light"] .dg .sml,
+[data-theme="light"] .dg .uc-link,
+[data-theme="light"] .dg .stf{stroke:#A9B9CB}
+
+/* the toggle itself */
+.findbtn{position:fixed;top:12px;right:132px;z-index:60;cursor:pointer;
+  font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--dim);
+  background:var(--panel);border:1px solid var(--rule);border-radius:999px;padding:7px 13px;
+  box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.findbtn:hover{color:var(--paper)}
+.findbtn span{border:1px solid var(--rule);border-radius:4px;padding:0 4px;margin-left:6px}
+.findwrap{position:fixed;inset:0;z-index:80;background:rgba(6,10,16,.72);
+  backdrop-filter:blur(3px);padding:70px 20px 20px;overflow-y:auto}
+[data-theme="light"] .findwrap{background:rgba(226,232,240,.8)}
+.findbox{max-width:760px;margin:0 auto;display:flex;gap:8px}
+.findbox input{flex:1;padding:13px 16px;border-radius:9px;border:1px solid var(--rule);
+  background:var(--panel);color:var(--paper);font-family:"DM Mono",monospace;font-size:14px;outline:none}
+.findbox input:focus{border-color:var(--amber)}
+.findresults{max-width:760px;margin:14px auto 0}
+.fres{display:block;width:100%;text-align:left;cursor:pointer;background:var(--panel);
+  border:1px solid var(--rule);border-radius:9px;padding:11px 14px;margin-bottom:8px}
+.fres:hover{border-color:rgba(242,169,59,.55)}
+.frest{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+.fresb{font-size:13.2px;color:var(--muted);line-height:1.5;margin-top:5px}
+.fresb mark{background:rgba(242,169,59,.25);color:var(--paper);border-radius:3px;padding:0 2px}
+.findnone{text-align:center;color:var(--dim);font-size:13px;padding:20px}
+@media print{.findbtn,.findwrap{display:none !important}}
+.themetgl{position:fixed;top:12px;right:12px;z-index:60;display:flex;gap:0;
+  border:1px solid var(--rule);border-radius:999px;background:var(--panel);
+  box-shadow:0 2px 10px rgba(0,0,0,.18);overflow:hidden}
+.themetgl button{appearance:none;border:0;background:transparent;cursor:pointer;
+  font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  color:var(--dim);padding:7px 12px;transition:background .18s,color .18s}
+.themetgl button[aria-pressed="true"]{background:var(--panel-3);color:var(--paper)}
+.themetgl button:hover{color:var(--paper)}
+@media print{
+  /* the screen layout fights paper: dark surfaces, sticky columns, tab panes */
+  .themetgl,.flowbar,.flowctl,.playbar,.gfin,.stepcard,.tabs,nav.phases,.budget{display:none !important}
+  :root{--ink:#fff;--panel:#fff;--panel-2:#fff;--panel-3:#f4f6f8;--rule:#c9d2dc;
+        --paper:#111;--muted:#333;--dim:#666;--canvas:#fff}
+  body{background:#fff !important;color:#111}
+  .pane{display:block !important;page-break-before:always;padding-top:0}
+  .pane:first-of-type{page-break-before:avoid}
+  .card,.dgwrap,table,pre{break-inside:avoid}
+  .flowlay{grid-template-columns:1fr}
+  header{background:none;border-bottom:2px solid #111}
+  a[href]:after{content:""}
+  .dg{min-width:0;width:100%}
+  h1{font-size:22pt}
+  h3{page-break-after:avoid}
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1A2942 0%, transparent 60%),
+    radial-gradient(900px 500px at 95% 0%, #17293C 0%, transparent 55%),
+    var(--ink);
+  color:var(--paper);
+  font-family:"Public Sans", system-ui, -apple-system, sans-serif;
+  font-weight:400;
+  font-size:15px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+.wrap{max-width:none;margin:0;padding:0 22px 60px}
+
+h1,h2,h3,h4{font-family:"Bricolage Grotesque","Public Sans",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.12;margin:0}
+.mono{font-family:"DM Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- header ---------- */
+/* header and footer sit outside the centred column and run the full width of the
+   window; their contents stay aligned to the column via .band */
+header{border-bottom:1px solid var(--rule);margin-bottom:26px;
+  background:linear-gradient(180deg, rgba(255,255,255,.022), transparent)}
+[data-theme="light"] header{background:linear-gradient(180deg, rgba(18,29,43,.035), transparent)}
+.band{max-width:none;margin:0;padding:0 22px}
+.headtop{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between;padding:34px 0 20px}
+.tabs{scrollbar-width:thin}
+.eyebrow{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--amber)}
+h1{font-size:clamp(30px,5.2vw,50px);margin:8px 0 6px}
+.sub{color:var(--muted);max-width:56ch;font-size:14.5px}
+
+.mini{
+  font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.06em;
+  background:var(--panel-2);border:1px solid var(--rule);color:var(--paper);
+  padding:5px 10px;border-radius:6px;cursor:pointer;
+}
+.mini:hover{border-color:var(--amber);color:var(--amber)}
+.mini:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- phase nav ---------- */
+nav.phases{display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--rule);scrollbar-width:thin}
+.phase{
+  flex:0 0 auto;background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--muted);padding:13px 18px 11px;cursor:pointer;text-align:left;
+  font-family:"Public Sans",sans-serif;font-size:13.5px;font-weight:600;white-space:nowrap;
+}
+.phase .n{font-family:"DM Mono",monospace;font-size:10.5px;color:var(--dim);display:block;letter-spacing:.14em}
+.phase:hover{color:var(--paper)}
+.phase[aria-selected="true"]{color:var(--paper);border-bottom-color:var(--amber)}
+.phase[aria-selected="true"] .n{color:var(--amber)}
+.budget{font-family:"DM Mono",monospace;font-size:10px;color:var(--dim);padding:8px 2px 0;letter-spacing:.1em}
+
+/* ---------- panels ---------- */
+.pane{display:none;padding-top:26px;animation:rise .28s ease}
+.pane.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.lede{font-size:17px;color:var(--paper);max-width:70ch;margin-bottom:22px;font-weight:300}
+.lede b{font-weight:700;color:var(--amber)}
+
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin-bottom:4px}
+.card .cap{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+
+ul.tight{margin:0;padding-left:18px}
+ul.tight li{margin-bottom:7px}
+ul.tight li::marker{color:var(--dim)}
+
+/* ---------- scope chips ---------- */
+.chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;min-height:38px}
+.chip{
+  border:1px solid var(--rule);background:var(--panel-2);color:var(--paper);
+  padding:7px 12px;border-radius:100px;font-size:13px;cursor:pointer;
+  font-family:"Public Sans",sans-serif;display:inline-flex;align-items:center;gap:8px;
+}
+.chip:hover{border-color:var(--amber)}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--dim)}
+.chip.in{border-color:var(--settled);color:var(--settled)}
+.chip.in .dot{background:var(--settled)}
+.chip.out{opacity:.5;text-decoration:line-through}
+.scopebar{display:flex;gap:18px;flex-wrap:wrap;font-family:"DM Mono",monospace;font-size:11.5px;color:var(--dim);margin-top:14px;letter-spacing:.06em}
+.scopebar b{color:var(--paper)}
+
+/* ---------- SLO table ---------- */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:400}
+td.num{font-family:"DM Mono",monospace;color:var(--amber);white-space:nowrap}
+
+/* ---------- calculator ---------- */
+.calcgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media(max-width:880px){.calcgrid{grid-template-columns:1fr}}
+.field{margin-bottom:16px}
+.field label{display:flex;justify-content:space-between;font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.field label span{color:var(--amber)}
+input[type=range]{width:100%;accent-color:var(--amber);background:transparent}
+.out{background:var(--panel-2);border:1px solid var(--rule);border-radius:var(--r);padding:16px 18px}
+.outrow{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px dashed var(--rule)}
+.outrow:last-child{border-bottom:none}
+.outrow .k{font-size:13px;color:var(--muted)}
+.outrow .v{font-family:"DM Mono",monospace;font-size:19px;color:var(--paper)}
+.outrow .v small{font-size:11px;color:var(--dim);margin-left:4px}
+.verdict{margin-top:14px;padding:12px 14px;border-left:3px solid var(--amber);background:rgba(242,169,59,.07);font-size:13.5px;border-radius:0 6px 6px 0}
+
+/* ---------- architecture map ---------- */
+.archwrap{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+@media(max-width:940px){.archwrap{grid-template-columns:1fr}}
+.zone{border:1px solid var(--rule);border-radius:var(--r);padding:12px;margin-bottom:12px;background:rgba(255,255,255,.012)}
+.zone-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.zone-h b{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:400}
+.zone.pci{border-color:rgba(255,111,97,.45);background:rgba(255,111,97,.05)}
+.zone.pci .zone-h b{color:var(--declined)}
+.nodes{display:flex;flex-wrap:wrap;gap:8px}
+.node{
+  background:var(--panel-2);border:1px solid var(--rule);border-radius:8px;
+  padding:9px 12px;cursor:pointer;font-size:13px;font-weight:600;color:var(--paper);
+  font-family:"Public Sans",sans-serif;text-align:left;line-height:1.3;
+}
+.node small{display:block;font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.1em;color:var(--dim);font-weight:400;text-transform:uppercase;margin-top:2px}
+.node:hover{border-color:var(--amber)}
+.node.sel{border-color:var(--amber);background:rgba(242,169,59,.13)}
+.node.sel small{color:var(--amber)}
+.detail{position:sticky;top:16px;background:var(--panel);border:1px solid var(--rule);border-radius:var(--r);padding:18px 20px;min-height:300px}
+.detail h3{font-size:18px}
+.detail .tag{display:inline-block;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--rule);border-radius:100px;padding:3px 9px;color:var(--muted);margin:10px 6px 4px 0}
+.detail h4{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:400;margin:16px 0 6px}
+.quote{border-left:3px solid var(--amber);padding:8px 0 8px 12px;font-style:italic;color:var(--paper);font-size:13.5px;background:rgba(242,169,59,.05)}
+
+/* ---------- lifecycle simulator (signature) ---------- */
+.sim{border:1px solid var(--rule);border-radius:var(--r);background:linear-gradient(180deg,var(--panel) 0%,#101A28 100%);padding:20px;overflow:hidden}
+.simhead{
+  display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;
+  cursor:pointer;user-select:none;border-radius:7px;margin:-6px;padding:6px;
+}
+.simhead:hover h3{color:var(--amber)}
+.simhead h3{transition:color .2s}
+.sim-b{display:none}
+.sim.open .sim-b{display:block;margin-top:16px}
+.chev{
+  display:inline-block;width:9px;height:9px;flex:0 0 auto;margin-left:2px;
+  border-right:1.8px solid var(--dim);border-bottom:1.8px solid var(--dim);
+  transform:rotate(45deg);transition:transform .22s;
+}
+.sim.open .chev,.acc.open .chev{transform:rotate(-135deg);border-color:var(--amber)}
+.acc-h:hover .chev,.simhead:hover .chev{border-color:var(--amber)}
+.state{display:flex;align-items:center;gap:10px;font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--dim);box-shadow:0 0 0 0 rgba(0,0,0,0)}
+.pulse.pending{background:var(--amber);animation:pp 1.4s infinite}
+.pulse.settled{background:var(--settled)}
+.pulse.declined{background:var(--declined)}
+@keyframes pp{0%{box-shadow:0 0 0 0 rgba(242,169,59,.55)}70%{box-shadow:0 0 0 9px rgba(242,169,59,0)}100%{box-shadow:0 0 0 0 rgba(242,169,59,0)}}
+.track{display:flex;flex-direction:column;gap:2px;margin:12px 0 6px}
+.step{
+  display:grid;grid-template-columns:34px 1fr;gap:12px;padding:10px 12px;border-radius:8px;
+  border:1px solid transparent;opacity:.32;transition:opacity .25s, background .25s, border-color .25s;
+}
+.step.done{opacity:1}
+.step.active{opacity:1;background:rgba(242,169,59,.09);border-color:rgba(242,169,59,.4)}
+.step .idx{font-family:"DM Mono",monospace;font-size:11px;color:var(--dim);padding-top:2px}
+.step.done .idx{color:var(--settled)}
+.step.active .idx{color:var(--amber)}
+.step .t{font-size:13.5px;font-weight:600}
+.step .d{font-size:12.5px;color:var(--muted);line-height:1.5}
+.step .svc{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--violet)}
+.simctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btn{
+  font-family:"Public Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;
+  background:var(--amber);color:#10182A;border:1px solid var(--amber);padding:9px 16px;border-radius:7px;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--paper);border-color:var(--rule)}
+.btn.ghost:hover{border-color:var(--amber);color:var(--amber)}
+.btn:disabled{opacity:.35;cursor:not-allowed;filter:none}
+.log{
+  margin-top:14px;background:var(--canvas);border:1px solid var(--rule);border-radius:8px;padding:12px 14px;
+  font-family:"DM Mono",monospace;font-size:11.5px;line-height:1.75;max-height:210px;overflow-y:auto;color:var(--muted);
+}
+.log .l-ok{color:var(--settled)}
+.log .l-warn{color:var(--amber)}
+.log .l-err{color:var(--declined)}
+.log .l-key{color:var(--violet)}
+
+/* ---------- api explorer ---------- */
+.apilist{display:flex;flex-direction:column;gap:6px}
+.apigrp{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:14px 0 2px}
+.apigrp:first-child{margin-top:0}
+.pill{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:100px;white-space:nowrap}
+.p-rest{background:rgba(79,209,165,.15);color:var(--settled)}
+.p-spec{background:rgba(155,140,255,.15);color:var(--violet)}
+.p-async{background:rgba(242,169,59,.15);color:var(--amber)}
+.p-wire{background:rgba(133,152,176,.15);color:var(--muted)}
+.p-file{background:rgba(255,111,97,.15);color:var(--declined)}
+.pv-core{background:rgba(79,209,165,.15);color:var(--settled)}
+.pv-narrow{background:rgba(242,169,59,.15);color:var(--amber)}
+.pv-mig{background:rgba(155,140,255,.15);color:var(--violet)}
+tr.hide{display:none}
+.api{
+  display:grid;grid-template-columns:66px 1fr;gap:12px;align-items:center;
+  background:var(--panel-2);border:1px solid var(--rule);border-radius:8px;padding:9px 12px;cursor:pointer;text-align:left;
+  font-family:"DM Mono",monospace;font-size:12.5px;color:var(--paper);
+}
+.api:hover{border-color:var(--amber)}
+.api.sel{border-color:var(--amber);background:rgba(242,169,59,.1)}
+.verb{font-size:10px;letter-spacing:.1em;padding:3px 6px;border-radius:4px;text-align:center}
+.v-get{background:rgba(79,209,165,.16);color:var(--settled)}
+.v-post{background:rgba(242,169,59,.16);color:var(--amber)}
+.v-put{background:rgba(155,140,255,.16);color:var(--violet)}
+pre{
+  background:var(--canvas);border:1px solid var(--rule);border-radius:8px;padding:14px;overflow-x:auto;
+  font-family:"DM Mono",monospace;font-size:11.8px;line-height:1.65;color:#C8D6E6;margin:10px 0 0;
+}
+pre .c{color:var(--dim)}
+pre .s{color:var(--settled)}
+pre .k{color:var(--amber)}
+pre .v{color:var(--violet)}
+
+/* ---------- accordion ---------- */
+.acc{border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;margin-bottom:10px;background:var(--panel)}
+.acc-h{
+  width:100%;display:flex;gap:14px;align-items:center;justify-content:space-between;
+  background:none;border:none;color:var(--paper);padding:15px 18px;cursor:pointer;text-align:left;
+  font-family:"Bricolage Grotesque",sans-serif;font-size:16px;font-weight:600;letter-spacing:-.01em;
+}
+.acc-h:hover{color:var(--amber)}
+.acc-h .risk{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);padding:3px 8px;border-radius:100px;white-space:nowrap}
+.acc-b{display:none;padding:0 18px 18px;border-top:1px solid var(--rule)}
+.acc.open .acc-b{display:block}
+.acc.open .acc-h{color:var(--amber)}
+.acc-b h4{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:400;margin:16px 0 6px}
+
+/* ---------- talk track ---------- */
+.progress{height:5px;background:var(--panel-2);border-radius:100px;overflow:hidden;margin:6px 0 20px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--settled));transition:width .3s}
+.tt{display:flex;gap:12px;padding:11px 13px;border:1px solid var(--rule);border-radius:8px;margin-bottom:7px;background:var(--panel);cursor:pointer}
+.tt:hover{border-color:var(--amber)}
+.tt.done{opacity:.55;border-color:var(--settled)}
+.tt.done .tt-t{text-decoration:line-through}
+.box{width:16px;height:16px;border:1.5px solid var(--rule);border-radius:4px;flex:0 0 auto;margin-top:3px;display:grid;place-items:center;font-size:11px;color:var(--ink)}
+.tt.done .box{background:var(--settled);border-color:var(--settled)}
+.tt-t{font-weight:600;font-size:14px}
+.tt-d{font-size:12.8px;color:var(--muted)}
+.tt-min{font-family:"DM Mono",monospace;font-size:10.5px;color:var(--dim);margin-left:auto;white-space:nowrap;padding-top:3px}
+
+/* ---------- detailed flow diagram ---------- */
+.flowbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.fbtn{
+  font-family:"Public Sans",sans-serif;font-size:12.8px;font-weight:600;cursor:pointer;
+  background:var(--panel-2);border:1px solid var(--rule);color:var(--muted);
+  padding:8px 13px;border-radius:7px;display:inline-flex;align-items:center;gap:8px;
+}
+.fbtn:hover{border-color:var(--amber);color:var(--paper)}
+.fbtn .k{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim)}
+.fbtn[aria-pressed="true"]{background:rgba(242,169,59,.14);border-color:var(--amber);color:var(--amber)}
+.fbtn[aria-pressed="true"] .k{color:var(--amber)}
+
+.dgwrap{border:1px solid var(--rule);border-radius:var(--r);background:var(--canvas);padding:6px;overflow-x:auto}
+.dg{display:block;width:100%;min-width:900px;height:auto}
+.dg .colhead{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.18em;fill:var(--dim)}
+.dg .nrect{fill:var(--panel-2);stroke:var(--rule);stroke-width:1;rx:7}
+.dg .nt{font-family:"Public Sans",sans-serif;font-size:11.5px;font-weight:600;fill:var(--paper)}
+.dg .ns{font-family:"DM Mono",monospace;font-size:8.6px;letter-spacing:.07em;fill:var(--dim)}
+.slnum{display:inline-block;min-width:22px;text-align:center;font-family:"DM Mono",monospace;
+  font-size:9.5px;color:var(--amber);border:1px solid rgba(242,169,59,.45);
+  border-radius:5px;padding:2px 0;margin-top:1px}
+.slnode{margin:0 0 16px}
+.slnodehead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.slnoderole{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);border:1px solid var(--rule);border-radius:5px;padding:3px 8px;white-space:nowrap}
+.exblk{margin-top:16px;padding-top:14px;border-top:1px solid rgba(42,59,82,.5)}
+.exblk:first-child{border-top:0;padding-top:0}
+.exhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:8px}
+.exstep{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--amber);border:1px solid rgba(242,169,59,.4);border-radius:4px;padding:2px 7px}
+.exwhere{font-family:"DM Mono",monospace;font-size:11px;color:var(--settled)}
+.exnote{font-size:13px;color:var(--muted);line-height:1.55;margin:9px 0 0}
+.exnote b{color:var(--paper)}
+.exlede{font-size:13.4px;color:var(--muted);line-height:1.6;margin:12px 0 4px}
+.exlede b{color:var(--paper)}
+.slwhy{margin-top:13px;padding:11px 13px;border-radius:8px;border:1px solid var(--rule);
+  background:var(--panel-2);font-size:13.2px;color:var(--muted);line-height:1.55}
+.slwhyk{display:block;font-family:"DM Mono",monospace;font-size:8.8px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.slhops{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px 18px;margin-top:14px}
+.slhop-row{display:grid;grid-template-columns:24px 68px 1fr;gap:10px;align-items:start;cursor:pointer;
+  padding:7px 8px;border-radius:7px;border:1px solid transparent;transition:background .15s,border-color .15s}
+.slhop-row:hover{background:rgba(242,169,59,.07);border-color:rgba(242,169,59,.3)}
+.dirtag{font-family:"DM Mono",monospace;font-size:8.6px;letter-spacing:.1em;text-transform:uppercase;
+  text-align:center;border-radius:4px;padding:3px 0;margin-top:1px}
+.dirtag.out{color:var(--amber);border:1px solid rgba(242,169,59,.4);background:rgba(242,169,59,.08)}
+.dirtag.in{color:var(--settled);border:1px solid rgba(79,209,165,.4);background:rgba(79,209,165,.07)}
+.slhoplbl{font-size:12.8px;color:var(--paper);line-height:1.4}
+.slhopwho{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.05em;color:var(--dim);margin-top:3px}
+.slstep{display:grid;grid-template-columns:24px 1fr;gap:11px;align-items:start;
+  font-size:12.6px;color:var(--muted);line-height:1.5;padding:8px 9px;
+  border-bottom:1px solid rgba(42,59,82,.4)}
+.slhop{font-family:"DM Mono",monospace;font-size:9.6px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.sllbl{font-size:12.6px;color:var(--paper)}
+.slstep.sel .sllbl{color:var(--paper)}
+.dg .sledge{fill:none;stroke:var(--rule);stroke-width:1.5}
+.dg .seglbl{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.18em;fill:var(--dim)}
+.dg .sledge.step{stroke:var(--amber);stroke-width:2.8}
+.dg.stepsel .sledge:not(.step){opacity:.2}
+.dg.stepsel .node:not(.step){opacity:.42}
+.dg.stepsel .badge:not(.sel){opacity:.28}
+.slstep{cursor:pointer;border-radius:6px;padding:5px 7px;margin:0 -7px;transition:background .15s}
+.slstep:hover{background:rgba(242,169,59,.07)}
+.slstep.sel{background:rgba(242,169,59,.12)}
+.slstep.sel .slnum{background:var(--amber);color:#10182A;border-color:var(--amber)}
+.dg .segrule{stroke:var(--rule);stroke-width:1;stroke-dasharray:3 5}
+.dg .xband{fill:rgba(255,255,255,.018);stroke-width:1;stroke-dasharray:6 5}
+.dg .xband.obs{stroke:rgba(79,209,165,.45)}
+.dg .xband.dr{stroke:rgba(155,140,255,.45)}
+.dg .xbandt{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.2em}
+.dg .xbandt.obs{fill:var(--settled)}
+.dg .xbandt.dr{fill:var(--violet)}
+.dg .xchip{fill:var(--panel-2);stroke:var(--rule);stroke-width:.8}
+.dg .xchip.obs{fill:rgba(79,209,165,.06)}
+.dg .xchip.dr{fill:rgba(155,140,255,.06)}
+.dg .xchipt{font-family:"DM Mono",monospace;font-size:8.4px;letter-spacing:.04em;fill:var(--muted)}
+.dg .xgrp{display:none}
+.dg.focus .xgrp.xon{display:block}
+.dg .xbox{fill:rgba(242,169,59,.045);stroke:rgba(242,169,59,.45);stroke-width:1;
+  stroke-dasharray:5 4;rx:12}
+.dg .xlbl{font-family:"DM Mono",monospace;font-size:8.2px;letter-spacing:.16em;
+  fill:rgba(242,169,59,.85)}
+.dg .obxdiv{stroke:var(--rule);stroke-width:1;stroke-dasharray:3 3;fill:none;transition:stroke .25s}
+.dg .obxlbl{font-family:"DM Mono",monospace;font-size:6.4px;letter-spacing:.16em;fill:var(--dim)}
+.dg .node.aws .obxdiv{stroke:rgba(79,209,165,.45)}
+.dg .node.aws .obxlbl{fill:rgba(79,209,165,.75)}
+.dg .node:hover .obxdiv,.dg .node.pick .obxdiv{stroke:var(--amber)}
+.dg.focus .node.on .obxdiv{stroke:var(--amber)}
+.dg .awt{stroke-width:1;transition:opacity .25s}
+.dg .awg{fill:none;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+.dg .awt.net{fill:rgba(140,79,255,.16);stroke:rgba(140,79,255,.60)}
+.dg .awg.net{stroke:#B79BFF}
+.dg .awt.db{fill:rgba(201,37,209,.15);stroke:rgba(201,37,209,.55)}
+.dg .awg.db{stroke:#E58BEA}
+.dg .awt.sto{fill:rgba(122,161,22,.16);stroke:rgba(122,161,22,.6)}
+.dg .awg.sto{stroke:#B4D26A}
+.dg .awt.str{fill:rgba(231,21,123,.14);stroke:rgba(231,21,123,.55)}
+.dg .awg.str{stroke:#F585B6}
+.dg .awt.sec{fill:rgba(221,52,76,.15);stroke:rgba(221,52,76,.6)}
+.dg .awg.sec{stroke:#F0808F}
+.dg .awss{font-size:7.2px;letter-spacing:.04em}
+.dg .ndec{fill:none;stroke:var(--rule);stroke-width:1;transition:stroke .25s}
+.dg .ndec.dash{stroke-dasharray:3 3}
+.dg .ndot{fill:var(--rule);transition:fill .25s}
+.dg .node{cursor:pointer;transition:opacity .25s}
+.dg .node:hover .ndec,.dg .node.pick .ndec{stroke:var(--amber)}
+.dg .node:hover .ndot,.dg .node.pick .ndot{fill:var(--amber)}
+.dg .node.aws .ndec{stroke:rgba(79,209,165,.5)}
+.dg .node.aws .ndot{fill:rgba(79,209,165,.5)}
+.dg .node.aws:hover .ndec,.dg .node.aws.pick .ndec{stroke:var(--amber)}
+.dg.focus .node.on .ndec{stroke:var(--amber)}
+.dg.pfocus .node.pon .ndec{stroke:var(--violet)}
+.dg.dgkey{min-width:640px;height:auto}
+.dg.dgkey .node{cursor:default}
+.dg .shk{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.06em;fill:var(--muted)}
+.dg .shkh{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.16em;fill:var(--dim)}
+.dg .node:hover .nrect{stroke:var(--amber)}
+.dg .node.pick .nrect{stroke:var(--amber);fill:rgba(242,169,59,.13)}
+.dg .edge{fill:none;stroke:var(--rule);stroke-width:1.4;transition:opacity .25s,stroke .25s}
+.dg .edge.ret{stroke-dasharray:4 4}
+.dg.focus .edge{opacity:.07}
+.dg.focus .node{opacity:.15}
+.dg.focus .edge.on{opacity:1;stroke:var(--amber);stroke-width:2.1;stroke-dasharray:8 6;animation:dash 1.1s linear infinite}
+.dg.focus .edge.pulse{stroke:var(--settled);stroke-width:3.2}
+.dg.focus .node.on{opacity:1}
+.dg.focus .node.on .nrect{stroke:var(--amber)}
+.dg.pfocus .edge{opacity:.06}
+.dg.pfocus .node{opacity:.12}
+.dg.pfocus .edge.pon{opacity:1;stroke:var(--violet);stroke-width:2.1;stroke-dasharray:8 6;animation:dash 1.1s linear infinite}
+.dg.pfocus .node.pon{opacity:1}
+.dg.pfocus .node.pon .nrect{stroke:var(--violet);fill:rgba(155,140,255,.12)}
+.dg.pfocus .node.pon .nt{fill:#D8D0FF}
+.dg .pband{stroke-width:1;stroke-dasharray:5 4}
+.dg rect.pb-cmd{fill:rgba(242,169,59,.07);stroke:rgba(242,169,59,.45)}
+.dg rect.pb-qry{fill:rgba(79,209,165,.07);stroke:rgba(79,209,165,.45)}
+.dg rect.pb-seam{fill:rgba(155,140,255,.07);stroke:rgba(155,140,255,.45)}
+.dg .pblabel{font-family:"DM Mono",monospace;font-size:8.6px;letter-spacing:.14em}
+.dg.cq{min-width:820px}
+.barnode text{fill:var(--settled);font-size:8.2px;letter-spacing:.14em}
+.pmark rect{fill:rgba(155,140,255,.10);stroke:rgba(155,140,255,.38);stroke-width:.8}
+.pmark text{font-family:"DM Mono",monospace;font-size:6.6px;letter-spacing:.08em;fill:var(--violet);text-anchor:middle}
+.pmark g{cursor:help}
+.pmark rect.lit{fill:rgba(155,140,255,.45);stroke:var(--violet);stroke-width:1.2}
+.pmark text.lit{fill:#F2EEFF}
+.plegend{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.pcode{
+  font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.04em;
+  border:1px solid rgba(155,140,255,.28);background:rgba(155,140,255,.06);
+  color:var(--muted);padding:4px 9px;border-radius:5px;cursor:pointer;
+}
+.pcode:hover{border-color:var(--violet);color:var(--paper)}
+.pcode b{color:var(--violet);font-weight:400;margin-right:6px}
+.dg.focus .barnode,.dg.pfocus .barnode{opacity:.45}
+.dg.focus .barnode.on,.dg.pfocus .barnode.pon{opacity:1}
+.cqbox rect{fill:var(--panel-2);stroke:var(--rule);stroke-width:1}
+.cqbox.hi rect{fill:rgba(155,140,255,.09);stroke:rgba(155,140,255,.5)}
+.cqflag{font-family:"DM Mono",monospace;font-size:8.4px;letter-spacing:.06em;fill:var(--violet)}
+.cqnote{font-family:"DM Mono",monospace;font-size:8.6px;letter-spacing:.06em;fill:var(--dim)}
+.cqlbl{font-family:"DM Mono",monospace;font-size:8.8px;letter-spacing:.1em;fill:var(--settled);text-anchor:middle}
+.cqe-w{stroke:var(--amber)!important;opacity:.85}
+.cqe-r{stroke:var(--settled)!important;opacity:.85}
+.cqe-v{stroke:var(--violet)!important;opacity:.85}
+.cqe-x{stroke:var(--settled)!important;stroke-dasharray:5 5;opacity:.75}
+.dg text.pb-cmd{fill:var(--amber)}
+.dg text.pb-qry{fill:var(--settled)}
+.dg text.pb-seam{fill:var(--violet)}
+.prole{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:8px 0;border-bottom:1px dashed var(--rule);align-items:start}
+.prole:last-child{border-bottom:none}
+.prole .pn{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--violet);white-space:nowrap;padding-top:3px;text-transform:uppercase}
+.prole .pr{font-size:13px;color:var(--muted);line-height:1.5}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.dh{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:400;margin:16px 0 6px}
+.dp{font-size:13.2px;margin:0;color:var(--paper)}
+ul.dl{font-size:13px;color:var(--muted);margin:0;padding-left:17px}
+ul.dl li{margin-bottom:8px}
+.stackrow{display:flex;flex-wrap:wrap;gap:6px}
+.schip{
+  font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.04em;
+  background:rgba(79,209,165,.09);border:1px solid rgba(79,209,165,.32);color:var(--settled);
+  padding:4px 9px;border-radius:5px;
+}
+.detail{max-height:none}
+.dg .badge circle{fill:var(--canvas);stroke:var(--amber);stroke-width:1.4}
+.dg .awsp{font-family:"DM Mono",monospace;font-size:8.4px;letter-spacing:.1em;fill:var(--settled)}
+.dg .node.aws .nrect{fill:rgba(79,209,165,.07);stroke:rgba(79,209,165,.5)}
+.dg .node.aws .nt{fill:var(--settled)}
+.dg .node.aws:hover .nrect,.dg .node.aws.pick .nrect{stroke:var(--amber)}
+.awsp{
+  font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.12em;
+  color:var(--settled);margin-right:5px;vertical-align:1px;
+}
+.node.aws{border-color:rgba(79,209,165,.45);background:rgba(79,209,165,.07);color:var(--settled)}
+.node.aws:hover,.node.aws.sel{border-color:var(--amber)}
+.dg .badge text{font-family:"DM Mono",monospace;font-size:10px;fill:var(--amber);text-anchor:middle}
+.dg .pcirect{fill:rgba(255,111,97,.06);stroke:rgba(255,111,97,.5);stroke-width:1;stroke-dasharray:4 4;rx:8}
+.dg .pcilbl{font-family:"DM Mono",monospace;font-size:8.5px;letter-spacing:.16em;fill:var(--declined)}
+
+.ucdg .uc-b{fill:rgba(155,140,255,.035);stroke:var(--rule);stroke-width:1;stroke-dasharray:6 5;rx:12}
+.ucdg .uc-bt{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.18em;fill:var(--dim)}
+.ucdg .uc-e{fill:var(--panel-2);stroke:var(--rule);stroke-width:1;transition:stroke .2s,fill .2s}
+.ucdg .uc-e.key{fill:rgba(242,169,59,.10);stroke:rgba(242,169,59,.55)}
+.ucdg .uc-e.sup{fill:rgba(79,209,165,.06);stroke:rgba(79,209,165,.38)}
+.ucdg .uc-t{font-family:"Public Sans",sans-serif;font-size:11.4px;font-weight:600;fill:var(--paper);text-anchor:middle}
+.ucdg .uc-e.key ~ .uc-t{fill:#FFE3B4}
+.ucdg .uc-a{fill:none;stroke:var(--muted);stroke-width:1.4;stroke-linecap:round}
+.ucdg .uc-ah{fill:none;stroke:var(--muted);stroke-width:1.4}
+.ucdg .uc-al{font-family:"DM Mono",monospace;font-size:9.4px;letter-spacing:.06em;fill:var(--muted);text-anchor:middle}
+.ucdg .uc-al2{font-family:"DM Mono",monospace;font-size:8.2px;letter-spacing:.06em;fill:var(--dim);text-anchor:middle}
+.ucdg .uc-link{stroke:var(--rule);stroke-width:1.3;fill:none}
+.ucdg .uc-rel{stroke:rgba(155,140,255,.55);stroke-width:1.2;fill:none;stroke-dasharray:5 4}
+.ucdg .uc-rl{font-family:"DM Mono",monospace;font-size:8.4px;letter-spacing:.06em;fill:var(--violet);text-anchor:middle}
+.ucdg .uc-note{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.06em;fill:var(--dim)}
+.ucg{cursor:default}
+.smdg .st{fill:var(--panel-2);stroke:var(--rule);stroke-width:1.2}
+.smdg .st.ok{fill:rgba(79,209,165,.10);stroke:rgba(79,209,165,.55)}
+.smdg .st.bad{fill:rgba(255,111,97,.09);stroke:rgba(255,111,97,.5)}
+.smdg .st.fin{stroke-width:1.2}
+.smdg .stf{fill:none;stroke:var(--rule);stroke-width:1}
+.smdg .stt{font-family:"DM Mono",monospace;font-size:11.6px;letter-spacing:.1em;fill:var(--paper);text-anchor:middle}
+.smdg .sts{font-family:"Public Sans",sans-serif;font-size:9.6px;fill:var(--dim);text-anchor:middle}
+.smdg .sml{stroke:var(--rule);stroke-width:1.3;fill:none}
+.smdg .smd{fill:var(--muted)}
+.smdg .smt{font-family:"DM Mono",monospace;font-size:9.2px;letter-spacing:.05em;fill:var(--amber);text-anchor:middle}
+.smdg .smx{font-family:"Public Sans",sans-serif;font-size:9.4px;fill:var(--dim);text-anchor:middle}
+.trdg .trb{fill:var(--panel-3);stroke:var(--rule);stroke-width:.8;rx:2}
+.trdg .trb.hot{fill:rgba(242,169,59,.30);stroke:rgba(242,169,59,.7)}
+.trdg .trn{font-family:"DM Mono",monospace;font-size:10px;fill:var(--paper)}
+.trdg .trn.hot{fill:var(--amber)}
+.trdg .trs{font-family:"DM Mono",monospace;font-size:8.6px;fill:var(--dim)}
+.trdg .trd{font-family:"DM Mono",monospace;font-size:9.4px;fill:var(--muted);text-anchor:end}
+.trdg .trax{stroke:var(--rule);stroke-width:.7;stroke-dasharray:3 4}
+.glossary{margin-top:34px;padding-top:22px;border-top:1px solid var(--rule)}
+.gh{font-family:"Public Sans",sans-serif;font-size:17px;font-weight:650;letter-spacing:-.01em;margin:0 0 2px}
+.gfin{width:100%;max-width:380px;margin:12px 0 4px;padding:8px 11px;border-radius:8px;
+  border:1px solid var(--rule);background:var(--panel);color:var(--paper);
+  font-family:"DM Mono",monospace;font-size:12px;outline:none}
+.gfin:focus{border-color:var(--amber)}
+.ggrp{margin-top:18px}
+.ggt{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.18em;color:var(--dim);
+  text-transform:uppercase;margin-bottom:8px}
+.ggl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 26px}
+@media(max-width:820px){.ggl{grid-template-columns:1fr}}
+.gi{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:5px 0;
+  border-bottom:1px solid rgba(42,59,82,.4);font-size:12.9px;color:var(--muted);line-height:1.45}
+.gt{font-family:"DM Mono",monospace;font-size:11.4px;color:var(--paper);letter-spacing:.02em}
+.gi b{color:var(--paper);font-weight:600}
+.gnone{margin-top:16px;font-size:13px;color:var(--dim)}
+/* diagram on the left, the hop list beside it: read the picture and the words together */
+.flowlay{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+.flowlay .dgwrap{margin:0}
+.stepcard{position:sticky;top:14px;max-height:calc(100vh - 40px);overflow-y:auto}
+/* the list is for scanning; the walkthrough is for reading out loud */
+.walkcard{grid-column:1;margin-top:0}
+.walkhead{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.walkno{font-family:"DM Mono",monospace;font-size:19px;line-height:1;color:var(--amber);
+  border:1px solid rgba(242,169,59,.45);border-radius:8px;padding:9px 0;text-align:center}
+.walkhop{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.walklbl{font-size:15.5px;font-weight:600;color:var(--paper);line-height:1.4}
+.walkdet{margin-top:12px;font-size:13.6px;color:var(--muted);line-height:1.62}
+.walkdet b{color:var(--paper)}
+.fig{font-family:"DM Mono",monospace;font-size:.95em;font-weight:600;color:var(--figure);
+  background:rgba(255,212,94,.13);border-radius:3px;padding:0 4px}
+[data-theme="light"] .fig{background:rgba(138,98,0,.12)}
+.stepcard .fstep{padding:8px 9px}
+.stepcard .fstep .fl{font-size:12.6px}
+.stepcard .fstep .fd{font-size:11.9px}
+@media(max-width:1000px){
+  .flowlay{grid-template-columns:1fr}
+  .stepcard{position:static;max-height:none}
+}
+.acc[data-linked] > .acc-h{border-left:2px solid var(--amber);padding-left:10px}
+.secmark{font-size:15.5px;color:var(--paper);margin:26px 0 4px;padding-bottom:8px;
+  border-bottom:1px solid var(--rule)}
+.sidekey{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:0 0 16px;
+  padding:11px 14px;border:1px solid var(--rule);border-radius:var(--r);
+  background:var(--panel);font-size:12.3px;color:var(--muted)}
+.sidetag{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  border-radius:4px;padding:2px 7px;border:1px solid transparent}
+.sidetag.cmd{color:var(--amber);border-color:rgba(242,169,59,.5);background:rgba(242,169,59,.10)}
+.sidetag.qry{color:var(--settled);border-color:rgba(79,209,165,.5);background:rgba(79,209,165,.09)}
+.sidetag.seam{color:var(--violet);border-color:rgba(155,140,255,.5);background:rgba(155,140,255,.09)}
+.sidetag.ext{color:var(--dim);border-color:var(--rule);background:var(--panel-2)}
+.node .sidetag{display:block;width:fit-content;margin-top:6px}
+.ifm{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+.ifm span{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.02em;
+  color:var(--muted);background:var(--panel-2);border:1px solid var(--rule);
+  border-radius:5px;padding:2px 7px}
+.flowsplit{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:900px){.flowsplit{grid-template-columns:1fr}}
+.fstep{display:grid;grid-template-columns:24px 1fr;gap:11px;padding:9px 11px;border-radius:7px;border:1px solid transparent;cursor:pointer}
+.fstep:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.flowctl{display:flex;align-items:center;gap:6px;margin:12px 0 10px}
+.ctlb{appearance:none;cursor:pointer;background:var(--panel-2);color:var(--muted);
+  border:1px solid var(--rule);border-radius:7px;padding:6px 10px;line-height:1;
+  font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.1em;
+  transition:background .15s,color .15s,border-color .15s}
+.ctlb:hover{color:var(--paper);border-color:rgba(242,169,59,.5)}
+.ctlb.wide{min-width:86px;text-align:center}
+.ctlb.on{background:rgba(242,169,59,.14);border-color:rgba(242,169,59,.65);color:var(--amber)}
+.ctlkeys{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--dim);
+  border:1px solid var(--rule);border-radius:5px;padding:3px 7px;margin-left:8px}
+.ctlpos{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.12em;color:var(--dim);margin-left:auto}
+.fstep.sel{background:rgba(242,169,59,.11);border-color:rgba(242,169,59,.65)}
+.fstep.ctxstep .fn,.fstep.ctxstep .fl,.fstep.ctxstep .fd{opacity:.6}
+.ctxtag{margin-left:8px;font-family:"DM Mono",monospace;font-size:8.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);border:1px solid var(--rule);
+  border-radius:4px;padding:1px 5px;vertical-align:1px}
+.fstep.sel .fn{color:var(--paper);font-weight:700}
+/* one hop picked out of the flow: everything else on the path steps back */
+.dg .edge.step{stroke:var(--amber);stroke-width:2.8}
+.dg.stepsel .edge.on:not(.step){opacity:.2}
+.dg.stepsel .node.on:not(.step){opacity:.5}
+.dg.stepsel .badge:not(.sel){opacity:.28}
+.dg .node.step .nrect{stroke:var(--amber);stroke-width:1.8}
+.dg .node.step .ndec{stroke:var(--amber)}
+.dg .badge{cursor:pointer}
+.dg .badge.sel circle{fill:var(--amber);stroke:var(--amber);stroke-width:2.4}
+.dg .badge.sel text{fill:#10182A;font-weight:700}
+.fstep:hover{background:rgba(242,169,59,.07);border-color:rgba(242,169,59,.35)}
+.fstep .fn{font-family:"DM Mono",monospace;font-size:11px;color:var(--amber);padding-top:2px}
+.fstep .fh{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.07em;color:var(--violet);text-transform:uppercase}
+.fstep .fl{font-size:13.2px;font-weight:600;line-height:1.4}
+.fstep .fd{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+footer{border-top:1px solid var(--rule);margin-top:40px;font-size:12.5px;color:var(--dim);
+  padding:20px 0 40px;
+  background:linear-gradient(180deg, transparent, rgba(255,255,255,.022))}
+[data-theme="light"] footer{background:linear-gradient(180deg, transparent, rgba(18,29,43,.035))}
+</style>
+</head>
+<body>
+<style>
+/* ---------- additions for this document: the ledger board ---------- */
+.ledgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.acct{background:var(--panel-2);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;transition:border-color .25s,background .25s}
+.acct.hit{border-color:var(--amber);background:rgba(242,169,59,.09)}
+.acct .an{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--paper)}
+.acct .at{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:2px}
+.acct .ab{font-family:"DM Mono",monospace;font-size:19px;color:var(--figure);margin-top:6px}
+.acct .ab.zero{color:var(--dim)}
+.tbal{display:flex;flex-wrap:wrap;gap:18px;margin-top:12px;font-family:"DM Mono",monospace;font-size:11.5px;letter-spacing:.06em;color:var(--dim)}
+.tbal b{color:var(--paper)}
+.tbal .okb{color:var(--settled)}
+.tbal .badb{color:var(--declined)}
+.jtable td{font-family:"DM Mono",monospace;font-size:11.8px}
+.jtable td.dr{color:var(--settled);text-align:right;white-space:nowrap}
+.jtable td.cr{color:var(--violet);text-align:right;white-space:nowrap}
+.jtable tr.jhead td{font-family:"Public Sans",sans-serif;font-size:12.6px;color:var(--paper);font-weight:600;background:var(--panel-2)}
+</style>
+<button class="findbtn" id="findBtn" aria-label="Search the document">SEARCH <span>/</span></button>
+<div class="findwrap" id="findWrap" hidden role="dialog" aria-label="Search">
+  <div class="findbox">
+    <input id="findInput" type="search" placeholder="Search every tab — idempotency, ledger, capture, reconciliation, webhook…" aria-label="Search text">
+    <button class="ctlb" id="findClose" aria-label="Close">ESC</button>
+  </div>
+  <div class="findresults" id="findResults"></div>
+</div>
+
+<div class="themetgl" role="group" aria-label="Colour theme">
+  <button id="thDark"  aria-pressed="true">DARK</button>
+  <button id="thLight" aria-pressed="false">LIGHT</button>
+</div>
+
+<header>
+ <div class="band">
+  <div class="headtop">
+    <div>
+      <div class="eyebrow">System design</div>
+      <h1>Payment&nbsp;System</h1>
+      <p class="sub">The payments backend of a marketplace: take a buyer's money through a payment service provider, record every cent in a double-entry ledger, and pay the sellers out. Throughput is modest. The invariants are not: <b>charge exactly once, and never create or lose a cent</b>. Click through the phases the way you'd walk a whiteboard.</p>
+    </div>
+  </div>
+  <nav class="phases" role="tablist" id="tabs"></nav>
+  <div class="budget" id="budget"></div>
+ </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 01 SCOPE ============ -->
+<section class="pane" id="p0" role="tabpanel">
+  <p class="lede">"Design a payment system" is a trap of breadth: cards, wallets, FX, subscriptions, fraud, disputes, tax, payouts in forty countries. <b>You are not building Stripe.</b> You are building the system that sits between a marketplace's checkout and a Stripe — and you say out loud which half of the problem you are deferring.</p>
+
+  <div class="card">
+    <h3>Scope the problem</h3>
+    <div class="cap">Click a capability to mark it in scope · click again to defer it</div>
+    <div class="chiprow" id="chips"></div>
+    <div class="scopebar" id="scopebar"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Functional requirements</h3>
+      <div class="cap">The money movements to design end to end</div>
+      <ul class="tight">
+        <li><b>Pay-in.</b> A buyer pays for an order by card. We authorize through a PSP, capture when the order ships (or immediately for digital goods), and tell checkout the outcome.</li>
+        <li><b>Ledger.</b> Every movement — capture, fee, refund, payout — is a balanced double-entry journal entry. Balances are derived from it, never stored as the source of truth.</li>
+        <li><b>Refunds.</b> Full or partial, idempotent, never more than was captured, reflected in the ledger and the seller's balance.</li>
+        <li><b>Pay-out.</b> Sellers are paid their available balance on a schedule to a bank account, minus the platform's commission.</li>
+        <li><b>Reconciliation.</b> Every day, prove that our ledger, the PSP's settlement report and the bank statement agree — and raise a break when they don't.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Non-functional requirements</h3>
+      <div class="cap">Name the numbers, not the adjectives</div>
+      <table>
+        <tr><th>Property</th><th>Target</th></tr>
+        <tr><td>Correctness</td><td class="num">Exactly-once effect per charge</td></tr>
+        <tr><td>Ledger balance</td><td class="num">Σ debits = Σ credits, always</td></tr>
+        <tr><td>Payment API latency (excl. PSP)</td><td class="num">p99 &lt; 300 ms</td></tr>
+        <tr><td>End-to-end checkout (incl. PSP)</td><td class="num">p99 &lt; 3 s</td></tr>
+        <tr><td>Availability, pay-in path</td><td class="num">99.99%</td></tr>
+        <tr><td>Durability</td><td class="num">RPO 0 · RTO &lt; 15 min</td></tr>
+        <tr><td>Volume</td><td class="num">10M payments/day · 5× peak</td></tr>
+        <tr><td>Retention</td><td class="num">7–10 years, immutable</td></tr>
+        <tr><td>Compliance</td><td class="num">PCI-DSS (SAQ-A), SOX, GDPR</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>The one-liner to open with</h3>
+    <div class="cap">Say this before you draw a single box</div>
+    <p class="quote">"This is a low-throughput, high-stakes system. A few hundred payments a second is easy; charging someone twice, or losing a cent between three parties who all keep their own books, is not. So I'll design around three things: an idempotency key that travels from the buyer's click all the way into the PSP, a payment state machine where every transition is a guarded write, and an append-only double-entry ledger that a daily reconciliation proves against the outside world. Card numbers never touch our servers."</p>
+  </div>
+</section>
+
+<!-- ============ 02 SCALE ============ -->
+<section class="pane" id="p1" role="tabpanel">
+  <p class="lede">The estimate here has a punchline most candidates miss: <b>payments are not a throughput problem</b>. Ten million payments a day is about a hundred a second. The numbers exist to prove a single relational primary carries it — so you can spend the interview on correctness instead of sharding.</p>
+
+  <div class="card">
+    <div class="calcgrid">
+      <div>
+        <div class="field">
+          <label>Payments per day <span id="l-tx">10M</span></label>
+          <input type="range" id="i-tx" min="1" max="200" value="10" step="1">
+        </div>
+        <div class="field">
+          <label>Peak-to-average multiplier <span id="l-peak">5×</span></label>
+          <input type="range" id="i-peak" min="1" max="30" value="5" step="1">
+        </div>
+        <div class="field">
+          <label>Journal lines per payment, lifetime <span id="l-lines">6</span></label>
+          <input type="range" id="i-lines" min="2" max="20" value="6" step="1">
+        </div>
+        <div class="field">
+          <label>PSP calls per payment (auth, capture, retries) <span id="l-psp">2.5</span></label>
+          <input type="range" id="i-psp" min="10" max="60" value="25" step="5">
+        </div>
+        <div class="field">
+          <label>Retention <span id="l-ret">7 yr</span></label>
+          <input type="range" id="i-ret" min="1" max="10" value="7" step="1">
+        </div>
+      </div>
+      <div>
+        <div class="out">
+          <div class="outrow"><span class="k">Payments, average</span><span class="v" id="o-avg">—<small>/s</small></span></div>
+          <div class="outrow"><span class="k">Payments, peak</span><span class="v" id="o-pk">—<small>/s</small></span></div>
+          <div class="outrow"><span class="k">Ledger line inserts, peak</span><span class="v" id="o-led">—<small>/s</small></span></div>
+          <div class="outrow"><span class="k">Outbound PSP calls, peak</span><span class="v" id="o-psp">—<small>/s</small></span></div>
+          <div class="outrow"><span class="k">Ledger lines retained</span><span class="v" id="o-rows">—</span></div>
+          <div class="outrow"><span class="k">Ledger storage, 3× replicated</span><span class="v" id="o-store">—<small>TB</small></span></div>
+          <div class="outrow"><span class="k">PSP connections in flight (1.2 s each)</span><span class="v" id="o-conn">—</span></div>
+        </div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <h3>Where the time goes</h3>
+      <div class="cap">Latency, not throughput</div>
+      <ul class="tight">
+        <li>PSP authorization: 400 ms – 2 s, and the tail is the PSP's, not yours</li>
+        <li>3-D Secure challenge: seconds to minutes, with a human in the loop</li>
+        <li>Your own writes: a few ms each — payment row, idempotency row, outbox row</li>
+        <li>So threads blocked on the PSP are the resource to budget, not CPU</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Where the rows go</h3>
+      <div class="cap">Storage, not traffic</div>
+      <ul class="tight">
+        <li>Ledger lines are append-only and kept for years — the only table that grows without bound</li>
+        <li>Payments and refunds: one row each, mutated through a handful of states, then cold</li>
+        <li>PSP webhooks and raw responses: kept verbatim for disputes and audits, in S3</li>
+        <li>Settlement files: one per PSP per day, a few hundred MB, parsed into a recon table</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>The point of the estimate</h3>
+      <div class="cap">Say this conclusion aloud</div>
+      <p style="font-size:13.5px;color:var(--muted)">Peak is a few hundred payments a second and a few thousand ledger inserts — <b>one well-sized Aurora writer with time partitioning</b> carries that for years. I won't shard on day one. I will isolate the PSP calls behind a bulkhead, because a slow PSP holding every thread is the realistic outage, and I'll partition the ledger by <b style="color:var(--amber)">month</b> so seven years of history detaches to cold storage.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Reach for levers in this order</h3>
+    <div class="cap">Cheapest and least risky first — sharding a ledger is the most expensive decision in this design</div>
+    <table>
+      <thead><tr><th style="width:44px">#</th><th style="width:230px">Lever</th><th style="width:150px">Buys you</th><th>Ceiling, and when you have hit it</th></tr></thead>
+      <tbody>
+        <tr><td class="num">01</td><td><b>Async the PSP wait</b></td><td class="num">10× concurrency</td><td style="color:var(--muted)">Return 202 and finish by webhook. A thread is no longer parked for two seconds per payment, so the same fleet carries ten times the in-flight payments.</td></tr>
+        <tr><td class="num">02</td><td><b>Bulkhead per PSP</b></td><td class="num">Blast radius</td><td style="color:var(--muted)">A separate connection pool and circuit breaker per provider. One PSP's brownout can no longer starve the pool every other payment needs.</td></tr>
+        <tr><td class="num">03</td><td><b>Read replicas for balances</b></td><td class="num">Read offload</td><td style="color:var(--muted)">Seller dashboards and balance pages read a projection, never the ledger primary. Writes stay on one node.</td></tr>
+        <tr><td class="num">04</td><td><b>Partition the ledger by time</b></td><td class="num">Years of history</td><td style="color:var(--muted)">Monthly range partitions; closed months are immutable, detached and archived to S3 in Parquet for audit queries.</td></tr>
+        <tr><td class="num">05</td><td><b>Split hot accounts</b></td><td class="num">Contention</td><td style="color:var(--muted)">The platform revenue account is touched by every capture. Spread it over N sub-accounts and roll them up, or post it in batches — see Deep dives.</td></tr>
+        <tr><td class="num">06</td><td><b>Shard by merchant / account</b></td><td class="num">10–50× writes</td><td style="color:var(--muted)">Only when one writer is truly out of headroom. Every journal entry must stay inside one shard, which means platform accounts are replicated per shard and settled between shards. Say the cost before you propose it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 03 API ============ -->
+<section class="pane" id="p2" role="tabpanel">
+  <p class="lede">The contract is where exactly-once starts. The interviewer is listening for <b>an Idempotency-Key on every money-moving POST</b>, amounts as integer minor units with an explicit currency, 202 wherever the PSP decides later, and a webhook endpoint you treat as hostile until verified.</p>
+
+  <div class="archwrap">
+    <div>
+      <div class="card">
+        <h3>API surface</h3>
+        <div class="cap">Select an endpoint</div>
+        <div class="apilist" id="apis"></div>
+      </div>
+    </div>
+    <div class="detail" id="apidetail"></div>
+  </div>
+
+  <div class="card">
+    <h3>Three contract rules worth saying out loud</h3>
+    <div class="grid3">
+      <ul class="tight" style="font-size:13.2px">
+        <li><b>Money is an integer and a currency.</b> <span class="mono">{"amount": 10000, "currency": "USD"}</span> — never <span class="mono">100.00</span>, never a float, and JPY has zero decimal places so "minor units" is per-currency.</li>
+      </ul>
+      <ul class="tight" style="font-size:13.2px">
+        <li><b>Same key, different body is a 422,</b> not a replay. Otherwise a client bug that reuses a key silently returns the wrong payment.</li>
+      </ul>
+      <ul class="tight" style="font-size:13.2px">
+        <li><b>The response names the state, not a boolean.</b> <span class="mono">REQUIRES_ACTION</span>, <span class="mono">PROCESSING</span>, <span class="mono">AUTHORIZED</span> — "success: true" cannot describe a payment that has not finished yet.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 DATA ============ -->
+<section class="pane" id="pdata" role="tabpanel">
+  <p class="lede">One database per service and <b>no table with two writers</b>. The payment row is a state machine with a version; the ledger is append-only and has no UPDATE path at all; balances are a projection you can delete and rebuild.</p>
+
+  <div class="card">
+    <h3>Every store, and who owns it</h3>
+    <div class="cap">The service in the owner column is the only thing that holds write credentials</div>
+    <table style="margin-top:12px">
+      <thead><tr><th style="width:190px">Store</th><th style="width:170px">Owner</th><th style="width:140px">Engine</th><th>Why this engine</th></tr></thead>
+      <tbody>
+        <tr><td><b>payments</b><div class="mono" style="font-size:10.5px;color:var(--dim)">payment · refund · attempt · idempotency · outbox</div></td><td>Payment Service</td><td class="num">Aurora PostgreSQL</td><td>A state machine needs a guarded UPDATE and a unique constraint for idempotency, committed in the same transaction as the outbox row.</td></tr>
+        <tr><td><b>ledger</b><div class="mono" style="font-size:10.5px;color:var(--dim)">account · journal_entry · journal_line</div></td><td>Ledger Service</td><td class="num">Aurora PostgreSQL</td><td>Multi-row atomic inserts with a CHECK that the lines balance. Relational because the invariant must hold at commit, not eventually.</td></tr>
+        <tr><td><b>balances</b><div class="mono" style="font-size:10.5px;color:var(--dim)">available · pending · reserved per account</div></td><td>Balance projector</td><td class="num">DynamoDB</td><td>Point lookups by account, derived from ledger events, rebuildable. Never consulted to decide if money exists — the ledger is.</td></tr>
+        <tr><td><b>payouts</b><div class="mono" style="font-size:10.5px;color:var(--dim)">payout · payout_batch · bank_account_token</div></td><td>Payout Service</td><td class="num">Aurora PostgreSQL</td><td>Same shape as payments: an idempotent state machine around an external rail (ACH/SEPA) that answers in days.</td></tr>
+        <tr><td><b>recon</b><div class="mono" style="font-size:10.5px;color:var(--dim)">settlement_line · match · break</div></td><td>Reconciliation</td><td class="num">Aurora + S3</td><td>Raw PSP and bank files land in S3 untouched; parsed lines go to a table so matching is a set of joins.</td></tr>
+        <tr><td><b>raw PSP traffic</b></td><td>Payment Executor</td><td class="num">S3 (Object Lock)</td><td>Every request, response and webhook body, write-once, for disputes and auditors. Cheap, immutable, and never on a hot path.</td></tr>
+        <tr><td><b>event log</b></td><td>Each producer, per topic</td><td class="num">MSK (Kafka)</td><td>PaymentAuthorized, PaymentCaptured, RefundSucceeded… keyed by payment_id so one payment's events stay in order.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Schemas</h3>
+    <div class="cap">Pick a store</div>
+    <div class="flowbar" id="schemabar"></div>
+    <div id="schemabody"></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Schema decisions worth defending</h3>
+    <div class="grid3">
+      <ul class="tight" style="font-size:13.2px">
+        <li><b>Amounts are <span class="mono">bigint</span> minor units</b> plus a <span class="mono">char(3)</span> currency. Not <span class="mono">numeric</span> with decimals, and never a float — 0.1 + 0.2 is not a refund you want to explain.</li>
+        <li><b>The payment row has a <span class="mono">version</span></b>, and every transition names the state it expects. A late webhook trying to move CAPTURED back to AUTHORIZED updates zero rows.</li>
+      </ul>
+      <ul class="tight" style="font-size:13.2px">
+        <li><b>The ledger has no UPDATE or DELETE grant.</b> Mistakes are corrected with a reversing entry. The database role enforces it, not a code review.</li>
+        <li><b>Balance = SUM(lines)</b>, and the stored balance in the projection carries the ledger sequence it was computed at, so staleness is measurable.</li>
+      </ul>
+      <ul class="tight" style="font-size:13.2px">
+        <li><b>The PSP reference is unique</b> — <span class="mono">UNIQUE (psp, psp_payment_id)</span> — so a webhook can never attach to the wrong payment or create a second one.</li>
+        <li><b>Cross-service references are plain IDs.</b> A journal entry points at <span class="mono">payment_id</span> as a correlation, not a foreign key into another service's database.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 LEDGER ============ -->
+<section class="pane" id="pled" role="tabpanel">
+  <p class="lede">The ledger is the heart of the system and the part interviewers probe hardest. Double-entry is one rule: <b>every entry has lines that sum to zero</b>, so money only ever moves between accounts — it is never created or destroyed. Post the events below and watch the trial balance stay at zero.</p>
+
+  <div class="card">
+    <h3>Ledger simulator</h3>
+    <div class="cap">Order ORD-8812 · buyer pays $100.00 · platform commission 10% · PSP fee 2.9% + 30¢</div>
+    <div class="simctl" id="ledbtns" style="margin-top:4px"></div>
+    <div class="ledgrid" id="ledaccts"></div>
+    <div class="tbal" id="ledtb"></div>
+    <div class="log" id="ledlog" style="max-height:260px"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:16px">
+    <div class="card">
+      <h3>The accounts, from the platform's point of view</h3>
+      <div class="cap">Debit-normal accounts grow with debits; credit-normal ones with credits</div>
+      <table>
+        <thead><tr><th>Account</th><th>Type</th><th>Means</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">psp_receivable</td><td>Asset</td><td>Money the PSP has collected for us and not yet settled to our bank</td></tr>
+          <tr><td class="mono">cash</td><td>Asset</td><td>Money actually in the platform's bank account</td></tr>
+          <tr><td class="mono">seller_payable:S-42</td><td>Liability</td><td>What we owe this seller. One account per seller — this <i>is</i> their balance</td></tr>
+          <tr><td class="mono">platform_revenue</td><td>Revenue</td><td>Our commission</td></tr>
+          <tr><td class="mono">psp_fees</td><td>Expense</td><td>What the PSP charged us to move the money</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Rules the ledger enforces</h3>
+      <div class="cap">Each one is a constraint, not a convention</div>
+      <ul class="tight" style="font-size:13.2px">
+        <li><b>Balanced or rejected.</b> A deferred constraint trigger sums the lines of each entry at commit; anything but zero aborts the transaction.</li>
+        <li><b>Append-only.</b> No UPDATE, no DELETE. A wrong entry is fixed by posting its exact reversal and then the correct one — both visible forever.</li>
+        <li><b>Idempotent posting.</b> Every entry carries an <span class="mono">idempotency_key</span> such as <span class="mono">capture:PAY-7f3a</span> with a unique constraint, so a redelivered event cannot post twice.</li>
+        <li><b>Authorization is not a ledger event.</b> An auth moves no money; it is tracked on the payment. The ledger starts at capture.</li>
+        <li><b>One currency per entry.</b> FX is two entries through an FX clearing account, never a line that silently converts.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Posting an entry, in code</h3>
+    <pre><span class="c">// one transaction: the entry, its lines, and the outbox event — or nothing</span>
+<span class="nd">@Transactional</span>
+<span class="k">public</span> EntryId post(JournalEntry e) {
+    <span class="k">if</span> (e.lines().stream().mapToLong(Line::signedAmount).sum() != 0)
+        <span class="k">throw new</span> UnbalancedEntry(e);                       <span class="c">// checked here AND by the DB trigger</span>
+    <span class="k">try</span> {
+        jdbc.update(<span class="s">"INSERT INTO journal_entry(id, idempotency_key, kind, occurred_at) VALUES (?,?,?,?)"</span>,
+                    e.id(), e.idempotencyKey(), e.kind(), e.occurredAt());
+    } <span class="k">catch</span> (DuplicateKeyException dup) {
+        <span class="k">return</span> existingEntryFor(e.idempotencyKey());          <span class="c">// replay: already posted, no-op</span>
+    }
+    jdbc.batchUpdate(<span class="s">"INSERT INTO journal_line(entry_id, account_id, direction, amount, currency) VALUES (?,?,?,?,?)"</span>,
+                     e.lines(), e.lines().size(), Line::bind);
+    outbox.put(<span class="k">new</span> EntryPosted(e));
+    <span class="k">return</span> e.id();
+}</pre>
+  </div>
+</section>
+
+<!-- ============ 06 ARCHITECTURE ============ -->
+<section class="pane" id="p3" role="tabpanel">
+  <p class="lede">Group services by <b>who is allowed to move money and who is in PCI scope</b>, not by feature. The red zone holds card data — and it belongs to the PSP. Every component is tagged by which side of the CQRS split it sits on.</p>
+
+  <div class="card">
+    <h3>The shape, drawn out</h3>
+    <div class="cap">Solid arrows are synchronous calls · dashed are events, webhooks and files</div>
+    <div class="dgwrap" style="margin-top:12px"><svg class="dg" viewBox="0 0 1100 475" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Payment system architecture">
+      <defs>
+        <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" fill="#8598B0"/></marker>
+      </defs>
+      <text class="colhead" x="20"  y="24">CLIENT</text>
+      <text class="colhead" x="190" y="24">EDGE</text>
+      <text class="colhead" x="360" y="24">PAYMENT CORE</text>
+      <text class="colhead" x="600" y="24">MONEY RECORD</text>
+      <text class="colhead" x="840" y="24">EXTERNAL</text>
+
+      <rect class="pcirect" x="830" y="40" width="250" height="250"/>
+      <text class="pcilbl" x="842" y="56">PCI SCOPE — NOT OURS</text>
+
+      <path class="edge" d="M160 90 L188 90" marker-end="url(#ar)"/>
+      <path class="edge" d="M330 90 L358 90" marker-end="url(#ar)"/>
+      <path class="edge" d="M440 112 L440 158" marker-end="url(#ar)"/>
+      <path class="edge" d="M385 112 C385 150 360 182 332 182" marker-end="url(#ar)"/>
+      <path class="edge" d="M520 176 C700 176 760 104 848 104" marker-end="url(#ar)"/>
+      <path class="edge" d="M950 112 L950 128" marker-end="url(#ar)"/>
+      <path class="edge" d="M90 68 L90 34 L1010 34 L1010 66" marker-end="url(#ar)"/>
+      <text class="cqnote" x="190" y="53">card details go browser → PSP directly · we only see a token</text>
+      <path class="edge ret" d="M1050 90 L1084 90 L1084 456 L260 456 L260 296" marker-end="url(#ar)"/>
+      <text class="cqnote" x="300" y="450">signed webhooks · at-least-once · any order</text>
+      <path class="edge ret" d="M330 274 L358 284" marker-end="url(#ar)"/>
+      <path class="edge ret" d="M520 102 C548 102 548 286 522 286" marker-end="url(#ar)"/>
+      <path class="edge ret" d="M520 296 L598 322" marker-end="url(#ar)"/>
+      <path class="edge ret" d="M680 350 L680 388" marker-end="url(#ar)"/>
+      <path class="edge ret" d="M600 102 C578 102 578 322 598 324" marker-end="url(#ar)"/>
+      <path class="edge" d="M740 90 C800 90 800 212 848 212" marker-end="url(#ar)"/>
+      <path class="edge ret" d="M950 234 L950 308" marker-end="url(#ar)"/>
+      <path class="edge ret" d="M850 332 C800 332 800 222 762 222" marker-end="url(#ar)"/>
+
+      <g class="node"><rect class="nrect" x="20" y="68" width="140" height="44"/><text class="nt" x="32" y="88">Checkout UI</text><text class="ns" x="32" y="102">PSP HOSTED FIELDS</text></g>
+      <g class="node"><rect class="nrect" x="190" y="68" width="140" height="44"/><text class="nt" x="202" y="88">API Gateway</text><text class="ns" x="202" y="102">AUTH · RATE LIMIT</text></g>
+      <g class="node"><rect class="nrect" x="360" y="68" width="160" height="44"/><text class="nt" x="372" y="88">Payment Service</text><text class="ns" x="372" y="102">STATE MACHINE · IDEMPOTENCY</text></g>
+      <g class="node"><rect class="nrect" x="360" y="160" width="160" height="44"/><text class="nt" x="372" y="180">Payment Executor</text><text class="ns" x="372" y="194">PSP ADAPTERS · BULKHEADS</text></g>
+      <g class="node"><rect class="nrect" x="190" y="160" width="140" height="44"/><text class="nt" x="202" y="180">Risk Service</text><text class="ns" x="202" y="194">RULES · VELOCITY</text></g>
+      <g class="node"><rect class="nrect" x="190" y="250" width="140" height="44"/><text class="nt" x="202" y="270">Webhook Ingest</text><text class="ns" x="202" y="284">VERIFY · DEDUPE</text></g>
+      <g class="node"><rect class="nrect" x="360" y="268" width="160" height="44"/><text class="nt" x="372" y="288">Kafka (MSK)</text><text class="ns" x="372" y="302">KEYED BY PAYMENT_ID</text></g>
+      <g class="node"><rect class="nrect" x="600" y="68" width="140" height="44"/><text class="nt" x="612" y="88">Payout Service</text><text class="ns" x="612" y="102">BATCH · ACH / SEPA</text></g>
+      <g class="node"><rect class="nrect" x="600" y="306" width="160" height="44"/><text class="nt" x="612" y="326">Ledger Service</text><text class="ns" x="612" y="340">DOUBLE-ENTRY · APPEND-ONLY</text></g>
+      <g class="node"><rect class="nrect" x="600" y="390" width="160" height="44"/><text class="nt" x="612" y="410">Balance projection</text><text class="ns" x="612" y="424">DYNAMODB · REBUILDABLE</text></g>
+      <g class="node"><rect class="nrect" x="600" y="200" width="160" height="44"/><text class="nt" x="612" y="220">Reconciliation</text><text class="ns" x="612" y="234">3-WAY MATCH · BREAKS</text></g>
+      <g class="node"><rect class="nrect" x="850" y="68" width="200" height="44"/><text class="nt" x="862" y="88">PSP (Stripe / Adyen)</text><text class="ns" x="862" y="102">TOKENIZE · AUTH · CAPTURE</text></g>
+      <g class="node"><rect class="nrect" x="850" y="130" width="200" height="44"/><text class="nt" x="862" y="150">Card networks · issuers</text><text class="ns" x="862" y="164">VISA · MASTERCARD · 3DS</text></g>
+      <g class="node"><rect class="nrect" x="850" y="190" width="200" height="44"/><text class="nt" x="862" y="210">Bank (payout rails)</text><text class="ns" x="862" y="224">ACH · SEPA · STATEMENTS</text></g>
+      <g class="node"><rect class="nrect" x="850" y="310" width="200" height="44"/><text class="nt" x="862" y="330">Settlement files</text><text class="ns" x="862" y="344">SFTP / API → S3 DAILY</text></g>
+    </svg></div>
+  </div>
+
+  <div class="sidekey">
+    <span class="sidetag cmd">command</span> moves money, holds an invariant, strongly consistent
+    <span class="sidetag seam">seam</span> carries committed changes across
+    <span class="sidetag qry">query</span> reads only, derived, rebuildable
+    <span class="sidetag ext">external</span> a counterparty with its own books
+  </div>
+
+  <div class="archwrap">
+    <div id="zones"></div>
+    <div class="detail" id="svcdetail"></div>
+  </div>
+</section>
+
+<!-- ============ 07 PAYMENT FLOW ============ -->
+<section class="pane" id="p5" role="tabpanel">
+  <p class="lede">The flow that decides the interview: <b>one card payment from click to ledger</b>. It touches idempotency, a state machine, a third party that answers late or not at all, and an asynchronous ledger posting — and every failure button below is a question you will be asked.</p>
+
+  <div class="sim open" id="sim">
+    <div class="simhead" id="simHead" role="button" tabindex="0" aria-expanded="true" aria-controls="simBody">
+      <div>
+        <h3 style="font-size:17px">Card payment lifecycle</h3>
+        <div class="cap" style="margin:2px 0 0">ORD-8812 · $100.00 USD · seller S-42 · idempotency key <span class="mono" style="color:var(--violet)" id="idemkey">—</span></div>
+      </div>
+      <div class="state"><span class="pulse" id="pulse"></span><span id="stateLabel">Idle</span><span class="chev"></span></div>
+    </div>
+    <div class="sim-b" id="simBody">
+      <div class="track" id="track"></div>
+      <div class="simctl">
+        <button class="btn" id="simStep">Advance one step</button>
+        <button class="btn ghost" id="simRetry">Client retries (same key)</button>
+        <button class="btn ghost" id="simTimeout">PSP call times out</button>
+        <button class="btn ghost" id="simDup">Webhook delivered twice</button>
+        <button class="btn ghost" id="simReset">Reset</button>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>The payment state machine</h3>
+    <div class="cap">Every arrow is one guarded UPDATE · anything not drawn is rejected</div>
+    <div class="dgwrap" style="margin-top:10px"><svg class="dg smdg" viewBox="0 0 1060 330" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Payment state machine">
+      <defs><marker id="sma" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path class="smd" d="M0 0 L8 4 L0 8 z"/></marker></defs>
+      <path class="sml" d="M140 150 L190 150" marker-end="url(#sma)"/><text class="smt" x="165" y="140">confirm</text>
+      <path class="sml" d="M330 150 L380 150" marker-end="url(#sma)"/><text class="smt" x="355" y="140">3DS ok</text>
+      <path class="sml" d="M260 120 C260 60 450 60 450 120" marker-end="url(#sma)"/><text class="smt" x="355" y="58">frictionless</text>
+      <path class="sml" d="M520 150 L570 150" marker-end="url(#sma)"/><text class="smt" x="545" y="140">capture</text>
+      <path class="sml" d="M710 150 L760 150" marker-end="url(#sma)"/><text class="smt" x="735" y="140">settled</text>
+      <path class="sml" d="M260 180 L260 250" marker-end="url(#sma)"/><text class="smt" x="300" y="220">declined</text>
+      <path class="sml" d="M450 180 L450 250" marker-end="url(#sma)"/><text class="smt" x="490" y="220">void / expire</text>
+      <path class="sml" d="M640 180 L640 250" marker-end="url(#sma)"/><text class="smt" x="680" y="220">refund</text>
+      <path class="sml" d="M830 180 L830 250" marker-end="url(#sma)"/><text class="smt" x="875" y="220">dispute</text>
+      <path class="sml" d="M70 180 C70 290 160 290 190 285" marker-end="url(#sma)"/><text class="smt" x="95" y="270">declined</text>
+
+      <rect class="st" x="10"  y="120" width="130" height="60" rx="10"/><text class="stt" x="75"  y="148">CREATED</text><text class="sts" x="75" y="164">key claimed</text>
+      <rect class="st" x="190" y="120" width="140" height="60" rx="10"/><text class="stt" x="260" y="148">REQUIRES_ACTION</text><text class="sts" x="260" y="164">3-D Secure</text>
+      <rect class="st" x="380" y="120" width="140" height="60" rx="10"/><text class="stt" x="450" y="148">AUTHORIZED</text><text class="sts" x="450" y="164">funds held, no money moved</text>
+      <rect class="st ok" x="570" y="120" width="140" height="60" rx="10"/><text class="stt" x="640" y="148">CAPTURED</text><text class="sts" x="640" y="164">ledger posts here</text>
+      <rect class="st ok" x="760" y="120" width="140" height="60" rx="10"/><text class="stt" x="830" y="148">SETTLED</text><text class="sts" x="830" y="164">matched in recon</text>
+      <rect class="st bad" x="190" y="250" width="140" height="56" rx="10"/><text class="stt" x="260" y="276">FAILED</text><text class="sts" x="260" y="292">terminal</text>
+      <rect class="st bad" x="380" y="250" width="140" height="56" rx="10"/><text class="stt" x="450" y="276">CANCELED</text><text class="sts" x="450" y="292">auth released</text>
+      <rect class="st" x="570" y="250" width="140" height="56" rx="10"/><text class="stt" x="640" y="276">REFUNDED</text><text class="sts" x="640" y="292">full or partial</text>
+      <rect class="st bad" x="760" y="250" width="140" height="56" rx="10"/><text class="stt" x="830" y="276">DISPUTED</text><text class="sts" x="830" y="292">chargeback (deferred)</text>
+      <rect class="st" x="930" y="120" width="120" height="60" rx="10" style="stroke-dasharray:4 4"/><text class="stt" x="990" y="148">UNKNOWN</text><text class="sts" x="990" y="164">PSP timed out</text>
+      <text class="smx" x="990" y="200">from any in-flight state;</text><text class="smx" x="990" y="214">resolved only by asking</text><text class="smx" x="990" y="228">the PSP, never by guessing</text>
+    </svg></div>
+  </div>
+
+  <div class="card">
+    <h3>The four things a payment system has to get right</h3>
+    <div class="cap">Where each control actually lives, so you can point at it rather than assert it</div>
+    <table style="margin-top:12px">
+      <thead><tr><th>Concern</th><th>Mechanism</th><th>Where it is</th></tr></thead>
+      <tbody>
+        <tr><td><b>Never charge twice</b></td><td>Client Idempotency-Key with a unique constraint; payment_id forwarded as the PSP's idempotency key, so both sides dedupe on one value; one attempt row per PSP call</td><td class="num">Payment Service · Executor · PSP</td></tr>
+        <tr><td><b>Never lose a cent</b></td><td>Balanced, append-only, idempotently-posted journal entries; balances derived, never authoritative</td><td class="num">Ledger Service · aurora-ledger</td></tr>
+        <tr><td><b>Never guess an outcome</b></td><td>A timeout is UNKNOWN, not FAILED. A resolver queries the PSP by idempotency key until it answers; reconciliation is the backstop</td><td class="num">Executor · resolver job · recon</td></tr>
+        <tr><td><b>Never lose an event</b></td><td>Transactional outbox beside every state change; consumers dedupe on event ID; DLQ with replay</td><td class="num">Every command service · MSK</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 08 DEEP DIVES ============ -->
+<section class="pane" id="p6" role="tabpanel">
+  <p class="lede">Expect the interviewer to pick two of these and push. Each one opens with the failure, then the mechanism, then what you would say. <b>Lead with idempotency and unknown outcomes</b> — they are the two that separate people who have run payments from people who have read about them.</p>
+  <div id="dives"></div>
+</section>
+
+<!-- ============ 09 OPERATIONS ============ -->
+<section class="pane" id="pops" role="tabpanel">
+  <p class="lede">A payment system is judged by what it does at 3 a.m. when a PSP is degraded. <b>The metrics that matter are business metrics</b> — authorization rate, unknown-state count, reconciliation breaks — not CPU.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>AWS, and why each piece is managed</h3>
+      <div class="cap">Buy undifferentiated infrastructure; build the money logic</div>
+      <table>
+        <thead><tr><th>Need</th><th>Service</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Payments, ledger, payouts</td><td class="num">Aurora PostgreSQL</td><td>Multi-AZ synchronous storage (RPO 0), constraints and transactions, a cross-region replica for DR</td></tr>
+          <tr><td>Event backbone</td><td class="num">MSK</td><td>Ordered per payment_id, replayable for rebuilding projections</td></tr>
+          <tr><td>Balances, idempotency cache</td><td class="num">DynamoDB</td><td>Single-digit-ms point reads, conditional writes, no capacity planning</td></tr>
+          <tr><td>Raw PSP traffic, settlement files</td><td class="num">S3 + Object Lock</td><td>WORM storage auditors accept; lifecycle to Glacier</td></tr>
+          <tr><td>Secrets, PSP API keys, bank tokens</td><td class="num">Secrets Manager · KMS</td><td>Rotation, envelope encryption, every decrypt audited in CloudTrail</td></tr>
+          <tr><td>Scheduled jobs (resolver, recon, payouts)</td><td class="num">EventBridge Scheduler + ECS</td><td>Cron without a cron box; each run idempotent by date key</td></tr>
+          <tr><td>Webhook ingress</td><td class="num">API Gateway → SQS</td><td>Accept and acknowledge in milliseconds; process at our pace</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>What to measure and alert on</h3>
+      <div class="cap">If one of these moves, a human is paged</div>
+      <table>
+        <thead><tr><th>Signal</th><th>Alert when</th></tr></thead>
+        <tbody>
+          <tr><td>Authorization rate, per PSP / BIN / country</td><td class="num">drops 3 pts in 10 min</td></tr>
+          <tr><td>Payments in UNKNOWN</td><td class="num">&gt; 0 older than 15 min</td></tr>
+          <tr><td>Trial balance (Σ debits − Σ credits)</td><td class="num">≠ 0, ever — sev 1</td></tr>
+          <tr><td>Reconciliation breaks, count and value</td><td class="num">any unexplained after T+1</td></tr>
+          <tr><td>PSP p99 latency and error rate</td><td class="num">breaker opens</td></tr>
+          <tr><td>Webhook lag (PSP event time → processed)</td><td class="num">&gt; 2 min</td></tr>
+          <tr><td>Outbox age (oldest unpublished row)</td><td class="num">&gt; 30 s</td></tr>
+          <tr><td>DLQ depth</td><td class="num">&gt; 0</td></tr>
+          <tr><td>Refund rate / payout failures</td><td class="num">2× baseline</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Tracing one payment across three companies</h3>
+    <div class="cap">The payment_id is the correlation ID — it is in every log line, every event, and the PSP metadata</div>
+    <ul class="tight" style="font-size:13.4px">
+      <li><b>Put payment_id in the PSP's metadata</b> on create. Every webhook and every settlement line then carries your ID back, which turns reconciliation from fuzzy matching into a join.</li>
+      <li><b>Log the attempt, not just the payment.</b> One payment may have three PSP calls; each attempt row stores request ID, latency and raw response pointer in S3.</li>
+      <li><b>Never log a PAN, CVV or full bank number.</b> A log scrubber at the collector, plus a canary test that fails the build if a test card number appears in log output.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Disaster recovery</h3>
+    <div class="cap">The money path fails over; the reporting path waits</div>
+    <ul class="tight" style="font-size:13.4px">
+      <li><b>Within a region:</b> Aurora multi-AZ with RPO 0. Losing an AZ is a 30-second failover that in-flight payments absorb because every write is idempotent and retried.</li>
+      <li><b>Across regions:</b> active-passive. Aurora Global Database (RPO ~1 s). Before taking writes in the secondary, <b>run the resolver over every payment created in the last minutes of the primary</b> — anything replicated as CREATED may already be charged at the PSP.</li>
+      <li><b>Why not active-active?</b> Two regions both writing a seller's balance is a distributed ledger problem. Not worth it at a hundred payments a second; say so.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 10 PATTERNS ============ -->
+<section class="pane" id="ppat" role="tabpanel">
+  <p class="lede">Name the pattern, then <b>point at exactly where it lives</b> in this design. A pattern you cannot locate is a buzzword.</p>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:200px">Pattern</th><th style="width:220px">Where it lives here</th><th>The problem it solves</th></tr></thead>
+      <tbody id="pattbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 11 CRITIQUE ============ -->
+<section class="pane" id="pcrit" role="tabpanel">
+  <p class="lede">The follow-ups a strong interviewer asks once the boxes are drawn. <b>Answer with the trade-off, not the technology.</b></p>
+  <div id="crit"></div>
+</section>
+
+<!-- ============ 12 TALK TRACK ============ -->
+<section class="pane" id="p8" role="tabpanel">
+  <p class="lede">A rehearsal checklist, in the order you would actually deliver it. Tick each beat in a mock — <b>if you can hit every line in about 45 minutes without notes, you are ready</b>.</p>
+  <div class="progress"><i id="ttbar"></i></div>
+  <div id="ttlist"></div>
+
+  <div class="card" style="margin-top:24px">
+    <h3>Traps in this specific problem</h3>
+    <div class="cap">Where candidates lose the room</div>
+    <ul class="tight">
+      <li><b>Storing a balance column and incrementing it.</b> Two concurrent captures race, the number drifts, and nobody can say why the seller is owed $3.20 more than they should be. The balance is a sum of ledger lines.</li>
+      <li><b>Treating a timeout as a failure.</b> The PSP may have charged the card. Retrying with a new key charges it again; marking it failed loses a sale the buyer paid for. It is UNKNOWN until the PSP tells you.</li>
+      <li><b>Floats for money.</b> Or decimals in JSON. Integer minor units and a currency code, and a stated rounding rule for splits.</li>
+      <li><b>Two-phase commit across the PSP.</b> The PSP will not join your transaction. Use a state machine, an outbox and compensations.</li>
+      <li><b>Trusting the webhook body.</b> Verify the signature, then fetch the object from the PSP by ID. A webhook is a POST from the internet.</li>
+      <li><b>Card numbers on your servers.</b> Hosted fields or the PSP SDK tokenize in the browser. You store a token and stay in SAQ-A.</li>
+      <li><b>Failing over to a second PSP mid-payment.</b> If the first one is in doubt, a second charge is a double charge. Failover is for <i>new</i> payments.</li>
+      <li><b>No reconciliation.</b> Without it, every bug above is silent. Recon is how you find out you were wrong before the auditor does.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glossary" id="glossary">
+  <h2 class="gh">Abbreviations and acronyms</h2>
+  <div class="cap" style="margin-bottom:2px">Everything shortened anywhere in this document. If you cannot expand one of these out loud, do not use it in the interview.</div>
+  <input id="gfilter" class="gfin" type="search" placeholder="Filter — try PSP, ACH, 3DS, PAN …" aria-label="Filter glossary">
+  <div id="gbody"></div>
+  <div id="gnone" class="gnone" hidden>No match. Try a shorter fragment.</div>
+</section>
+
+</div>
+
+<footer>
+ <div class="band">Built as an interview rehearsal aid — the architecture here is a defensible reference answer, not the only one. Adapt the numbers to whatever scale the interviewer hands you.</div>
+</footer>
+<script>
+/* ------------------------------------------------------------------ data */
+const PHASES = [
+  {n:"01", t:"Scope",          b:"0–5 min"},
+  {n:"02", t:"Scale",          b:"5–9 min"},
+  {n:"03", t:"API",            b:"9–14 min"},
+  {n:"04", t:"Data",           b:"14–18 min"},
+  {n:"05", t:"Ledger",         b:"18–23 min"},
+  {n:"06", t:"Architecture",   b:"23–28 min"},
+  {n:"07", t:"Payment flow",   b:"28–34 min"},
+  {n:"08", t:"Deep dives",     b:"34–42 min"},
+  {n:"09", t:"Operations",     b:"reference · AWS, observability, DR"},
+  {n:"10", t:"Patterns",       b:"reference · pull in as needed"},
+  {n:"11", t:"Critique",       b:"reference · the questions after the questions"},
+  {n:"12", t:"Talk track",     b:"42–45 min"}
+];
+
+const CHIPS = [
+  {t:"Card pay-in (auth + capture)", d:1},
+  {t:"Double-entry ledger",          d:1},
+  {t:"Refunds",                      d:1},
+  {t:"Seller payouts",               d:1},
+  {t:"Daily reconciliation",         d:1},
+  {t:"Fraud / ML risk scoring",      d:0},
+  {t:"Disputes & chargebacks",       d:0},
+  {t:"Multi-currency & FX",          d:0},
+  {t:"Subscriptions & invoicing",    d:0},
+  {t:"Wallets / stored balance",     d:0},
+  {t:"Alternative methods (PayPal, UPI)", d:0},
+  {t:"Multi-PSP smart routing",      d:0},
+  {t:"Tax calculation",              d:0},
+  {t:"KYC / seller onboarding",      d:0},
+  {t:"Running our own card vault",   d:0}
+];
+
+/* ------------------------------------------------------------------ tabs */
+const tabs = document.getElementById('tabs');
+PHASES.forEach((p,i)=>{
+  const b=document.createElement('button');
+  b.className='phase'; b.setAttribute('role','tab'); b.setAttribute('aria-selected', i===0);
+  b.innerHTML=`<span class="n">${p.n}</span>${p.t}`;
+  b.onclick=()=>select(i);
+  tabs.appendChild(b);
+});
+const slug=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+/* Sandboxed previews have an opaque origin where touching history throws.
+   Deep links are a convenience, so degrade rather than break. */
+function setHash(h){
+  try{ if(location.hash!=='#'+h) history.replaceState(null,'','#'+h); }catch(e){}
+}
+function readHash(){ try{ return location.hash || ''; }catch(e){ return ''; } }
+function select(i, push){
+  [...tabs.children].forEach((b,j)=>b.setAttribute('aria-selected', j===i));
+  document.querySelectorAll('.pane').forEach((p,j)=>p.classList.toggle('on', j===i));
+  document.getElementById('budget').textContent = 'Suggested budget · ' + PHASES[i].b;
+  if(push!==false) setHash(slug(PHASES[i].t));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function selectBySlug(h){
+  const i=PHASES.findIndex(p=>slug(p.t)===String(h).replace(/^#/,''));
+  return i<0 ? false : (select(i,false), true);
+}
+if(!selectBySlug(readHash())) select(0, false);
+window.addEventListener('hashchange', ()=>selectBySlug(readHash()));
+
+/* ------------------------------------------------------------------ chips */
+const chipRow=document.getElementById('chips');
+const chipState=CHIPS.map(c=>({...c, on:!!c.d}));
+function drawChips(){
+  chipRow.innerHTML='';
+  chipState.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='chip '+(c.on?'in':'out');
+    b.innerHTML=`<span class="dot"></span>${c.t}`;
+    b.onclick=()=>{chipState[i].on=!chipState[i].on;drawChips();};
+    chipRow.appendChild(b);
+  });
+  const inn=chipState.filter(c=>c.on).length;
+  document.getElementById('scopebar').innerHTML =
+    `IN SCOPE <b>${inn}</b>&nbsp;&nbsp;·&nbsp;&nbsp;DEFERRED <b>${chipState.length-inn}</b>&nbsp;&nbsp;·&nbsp;&nbsp;` +
+    (inn>6 ? `<span style="color:var(--declined)">too broad for 45 minutes — cut two</span>`
+           : inn<3 ? `<span style="color:var(--declined)">too narrow — there's no ledger story without refunds or payouts</span>`
+           : `<span style="color:var(--settled)">defensible scope</span>`);
+}
+drawChips();
+
+/* ------------------------------------------------------------------ calc */
+const fmt=n=>n>=1e12?(n/1e12).toFixed(1)+'T':n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toFixed(n<10?1:0);
+function calc(){
+  const tx=+document.getElementById('i-tx').value*1e6,
+        peak=+document.getElementById('i-peak').value,
+        lines=+document.getElementById('i-lines').value,
+        psp=+document.getElementById('i-psp').value/10,
+        ret=+document.getElementById('i-ret').value;
+  document.getElementById('l-tx').textContent=fmt(tx);
+  document.getElementById('l-peak').textContent=peak+'×';
+  document.getElementById('l-lines').textContent=lines;
+  document.getElementById('l-psp').textContent=psp.toFixed(1);
+  document.getElementById('l-ret').textContent=ret+' yr';
+  const avg=tx/86400, pk=avg*peak, led=pk*lines, pspPk=pk*psp,
+        rows=tx*lines*365*ret, tb=rows*200*3/1e12, conn=pspPk*1.2;
+  const set=(id,v,u)=>document.getElementById(id).innerHTML=v+(u?`<small>${u}</small>`:'');
+  set('o-avg',fmt(avg),'/s'); set('o-pk',fmt(pk),'/s'); set('o-led',fmt(led),'/s');
+  set('o-psp',fmt(pspPk),'/s'); set('o-rows',fmt(rows)); set('o-store',tb.toFixed(tb<10?1:0),'TB');
+  set('o-conn',fmt(conn));
+  const v=document.getElementById('verdict');
+  if(led<8000) v.innerHTML=`<b>One Aurora writer, comfortably.</b> ${fmt(led)} ledger inserts a second at peak is well inside a single primary. Spend the interview on correctness — idempotency, unknown outcomes, reconciliation — not sharding.`;
+  else if(led<30000) v.innerHTML=`<b>Still one writer, but watch the hot accounts.</b> ${fmt(led)} inserts a second is feasible on the largest instance class; the bottleneck will be row contention on the platform revenue and PSP receivable accounts. Split them into sub-accounts before reaching for shards.`;
+  else v.innerHTML=`<b>Shard the ledger by account.</b> ${fmt(led)} inserts a second outgrows one primary. Partition by merchant so every journal entry stays inside one shard, replicate platform accounts per shard, and settle between shards with an internal clearing entry.`;
+}
+['i-tx','i-peak','i-lines','i-psp','i-ret'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
+calc();
+
+/* ------------------------------------------------------------------ apis */
+const APIS = [
+  {g:"Public REST — checkout & merchants", v:"POST", p:"/v1/payments", title:"Create a payment",
+   why:"Called by the order service at checkout, not by the browser directly. Creates the payment in CREATED, claims the idempotency key, and starts authorization. Returns 201 with the state — which is often REQUIRES_ACTION, because the issuer wants a 3-D Secure challenge the browser must complete.",
+   notes:["Idempotency-Key is required; it is scoped to the merchant and kept for 24 h (the replay window), while the payment itself is kept for years","Card data never arrives here: the browser's hosted field produced pm_… and that token is all we see","captureMethod=manual for physical goods (capture on ship); automatic for digital","metadata.orderId flows to the PSP and back on every webhook and settlement line"],
+   code:`POST /v1/payments
+Idempotency-Key: ord-8812-pay-1
+{
+  "orderId": "ORD-8812",
+  "amount": 10000, "currency": "USD",
+  "paymentMethodToken": "pm_1QaZ…",
+  "captureMethod": "manual",
+  "splits": [ { "account": "seller:S-42", "amount": 9000 },
+              { "account": "platform",    "amount": 1000 } ]
+}
+
+201 Created
+{ "paymentId": "PAY-7f3a", "status": "REQUIRES_ACTION",
+  "nextAction": { "type": "3ds", "clientSecret": "pi_3Rk…_secret_…" } }
+
+--- same key, same body ---
+200 OK   Idempotent-Replay: true   (identical body)
+
+--- same key, different amount ---
+422 Unprocessable   { "error": "idempotency_key_reused" }`},
+
+  {g:"Public REST — checkout & merchants", v:"GET", p:"/v1/payments/{id}", title:"Read a payment",
+   why:"The only way a client learns the final outcome after a 202 or a 3DS redirect. Read from the primary for the first minute after creation (read-your-writes), from a replica after that.",
+   notes:["Returns the full transition history so support can see exactly when it moved","Never returns raw PSP payloads; those live in S3 for auditors","ETag on the payment version so polling clients get a cheap 304"],
+   code:`GET /v1/payments/PAY-7f3a
+
+200 OK   ETag: "v4"
+{ "paymentId": "PAY-7f3a", "status": "CAPTURED",
+  "amount": 10000, "currency": "USD", "amountRefunded": 0,
+  "history": [ { "status": "CREATED",         "at": "2026-10-01T14:02:11Z" },
+               { "status": "REQUIRES_ACTION", "at": "2026-10-01T14:02:12Z" },
+               { "status": "AUTHORIZED",      "at": "2026-10-01T14:02:31Z" },
+               { "status": "CAPTURED",        "at": "2026-10-02T09:15:40Z" } ] }`},
+
+  {g:"Public REST — checkout & merchants", v:"POST", p:"/v1/payments/{id}/capture", title:"Capture an authorization",
+   why:"Moves money that was only held. Called by the order service when the item ships. Supports a partial capture (one item out of stock) — and only one capture per authorization, because most card schemes allow exactly one.",
+   notes:["Idempotency-Key = paymentId + ':capture' — a second capture call is a replay, never a second charge","Rejected if the authorization has expired (typically 7 days for card-not-present)","The ledger entry is posted by the CAPTURED event, not by this request handler"],
+   code:`POST /v1/payments/PAY-7f3a/capture
+Idempotency-Key: PAY-7f3a:capture
+{ "amount": 10000 }
+
+202 Accepted
+{ "paymentId": "PAY-7f3a", "status": "CAPTURE_PENDING" }`},
+
+  {g:"Public REST — checkout & merchants", v:"POST", p:"/v1/payments/{id}/refunds", title:"Refund",
+   why:"A refund is its own resource with its own state machine, not a status on the payment. That allows several partial refunds, each idempotent, each guarded so the total never exceeds what was captured.",
+   notes:["Guard: UPDATE payment SET amount_refunded = amount_refunded + :x WHERE id=:id AND amount_refunded + :x <= amount_captured","If the seller's balance is already paid out, the refund drives their balance negative and the next payout nets it","PSP refunds can take days to confirm — the refund is PENDING until the webhook"],
+   code:`POST /v1/payments/PAY-7f3a/refunds
+Idempotency-Key: rma-5521
+{ "amount": 2500, "reason": "item_damaged" }
+
+201 Created
+{ "refundId": "RF-0c19", "status": "PENDING", "amount": 2500 }
+
+--- would exceed captured amount ---
+409 Conflict  { "error": "refund_exceeds_captured", "refundable": 7500 }`},
+
+  {g:"Public REST — checkout & merchants", v:"GET", p:"/v1/accounts/{id}/balance", title:"Seller balance",
+   why:"Served from the balance projection, not the ledger. Distinguishes pending (captured but inside the refund-risk window), available (payable) and reserved (held back against chargebacks).",
+   notes:["Carries asOfLedgerSeq so the caller can tell how stale the projection is","Payouts never use this endpoint — they compute from the ledger inside their own transaction"],
+   code:`GET /v1/accounts/seller:S-42/balance
+
+200 OK
+{ "currency": "USD", "pending": 9000, "available": 41250, "reserved": 2000,
+  "asOfLedgerSeq": 88310245 }`},
+
+  {g:"Internal & inbound", v:"POST", p:"/internal/psp/{psp}/webhooks", title:"PSP webhook",
+   why:"Inbound, vendor-shaped and untrusted until verified. The handler only verifies the signature, stores the raw body to S3 and enqueues — it returns 200 in milliseconds so the PSP never retries because we were slow.",
+   notes:["Verify the HMAC signature and timestamp (reject if older than 5 min — replay protection)","Fetch the object back from the PSP by ID before acting; never trust the body alone","Dedupe on psp_event_id with a unique constraint; webhooks are at-least-once and unordered","Out-of-order events are fine because transitions are guarded: a late 'authorized' after 'captured' updates zero rows"],
+   code:`POST /internal/psp/stripe/webhooks
+Stripe-Signature: t=1759327351,v1=5257a…
+
+{ "id": "evt_1Rk…", "type": "payment_intent.amount_capturable_updated",
+  "data": { "object": { "id": "pi_3Rk…", "metadata": { "paymentId": "PAY-7f3a" } } } }
+
+200 OK   (always, once the signature passes — processing is async)`},
+
+  {g:"Internal & inbound", v:"POST", p:"/internal/ledger/entries", title:"Post a journal entry",
+   why:"The narrowest and most important contract in the system. Usually driven by events rather than called directly, but the contract is the same: balanced lines, an idempotency key, all or nothing.",
+   notes:["Rejects any entry whose lines don't sum to zero per currency","idempotencyKey is derived deterministically, e.g. capture:PAY-7f3a, so any producer retrying posts the same entry","Only Payment, Payout and Reconciliation services hold credentials"],
+   code:`POST /internal/ledger/entries
+X-Service-Identity: payment-service (mTLS)
+{
+  "idempotencyKey": "capture:PAY-7f3a",
+  "kind": "CAPTURE", "correlationId": "PAY-7f3a",
+  "lines": [
+    { "account": "psp_receivable:stripe", "direction": "DEBIT",  "amount": 10000, "currency": "USD" },
+    { "account": "seller_payable:S-42",   "direction": "CREDIT", "amount":  9000, "currency": "USD" },
+    { "account": "platform_revenue",      "direction": "CREDIT", "amount":  1000, "currency": "USD" }
+  ]
+}
+
+201 Created  { "entryId": "JE-01928c…", "seq": 88310246 }`}
+];
+const apiList=document.getElementById('apis'), apiDetail=document.getElementById('apidetail');
+let lastG=null;
+APIS.forEach((a,i)=>{
+  if(a.g!==lastG){ lastG=a.g;
+    const h=document.createElement('div'); h.className='apigrp'; h.textContent=a.g; apiList.appendChild(h); }
+  const b=document.createElement('button');
+  b.className='api'; b.dataset.i=i;
+  b.innerHTML=`<span class="verb v-${a.v.toLowerCase()}">${a.v}</span><span>${a.p}</span>`;
+  b.onclick=()=>showApi(i);
+  apiList.appendChild(b);
+});
+const escH=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function showApi(i){
+  apiList.querySelectorAll('.api').forEach(b=>b.classList.toggle('sel', +b.dataset.i===i));
+  const a=APIS[i];
+  apiDetail.innerHTML=`<h3>${a.title}</h3>
+    <span class="tag">${a.v} ${a.p}</span><span class="tag">${a.g}</span>
+    <h4>Why it's shaped this way</h4><p style="font-size:13.5px">${a.why}</p>
+    <h4>Design notes</h4><ul class="tight" style="font-size:13px">${a.notes.map(n=>`<li>${escH(n)}</li>`).join('')}</ul>
+    <pre>${escH(a.code)}</pre>`;
+}
+showApi(0);
+
+/* ------------------------------------------------------------------ schemas */
+const SCHEMAS=[
+  {k:"payments", n:"aurora-payments", code:
+`<span class="c">-- the state machine: one row per payment, every transition guarded on status + version</span>
+<span class="k">CREATE TABLE</span> payment (
+  id               uuid PRIMARY KEY,            <span class="c">-- UUIDv7, time-ordered</span>
+  merchant_id      uuid        NOT NULL,
+  order_id         text        NOT NULL,
+  amount           bigint      NOT NULL CHECK (amount > 0),   <span class="c">-- minor units</span>
+  currency         char(3)     NOT NULL,
+  status           text        NOT NULL,        <span class="c">-- CREATED … CAPTURED, FAILED, UNKNOWN</span>
+  amount_captured  bigint      NOT NULL DEFAULT 0,
+  amount_refunded  bigint      NOT NULL DEFAULT 0 CHECK (amount_refunded <= amount_captured),
+  psp              text,
+  psp_payment_id   text,
+  version          int         NOT NULL DEFAULT 0,
+  created_at       timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (psp, psp_payment_id)
+);
+
+<span class="c">-- one row per call to the PSP: a payment may need several</span>
+<span class="k">CREATE TABLE</span> payment_attempt (
+  id               uuid PRIMARY KEY,
+  payment_id       uuid NOT NULL REFERENCES payment(id),
+  op               text NOT NULL,               <span class="c">-- AUTHORIZE | CAPTURE | VOID | REFUND</span>
+  psp_idem_key     text NOT NULL UNIQUE,        <span class="c">-- what we sent the PSP</span>
+  outcome          text,                        <span class="c">-- OK | DECLINED | ERROR | UNKNOWN</span>
+  raw_response_uri text,                        <span class="c">-- s3://psp-raw/…</span>
+  latency_ms       int,
+  created_at       timestamptz NOT NULL DEFAULT now()
+);
+
+<span class="k">CREATE TABLE</span> idempotency_record (
+  merchant_id   uuid NOT NULL,
+  key           text NOT NULL,
+  request_hash  bytea NOT NULL,                 <span class="c">-- same key + different body → 422</span>
+  response      jsonb,                          <span class="c">-- replayed verbatim</span>
+  expires_at    timestamptz NOT NULL,
+  PRIMARY KEY (merchant_id, key)
+);
+
+<span class="k">CREATE TABLE</span> processed_webhook ( psp text, psp_event_id text, PRIMARY KEY (psp, psp_event_id) );
+<span class="k">CREATE TABLE</span> outbox ( id bigserial PRIMARY KEY, topic text, key text, payload jsonb, published_at timestamptz );
+
+<span class="c">-- a transition: zero rows updated means someone else got there first</span>
+<span class="k">UPDATE</span> payment SET status='CAPTURED', amount_captured=:amt, version=version+1
+ <span class="k">WHERE</span> id=:id AND status='AUTHORIZED' AND version=:v;`},
+  {k:"ledger", n:"aurora-ledger", code:
+`<span class="k">CREATE TABLE</span> account (
+  id        text PRIMARY KEY,                   <span class="c">-- 'seller_payable:S-42', 'platform_revenue'</span>
+  type      text NOT NULL,                      <span class="c">-- ASSET | LIABILITY | REVENUE | EXPENSE | EQUITY</span>
+  currency  char(3) NOT NULL
+);
+
+<span class="k">CREATE TABLE</span> journal_entry (
+  id               uuid PRIMARY KEY,
+  seq              bigserial UNIQUE,            <span class="c">-- global posting order, for projections</span>
+  idempotency_key  text NOT NULL UNIQUE,        <span class="c">-- 'capture:PAY-7f3a'</span>
+  kind             text NOT NULL,               <span class="c">-- CAPTURE | FEE | REFUND | PAYOUT | REVERSAL …</span>
+  correlation_id   text NOT NULL,               <span class="c">-- payment / refund / payout id</span>
+  reverses         uuid REFERENCES journal_entry(id),
+  occurred_at      timestamptz NOT NULL,
+  posted_at        timestamptz NOT NULL DEFAULT now()
+);
+
+<span class="k">CREATE TABLE</span> journal_line (
+  entry_id    uuid   NOT NULL REFERENCES journal_entry(id),
+  account_id  text   NOT NULL REFERENCES account(id),
+  direction   char(1) NOT NULL CHECK (direction IN ('D','C')),
+  amount      bigint NOT NULL CHECK (amount > 0),
+  currency    char(3) NOT NULL,
+  posted_at   timestamptz NOT NULL
+) PARTITION BY RANGE (posted_at);              <span class="c">-- monthly; closed months detach to S3</span>
+
+<span class="c">-- balanced or rejected, enforced at commit</span>
+<span class="k">CREATE CONSTRAINT TRIGGER</span> entry_balances AFTER INSERT ON journal_line
+  DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION assert_entry_balanced();
+
+<span class="c">-- append-only, enforced by grants rather than discipline</span>
+<span class="k">REVOKE</span> UPDATE, DELETE ON journal_entry, journal_line FROM ledger_app;`},
+  {k:"balances", n:"dynamodb-balances", code:
+`<span class="c">// projection item — derived from ledger events, rebuildable by replaying from seq 0</span>
+{
+  "pk": "ACCOUNT#seller_payable:S-42",
+  "sk": "BALANCE#USD",
+  "pending":   9000,       <span class="c">// captured, inside the 7-day refund window</span>
+  "available": 41250,      <span class="c">// payable on the next payout run</span>
+  "reserved":  2000,       <span class="c">// rolling reserve against chargebacks</span>
+  "asOfSeq":   88310245    <span class="c">// conditional write: only apply events with seq > asOfSeq</span>
+}
+
+<span class="c">// the update is idempotent because of the condition, not because events arrive once</span>
+UpdateItem  SET available = available + :delta, asOfSeq = :seq
+            ConditionExpression  asOfSeq < :seq`},
+  {k:"payouts", n:"aurora-payouts", code:
+`<span class="k">CREATE TABLE</span> payout (
+  id                 uuid PRIMARY KEY,
+  account_id         text   NOT NULL,           <span class="c">-- seller_payable:S-42</span>
+  amount             bigint NOT NULL CHECK (amount > 0),
+  currency           char(3) NOT NULL,
+  bank_account_token text   NOT NULL,           <span class="c">-- tokenized; the number lives with the bank partner</span>
+  status             text   NOT NULL,           <span class="c">-- SCHEDULED | SUBMITTED | PAID | RETURNED | FAILED</span>
+  batch_id           uuid,
+  ledger_through_seq bigint NOT NULL,           <span class="c">-- balance computed up to this ledger seq</span>
+  idempotency_key    text   NOT NULL UNIQUE,    <span class="c">-- 'payout:S-42:2026-10-01'</span>
+  created_at         timestamptz NOT NULL DEFAULT now()
+);`},
+  {k:"recon", n:"recon", code:
+`<span class="k">CREATE TABLE</span> settlement_line (           <span class="c">-- parsed from the PSP's daily file</span>
+  source         text,  file_date date,  line_no int,
+  psp_payment_id text,  type text,          <span class="c">-- charge | refund | fee | payout</span>
+  gross bigint, fee bigint, net bigint, currency char(3),
+  PRIMARY KEY (source, file_date, line_no)
+);
+
+<span class="k">CREATE TABLE</span> recon_break (
+  id uuid PRIMARY KEY, recon_date date, kind text,  <span class="c">-- MISSING_INTERNAL | MISSING_EXTERNAL | AMOUNT_MISMATCH</span>
+  ref text, ours bigint, theirs bigint, status text, <span class="c">-- OPEN | AUTO_RESOLVED | WRITTEN_OFF</span>
+  owner text
+);`}
+];
+(function(){
+  const bar=document.getElementById('schemabar'), body=document.getElementById('schemabody');
+  function show(i){
+    [...bar.children].forEach((b,j)=>b.setAttribute('aria-pressed', j===i));
+    body.innerHTML=`<pre>${SCHEMAS[i].code}</pre>`;
+  }
+  SCHEMAS.forEach((s,i)=>{
+    const b=document.createElement('button'); b.className='fbtn';
+    b.innerHTML=`<span class="k">${String(i+1).padStart(2,'0')}</span>${s.n}`;
+    b.onclick=()=>show(i); bar.appendChild(b);
+  });
+  show(0);
+})();
+
+/* ------------------------------------------------------------------ ledger sim */
+const ACCTS=[
+  {id:"psp_receivable", t:"Asset",     dn:1},
+  {id:"cash",           t:"Asset",     dn:1},
+  {id:"seller_payable:S-42", t:"Liability", dn:0},
+  {id:"platform_revenue",    t:"Revenue",   dn:0},
+  {id:"psp_fees",            t:"Expense",   dn:1}
+];
+/* each event: lines as [account, 'D'|'C', amount]; req = events that must have happened; once = can only post once */
+const LEV=[
+  {k:"auth",   b:"Authorize $100", lines:[], note:"Issuer places a $100.00 hold on the buyer's card. <b>No money has moved, so no journal entry.</b> The authorization lives on the payment row."},
+  {k:"cap",    b:"Capture",  req:["auth"], lines:[["psp_receivable","D",10000],["seller_payable:S-42","C",9000],["platform_revenue","C",1000]], note:"The PSP now owes us $100. We owe the seller $90 and earned $10."},
+  {k:"fee",    b:"PSP fee",  req:["cap"],  lines:[["psp_fees","D",320],["psp_receivable","C",320]], note:"2.9% + 30¢ = $3.20, netted out of what the PSP will settle."},
+  {k:"settle", b:"PSP settles to bank", req:["fee"], dyn:"settle", note:"The settlement file says the net amount — gross, minus fees, minus any refunds — landed in our bank. psp_receivable returns to zero — <b>that zero is what reconciliation checks</b>."},
+  {k:"refund", b:"Partial refund $25", req:["cap"], lines:[["seller_payable:S-42","D",2250],["platform_revenue","D",250],["psp_receivable","C",2500]], note:"Buyer gets $25 back. The seller and the platform give back their share pro rata; the PSP fee is not returned."},
+  {k:"payout", b:"Pay out seller", req:["settle"], dyn:"payout", note:"Pay the seller's whole balance to their bank. The amount is computed from the ledger at posting time."},
+  {k:"bad",    b:"Post an unbalanced entry", bad:true, lines:[["cash","D",500],["platform_revenue","C",400]], note:""}
+];
+(function(){
+  const btns=document.getElementById('ledbtns'), grid=document.getElementById('ledaccts'),
+        tb=document.getElementById('ledtb'), lg=document.getElementById('ledlog');
+  let bal, posted, jseq;
+  const money=c=>(c<0?'−':'')+'$'+(Math.abs(c)/100).toFixed(2);
+  function reset(){
+    bal={}; ACCTS.forEach(a=>bal[a.id]=0); posted=new Set(); jseq=0;
+    lg.innerHTML='<div style="color:var(--dim)">Empty ledger. Post an event.</div>';
+    draw([]);
+  }
+  function draw(hit){
+    grid.innerHTML=ACCTS.map(a=>{
+      const v=bal[a.id]*(a.dn?1:-1);           /* show in the account's normal sign */
+      return `<div class="acct${hit.includes(a.id)?' hit':''}"><div class="an">${a.id}</div><div class="at">${a.t} · ${a.dn?'debit':'credit'}-normal</div><div class="ab${v===0?' zero':''}">${money(v)}</div></div>`;
+    }).join('');
+    let d=0,c=0; Object.values(bal).forEach(v=>{ if(v>0) d+=v; else c-=v; });
+    tb.innerHTML=`TRIAL BALANCE&nbsp; debits <b>${money(d)}</b> · credits <b>${money(c)}</b> · ` +
+      (d===c?`<span class="okb">Σ = 0 ✓ balanced</span>`:`<span class="badb">out of balance</span>`) +
+      `&nbsp;·&nbsp; entries posted <b>${jseq}</b>`;
+    [...btns.children].forEach(b=>{
+      const e=LEV.find(x=>x.k===b.dataset.k); if(!e) return;
+      b.disabled = !e.bad && ((e.req||[]).some(r=>!posted.has(r)) || (posted.has(e.k) && e.k!=='payout') ||
+        (e.k==='payout' && bal['seller_payable:S-42']>=0) || (e.k==='refund' && posted.has('payout')));
+    });
+  }
+  function post(e){
+    if(lg.firstChild && lg.firstChild.style && lg.firstChild.style.color) lg.innerHTML='';
+    let lines=e.lines||[];
+    if(e.dyn==='payout'){ const owed=-bal['seller_payable:S-42']; lines=[["seller_payable:S-42","D",owed],["cash","C",owed]]; }
+    if(e.dyn==='settle'){ const net=bal['psp_receivable']; lines=[["cash","D",net],["psp_receivable","C",net]]; }
+    const add=h=>{const p=document.createElement('div');p.innerHTML=h;lg.appendChild(p);};
+    add('');
+    if(!lines.length){ posted.add(e.k); add(`<span class="l-key">${e.b}</span> — ${e.note}`); draw([]); lg.scrollTop=lg.scrollHeight; return; }
+    const sum=lines.reduce((s,[,dc,a])=>s+(dc==='D'?a:-a),0);
+    const key=e.k+':PAY-7f3a';
+    lines.forEach(([acc,dc,a])=>add(`  ${dc==='D'?'<span class="l-ok">DR</span>':'<span class="l-key">CR</span>'} ${acc.padEnd(22,' ').replace(/ /g,'&nbsp;')} ${money(a)}`));
+    if(sum!==0){
+      add(`<span class="l-err">✗ ROLLBACK</span> entry_balances: lines sum to ${money(sum)}, not $0.00 — <b>the database refuses it</b>. Nothing was written.`);
+      lg.scrollTop=lg.scrollHeight; return;
+    }
+    lines.forEach(([acc,dc,a])=>bal[acc]+=dc==='D'?a:-a);
+    jseq++; posted.add(e.k);
+    add(`<span class="l-ok">✓ COMMIT</span> JE-${String(jseq).padStart(3,'0')} key=<span class="l-key">${key}</span> — ${e.note}`);
+    draw(lines.map(l=>l[0])); lg.scrollTop=lg.scrollHeight;
+  }
+  LEV.forEach(e=>{
+    const b=document.createElement('button'); b.className='btn'+(e.k==='auth'?'':' ghost'); b.dataset.k=e.k;
+    b.textContent=e.b; b.onclick=()=>post(e); btns.appendChild(b);
+  });
+  const r=document.createElement('button'); r.className='btn ghost'; r.textContent='Reset'; r.onclick=reset; btns.appendChild(r);
+  reset();
+})();
+
+/* ------------------------------------------------------------------ arch */
+const ZONES = [
+  {name:"Edge", cls:"", note:"Public internet",
+   nodes:[
+    {id:"gw", side:"seam", aws:1, t:"API Gateway", s:"AuthN · rate limit · WAF", tags:["AWS managed","Edge"],
+     resp:"Terminates TLS, authenticates the calling merchant or internal service, rate limits per merchant, rejects requests without an Idempotency-Key on money-moving POSTs, injects a correlation ID.",
+     tech:"AWS API Gateway with WAF; mTLS for internal callers; usage plans per merchant.",
+     fail:"Multi-AZ and stateless. If it fails closed, checkout shows an error and nothing is charged — the safe direction.",
+     java:"A gateway filter that 400s any POST to /payments, /capture or /refunds missing Idempotency-Key, so the rule cannot be forgotten in a service.",
+     quote:"An idempotency key is not optional on a money-moving request. I enforce that at the edge so no service can forget it."},
+    {id:"wh", side:"seam", t:"Webhook Ingest", s:"Verify · persist · enqueue", tags:["Inbound","Untrusted"],
+     resp:"Receives PSP webhooks, verifies signature and timestamp, writes the raw body to S3, enqueues to SQS and returns 200 — all in under 50 ms.",
+     tech:"A tiny service behind its own API Gateway route; SQS FIFO keyed by PSP object ID; S3 with Object Lock.",
+     fail:"If downstream is down, events queue in SQS for up to 14 days. If ingest itself is down, PSPs retry for up to 3 days — and the resolver polls anyway.",
+     java:"No business logic here on purpose. The fewer things that can throw, the fewer webhooks the PSP has to retry.",
+     quote:"I acknowledge the webhook as soon as it's durable, and process it on my schedule. A slow consumer should never make the PSP think I'm down."}
+   ]},
+  {name:"Payment core", cls:"", note:"Private subnets · one DB per service",
+   nodes:[
+    {id:"pay", side:"cmd", t:"Payment Service", s:"State machine · idempotency", tags:["Critical","Command"],
+     resp:"Owns the payment and refund lifecycles. Claims idempotency keys, validates amounts and splits, drives every state transition with a guarded update, and emits events through the outbox.",
+     tech:"Spring Boot on ECS; aurora-payments; transactional outbox relayed to MSK.",
+     fail:"Every write is idempotent, so an instance dying mid-request is safe to retry. A payment stuck in a non-terminal state is picked up by the resolver.",
+     java:"Insert the idempotency record first — a DuplicateKeyException is the replay signal — then compare request hashes and return the stored response.",
+     quote:"The payment row is a state machine. Every transition names the state it expects; if someone else got there first, I update zero rows and I know."},
+    {id:"exec", side:"cmd", t:"Payment Executor", s:"PSP adapters · bulkheads", tags:["Critical","Outbound"],
+     resp:"Talks to the PSPs. One adapter per provider behind a common interface; records an attempt row per call; maps PSP responses into our states, including UNKNOWN for timeouts.",
+     tech:"Separate thread pool, timeout and circuit breaker per PSP (Resilience4j); PSP keys from Secrets Manager.",
+     fail:"Breaker open on a PSP: new payments route to the secondary PSP; in-flight ones stay put and are resolved against the original.",
+     java:"Always pass payment_id-derived idempotency keys to the PSP. A retry after a timeout reuses the exact same key, which is what makes it safe.",
+     quote:"A timeout is not a decline. I mark the attempt UNKNOWN and ask the PSP what happened, using the same key — never a new one."},
+    {id:"risk", side:"qry", t:"Risk Service", s:"Rules · velocity", tags:["Synchronous","Fail-open policy"],
+     resp:"Scores a payment before authorization: velocity limits per card, device and IP; blocklists; amount thresholds. Returns allow, review or block.",
+     tech:"Rules in a config store; counters in Redis with sliding windows. ML scoring is deferred.",
+     fail:"Has a 100 ms budget. On timeout it fails open below a threshold amount and closed above it — a policy decision that should be explicit.",
+     java:"Called with a strict timeout; the fallback is a static rule, not an exception.",
+     quote:"Fraud scoring is a product decision about which mistakes to make. I make the fail-open threshold explicit instead of letting a timeout decide."},
+    {id:"res", side:"cmd", t:"Resolver", s:"Clears UNKNOWN", tags:["Scheduled","Safety net"],
+     resp:"Finds payments sitting in UNKNOWN or an in-flight state past their deadline, queries the PSP by idempotency key, and applies the real outcome.",
+     tech:"EventBridge Scheduler every minute; exponential backoff per payment; escalates to a human after N tries.",
+     fail:"If it is down, payments wait longer in UNKNOWN; nothing is double charged. Reconciliation catches anything it misses.",
+     java:"Uses the same guarded transitions as everything else, so racing a late webhook is harmless.",
+     quote:"Webhooks are a fast path, not a guarantee. The resolver is how I make sure every payment ends in a terminal state."}
+   ]},
+  {name:"Money record", cls:"", note:"Append-only · audited",
+   nodes:[
+    {id:"led", side:"cmd", t:"Ledger Service", s:"Double-entry · immutable", tags:["Critical","Source of truth"],
+     resp:"Posts balanced journal entries from payment, refund, fee, payout and correction events. The only writer of the ledger, and it never updates a row.",
+     tech:"aurora-ledger, monthly partitions, deferred balance trigger, idempotency key per entry; consumes MSK, publishes EntryPosted.",
+     fail:"If it lags, balances are stale but payments keep flowing — events wait in Kafka. If an event is malformed, it goes to a DLQ and pages; it is never skipped silently.",
+     java:"Consumer offsets committed only after the entry commits; idempotency key makes redelivery a no-op.",
+     quote:"The ledger is the source of truth for who owns what. Everything else, including the balance a seller sees, is a view of it."},
+    {id:"bal", side:"qry", t:"Balance projection", s:"Pending · available · reserved", tags:["Derived","Rebuildable"],
+     resp:"Maintains per-account balances from EntryPosted events for dashboards and the balance API.",
+     tech:"DynamoDB with conditional writes on ledger seq; rebuildable by replaying the topic from the beginning.",
+     fail:"Stale by seconds at worst; never used to decide whether money can leave.",
+     java:"ConditionExpression asOfSeq < :seq makes every apply idempotent and order-safe.",
+     quote:"Balances are a cache with a sequence number. Payouts read the ledger, not this."},
+    {id:"pout", side:"cmd", t:"Payout Service", s:"Batch · bank rails", tags:["Daily","Command"],
+     resp:"Once a day, computes each seller's available balance from the ledger, creates idempotent payouts, posts the ledger entry, and submits a batch to the bank.",
+     tech:"aurora-payouts; ACH/SEPA via a banking partner API; payout key = seller + date.",
+     fail:"A returned payout (bad account) posts a reversal entry and puts the money back in the seller's balance.",
+     java:"Ledger entry and payout row share a correlation id; the bank submission is retried with the same key.",
+     quote:"A payout is just another payment going the other way: same idempotency, same state machine, same ledger discipline."},
+    {id:"rec", side:"qry", t:"Reconciliation", s:"Three-way match", tags:["Daily","Backstop"],
+     resp:"Matches internal ledger ↔ PSP settlement file ↔ bank statement every day. Auto-resolves known timing differences; raises breaks for the rest.",
+     tech:"Files land in S3; parsed into recon tables; matching as SQL joins on psp_payment_id and amounts; breaks surface in an ops queue.",
+     fail:"It is the system that tells you the others failed. If it does not run, alarms fire on a missed schedule.",
+     java:"Idempotent by recon date: rerunning a day replaces that day's matches, never doubles them.",
+     quote:"Reconciliation is how a payment system finds its own bugs. Every other guarantee in this design is checked here."}
+   ]},
+  {name:"External", cls:"pci", note:"PCI scope · someone else's uptime",
+   nodes:[
+    {id:"psp", side:"ext", t:"PSP", s:"Stripe / Adyen", tags:["External","PCI Level 1"],
+     resp:"Tokenizes cards in the browser, authorizes and captures through the card networks, runs 3-D Secure, sends webhooks, settles net funds daily.",
+     tech:"REST API with idempotency keys; hosted fields / SDK; signed webhooks; settlement reports.",
+     fail:"Brownouts happen. Bulkhead + breaker per PSP; new payments fail over to a secondary; in-flight ones are resolved, never re-sent elsewhere.",
+     java:"Keep the adapter thin: map their states to ours, nothing else.",
+     quote:"Card data never touches our servers, which keeps us at SAQ-A instead of a full PCI audit."},
+    {id:"bank", side:"ext", t:"Bank", s:"Payout rails · statements", tags:["External","Slow"],
+     resp:"Receives settlement from the PSP, sends payouts to sellers over ACH/SEPA, and provides statements for reconciliation.",
+     tech:"Banking-partner API or SFTP files; answers in days, not milliseconds.",
+     fail:"Returns arrive days later; the design treats every payout as pending until the return window closes.",
+     java:"Treat bank files as untrusted input: validate totals and line counts before matching.",
+     quote:"The bank is the final word on cash. Reconciliation against its statement is the only proof money actually moved."}
+   ]}
+];
+const zonesEl=document.getElementById('zones'), svcDetail=document.getElementById('svcdetail');
+const ALL={};
+ZONES.forEach(z=>{
+  const d=document.createElement('div'); d.className='zone '+z.cls;
+  d.innerHTML=`<div class="zone-h"><b>${z.name}</b><b style="letter-spacing:.06em;text-transform:none">${z.note}</b></div>`;
+  const n=document.createElement('div'); n.className='nodes';
+  z.nodes.forEach(s=>{
+    ALL[s.id]=s;
+    const b=document.createElement('button');
+    b.className='node'+(s.aws?' aws':''); b.dataset.id=s.id;
+    b.innerHTML=`${s.aws?'<span class="awsp">AWS</span>':''}${s.t}<small>${s.s}</small>`
+      + (s.side?`<span class="sidetag ${s.side}">${s.side}</span>`:'');
+    b.onclick=()=>showSvc(s.id);
+    n.appendChild(b);
+  });
+  d.appendChild(n); zonesEl.appendChild(d);
+});
+function showSvc(id){
+  document.querySelectorAll('#zones .node').forEach(b=>b.classList.toggle('sel',b.dataset.id===id));
+  const s=ALL[id];
+  const SIDEWHY={
+    cmd:"Command side — it moves money or changes state, so it owns an invariant and pays for strong consistency.",
+    qry:"Query side — it reads or derives. Eventually consistent, independently scalable, and rebuildable.",
+    seam:"The seam — it carries requests and events across a boundary without owning money state itself.",
+    ext:"External — a counterparty that keeps its own books and has its own failure modes."
+  };
+  svcDetail.innerHTML=`<h3>${s.aws?'<span class="awsp" style="font-size:11px">AWS</span>':''}${s.t}</h3>
+    ${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}
+    ${s.side?`<div style="margin-top:12px"><span class="sidetag ${s.side}">${s.side} side</span>
+       <span style="font-size:13px;color:var(--muted);margin-left:9px">${SIDEWHY[s.side]}</span></div>`:''}
+    <h4>Responsibility</h4><p style="font-size:13.5px">${s.resp}</p>
+    <h4>Technology</h4><p style="font-size:13.5px">${s.tech}</p>
+    <h4>Failure behaviour</h4><p style="font-size:13.5px">${s.fail}</p>
+    <h4>Implementation note</h4><p style="font-size:13.5px">${s.java}</p>
+    <h4>Say this</h4><p class="quote">${s.quote}</p>`;
+}
+showSvc('pay');
+
+/* ------------------------------------------------------------------ sim */
+const STEPS=[
+  {t:"Checkout creates the payment",svc:"Order Service → Gateway → Payment",d:"POST /v1/payments with Idempotency-Key ord-8812-pay-1 and a card token from the PSP's hosted field. No card number anywhere in our request.",
+   log:['→ POST /v1/payments  { amount: 10000, currency: USD, pm: pm_1QaZ… }','  <span class="l-key">Idempotency-Key: ord-8812-pay-1</span>']},
+  {t:"Idempotency key claimed, payment CREATED",svc:"Payment Service",d:"One transaction: INSERT idempotency_record (unique on merchant + key), INSERT payment CREATED, INSERT outbox PaymentCreated. The unique constraint, not a lookup, makes the dedupe race-free.",
+   log:['<span class="l-ok">✓</span> BEGIN','  INSERT idempotency_record → claimed (hash=sha256(body))','  INSERT payment PAY-7f3a status=CREATED v=0','  INSERT outbox PaymentCreated','<span class="l-ok">✓</span> COMMIT']},
+  {t:"Risk check",svc:"Risk Service",d:"Velocity per card fingerprint, device and IP; amount threshold. 100 ms budget with an explicit fail-open rule below $500.",
+   log:['<span class="l-ok">✓</span> risk: allow (score 12) · card velocity 1/24h · 18 ms']},
+  {t:"Authorize at the PSP",svc:"Payment Executor → PSP",d:"Attempt row written first, then the PSP call with idempotency key PAY-7f3a:auth. The issuer wants 3-D Secure, so the PSP answers requires_action.",
+   log:['  INSERT payment_attempt AUTHORIZE key=<span class="l-key">PAY-7f3a:auth</span>','<span class="l-key">→ psp POST /payment_intents  Idempotency-Key: PAY-7f3a:auth</span>','<span class="l-warn">⏳</span> pi_3Rk… status=requires_action (3DS) · 640 ms','<span class="l-ok">✓</span> UPDATE payment SET REQUIRES_ACTION WHERE status=CREATED → 1 row']},
+  {t:"Buyer completes 3-D Secure",svc:"Browser ↔ Issuer",d:"The client secret goes back to the browser; the PSP SDK runs the bank's challenge. Our servers are not in this loop at all.",
+   log:['← 201 { status: REQUIRES_ACTION, nextAction: 3ds }','  browser: issuer challenge passed']},
+  {t:"Webhook: authorized",svc:"PSP → Webhook Ingest → Payment",d:"Signature verified, raw body to S3, enqueued. The consumer dedupes on psp_event_id, fetches the intent from the PSP by ID, and moves REQUIRES_ACTION → AUTHORIZED.",
+   log:['<span class="l-ok">✓</span> webhook evt_1Rk… signature ok · stored s3://psp-raw/…','<span class="l-ok">✓</span> INSERT processed_webhook evt_1Rk… → new','<span class="l-ok">✓</span> GET psp /payment_intents/pi_3Rk… → requires_capture','<span class="l-ok">✓</span> UPDATE payment SET AUTHORIZED WHERE status=REQUIRES_ACTION → 1 row','<span class="l-key">→ kafka payments.authorized.v1</span> · order confirmed to buyer']},
+  {t:"Item ships — capture",svc:"Order Service → Payment → Executor → PSP",d:"Capture with key PAY-7f3a:capture. The PSP moves the money. Payment goes AUTHORIZED → CAPTURED, and PaymentCaptured goes out through the outbox.",
+   log:['→ POST /v1/payments/PAY-7f3a/capture  <span class="l-key">Idempotency-Key: PAY-7f3a:capture</span>','<span class="l-key">→ psp POST /payment_intents/pi_3Rk…/capture</span> → succeeded','<span class="l-ok">✓</span> UPDATE payment SET CAPTURED, amount_captured=10000 WHERE status=AUTHORIZED → 1 row','<span class="l-key">→ kafka payments.captured.v1</span> key=PAY-7f3a']},
+  {t:"Ledger posts the capture",svc:"Ledger Service",d:"Consumes PaymentCaptured and posts a balanced entry with idempotency key capture:PAY-7f3a: DR psp_receivable $100, CR seller_payable:S-42 $90, CR platform_revenue $10.",
+   log:['<span class="l-ok">✓</span> INSERT journal_entry key=capture:PAY-7f3a seq=88310246','  DR psp_receivable:stripe 100.00','  CR seller_payable:S-42     90.00','  CR platform_revenue        10.00','<span class="l-ok">✓</span> entry_balances: Σ = 0 · COMMIT']},
+  {t:"Balance updated, settled next day",svc:"Projection · Reconciliation",d:"The seller sees $90 pending. Tomorrow's PSP settlement file lists pi_3Rk… gross 100.00, fee 3.20, net 96.80; reconciliation matches it to the ledger and the payment becomes SETTLED.",
+   log:['<span class="l-ok">✓</span> balance seller:S-42 pending +9000 (asOfSeq 88310246)','<span class="l-ok">✓</span> T+1 recon: settlement line ↔ capture:PAY-7f3a ↔ fee entry → matched','<span class="l-ok">✓</span> payment PAY-7f3a → SETTLED']}
+];
+let cur=-1;
+const trackEl=document.getElementById('track'), logEl=document.getElementById('log');
+document.getElementById('idemkey').textContent='ord-8812-pay-1';
+function drawTrack(){
+  trackEl.innerHTML='';
+  STEPS.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='step '+(i<cur?'done':i===cur?'active':'');
+    d.innerHTML=`<div class="idx">${i<cur?'✓':String(i+1).padStart(2,'0')}</div>
+      <div><div class="t">${s.t}</div><div class="svc">${s.svc}</div><div class="d">${s.d}</div></div>`;
+    trackEl.appendChild(d);
+  });
+}
+function setState(label,cls){
+  document.getElementById('stateLabel').textContent=label;
+  document.getElementById('pulse').className='pulse '+cls;
+}
+function log(lines){ lines.forEach(l=>{const p=document.createElement('div');p.innerHTML=l;logEl.appendChild(p);}); logEl.scrollTop=logEl.scrollHeight; }
+const SIMSTATE=['Created','Created','Created','Requires action','Requires action','Authorized','Captured','Captured','Settled'];
+function resetSim(){
+  cur=-1; logEl.innerHTML='<div style="color:var(--dim)">Idle. Advance a step to trace the payment.</div>';
+  setState('Idle',''); drawTrack(); document.getElementById('simStep').disabled=false;
+}
+document.getElementById('simStep').onclick=()=>{
+  if(cur===-1) logEl.innerHTML='';
+  if(cur>=STEPS.length-1) return;
+  cur++;
+  log(STEPS[cur].log);
+  setState(SIMSTATE[cur], cur>=6?'settled':'pending');
+  if(cur===STEPS.length-1) document.getElementById('simStep').disabled=true;
+  drawTrack();
+};
+document.getElementById('simRetry').onclick=()=>{
+  if(cur<1){ log(['<span class="l-warn">!</span> Advance past step 2 first — there is no stored key to replay yet.']); return; }
+  log(['','→ POST /v1/payments <span class="l-key">(retry, same key ord-8812-pay-1)</span>',
+       '<span class="l-warn">!</span> INSERT idempotency_record → <span class="l-err">unique violation</span>',
+       '<span class="l-ok">✓</span> request hash matches stored hash',
+       '← 200 OK  <span class="l-key">Idempotent-Replay: true</span>  {"paymentId":"PAY-7f3a"}',
+       '<span class="l-ok">✓</span> no second payment row · no second PSP call · one charge']);
+};
+document.getElementById('simTimeout').onclick=()=>{
+  if(cur<3){ log(['<span class="l-warn">!</span> Reach the authorize step first (step 4).']); return; }
+  log(['','<span class="l-err">✗</span> psp POST /payment_intents/…/capture — read timeout after 10 s',
+       '<span class="l-warn">?</span> did the money move? <b>we do not know</b>',
+       '  UPDATE payment_attempt SET outcome=UNKNOWN · payment stays in its state, flagged in-doubt',
+       '  <span class="l-err">never</span>: mark FAILED (buyer may be charged) · <span class="l-err">never</span>: retry with a new key (double charge)',
+       '  resolver +30 s: <span class="l-key">retry with the SAME key PAY-7f3a:capture</span>',
+       '<span class="l-ok">✓</span> PSP replays its stored result → succeeded (it had captured the first time)',
+       '<span class="l-ok">✓</span> guarded UPDATE applies once · one charge, one ledger entry']);
+};
+document.getElementById('simDup').onclick=()=>{
+  if(cur<5){ log(['<span class="l-warn">!</span> Reach the webhook step first (step 6).']); return; }
+  log(['','← webhook evt_1Rk… <span class="l-key">(redelivered)</span>',
+       '<span class="l-ok">✓</span> signature ok · stored to S3',
+       '<span class="l-warn">!</span> INSERT processed_webhook evt_1Rk… → <span class="l-err">unique violation</span> → ack, no-op',
+       '  (even without the dedupe: UPDATE … WHERE status=REQUIRES_ACTION → 0 rows, already past it)',
+       '<span class="l-ok">✓</span> two layers of idempotency · nothing changes']);
+};
+document.getElementById('simReset').onclick=resetSim;
+const simEl=document.getElementById('sim'), simHead=document.getElementById('simHead');
+function toggleSim(){ const open=simEl.classList.toggle('open'); simHead.setAttribute('aria-expanded', open); }
+simHead.addEventListener('click',toggleSim);
+simHead.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleSim();}});
+resetSim();
+
+/* ------------------------------------------------------------------ dives */
+const DIVES=[
+ {t:"Exactly-once charging: the idempotency key, end to end", risk:"Most asked", body:`
+  <h4>The failure</h4><p class="dp">The buyer double-clicks Pay, or the mobile app times out and retries, or our own service retries a PSP call. Without a shared key, each of those is a new charge.</p>
+  <h4>The mechanism</h4>
+  <ul class="tight dl">
+   <li><b>Client → us:</b> the order service sends <span class="mono">Idempotency-Key</span>. We INSERT it under a unique constraint <i>in the same transaction</i> as the payment row. Losing the insert race means "replay": compare the request hash and return the stored response.</li>
+   <li><b>Us → PSP:</b> every PSP call carries a key derived from our payment ID and operation — <span class="mono">PAY-7f3a:auth</span>, <span class="mono">PAY-7f3a:capture</span>. Retries reuse the exact key, so the PSP dedupes too.</li>
+   <li><b>Events → ledger:</b> every journal entry has a deterministic key — <span class="mono">capture:PAY-7f3a</span> — so a redelivered event posts nothing.</li>
+   <li><b>State machine:</b> even with every key lost, a guarded UPDATE cannot move CAPTURED to CAPTURED twice.</li>
+  </ul>
+  <h4>Say this</h4><p class="quote">"Exactly-once doesn't exist on a network. What I build is at-least-once delivery with idempotent effects — at every hop: the API, the PSP call, the ledger posting and the state transition."</p>`},
+ {t:"Unknown outcomes: what a timeout actually means", risk:"Separates seniors", body:`
+  <h4>The failure</h4><p class="dp">The capture request to the PSP times out. The PSP may have charged the card and the response got lost, or it may never have received the request.</p>
+  <h4>The mechanism</h4>
+  <ul class="tight dl">
+   <li>The attempt is recorded as <b>UNKNOWN</b>. The payment does not move to FAILED, and the order is not cancelled.</li>
+   <li>The resolver retries with the <b>same idempotency key</b>. If the first call landed, the PSP returns the original result; if not, this one executes. Either way: one charge.</li>
+   <li>If the PSP is down entirely, the resolver backs off exponentially and the payment stays in-doubt. The buyer sees "processing", not "failed".</li>
+   <li>Past the PSP's idempotency window (often 24 h), switch from retrying to <b>querying by our reference</b> in the PSP metadata. Reconciliation is the last line.</li>
+  </ul>
+  <h4>Say this</h4><p class="quote">"There are three outcomes, not two: succeeded, failed and unknown. Most payment bugs come from treating unknown as one of the other two."</p>`},
+ {t:"Distributed transactions: checkout is a saga, not 2PC", risk:"Common", body:`
+  <h4>The problem</h4><p class="dp">Checkout spans inventory, payment and the order — three services, three databases and a PSP that will never join a two-phase commit.</p>
+  <h4>The mechanism</h4>
+  <ul class="tight dl">
+   <li><b>Orchestrated saga</b> owned by the order service: reserve inventory → authorize payment → confirm order → (on ship) capture.</li>
+   <li>Each step has a compensation: release inventory, <b>void</b> the authorization (free — no money moved), refund a capture (costs a fee, so it is a last resort).</li>
+   <li>Authorize-then-capture is itself the trick: it delays the irreversible step until the order is certain, which makes most compensations a free void.</li>
+   <li>Saga state is persisted, so a crashed orchestrator resumes rather than restarting.</li>
+  </ul>
+  <h4>Say this</h4><p class="quote">"I authorize at checkout and capture at shipment. That way, almost every failure rolls back with a void, and I only refund when the customer actually changes their mind."</p>`},
+ {t:"Reconciliation: proving three sets of books agree", risk:"Often skipped", body:`
+  <h4>Why</h4><p class="dp">Our ledger, the PSP and the bank each keep their own record. Bugs, missed webhooks, PSP-side adjustments and fees we didn't model all show up as differences — and only reconciliation finds them.</p>
+  <h4>The mechanism</h4>
+  <ul class="tight dl">
+   <li><b>Ledger ↔ PSP:</b> every settlement line (charge, refund, fee) matches a journal entry by <span class="mono">psp_payment_id</span> and amount. psp_receivable for a settled day should net to zero.</li>
+   <li><b>PSP ↔ bank:</b> the PSP's payout total for the day equals the deposit on the bank statement.</li>
+   <li><b>Breaks</b> are categorized: missing internally (a webhook we never processed — the most valuable kind), missing externally (we think we charged; they don't), amount mismatch. Known timing differences auto-resolve the next day.</li>
+   <li>Unresolved breaks go to finance ops with an owner and an SLA. Corrections are new journal entries, never edits.</li>
+  </ul>
+  <h4>Say this</h4><p class="quote">"Reconciliation is the test suite that runs against production every night. Every other guarantee I've described is verified there."</p>`},
+ {t:"Hot accounts: one row every capture touches", risk:"At scale", body:`
+  <h4>The failure</h4><p class="dp">If balances were rows updated in place, <span class="mono">platform_revenue</span> and <span class="mono">psp_receivable</span> would be touched by every capture and serialize the whole system on one row lock.</p>
+  <h4>The mechanism</h4>
+  <ul class="tight dl">
+   <li>Append-only lines avoid the lock entirely — inserts don't contend. That's one reason not to keep a running balance column.</li>
+   <li>If you must keep one (for overdraft checks), <b>split the hot account</b> into N sub-accounts chosen by hash and sum them when read.</li>
+   <li>Or post platform-side lines in <b>batches</b> — one aggregated revenue line per minute — while seller-side lines stay per payment.</li>
+  </ul>
+  <h4>Say this</h4><p class="quote">"Insert-only ledgers don't have hot rows; balance columns do. If I need a live balance check, I spread the account over sub-accounts."</p>`},
+ {t:"Rounding and splits: where cents disappear", risk:"Detail", body:`
+  <h4>The failure</h4><p class="dp">A $10.00 order split three ways is $3.33 × 3 = $9.99. A cent has vanished, and over ten million payments that's real money and a recon break.</p>
+  <h4>The mechanism</h4>
+  <ul class="tight dl">
+   <li>Compute in integer minor units. Split with a <b>largest-remainder allocation</b>: floor each share, then hand the leftover cents out one at a time by a stated rule.</li>
+   <li>Fees are computed once, at the PSP's rounding, and taken from their report — never recalculated differently on our side.</li>
+   <li>Partial refunds reverse the original split pro rata using the same allocator, and the final refund takes whatever remains so the totals hit exactly zero.</li>
+  </ul>
+  <pre>long[] allocate(long total, int[] weights) {           <span class="c">// sums to total, always</span>
+    long[] out = new long[weights.length]; long used = 0; int w = IntStream.of(weights).sum();
+    for (int i = 0; i &lt; out.length; i++) { out[i] = total * weights[i] / w; used += out[i]; }
+    for (int i = 0; used &lt; total; i = (i + 1) % out.length) { out[i]++; used++; }
+    return out;
+}</pre>`},
+ {t:"Multiple PSPs: failover without double charging", risk:"Trap", body:`
+  <h4>The trap</h4><p class="dp">"PSP A is timing out, so retry on PSP B." If A actually charged the card, the buyer is now charged twice by two companies, and neither can dedupe against the other.</p>
+  <h4>The mechanism</h4>
+  <ul class="tight dl">
+   <li>A payment is <b>pinned to one PSP</b> from its first attempt. Its retries and its resolution always go to that PSP.</li>
+   <li>The circuit breaker steers <b>new</b> payments to PSP B. In-flight payments on A wait in UNKNOWN until A answers or reconciliation settles them.</li>
+   <li>Each PSP is its own receivable account in the ledger and its own settlement file in recon.</li>
+  </ul>
+  <h4>Say this</h4><p class="quote">"Failover is for new payments. A payment that's in doubt on one PSP is never retried on another."</p>`},
+ {t:"PCI scope: keeping card data out", risk:"Compliance", body:`
+  <ul class="tight dl">
+   <li>The browser renders the PSP's <b>hosted fields</b> (an iframe from the PSP's domain). The card number goes from the buyer's browser straight to the PSP, which returns a token.</li>
+   <li>Our servers only ever see <span class="mono">pm_…</span> tokens. That keeps us at <b>SAQ-A</b>: a questionnaire, not a full on-site audit of every service.</li>
+   <li>Stored cards for repeat buyers are PSP customer objects; we store the reference. Running our own vault is explicitly deferred — it pulls the whole platform into PCI scope.</li>
+   <li>Bank account numbers for payouts are tokenized the same way with the banking partner.</li>
+  </ul>`},
+ {t:"Refunds after payout: negative balances", risk:"Edge case", body:`
+  <ul class="tight dl">
+   <li>A buyer gets a refund after the seller has already been paid. The refund still posts, so <span class="mono">seller_payable:S-42</span> goes <b>negative</b> — the seller now owes us.</li>
+   <li>The next payout nets it. If the balance stays negative, collections policy kicks in: debit the seller's bank account, or write off to a loss account.</li>
+   <li>A <b>rolling reserve</b> (e.g. 10% held for 30 days on new sellers) makes this rare, and it's just another ledger account: <span class="mono">seller_reserve:S-42</span>.</li>
+  </ul>`}
+];
+(function(){
+  const el=document.getElementById('dives');
+  DIVES.forEach(d=>{
+    const w=document.createElement('div'); w.className='acc';
+    w.innerHTML=`<button class="acc-h"><span>${d.t}</span><span style="display:inline-flex;align-items:center;gap:12px"><span class="risk">${d.risk}</span><span class="chev"></span></span></button><div class="acc-b">${d.body}</div>`;
+    w.querySelector('.acc-h').onclick=()=>w.classList.toggle('open');
+    el.appendChild(w);
+  });
+  el.firstChild.classList.add('open');
+})();
+
+/* ------------------------------------------------------------------ patterns */
+const PATS=[
+  ["Idempotency key","API edge · Payment Service · PSP calls · ledger entries","Retries and double-clicks become replays instead of second charges."],
+  ["State machine with guarded transitions","payment, refund, payout rows","Out-of-order webhooks and racing workers cannot move a payment backwards or twice."],
+  ["Transactional outbox","Every command service's database","A state change and its event commit together — no lost PaymentCaptured, no dual write."],
+  ["Idempotent consumer / inbox","Ledger, projections, webhook processing","At-least-once delivery from Kafka and PSPs has an exactly-once effect."],
+  ["Double-entry bookkeeping","Ledger Service","Money can only move, never appear or vanish; the trial balance is a built-in invariant check."],
+  ["Event sourcing (for money)","journal_line is the source; balances are folds","Any balance at any past moment is reproducible for auditors and disputes."],
+  ["CQRS","Ledger (write) vs balance projection (read)","Dashboards scale without touching the ledger primary; the projection is disposable."],
+  ["Saga with compensations","Order checkout: reserve → authorize → capture","Cross-service consistency without 2PC; void is the cheap compensation."],
+  ["Circuit breaker + bulkhead","Payment Executor, per PSP","One slow PSP cannot exhaust threads for every payment."],
+  ["Retry with backoff and jitter","Resolver, outbox relay, payout submission","Recovers from transient failures without a thundering herd on a recovering PSP."],
+  ["Reconciliation","Daily three-way match","Detects every class of bug the other patterns were meant to prevent."],
+  ["Tokenization","Hosted fields, PSP customer objects, bank tokens","Sensitive data never enters our systems; PCI scope stays minimal."]
+];
+document.getElementById('pattbody').innerHTML=PATS.map(([p,w,s])=>`<tr><td><b>${p}</b></td><td class="num" style="white-space:normal">${w}</td><td style="color:var(--muted)">${s}</td></tr>`).join('');
+
+/* ------------------------------------------------------------------ critique */
+const CRIT=[
+  {q:"Why not just call Stripe from the order service? Why a payment service at all?", a:"For one merchant with one PSP, you might. The payment service earns its place by owning idempotency, the state machine, the PSP abstraction (a second provider without touching checkout), and — most importantly — emitting the events the ledger is built from. Without it, money logic is spread over every caller."},
+  {q:"Why is the ledger asynchronous? Shouldn't the capture and the ledger entry be one transaction?", a:"They're in different services and databases, and the PSP is a third party, so they can't share a transaction anyway. The outbox makes the event certain once the capture commits; the ledger posts within seconds. The trade-off is that balances lag by seconds — acceptable, because nothing that moves money out (payouts) reads the projection, and the ledger itself is always internally consistent."},
+  {q:"How do you guarantee the ledger and the payments table agree?", a:"Every CAPTURED payment must have exactly one capture:<id> entry, and vice versa. A continuous checker compares the two by correlation ID and alerts on drift, and daily reconciliation checks both against the PSP. Agreement is verified, not assumed."},
+  {q:"What happens if Kafka loses an event?", a:"With acks=all, min.insync.replicas=2 and the outbox, it shouldn't. If it does, the outbox row is still in the producer's database — re-publish from it. And the payments↔ledger checker would flag the missing entry within minutes."},
+  {q:"Why not store the balance on the account row?", a:"Because two concurrent captures read-modify-write the same row and one of them is lost, or they serialize on a lock and the account becomes a bottleneck. A sum of immutable lines can't drift. If a fast balance check is needed, keep a cached balance with the ledger sequence it reflects."},
+  {q:"How long do you keep idempotency keys?", a:"24 hours for replay, which covers any realistic client retry. The payment itself is kept for years. Past the window, a reused key creates a new payment — so clients must generate keys per payment attempt, typically from the order ID."},
+  {q:"How would this change for 100× the volume?", a:"First split the hot platform accounts and move read traffic to projections. Then shard the ledger by merchant, keeping every entry inside one shard, with per-shard platform accounts settled by internal clearing entries. Payments shard the same way. The invariants don't change; only where they're enforced."},
+  {q:"What about currency conversion?", a:"Deferred in scope, but the design accommodates it: every entry is single-currency; FX is two entries through an fx_clearing account per currency pair at a locked rate, with the rate and its source recorded on the entry. Gains and losses land in an FX P&L account."},
+  {q:"What's the weakest part of this design?", a:"The resolver and reconciliation carry a lot of weight, and they run on schedules. A bug there is silent for hours. I'd invest in alerting on their own health — runs missed, UNKNOWN age, break counts — as heavily as on the payment path."}
+];
+(function(){
+  const el=document.getElementById('crit');
+  CRIT.forEach(c=>{
+    const w=document.createElement('div'); w.className='acc';
+    w.innerHTML=`<button class="acc-h"><span>${c.q}</span><span class="chev"></span></button><div class="acc-b"><p class="dp" style="margin-top:14px">${c.a}</p></div>`;
+    w.querySelector('.acc-h').onclick=()=>w.classList.toggle('open');
+    el.appendChild(w);
+  });
+})();
+
+/* ------------------------------------------------------------------ talk */
+const TALK=[
+  {t:"Scope it down", d:"Card pay-in, ledger, refunds, payouts, reconciliation. Defer fraud ML, disputes, FX, subscriptions. Say SAQ-A and hosted fields.", m:"0–5"},
+  {t:"State the invariants", d:"Charge exactly once. Never create or lose a cent. Never guess an outcome.", m:"5"},
+  {t:"Estimate and conclude", d:"~100 payments/s avg, a few hundred peak. One relational writer. Latency is the PSP's; budget threads, not CPU.", m:"5–9"},
+  {t:"API with idempotency", d:"POST /payments with Idempotency-Key, minor units + currency, state in the response, 202 where the PSP decides later.", m:"9–14"},
+  {t:"Data model", d:"Payment state machine with version; attempt rows; idempotency table; append-only ledger with balanced entries.", m:"14–18"},
+  {t:"Ledger walkthrough", d:"Capture, fee, settlement, payout as journal entries. Authorization is not a ledger event. Balances are sums.", m:"18–23"},
+  {t:"Draw the architecture", d:"Gateway, Payment Service, Executor with bulkheads, webhook ingest, Kafka, Ledger, projections, Payouts, Recon. PCI zone is the PSP's.", m:"23–28"},
+  {t:"Walk one payment", d:"Create → risk → authorize → 3DS → webhook → capture → ledger → settle. Point at each idempotency layer.", m:"28–34"},
+  {t:"Deep dive: unknown outcomes", d:"Timeout is UNKNOWN; resolver retries with the same key; never fail over an in-doubt payment.", m:"34–38"},
+  {t:"Deep dive: reconciliation", d:"Ledger ↔ PSP ↔ bank daily. Breaks are new entries, never edits.", m:"38–42"},
+  {t:"Close with operations", d:"Auth rate, UNKNOWN age, trial balance ≠ 0 is sev 1, recon breaks. Active-passive DR with a resolver sweep on failover.", m:"42–45"}
+];
+const ttEl=document.getElementById('ttlist'), ttState=TALK.map(()=>false);
+function drawTT(){
+  ttEl.innerHTML='';
+  TALK.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.className='tt'+(ttState[i]?' done':''); d.tabIndex=0;
+    d.innerHTML=`<div class="box">${ttState[i]?'✓':''}</div><div><div class="tt-t">${t.t}</div><div class="tt-d">${t.d}</div></div><div class="tt-min">${t.m} min</div>`;
+    const toggle=()=>{ttState[i]=!ttState[i];drawTT();};
+    d.onclick=toggle;
+    d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}};
+    ttEl.appendChild(d);
+  });
+  document.getElementById('ttbar').style.width=(ttState.filter(Boolean).length/TALK.length*100)+'%';
+}
+drawTT();
+
+/* ------------------------------------------------------------------ glossary */
+const GLOSS=[
+  ["Payments",[
+    ["PSP","Payment Service Provider — Stripe, Adyen, Braintree. Connects merchants to the card networks."],
+    ["Auth","Authorization — the issuer reserves funds on the card. No money moves."],
+    ["Capture","Turning an authorization into an actual charge."],
+    ["Void","Cancelling an authorization before capture. Free, unlike a refund."],
+    ["3DS","3-D Secure — the issuer's challenge step (SCA in the EU)."],
+    ["SCA","Strong Customer Authentication — the EU PSD2 rule that 3DS satisfies."],
+    ["BIN","Bank Identification Number — the first 6–8 digits of a card, identifying the issuer."],
+    ["PAN","Primary Account Number — the card number. Never on our servers."],
+    ["Chargeback","A buyer disputes a charge with their bank and the money is pulled back."],
+    ["Settlement","The PSP paying net funds into the merchant's bank account."],
+    ["ACH","Automated Clearing House — US bank-to-bank transfer rail used for payouts."],
+    ["SEPA","Single Euro Payments Area — the European equivalent."]
+  ]],
+  ["Accounting",[
+    ["DR / CR","Debit / credit — the two sides of every journal line."],
+    ["JE","Journal entry — a set of lines that sum to zero."],
+    ["Trial balance","Σ debits = Σ credits across all accounts. Must always hold."],
+    ["Recon","Reconciliation — matching our books against the PSP and the bank."],
+    ["Break","A reconciliation mismatch that needs investigation."],
+    ["Reserve","Money withheld from a seller's payouts to cover future refunds and chargebacks."]
+  ]],
+  ["Engineering & compliance",[
+    ["PCI-DSS","Payment Card Industry Data Security Standard."],
+    ["SAQ-A","The lightest PCI self-assessment, for merchants that fully outsource card entry."],
+    ["SOX","Sarbanes-Oxley — US controls over financial reporting; why the ledger is immutable."],
+    ["CQRS","Command Query Responsibility Segregation — separate write and read models."],
+    ["2PC","Two-phase commit — distributed transaction protocol the PSP will never join."],
+    ["DLQ","Dead-letter queue — where messages go after repeated processing failures."],
+    ["MSK","Amazon Managed Streaming for Apache Kafka."],
+    ["RPO / RTO","Recovery point / time objective — data you can lose, and time to recover."],
+    ["WORM","Write once, read many — S3 Object Lock storage auditors accept."],
+    ["HMAC","Hash-based message authentication code — how webhook signatures are verified."]
+  ]]
+];
+(function(){
+  const body=document.getElementById('gbody'), fin=document.getElementById('gfilter'), none=document.getElementById('gnone');
+  body.innerHTML=GLOSS.map(([grp,items])=>
+    `<div class="ggrp"><div class="ggt">${grp}</div><div class="ggl">`
+    + items.map(([t,d])=>`<div class="gi" data-k="${(t+' '+d).toLowerCase()}"><div class="gt">${t}</div><div>${d}</div></div>`).join('')
+    + `</div></div>`).join('');
+  fin.addEventListener('input',()=>{
+    const q=fin.value.trim().toLowerCase(); let hits=0;
+    body.querySelectorAll('.gi').forEach(el=>{ const on=!q || el.dataset.k.includes(q); el.hidden=!on; if(on) hits++; });
+    body.querySelectorAll('.ggrp').forEach(g=>{ g.hidden=![...g.querySelectorAll('.gi')].some(el=>!el.hidden); });
+    none.hidden=hits>0;
+  });
+})();
+
+/* =================================================================== theme */
+(function(){
+  const dk=document.getElementById('thDark'), lt=document.getElementById('thLight');
+  function set(mode){
+    if(mode==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+    dk.setAttribute('aria-pressed', mode!=='light');
+    lt.setAttribute('aria-pressed', mode==='light');
+  }
+  dk.onclick=()=>set('dark');
+  lt.onclick=()=>set('light');
+  const mq=window.matchMedia && window.matchMedia('(prefers-color-scheme: light)');
+  if(mq && mq.matches) set('light');
+})();
+
+/* =================================================================== search */
+(function(){
+  const btn=document.getElementById('findBtn'), wrap=document.getElementById('findWrap'),
+        input=document.getElementById('findInput'), out=document.getElementById('findResults'),
+        close=document.getElementById('findClose');
+  let INDEX=null;
+  function build(){
+    INDEX=[];
+    [...document.querySelectorAll('.pane')].forEach((pane,pi)=>{
+      const tab=PHASES[pi] ? PHASES[pi].t : 'Tab '+(pi+1);
+      pane.querySelectorAll('h3, h4, li, p, td, pre, .acc-h').forEach(el=>{
+        const text=(el.textContent||'').trim().replace(/\s+/g,' ');
+        if(text.length<25 || text.length>900) return;
+        INDEX.push({tab, pi, text});
+      });
+    });
+  }
+  function run(q){
+    if(!INDEX) build();
+    q=q.trim();
+    if(q.length<2){ out.innerHTML=''; return; }
+    const needle=q.toLowerCase();
+    const hits=INDEX.filter(r=>r.text.toLowerCase().includes(needle)).slice(0,40);
+    if(!hits.length){ out.innerHTML='<div class="findnone">Nothing on any tab matches that.</div>'; return; }
+    out.innerHTML=hits.map(h=>{
+      const at=h.text.toLowerCase().indexOf(needle);
+      const from=Math.max(0, at-90), snippet=(from?'… ':'')+h.text.slice(from, at+needle.length+150)+'…';
+      const marked=escH(snippet).replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>');
+      return `<button class="fres" data-pi="${h.pi}"><div class="frest">${h.tab}</div><div class="fresb">${marked}</div></button>`;
+    }).join('');
+    out.querySelectorAll('.fres').forEach(b=>{ b.onclick=()=>{ hide(); select(+b.dataset.pi); }; });
+  }
+  function show(){ wrap.hidden=false; input.value=''; out.innerHTML=''; input.focus(); }
+  function hide(){ wrap.hidden=true; }
+  btn.onclick=show; close.onclick=hide;
+  input.addEventListener('input', ()=>run(input.value));
+  wrap.addEventListener('click', e=>{ if(e.target===wrap) hide(); });
+  document.addEventListener('keydown', e=>{
+    const t=e.target, typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+    if(e.key==='Escape' && !wrap.hidden){ hide(); return; }
+    if(e.key==='/' && !typing && wrap.hidden){ e.preventDefault(); show(); }
+  });
+})();
+</script>
+</body>
+</html>

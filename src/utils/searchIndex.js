@@ -11,7 +11,7 @@ const categoryGroups = {
   'Design': {
     icon: '🎨',
     color: '#8b5cf6',
-    items: ['Design Patterns', 'Microservice Design Patterns', 'Class', 'System Design', 'Module', 'Function', 'Interface', 'Event Driven Architecture', 'Domain Driven Design', 'L3 System Design', 'L4 System Design', 'L5 System Design']
+    items: ['Design Patterns', 'Microservice Design Patterns', 'Class', 'System Design', 'Module', 'Function', 'Interface', 'Event Driven Architecture', 'Domain Driven Design', 'L3 System Design', 'L4 System Design', 'L5 System Design', 'L6 System Design']
   },
   'System Design Topics': {
     icon: '🏗️',
@@ -499,6 +499,30 @@ export const createSearchIndex = () => {
     { page: 'L4 System Design', sectionId: 'web-crawler', title: 'Web Crawler', icon: '🏢', keywords: ['web', 'crawler', 'spider', 'system design'] },
     { page: 'L4 System Design', sectionId: 'parking-lot', title: 'Parking Lot System', icon: '🏢', keywords: ['parking', 'lot', 'system design'] },
     { page: 'L4 System Design', sectionId: 'food-delivery', title: 'Food Delivery (Uber Eats)', icon: '🏢', keywords: ['food', 'delivery', 'uber eats', 'system design'] },
+
+    // L5 System Design
+    { page: 'L5 System Design', sectionId: 'distributed-cache', title: 'Distributed Cache (L5)', icon: '⭐', keywords: ['distributed', 'cache', 'redis', 'memcached', 'consistent hashing', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'google-drive', title: 'Google Drive (L5)', icon: '⭐', keywords: ['google', 'drive', 'cloud', 'file', 'storage', 'sync', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'gmail', title: 'Gmail (L5)', icon: '⭐', keywords: ['gmail', 'email', 'mail', 'spam', 'search', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'google-photos', title: 'Google Photos (L5)', icon: '⭐', keywords: ['google', 'photos', 'image', 'ml', 'storage', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'rate-limiter', title: 'Rate Limiter (L5)', icon: '⭐', keywords: ['rate', 'limiter', 'throttling', 'token bucket', 'api', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'notification-system', title: 'Notification System (L5)', icon: '⭐', keywords: ['notification', 'push', 'email', 'sms', 'in-app', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'ticket-booking', title: 'Ticket Booking System (L5)', icon: '⭐', keywords: ['ticket', 'booking', 'ticketmaster', 'seat', 'reservation', 'concurrency', 'flash sale', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'credit-card-portal', title: 'Credit Card Portal (L5)', icon: '⭐', keywords: ['credit', 'card', 'portal', 'payment', 'ledger', 'authorization', 'cqrs', 'idempotency', 'fintech', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'payment-system', title: 'Payment System (L5)', icon: '⭐', keywords: ['payment', 'payments', 'psp', 'stripe', 'ledger', 'double-entry', 'idempotency', 'refund', 'payout', 'reconciliation', 'fintech', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'whatsapp', title: 'WhatsApp / Messaging (L5)', icon: '⭐', keywords: ['whatsapp', 'messaging', 'chat', 'e2e', 'encryption', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'instagram', title: 'Instagram (L5)', icon: '⭐', keywords: ['instagram', 'photo', 'feed', 'stories', 'social', 'system design'] },
+    { page: 'L5 System Design', sectionId: 'twitter', title: 'Twitter / X (L5)', icon: '⭐', keywords: ['twitter', 'x', 'tweets', 'timeline', 'fan-out', 'trending', 'system design'] },
+
+    // L6 System Design
+    { page: 'L6 System Design', sectionId: 'youtube', title: 'YouTube / Video Streaming (L6)', icon: '🏆', keywords: ['youtube', 'video', 'streaming', 'transcoding', 'upload', 'system design'] },
+    { page: 'L6 System Design', sectionId: 'google-search', title: 'Google Search (L6)', icon: '🏆', keywords: ['google', 'search', 'engine', 'crawling', 'indexing', 'ranking', 'system design'] },
+    { page: 'L6 System Design', sectionId: 'google-maps', title: 'Google Maps (L6)', icon: '🏆', keywords: ['google', 'maps', 'navigation', 'routing', 'traffic', 'geocoding', 'system design'] },
+    { page: 'L6 System Design', sectionId: 'google-docs', title: 'Google Docs (L6)', icon: '🏆', keywords: ['google', 'docs', 'collaborative', 'editing', 'ot', 'crdt', 'system design'] },
+    { page: 'L6 System Design', sectionId: 'netflix', title: 'Netflix (L6)', icon: '🏆', keywords: ['netflix', 'streaming', 'cdn', 'encoding', 'recommendations', 'system design'] },
+    { page: 'L6 System Design', sectionId: 'amazon', title: 'Amazon E-Commerce (L6)', icon: '🏆', keywords: ['amazon', 'e-commerce', 'catalog', 'inventory', 'cart', 'orders', 'payment', 'system design'] },
+    { page: 'L6 System Design', sectionId: 'zoom', title: 'Zoom (L6)', icon: '🏆', keywords: ['zoom', 'video', 'conferencing', 'webrtc', 'screen sharing', 'system design'] },
+    { page: 'L6 System Design', sectionId: 'rideshare', title: 'Ride Share (Uber/Lyft) (L6)', icon: '🏆', keywords: ['ride', 'share', 'uber', 'lyft', 'geospatial', 'matching', 'system design'] },
 
     // LRU Cache
     { page: 'LRU Cache', sectionId: 'lru-algorithm', title: 'LRU Algorithm', icon: '🧠', keywords: ['lru', 'algorithm', 'eviction', 'cache'] },

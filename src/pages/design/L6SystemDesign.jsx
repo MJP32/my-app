@@ -4,17 +4,15 @@ import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
 // Lazy load existing design pages
-const WhatsApp = lazy(() => import('./WhatsApp.jsx'))
-const NotificationSystem = lazy(() => import('./NotificationSystem.jsx'))
-const RateLimiter = lazy(() => import('./RateLimiter.jsx'))
-const TicketBooking = lazy(() => import('./TicketBooking.jsx'))
-const CreditCardPortal = lazy(() => import('./CreditCardPortal.jsx'))
-const PaymentSystem = lazy(() => import('./PaymentSystem.jsx'))
-const Dropbox = lazy(() => import('./Dropbox.jsx'))
-const Instagram = lazy(() => import('./Instagram.jsx'))
-const Twitter = lazy(() => import('./Twitter.jsx'))
+const YouTube = lazy(() => import('./YouTube.jsx'))
+const GoogleDocs = lazy(() => import('./GoogleDocs.jsx'))
+const TypeAhead = lazy(() => import('./TypeAhead.jsx'))
+const Netflix = lazy(() => import('./Netflix.jsx'))
+const Amazon = lazy(() => import('./Amazon.jsx'))
+const Zoom = lazy(() => import('./Zoom.jsx'))
+const RideShare = lazy(() => import('./RideShare.jsx'))
 
-function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
+function L6SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   useEffect(() => {
@@ -31,240 +29,133 @@ function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
     onMainMenu: propBreadcrumb?.onMainMenu,
     section: { name: 'Design', icon: '🎨', onClick: onBack },
     category: { name: 'System Design Interview', onClick: onBack },
-    topic: 'L5 Level (Senior)',
+    topic: 'L6+ Level (Staff)',
     colors: {
-      primary: '#a855f7',
-      primaryHover: '#c084fc',
-      bg: 'rgba(168, 85, 247, 0.1)',
-      border: 'rgba(168, 85, 247, 0.3)',
-      arrow: '#a855f7',
-      hoverBg: 'rgba(168, 85, 247, 0.2)',
-      topicBg: 'rgba(168, 85, 247, 0.2)'
+      primary: '#f59e0b',
+      primaryHover: '#fbbf24',
+      bg: 'rgba(245, 158, 11, 0.1)',
+      border: 'rgba(245, 158, 11, 0.3)',
+      arrow: '#f59e0b',
+      hoverBg: 'rgba(245, 158, 11, 0.2)',
+      topicBg: 'rgba(245, 158, 11, 0.2)'
     }
   }
 
   const topics = [
     {
-      id: 'distributed-cache',
-      title: 'Distributed Cache',
-      icon: '💾',
-      color: '#f59e0b',
+      id: 'youtube',
+      title: 'YouTube / Video Streaming',
+      icon: '📺',
+      color: '#ef4444',
       difficulty: 'Hard',
-      hasExistingPage: false,
-      description: 'Design a distributed in-memory cache system like Redis or Memcached.',
-      content: {
-        requirements: [
-          'Key-value storage with O(1) get/put',
-          'Distributed across multiple nodes',
-          'High availability with replication',
-          'Support eviction policies (LRU, LFU, TTL)',
-          'Cluster management and rebalancing'
-        ],
-        components: [
-          { name: 'Cache Nodes', desc: 'Store data partitions in memory' },
-          { name: 'Coordinator', desc: 'Route requests to correct node' },
-          { name: 'Cluster Manager', desc: 'Track node health, handle failures' },
-          { name: 'Replication Manager', desc: 'Sync data across replicas' }
-        ],
-        keyDecisions: [
-          'Partitioning: Consistent hashing with virtual nodes',
-          'Replication: N replicas per partition (typically N=3)',
-          'Consistency: Quorum reads/writes (R + W > N)',
-          'Failure detection: Heartbeats + gossip protocol'
-        ],
-        operations: [
-          'GET: Hash key → find partition → route to any replica',
-          'PUT: Hash key → route to primary → replicate to secondaries',
-          'Node join: Claim virtual nodes, copy data from neighbors',
-          'Node failure: Promote replica, rebalance'
-        ],
-        eviction: [
-          'LRU: Doubly linked list + hashmap',
-          'LFU: Min-heap by frequency',
-          'TTL: Lazy expiration + periodic cleanup',
-          'Memory pressure: Evict when approaching limit'
-        ]
-      }
+      hasExistingPage: true,
+      component: YouTube,
+      description: 'Design a video sharing platform with upload, transcoding, streaming, and recommendations.'
     },
     {
-      id: 'google-drive',
-      title: 'Google Drive',
-      icon: '📂',
+      id: 'google-search',
+      title: 'Google Search',
+      icon: '🔍',
       color: '#4285f4',
       difficulty: 'Hard',
       hasExistingPage: true,
-      component: Dropbox,
-      description: 'Design cloud file storage with sync, sharing, and collaboration.'
+      component: TypeAhead,
+      description: 'Design a web search engine with crawling, indexing, ranking, and query processing.'
     },
     {
-      id: 'gmail',
-      title: 'Gmail',
-      icon: '📧',
-      color: '#ea4335',
+      id: 'google-maps',
+      title: 'Google Maps',
+      icon: '🗺️',
+      color: '#34a853',
       difficulty: 'Hard',
       hasExistingPage: false,
-      description: 'Design an email service with billions of messages, search, and spam filtering.',
+      description: 'Design a mapping service with navigation, real-time traffic, and location search.',
       content: {
         requirements: [
-          'Send and receive emails (SMTP/IMAP)',
-          'Full-text search across all emails',
-          'Spam and phishing detection',
-          'Labels, filters, and organization',
-          'Attachment handling'
+          'Display map tiles at various zoom levels',
+          'Search for places and addresses (geocoding)',
+          'Turn-by-turn navigation with route calculation',
+          'Real-time traffic updates',
+          'Offline maps support'
         ],
         components: [
-          { name: 'SMTP Gateway', desc: 'Send/receive emails, handle protocols' },
-          { name: 'Mail Processor', desc: 'Parse, classify, route messages' },
-          { name: 'Spam Filter', desc: 'ML-based spam detection' },
-          { name: 'Message Store', desc: 'Store emails with metadata' },
-          { name: 'Search Index', desc: 'Full-text search using Elasticsearch' },
-          { name: 'Attachment Store', desc: 'Object storage for files' }
+          { name: 'Tile Service', desc: 'Pre-rendered map tiles at 20+ zoom levels' },
+          { name: 'Geocoding Service', desc: 'Convert addresses ↔ coordinates' },
+          { name: 'Places Service', desc: 'POI search with location context' },
+          { name: 'Routing Engine', desc: 'Calculate optimal routes using graph algorithms' },
+          { name: 'Traffic Service', desc: 'Aggregate real-time traffic data' },
+          { name: 'ETA Service', desc: 'Predict arrival times using ML' }
         ],
         keyDecisions: [
-          'Storage: Shard mailboxes by user ID',
-          'Search: Per-user inverted index for privacy',
-          'Spam: ML model + sender reputation + user signals',
-          'Threading: Group by subject and references header'
+          'Map tiles: Quadtree structure, pre-render at zoom 0-20',
+          'Vector vs raster tiles: Vector for flexibility, raster for simplicity',
+          'Routing: Contraction Hierarchies for fast point-to-point routing',
+          'Traffic: Crowdsourced GPS data + historical patterns'
         ],
-        emailFlow: [
-          '1. Incoming email → SMTP Gateway validates sender',
-          '2. Spam Filter scores message (0-100)',
-          '3. Mail Processor applies user filters/labels',
-          '4. Store message and update search index',
-          '5. Push notification to connected clients'
+        architecture: [
+          '1. Client requests tiles for viewport → CDN serves cached tiles',
+          '2. User searches → Geocoding returns coordinates',
+          '3. Route request → Graph traversal with traffic weights',
+          '4. During navigation → continuous traffic updates',
+          '5. ETA updates based on current conditions'
         ],
         scaling: [
-          'Billions of users, 100B+ emails/day',
-          'Attachment deduplication across users',
-          'Tiered storage: hot → warm → cold',
-          'Regional data centers for latency'
+          'CDN edge caching for map tiles',
+          'Partition road graph by geographic regions',
+          'Pre-compute routes between major points',
+          'Real-time traffic via streaming pipeline'
         ]
       }
     },
     {
-      id: 'google-photos',
-      title: 'Google Photos',
-      icon: '📸',
+      id: 'google-docs',
+      title: 'Google Docs (Collaborative Editing)',
+      icon: '📝',
       color: '#4285f4',
       difficulty: 'Hard',
-      hasExistingPage: false,
-      description: 'Design a photo service with ML-powered organization and search.',
-      content: {
-        requirements: [
-          'Photo/video upload and storage',
-          'Automatic organization by faces, places, things',
-          'Search by content without manual tags',
-          'Shared albums and collaboration',
-          'Storage optimization (free tier)'
-        ],
-        components: [
-          { name: 'Upload Service', desc: 'Handle chunked uploads with resume' },
-          { name: 'Processing Pipeline', desc: 'Generate thumbnails, extract metadata' },
-          { name: 'ML Services', desc: 'Face detection, object recognition, OCR' },
-          { name: 'Object Storage', desc: 'Store originals and processed versions' },
-          { name: 'Search Service', desc: 'Index ML features for content search' },
-          { name: 'Album Service', desc: 'Manage albums, shares, permissions' }
-        ],
-        mlFeatures: [
-          'Face detection → clustering by person',
-          'Object/scene recognition (1000+ categories)',
-          'OCR for text in images',
-          'Location from EXIF or landmark detection',
-          'Auto-generated memories and albums'
-        ],
-        storageOptimization: [
-          'Lossy compression for "high quality" tier',
-          'Perceptual hashing for deduplication',
-          'Progressive loading (blur → full)',
-          'Cold storage for rarely accessed photos'
-        ],
-        scaling: [
-          'Billions of photos uploaded daily',
-          'GPU clusters for ML inference',
-          'CDN for thumbnail delivery',
-          'Batch processing for bulk analysis'
-        ]
-      }
-    },
-    {
-      id: 'rate-limiter',
-      title: 'Rate Limiter',
-      icon: '🚦',
-      color: '#f59e0b',
-      difficulty: 'Medium-Hard',
       hasExistingPage: true,
-      component: RateLimiter,
-      description: 'Design a distributed rate limiting system to protect APIs.'
+      component: GoogleDocs,
+      description: 'Design real-time collaborative document editing with conflict resolution.'
     },
     {
-      id: 'notification-system',
-      title: 'Notification System',
-      icon: '🔔',
-      color: '#8b5cf6',
-      difficulty: 'Medium-Hard',
-      hasExistingPage: true,
-      component: NotificationSystem,
-      description: 'Design multi-channel notifications with push, email, SMS, and in-app.'
-    },
-    {
-      id: 'ticket-booking',
-      title: 'Ticket Booking System',
-      icon: '🎟️',
-      color: '#ec4899',
+      id: 'netflix',
+      title: 'Netflix',
+      icon: '🎬',
+      color: '#e50914',
       difficulty: 'Hard',
       hasExistingPage: true,
-      component: TicketBooking,
-      description: 'Design a Ticketmaster-style system that sells seats for high-demand events without double-booking under flash-sale load.'
+      component: Netflix,
+      description: 'Design a video streaming platform with encoding, CDN, recommendations, and adaptive bitrate for 200M+ users.'
     },
     {
-      id: 'credit-card-portal',
-      title: 'Credit Card Portal',
-      icon: '💳',
-      color: '#f2a93b',
+      id: 'amazon',
+      title: 'Amazon E-Commerce',
+      icon: '🛒',
+      color: '#ff9900',
       difficulty: 'Hard',
       hasExistingPage: true,
-      component: CreditCardPortal,
-      description: 'Design a card issuer portal: applications, authorization holds, an immutable ledger, payments that never double-charge, and CQRS read models.'
+      component: Amazon,
+      description: 'Design an e-commerce platform with product catalog, inventory, cart, orders, and payment processing.'
     },
     {
-      id: 'payment-system',
-      title: 'Payment System',
-      icon: '💸',
+      id: 'zoom',
+      title: 'Zoom',
+      icon: '📹',
+      color: '#2d8cff',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: Zoom,
+      description: 'Design a video conferencing platform with WebRTC, screen sharing, recording, and 1000+ participant meetings.'
+    },
+    {
+      id: 'rideshare',
+      title: 'Ride Share (Uber/Lyft)',
+      icon: '🚗',
       color: '#10b981',
       difficulty: 'Hard',
       hasExistingPage: true,
-      component: PaymentSystem,
-      description: 'Design a marketplace payments backend: PSP pay-in with exactly-once charging, a double-entry ledger, refunds, seller payouts, and daily reconciliation.'
-    },
-    {
-      id: 'whatsapp',
-      title: 'WhatsApp / Messaging',
-      icon: '💬',
-      color: '#25d366',
-      difficulty: 'Hard',
-      hasExistingPage: true,
-      component: WhatsApp,
-      description: 'Design messaging platform with E2E encryption and billions of users.'
-    },
-    {
-      id: 'instagram',
-      title: 'Instagram',
-      icon: '📸',
-      color: '#e1306c',
-      difficulty: 'Hard',
-      hasExistingPage: true,
-      component: Instagram,
-      description: 'Design a photo-sharing platform with feed generation, stories, likes, comments, and billion-user scale.'
-    },
-    {
-      id: 'twitter',
-      title: 'Twitter / X',
-      icon: '🐦',
-      color: '#1da1f2',
-      difficulty: 'Hard',
-      hasExistingPage: true,
-      component: Twitter,
-      description: 'Design a social platform with real-time tweets, timeline generation, trending topics, and fan-out strategies.'
+      component: RideShare,
+      description: 'Design a ride-sharing platform with real-time matching, geospatial routing, and high availability.'
     }
   ]
 
@@ -498,7 +389,7 @@ function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
 
             {content.mlFeatures && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ color: '#a855f7', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                <h3 style={{ color: '#f59e0b', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
                   ML Features
                 </h3>
                 <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
@@ -551,7 +442,7 @@ function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
         <button
           onClick={onBack}
           style={{
-            background: '#a855f7',
+            background: '#f59e0b',
             color: 'white',
             padding: '0.75rem 1.5rem',
             borderRadius: '0.5rem',
@@ -573,7 +464,7 @@ function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
           title="Topics"
           getItemLabel={(item) => item.title}
           getItemIcon={(item) => item.icon}
-          primaryColor="#a855f7"
+          primaryColor="#f59e0b"
         />
 
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -581,15 +472,15 @@ function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
             fontSize: '2.5rem',
             fontWeight: 'bold',
             marginBottom: '1rem',
-            background: 'linear-gradient(to right, #a855f7, #c084fc)',
+            background: 'linear-gradient(to right, #f59e0b, #fbbf24)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
-            ⭐ L5 Level System Design
+            🏆 L6+ Level System Design
           </h1>
           <p style={{ color: '#9ca3af', fontSize: '1.1rem', maxWidth: '800px', margin: '0 auto' }}>
-            Senior-level system design questions. Large-scale distributed systems requiring
-            solid knowledge of scalability, reliability, and trade-offs.
+            Staff/Principal-level system design questions. Planet-scale, multi-system platforms
+            requiring deep expertise in distributed consensus, real-time data, and cross-cutting trade-offs.
           </p>
         </div>
 
@@ -682,4 +573,4 @@ function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
   )
 }
 
-export default L5SystemDesign
+export default L6SystemDesign
