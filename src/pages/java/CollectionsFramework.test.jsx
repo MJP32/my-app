@@ -110,24 +110,23 @@ describe('CollectionsFramework', () => {
   })
 
   describe('Advanced Patterns concept', () => {
-    it('opens and shows all 4 detail tabs', () => {
+    it('opens and shows all 3 detail tabs', () => {
       render(<CollectionsFramework onBack={mockOnBack} breadcrumb={mockBreadcrumb} />)
 
       fireEvent.click(screen.getByText('Advanced Patterns'))
 
       expect(screen.getAllByText('LRU Cache Design').length).toBeGreaterThanOrEqual(1)
       expect(screen.getAllByText('Iterator & Fail-Fast').length).toBeGreaterThanOrEqual(1)
-      expect(screen.getAllByText('Fail-Safe Iterators').length).toBeGreaterThanOrEqual(1)
       expect(screen.getAllByText('Utility Methods').length).toBeGreaterThanOrEqual(1)
     })
 
-    it('renders Fail-Safe Iterators detail content', () => {
+    it('renders Utility Methods detail content', () => {
       render(<CollectionsFramework onBack={mockOnBack} breadcrumb={mockBreadcrumb} />)
 
       fireEvent.click(screen.getByText('Advanced Patterns'))
-      fireEvent.click(screen.getByText('Fail-Safe Iterators'))
+      fireEvent.click(screen.getByText('Utility Methods'))
 
-      expect(screen.getAllByText('Fail-Safe Iterators').length).toBeGreaterThanOrEqual(2)
+      expect(screen.getAllByText('Utility Methods').length).toBeGreaterThanOrEqual(2)
     })
 
     it('renders Iterator & Fail-Fast detail content', () => {
