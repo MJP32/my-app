@@ -6,7 +6,7 @@ const categoryGroups = {
   'Java': {
     icon: '☕',
     color: '#f59e0b',
-    items: ['Core Java', 'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26']
+    items: ['Core Java', 'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26', 'Java 27']
   },
   'Design': {
     icon: '🎨',
@@ -26,7 +26,7 @@ const categoryGroups = {
   'Frameworks': {
     icon: '🌱',
     color: '#ec4899',
-    items: ['Spring', 'Spring Boot', 'REST API', 'Dependency Injection', 'gRPC', 'SOAP', 'React', 'Angular', 'GraphQL', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Data', 'Spring Security', 'Ehcache', 'Shell Scripting', 'BFF']
+    items: ['Spring', 'Spring Boot', 'Spring Boot 4', 'REST API', 'Dependency Injection', 'gRPC', 'SOAP', 'React', 'Angular', 'GraphQL', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Data', 'Spring Security', 'Ehcache', 'Shell Scripting', 'BFF']
   },
   'DevOps': {
     icon: '🛠️',
@@ -171,9 +171,11 @@ export const createSearchIndex = () => {
     { value: 'Java 21', title: 'Java 21', description: 'Java 21 LTS with virtual threads, pattern matching, record patterns, and structured concurrency.', keywords: ['java21', 'virtual', 'threads', 'loom', 'pattern', 'matching', 'records'] },
     { value: 'Java 24', title: 'Java 24', description: 'Java 24 preview features including stream gatherers, scoped values, class-file API, and primitive patterns.', keywords: ['java24', 'gatherers', 'scoped', 'values', 'class-file', 'preview'] },
     { value: 'Java 25', title: 'Java 25 LTS', description: 'Java 25 LTS: compact source files, instance main, module imports, scoped values, stable values, compact object headers, generational Shenandoah, KDF API.', keywords: ['java25', 'lts', 'compact', 'source', 'instance main', 'module import', 'scoped values', 'stable values', 'object headers', 'shenandoah', 'kdf'] },
-    { value: 'Java 26', title: 'Java 26 Early Access', description: 'Java 26 early access (targeted 2026): value classes (Valhalla), lazy constants, structured concurrency, primitive patterns. Preview, subject to change.', keywords: ['java26', 'valhalla', 'value classes', 'lazy constants', 'structured concurrency', 'primitive patterns', 'preview', 'early access'] },
+    { value: 'Java 26', title: 'Java 26', description: 'Java 26 (March 2026): HTTP/3 for the HTTP Client, prepare to make final mean final, AOT object caching with any GC, G1 throughput, lazy constants, structured concurrency, primitive patterns, PEM encodings.', keywords: ['java26', 'http3', 'http/3', 'quic', 'final fields', 'aot cache', 'leyden', 'lazy constants', 'structured concurrency', 'primitive patterns', 'pem', 'applet'] },
+    { value: 'Java 27', title: 'Java 27', description: 'Java 27 (September 2026): G1 default everywhere, compact object headers by default, post-quantum hybrid key exchange for TLS 1.3, JFR data redaction, lazy constants, structured concurrency, PEM encodings.', keywords: ['java27', 'g1', 'compact object headers', 'post-quantum', 'ml-kem', 'tls', 'jfr', 'redaction', 'lazy constants', 'structured concurrency', 'pem', 'vector api'] },
     // Frameworks
     { value: 'Spring', title: 'Spring Framework', description: 'Spring framework including dependency injection, AOP, MVC, and enterprise application development.', keywords: ['spring', 'dependency', 'injection', 'aop', 'mvc', 'framework'] },
+    { value: 'Spring Boot 4', title: 'Spring Boot 4', description: 'Spring Boot 4 and Spring Framework 7: API versioning, HTTP service clients, @Retryable and @ConcurrencyLimit, BeanRegistrar, JSpecify null safety, Jackson 3, modular starters, RestTestClient.', keywords: ['spring boot 4', 'spring framework 7', 'api versioning', 'httpexchange', 'importhttpservices', 'retryable', 'resilience', 'beanregistrar', 'jspecify', 'jackson 3', 'resttestclient', 'migration'] },
     { value: 'Spring Boot', title: 'Spring Boot', description: 'Opinionated framework for rapid application development with auto-configuration and embedded servers.', keywords: ['springboot', 'boot', 'auto', 'configuration', 'starter', 'actuator'] },
     { value: 'REST API', title: 'REST API', description: 'RESTful web services design with HTTP methods, status codes, API best practices, and HTTP clients (RestTemplate, RestClient, WebClient, Feign).', keywords: ['rest', 'api', 'restful', 'http', 'web', 'services', 'endpoint', 'resttemplate', 'restclient', 'rest client', 'webclient', 'web client', 'feign', 'feignclient', 'http client', 'openfeign'] },
     { value: 'Dependency Injection', title: 'Dependency Injection', description: 'DI design pattern with IoC containers, constructor injection, and Spring DI.', keywords: ['dependency', 'injection', 'ioc', 'inversion', 'control', 'di'] },

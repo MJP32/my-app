@@ -193,7 +193,7 @@ const tabCategories = {
   core: { label: 'Core Fundamentals', ids: ['Core Java', 'Object-Oriented Programming', 'Class', 'Interface', 'Exception Handling', 'Generics', 'File I/O'] },
   collections: { label: 'Collections & Streams', ids: ['Collections Framework', 'Streams', 'Streams Advanced', 'Optional', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Functional Programming'] },
   concurrency: { label: 'Concurrency', ids: ['Concurrency', 'Multithreading'] },
-  modern: { label: 'Modern Java', ids: ['Java 8', 'Module', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26'] },
+  modern: { label: 'Modern Java', ids: ['Java 8', 'Module', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26', 'Java 27'] },
   jvm: { label: 'JVM & Performance', ids: ['JVM Internals', 'Memory Management'] }
 }
 
@@ -249,7 +249,8 @@ function Java({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCate
     { id: 'Java 21', name: 'Java 21 LTS', icon: '🚀', color: '#22c55e', description: 'Virtual threads, pattern matching for switch, record patterns, and sequenced collections.' },
     { id: 'Java 24', name: 'Java 24 Preview', icon: '🔮', color: '#f59e0b', description: 'Cutting-edge preview features and experimental capabilities.' },
     { id: 'Java 25', name: 'Java 25 LTS', icon: '🚀', color: '#22c55e', description: 'LTS: compact source files, instance main, module imports, scoped values, compact object headers, generational Shenandoah.' },
-    { id: 'Java 26', name: 'Java 26 Early Access', icon: '🔬', color: '#a855f7', description: 'Early access (targeted 2026): value classes, lazy constants, structured concurrency, primitive patterns. Preview, subject to change.' },
+    { id: 'Java 26', name: 'Java 26', icon: '📦', color: '#14b8a6', description: 'March 2026: HTTP/3 client, final-field integrity warnings, AOT object caching with any GC, lazy constants and structured concurrency previews.' },
+    { id: 'Java 27', name: 'Java 27', icon: '🆕', color: '#6366f1', description: 'September 2026: G1 and compact object headers by default, post-quantum hybrid TLS 1.3, JFR secret redaction, continued previews.' },
     // JVM & Performance
     { id: 'JVM Internals', name: 'JVM Internals', icon: '⚙️', color: '#6366f1', description: 'Class loading, bytecode, JIT compilation, and JVM architecture.' },
     { id: 'Memory Management', name: 'Memory Management', icon: '🧠', color: '#a855f7', description: 'Heap, stack, garbage collection algorithms, and memory optimization.' },

@@ -16,7 +16,7 @@ const FRAMEWORK_COLORS = {
 
 const categories = {
   all: { label: 'All', ids: null },
-  spring: { label: 'Spring Ecosystem', ids: ['Spring', 'Spring Boot', 'Hibernate', 'Dependency Injection', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Data', 'Spring Security', 'Ehcache'] },
+  spring: { label: 'Spring Ecosystem', ids: ['Spring', 'Spring Boot', 'Spring Boot 4', 'Hibernate', 'Dependency Injection', 'Actuator', 'Zipkin', 'Spring Batch', 'Spring Data', 'Spring Security', 'Ehcache'] },
   api: { label: 'API Development', ids: ['REST API', 'gRPC', 'SOAP', 'GraphQL', 'BFF'] },
   frontend: { label: 'Frontend', ids: ['React', 'Angular'] },
   tools: { label: 'Tools', ids: ['Shell Scripting'] }
@@ -48,6 +48,13 @@ function Frameworks({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       icon: '🚀',
       color: '#059669',
       description: 'Spring Boot for rapid application development with auto-configuration and production-ready features.'
+    },
+    {
+      id: 'Spring Boot 4',
+      name: 'Spring Boot 4',
+      icon: '🆕',
+      color: '#22c55e',
+      description: 'What is new in Spring Boot 4 and Spring Framework 7: API versioning, HTTP service clients, built-in retry, Jackson 3, modular starters, and migration notes.'
     },
     {
       id: 'Hibernate',

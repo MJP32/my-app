@@ -40,6 +40,7 @@ const Java21 = lazy(() => import('./pages/java/Java21.jsx'))
 const Java24 = lazy(() => import('./pages/java/Java24.jsx'))
 const Java25 = lazy(() => import('./pages/java/Java25.jsx'))
 const Java26 = lazy(() => import('./pages/java/Java26.jsx'))
+const Java27 = lazy(() => import('./pages/java/Java27.jsx'))
 const Module = lazy(() => import('./pages/java/Module.jsx'))
 const Class = lazy(() => import('./pages/java/Class.jsx'))
 const Interface = lazy(() => import('./pages/java/Interface.jsx'))
@@ -63,6 +64,7 @@ const FunctionalInterfaces = lazy(() => import('./pages/java/FunctionalInterface
 const DependencyInjection = lazy(() => import('./pages/spring/DependencyInjection.jsx'))
 const Spring = lazy(() => import('./pages/spring/Spring.jsx'))
 const SpringBoot = lazy(() => import('./pages/spring/SpringBoot.jsx'))
+const SpringBoot4 = lazy(() => import('./pages/spring/SpringBoot4.jsx'))
 const RestAPI = lazy(() => import('./pages/spring/RestAPI.jsx'))
 const Hibernate = lazy(() => import('./pages/spring/Hibernate.jsx'))
 const Actuator = lazy(() => import('./pages/frameworks/Actuator.jsx'))
@@ -468,13 +470,13 @@ const LEARNING_COMPONENTS_ORDER = [
   // Core Programming
   'Core Java', 'Class', 'Interface', 'Design Patterns', 'Dependency Injection', 'System Design',
   // Java Versions
-  'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26'
+  'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26', 'Java 27'
 ]
 
 // Subcategory groupings for learning components
 const LEARNING_SUBCATEGORIES = {
   'Core Programming': ['Core Java', 'Class', 'Interface', 'Design Patterns', 'Dependency Injection', 'System Design'],
-  'Java Versions': ['Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26']
+  'Java Versions': ['Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24', 'Java 25', 'Java 26', 'Java 27']
 }
 
 const LEARNING_SUBCATEGORY_ORDER = ['Core Programming', 'Java Versions']
@@ -2125,11 +2127,19 @@ function App() {
       },
       {
         value: 'Java 26',
-        label: '🔬 Java 26 Early Access',
-        description: 'Java 26 (targeted March 2026, non-LTS) carries forward value classes (Valhalla), lazy constants, structured concurrency, and primitive patterns. Features are in preview and subject to change.',
-        metrics: ['Early Access', 'Value Classes', 'Lazy Constants', 'Preview Features'],
-        complexity: 'Expert Level',
-        industry: 'Research & Development, Early Adopters'
+        label: '📦 Java 26',
+        description: 'Java 26 (March 2026, non-LTS) adds HTTP/3 to the HTTP Client, warns on final-field mutation via reflection, enables AOT object caching with any GC, and continues lazy constants, structured concurrency, and primitive pattern previews.',
+        metrics: ['HTTP/3', 'Final Means Final', 'AOT Cache + ZGC', 'Lazy Constants'],
+        complexity: 'Advanced',
+        industry: 'Early Adopters, Platform Teams'
+      },
+      {
+        value: 'Java 27',
+        label: '🆕 Java 27',
+        description: 'Java 27 (September 2026, non-LTS) makes G1 the default GC everywhere and compact object headers the default, adds post-quantum hybrid key exchange to TLS 1.3, and redacts secrets from JFR recordings.',
+        metrics: ['G1 Everywhere', 'Compact Headers', 'Post-Quantum TLS', 'JFR Redaction'],
+        complexity: 'Advanced',
+        industry: 'Early Adopters, Platform Teams'
       }
     ],
     // Row 2: Frameworks & Data Technologies
@@ -3166,7 +3176,8 @@ function App() {
     'Java 21': { name: 'Recent Releases (15-21)', id: 'recent-releases' },
     'Java 24': { name: 'Preview Features', id: 'preview' },
     'Java 25': { name: 'Preview Features', id: 'preview' },
-    'Java 26': { name: 'Preview Features', id: 'preview' }
+    'Java 26': { name: 'Preview Features', id: 'preview' },
+    'Java 27': { name: 'Preview Features', id: 'preview' }
   }
 
   // Helper function to navigate to Java with a specific category
@@ -3886,6 +3897,10 @@ function App() {
       const navCallbacks = createLearningNavigationCallbacks('Java 26')
       return <Java26 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 26'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 26'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 26 Early Access' }} />
     }
+    if (selectedOption === 'Java 27') {
+      const navCallbacks = createLearningNavigationCallbacks('Java 27')
+      return <Java27 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 27'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 27'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 27 Early Access' }} />
+    }
     if (selectedOption === 'Design Patterns') {
       setShowDesignPatternsModal(true)
       setSelectedOptionAndRef('')
@@ -3899,6 +3914,9 @@ function App() {
       setShowSpringModal(true)
       setSelectedOptionAndRef('')
       return null
+    }
+    if (selectedOption === 'Spring Boot 4') {
+      return <SpringBoot4 onBack={() => { setFrameworksInitialCategory('spring'); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }} />
     }
     if (selectedOption === 'Spring Boot') {
       setShowSpringBootModal(true)

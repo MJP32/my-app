@@ -1,8 +1,8 @@
 /**
- * Java 26
+ * Java 27
  *
- * Released features of JDK 26 (GA March 2026): HTTP/3 client, final-field
- * integrity, AOT object caching with any GC, and continuing previews.
+ * Released features of JDK 27 (GA September 2026): G1 and compact object
+ * headers by default, post-quantum TLS, JFR redaction, and continuing previews.
  */
 
 import { useState, useEffect } from 'react'
@@ -15,14 +15,14 @@ import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 // COLORS CONFIGURATION
 // =============================================================================
 
-const JAVA26_COLORS = {
-  primary: '#14b8a6',
-  primaryHover: '#2dd4bf',
-  bg: 'rgba(20, 184, 166, 0.1)',
-  border: 'rgba(20, 184, 166, 0.3)',
-  arrow: '#14b8a6',
-  hoverBg: 'rgba(20, 184, 166, 0.2)',
-  topicBg: 'rgba(20, 184, 166, 0.2)'
+const JAVA27_COLORS = {
+  primary: '#6366f1',
+  primaryHover: '#818cf8',
+  bg: 'rgba(99, 102, 241, 0.1)',
+  border: 'rgba(99, 102, 241, 0.3)',
+  arrow: '#6366f1',
+  hoverBg: 'rgba(99, 102, 241, 0.2)',
+  topicBg: 'rgba(99, 102, 241, 0.2)'
 }
 
 const SUBTOPIC_COLORS = [
@@ -39,7 +39,7 @@ const SUBTOPIC_COLORS = [
 // MAIN COMPONENT
 // =============================================================================
 
-function Java26({ onBack, breadcrumb }) {
+function Java27({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -49,261 +49,207 @@ function Java26({ onBack, breadcrumb }) {
 
   const concepts = [
     {
-      id: 'about-java-26',
-      name: 'About Java 26',
+      id: 'about-java-27',
+      name: 'About Java 27',
       icon: '📦',
       color: '#64748b',
-      description: 'Java 26 (JDK 26) reached General Availability on 17 March 2026. It is a non-LTS feature release following the Java 25 LTS, delivering 10 JEPs: HTTP/3, final-field integrity, AOT caching for every GC, and further rounds of the long-running previews.',
+      description: 'Java 27 (JDK 27) reached General Availability on 15 September 2026. It is a non-LTS feature release with 9 JEPs, focused on better runtime defaults, post-quantum TLS, safer JFR recordings, and more preview rounds.',
       details: [
         {
           name: 'Release Overview',
-          explanation: 'Java 26 is the first feature release after the Java 25 LTS. Under the six-month cadence it is supported only until Java 27 ships (September 2026), so production teams on an LTS track typically stay on Java 25 and use 26 to evaluate what is coming. Five of its JEPs are final features, the rest are previews or incubators that need --enable-preview (or --add-modules for the Vector API).',
-          codeExample: `// JDK 26 JEPs (GA 17 March 2026)
+          explanation: 'Java 27 is the current feature release, supported until Java 28 ships in March 2027. The next LTS after Java 25 is expected to be Java 29 (September 2027). The headline changes in 27 are defaults rather than new syntax: G1 everywhere and compact object headers on by default mean many applications get smaller heaps and more consistent GC behavior just by upgrading.',
+          codeExample: `// JDK 27 JEPs (GA 15 September 2026)
 //
 // Final
-//   JEP 500  Prepare to Make Final Mean Final
-//   JEP 504  Remove the Applet API
-//   JEP 516  Ahead-of-Time Object Caching with Any GC
-//   JEP 517  HTTP/3 for the HTTP Client API
-//   JEP 522  G1 GC: Improve Throughput by Reducing Synchronization
+//   JEP 523  Make G1 the Default Garbage Collector in All Environments
+//   JEP 527  Post-Quantum Hybrid Key Exchange for TLS 1.3
+//   JEP 534  Compact Object Headers by Default
+//   JEP 536  JFR In-Process Data Redaction
 //
 // Preview / Incubator
-//   JEP 524  PEM Encodings of Cryptographic Objects   (2nd preview)
-//   JEP 525  Structured Concurrency                    (6th preview)
-//   JEP 526  Lazy Constants                            (2nd preview)
-//   JEP 529  Vector API                                (11th incubator)
-//   JEP 530  Primitive Types in Patterns, instanceof,
-//            and switch                                (4th preview)`
+//   JEP 531  Lazy Constants                            (3rd preview)
+//   JEP 532  Primitive Types in Patterns, instanceof,
+//            and switch                                (5th preview)
+//   JEP 533  Structured Concurrency                    (7th preview)
+//   JEP 537  Vector API                                (12th incubator)
+//   JEP 538  PEM Encodings of Cryptographic Objects    (3rd preview)`
         },
         {
-          name: 'Trying Preview Features',
-          explanation: 'Preview language and API features are fully specified but not yet permanent. They must be unlocked explicitly at both compile time and run time, and code compiled with preview features only runs on the exact JDK release it was compiled for.',
-          codeExample: `// Check your runtime version
-//   java --version
-//
-// Compile and run with preview features
-//   javac --release 26 --enable-preview Main.java
-//   java --enable-preview Main
-//
-// Or run a single source file directly
-//   java --enable-preview Main.java`
+          name: 'Upgrade Checklist',
+          explanation: 'Because two JVM defaults change, re-check memory and GC settings when moving to 27. Small containers that previously got Serial GC now get G1, and every object header shrinks. Both are usually wins, but capacity-planning numbers and GC logs will look different.',
+          codeExample: `# Verify which GC and header layout you are running with
+java -Xlog:gc -version
+java -XX:+PrintFlagsFinal -version | grep -E "UseG1GC|UseSerialGC|UseCompactObjectHeaders"
+
+# Restore the old behavior if you need to
+java -XX:+UseSerialGC ...               # Serial GC on small machines
+java -XX:-UseCompactObjectHeaders ...   # 96-bit headers
+
+# Preview features still require
+javac --release 27 --enable-preview Main.java
+java --enable-preview Main`
         }
       ]
     },
     {
-      id: 'http3',
-      name: 'HTTP/3 for the HTTP Client',
-      icon: '🌐',
+      id: 'runtime-defaults',
+      name: 'New Runtime Defaults',
+      icon: '⚙️',
       color: '#3b82f6',
-      description: 'JEP 517 (final): java.net.http.HttpClient can now speak HTTP/3 over QUIC. It is opt-in, chosen per client or per request, with automatic fallback to HTTP/2 or HTTP/1.1.',
+      description: 'JEP 523 makes G1 the default collector everywhere, and JEP 534 turns on compact object headers by default. No code changes needed.',
       details: [
         {
-          name: 'Opting In to HTTP/3',
-          explanation: 'HTTP/3 runs over QUIC (UDP) instead of TCP, removing head-of-line blocking between streams and speeding up connection setup. Because not every server and network supports it yet, the client still prefers HTTP/2 by default. You opt in by setting HttpClient.Version.HTTP_3 on the client builder or on an individual request.',
-          codeExample: `// Client-level: every request prefers HTTP/3
-var client = HttpClient.newBuilder()
-                       .version(HttpClient.Version.HTTP_3)
-                       .build();
-
-// Request-level: only this request prefers HTTP/3
-var request = HttpRequest.newBuilder(URI.create("https://openjdk.org/"))
-                         .version(HttpClient.Version.HTTP_3)
-                         .GET().build();
-
-HttpResponse<String> response =
-    client.send(request, HttpResponse.BodyHandlers.ofString());
-System.out.println(response.version());   // HTTP_3 if negotiated`
+          name: 'G1 Everywhere (JEP 523)',
+          explanation: 'G1 has been the default for server-class machines since JDK 9, but the JVM still chose Serial GC in constrained environments: a single CPU or less than 1792 MB of memory. That is a common shape for containers, so the same app could get different collectors depending on its pod size. G1 is now competitive with Serial at all heap sizes, so it is the default in every environment.',
+          codeExample: `// Before JDK 27 (ergonomics):
+//   1 CPU or < 1792 MB RAM  ->  Serial GC
+//   otherwise               ->  G1
+//
+// JDK 27:
+//   always                  ->  G1
+//
+// Opt back in to Serial explicitly if you measured it to be better:
+//   java -XX:+UseSerialGC -jar app.jar`
         },
         {
-          name: 'Discovery & Fallback',
-          explanation: 'When HTTP/3 is requested, the client by default tries HTTP/3 first and falls back to HTTP/2 or HTTP/1.1 if the QUIC connection does not succeed in time. The H3_DISCOVERY request option with the Http3DiscoveryMode enum changes this: ALT_SVC starts on HTTP/2 or 1.1 and upgrades only if the server advertises HTTP/3 as an alternative service, while HTTP_3_URI_ONLY uses HTTP/3 with no fallback at all.',
-          codeExample: `// Discovery modes (Http3DiscoveryMode, set via the H3_DISCOVERY option)
+          name: 'Compact Object Headers by Default (JEP 534)',
+          explanation: 'Every Java object carries a header. Compact object headers shrink it from 96 bits to 64 bits on 64-bit platforms, which cuts heap use and improves cache locality. The feature was experimental in JDK 24 (JEP 450), became a product option in JDK 25 (JEP 519), and is now on by default. Reported results include 22% less heap and 8% less CPU on SPECjbb2015, and around 15% fewer GCs with G1 and Parallel.',
+          codeExample: `// Object header on 64-bit JVMs
 //
-//  default           try HTTP/3 first, fall back to HTTP/2 / HTTP/1.1
-//  ALT_SVC           start on HTTP/2 or 1.1, switch to HTTP/3 only if the
-//                    server advertises it (Alt-Svc header)
-//  HTTP_3_URI_ONLY   HTTP/3 only - fail if it is unavailable
+//   Before:  [ mark word 64 bits ][ class pointer 32 bits ]  = 96 bits
+//   JDK 27:  [ mark word + class pointer packed into 64 bits ]
 //
-// Typical rollout: enable HTTP/3 on clients that talk to CDNs or
-// mobile-facing APIs first, where QUIC's faster handshake and
-// loss recovery help most.`
+// Most benefit: apps with many small objects (collections, DTOs,
+// boxed values), where the header is a large share of each object.
+//
+// Disable if needed:
+//   java -XX:-UseCompactObjectHeaders -jar app.jar`
         }
       ]
     },
     {
-      id: 'integrity',
-      name: 'Integrity & Cleanup',
-      icon: '🔒',
+      id: 'post-quantum-tls',
+      name: 'Post-Quantum TLS',
+      icon: '🛡️',
       color: '#ef4444',
-      description: 'JEP 500 starts warning when deep reflection mutates final fields, preparing for "final means final". JEP 504 removes the long-deprecated Applet API.',
+      description: 'JEP 527 adds hybrid key exchange to TLS 1.3, combining ML-KEM with classic elliptic curves. X25519MLKEM768 is enabled and preferred by default.',
       details: [
         {
-          name: 'Prepare to Make Final Mean Final (JEP 500)',
-          explanation: 'Today, setAccessible(true) lets reflection overwrite a final field, which undermines both program correctness and JIT optimizations that assume finals never change. In JDK 26 such mutation still works but prints a warning (once per module). A future release will make deny the default, throwing IllegalAccessException. Libraries that legitimately need this (serialization frameworks, mocking tools) must be granted it explicitly with --enable-final-field-mutation.',
-          codeExample: `class C { final int x; C() { x = 100; } }
-
-Field f = C.class.getDeclaredField("x");
-f.setAccessible(true);
-f.set(new C(), 200);
-// JDK 26: works, but prints
-// WARNING: Final field x in C has been mutated by class ...
-
-// Grant mutation explicitly
-//   java --enable-final-field-mutation=ALL-UNNAMED ...   (class path)
-//   java --enable-final-field-mutation=M1,M2 ...         (named modules)
-
-// Choose the behavior for illegal mutation
-//   --illegal-final-field-mutation=allow | warn | debug | deny
-//   (warn is the JDK 26 default; deny becomes the default later)`
-        },
-        {
-          name: 'Remove the Applet API (JEP 504)',
-          explanation: 'The java.applet package and related classes, deprecated since Java 9 and marked for removal in Java 17, are finally gone. No browser has supported applets for years, so the practical impact is limited to legacy code that still compiles against these types.',
-          codeExample: `// Removed in JDK 26:
-//   java.applet.Applet, AppletContext, AppletStub, AudioClip
-//   javax.swing.JApplet
-//   java.beans.AppletInitializer
+          name: 'Hybrid Key Exchange (JEP 527)',
+          explanation: 'Attackers can record encrypted traffic today and decrypt it once quantum computers can break elliptic-curve key exchange ("harvest now, decrypt later"). A hybrid scheme combines the quantum-resistant ML-KEM algorithm with a traditional one such as X25519, and stays secure as long as either remains unbroken. JDK 27 places X25519MLKEM768 first in the default named-groups list, so TLS 1.3 connections to servers that support it are protected with no code changes.',
+          codeExample: `// Default named groups in JDK 27 (most preferred first):
+//   X25519MLKEM768, x25519, secp256r1, secp384r1, secp521r1,
+//   x448, ffdhe2048, ffdhe3072, ffdhe4096
 //
-// Code that still references them no longer compiles on JDK 26.`
+// Also available but not enabled by default:
+//   SecP256r1MLKEM768, SecP384r1MLKEM1024
+//
+// Override globally:
+//   java -Djdk.tls.namedGroups="X25519MLKEM768,x25519" ...`
+        },
+        {
+          name: 'Configuring Groups in Code',
+          explanation: 'To control the key-exchange groups for a specific connection, set them on SSLParameters. This is useful when a partner requires a particular hybrid scheme or when you need to stay on classic groups for an older peer.',
+          codeExample: `SSLSocket tlsSock = (SSLSocket) SSLContext.getDefault()
+        .getSocketFactory().createSocket();
+
+SSLParameters params = tlsSock.getSSLParameters();
+
+// Two hybrid KEM schemes, then two traditional schemes
+params.setNamedGroups(new String[] {
+    "SecP256r1MLKEM768", "X25519MLKEM768", "secp256r1", "x25519"
+});
+tlsSock.setSSLParameters(params);`
         }
       ]
     },
     {
-      id: 'performance',
-      name: 'Startup & Performance',
-      icon: '⚡',
+      id: 'jfr-redaction',
+      name: 'JFR Data Redaction',
+      icon: '🙈',
       color: '#f59e0b',
-      description: 'JEP 516 lets the Project Leyden AOT cache store objects for any garbage collector, including ZGC. JEP 522 raises G1 throughput, and the Vector API continues incubating.',
+      description: 'JEP 536: JDK Flight Recorder now redacts secrets from command-line arguments, environment variables, and system properties before they are written to a recording.',
       details: [
         {
-          name: 'AOT Object Caching with Any GC (JEP 516)',
-          explanation: 'The AOT cache (from Project Leyden) records classes and objects from a training run so later runs start with them already loaded and linked. Previously, cached objects were stored in a GC-specific memory layout, so low-latency ZGC users had to choose between AOT startup gains and ZGC. JEP 516 stores objects in a GC-agnostic format and streams them into the heap at startup, so the cache works with every collector.',
-          codeExample: `# 1. Training run: record a cache while exercising the app
-java -XX:AOTCacheOutput=app.aot -jar app.jar
-
-# 2. Production runs: start from the cache
-java -XX:AOTCache=app.aot -jar app.jar
-
-# New in JDK 26: works with ZGC too
-java -XX:+UseZGC -XX:AOTCache=app.aot -jar app.jar`
+          name: 'What Gets Redacted',
+          explanation: 'JFR recordings are often attached to support tickets or shared with other teams, and they used to capture the full command line, environment, and system properties, including passwords and tokens. JFR now replaces sensitive values with [REDACTED] inside the JVM, before any data is written. Built-in filters match names such as *password*, *token*, *secret*, *credential*, *api*key*, *auth*, *private*key*, *passphrase* and *pwd*.',
+          codeExample: `// Recorded before JDK 27
+//   jdk.InitialSystemProperty  db.password = hunter2
+//   jdk.InitialEnvironmentVariable  API_TOKEN = abc123
+//
+// Recorded in JDK 27
+//   jdk.InitialSystemProperty  db.password = [REDACTED]
+//   jdk.InitialEnvironmentVariable  API_TOKEN = [REDACTED]`
         },
         {
-          name: 'G1 Throughput (JEP 522)',
-          explanation: 'G1 needs bookkeeping (write barriers and a card table) to track references between heap regions. JEP 522 reduces the synchronization between application threads and GC threads around that bookkeeping, so the write barrier is cheaper and throughput improves with no configuration change.',
-          codeExample: `// No code or flag changes required - G1 is faster out of the box.
-// Applications with many reference writes into old-generation
-// objects benefit the most.`
-        },
-        {
-          name: 'Vector API (JEP 529, 11th incubator)',
-          explanation: 'The Vector API expresses SIMD computations that the JIT compiles to native vector instructions (AVX, NEON, SVE). It stays in incubation until Project Valhalla value classes are available, which the final API is designed around.',
-          codeExample: `// javac/java --add-modules jdk.incubator.vector ...
-static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
+          name: 'Custom Redaction Filters',
+          explanation: 'Use -XX:FlightRecorderOptions with redact-key (environment variable and system property names) and redact-argument (command-line arguments). Filters are case-insensitive globs separated by semicolons. Prefix the first filter with + to add to the built-in defaults instead of replacing them, or use redact-argument=none to turn argument redaction off.',
+          codeExample: `# Redact keys containing "confidential" and URLs with embedded credentials
+java -XX:FlightRecorderOptions:'redact-key=confidential,redact-argument=https://*:*@*' \\
+     -XX:StartFlightRecording -jar app.jar
 
-void multiply(float[] a, float[] b, float[] c) {
-    int i = 0;
-    for (; i < SPECIES.loopBound(a.length); i += SPECIES.length()) {
-        var va = FloatVector.fromArray(SPECIES, a, i);
-        var vb = FloatVector.fromArray(SPECIES, b, i);
-        va.mul(vb).intoArray(c, i);
-    }
-    for (; i < a.length; i++) c[i] = a[i] * b[i];   // tail
-}`
+# Keep the defaults and add your own
+java -XX:FlightRecorderOptions:'redact-key=+*internal*' ...
+
+# See what was redacted
+java -Xlog:jfr+redact=debug ...`
         }
       ]
     },
     {
-      id: 'lazy-constants',
-      name: 'Lazy Constants',
-      icon: '⏳',
+      id: 'previews',
+      name: 'Preview APIs',
+      icon: '🧪',
       color: '#8b5cf6',
-      description: 'JEP 526 (second preview): StableValue is renamed LazyConstant and simplified. A lazy constant is computed at most once, on first use, and then treated by the JVM like a final field.',
+      description: 'Lazy Constants (third preview), Structured Concurrency (seventh preview), primitive patterns (fifth preview), PEM encodings (third preview) and the Vector API (twelfth incubator) continue toward finalization.',
       details: [
         {
-          name: 'LazyConstant',
-          explanation: 'Deferring expensive initialization usually means a mutable field plus double-checked locking. A LazyConstant holds a value computed by a supplier on first get(), exactly once even under contention, after which the JIT can constant-fold it like a final. This second preview renames StableValue to LazyConstant, removes the low-level orElseSet/setOrThrow/trySet methods, and disallows null as a computed value.',
+          name: 'Lazy Constants (JEP 531)',
+          explanation: 'The third preview trims the API to its core: the low-level isInitialized() and orElse() methods are gone, and Set.ofLazy joins List.ofLazy and Map.ofLazy. A LazyConstant is computed once on first get() and then treated by the JVM as a constant.',
           codeExample: `class OrderController {
     private final LazyConstant<Logger> logger
         = LazyConstant.of(() -> Logger.create(OrderController.class));
 
     void submitOrder(User user, List<Product> products) {
-        logger.get().info("order started");   // created on first use
+        logger.get().info("order started");
     }
-}`
+}
+
+// Lazy collections
+List<Connection> pool = List.ofLazy(10, i -> openConnection(i));
+Map<Locale, Messages> bundles = Map.ofLazy(locales, Messages::load);
+Set<Feature> enabled = Set.ofLazy(allFeatures, f -> flags.isOn(f));   // new in 27`
         },
         {
-          name: 'Lazy Collections',
-          explanation: 'Lazy list and map factories now live directly on List and Map. Each element is computed independently on first access, so a pool or a lookup table only pays for the entries that are actually used.',
-          codeExample: `// 10 connections, each created only when first requested
-List<Connection> pool = List.ofLazy(10, i -> openConnection(i));
-Connection c = pool.get(3);           // only index 3 is created
-
-// Map with a fixed key set, values computed on demand
-Map<Locale, Messages> bundles =
-    Map.ofLazy(Set.of(Locale.US, Locale.FRANCE), Messages::load);`
-        }
-      ]
-    },
-    {
-      id: 'concurrency-patterns',
-      name: 'Concurrency & Patterns',
-      icon: '🧵',
-      color: '#10b981',
-      description: 'Structured Concurrency (JEP 525, sixth preview) and primitive types in patterns (JEP 530, fourth preview) continue to be refined toward finalization.',
-      details: [
-        {
-          name: 'Structured Concurrency (JEP 525)',
-          explanation: 'StructuredTaskScope treats a group of concurrent subtasks as one unit of work. Subtasks are forked inside a try-with-resources block, the parent joins them all, and if one fails the others are cancelled, so no thread is leaked and errors propagate to the caller. Joiner policies such as allSuccessfulOrThrow and anySuccessfulOrThrow cover common fan-out patterns.',
-          codeExample: `Response handle() throws InterruptedException {
+          name: 'Structured Concurrency (JEP 533)',
+          explanation: 'The seventh preview makes failure handling explicit: join() now throws ExecutionException when a subtask fails, StructuredTaskScope and Joiner gain a type parameter for that exception, and timeouts surface as a CancelledByTimeoutException cause. A new open(UnaryOperator) overload keeps the default join policy while letting you tweak configuration such as the timeout.',
+          codeExample: `Response handle() throws ExecutionException, InterruptedException {
     try (var scope = StructuredTaskScope.open()) {
         Subtask<String>  user  = scope.fork(() -> findUser());
         Subtask<Integer> order = scope.fork(() -> fetchOrder());
-
-        scope.join();   // waits for both; a failure cancels the other
-
+        scope.join();
         return new Response(user.get(), order.get());
     }
+}
+
+// Default policy plus a timeout
+try (var scope = StructuredTaskScope.open(cf -> cf.withTimeout(Duration.ofSeconds(2)))) {
+    ...
 }`
         },
         {
-          name: 'Primitive Types in Patterns (JEP 530)',
-          explanation: 'Pattern matching extends to primitive types in instanceof and switch. A primitive pattern only matches if the conversion is exact (no information loss), so you get safe, range-checked narrowing. The fourth preview tightens the definition of unconditional exactness and adds stricter dominance checks in switch.',
-          codeExample: `int status = response.code();
+          name: 'Primitive Patterns, PEM & Vector API',
+          explanation: 'Primitive types in patterns (JEP 532) repeat unchanged from JDK 26 to gather more feedback. The PEM API (JEP 538) is reworked: PEM becomes an ordinary class instead of a record, DEREncodable is renamed BinaryEncodable, withFactory becomes withFactoriesOf, and a CryptoException type is added. The Vector API (JEP 537) remains incubating until Valhalla value classes arrive.',
+          codeExample: `// Primitive patterns nested in record patterns (JEP 532)
+if (json instanceof JsonObject(var map)
+    && map.get("age") instanceof JsonNumber(int a)) {
+    System.out.println("age " + a);   // matches only if it fits in an int
+}
 
-String text = switch (status) {
-    case 200 -> "OK";
-    case 404 -> "Not Found";
-    case int i when i >= 500 -> "Server error " + i;
-    case int i -> "Other " + i;
-};
-
-long big = 42L;
-if (big instanceof int small) {        // matches only if it fits in an int
-    System.out.println("fits: " + small);
-}`
-        }
-      ]
-    },
-    {
-      id: 'pem',
-      name: 'PEM Encodings',
-      icon: '🔑',
-      color: '#ec4899',
-      description: 'JEP 524 (second preview): a standard API for reading and writing keys and certificates in the PEM text format, replacing hand-written Base64 and header parsing.',
-      details: [
-        {
-          name: 'PEMEncoder & PEMDecoder',
-          explanation: 'PEM ("-----BEGIN PRIVATE KEY-----" blocks) is how keys and certificates are usually stored and exchanged, but the JDK had no API for it. PEMEncoder and PEMDecoder are immutable, thread-safe objects that convert between cryptographic objects and PEM text, including encrypted private keys.',
-          codeExample: `// Encode a key to PEM text
-PEMEncoder pe = PEMEncoder.of();
-String publicPem = pe.encodeToString(publicKey);
-
-// Encrypt a private key with a password
-String privatePem = pe.withEncryption(password).encodeToString(privateKey);
-
-// Decode PEM text back into a typed object
-PEMDecoder pd = PEMDecoder.of();
-PublicKey key = pd.decode(publicPem, PublicKey.class);`
+// PEM (JEP 538)
+String pem = PEMEncoder.of().withEncryption(password).encodeToString(privateKey);
+PrivateKey key = PEMDecoder.of().withDecryption(password)
+                           .decode(pem, PrivateKey.class);`
         }
       ]
     }
@@ -332,7 +278,7 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
   const buildBreadcrumbStack = () => {
     const stack = [
       { name: 'Java', icon: '☕', page: 'Java' },
-      { name: 'Java 26', icon: '🆕', page: 'Java 26' }
+      { name: 'Java 27', icon: '🆕', page: 'Java 27' }
     ]
     if (selectedConcept) {
       stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
@@ -380,7 +326,7 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
 
   const containerStyle = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)',
+    background: 'linear-gradient(135deg, #0f172a 0%, #312e81 50%, #0f172a 100%)',
     padding: '2rem',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   }
@@ -398,7 +344,7 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
   const titleStyle = {
     fontSize: '2.5rem',
     fontWeight: '700',
-    background: 'linear-gradient(135deg, #2dd4bf, #14b8a6)',
+    background: 'linear-gradient(135deg, #818cf8, #6366f1)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     margin: 0
@@ -406,10 +352,10 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
 
   const backButtonStyle = {
     padding: '0.75rem 1.5rem',
-    background: 'rgba(20, 184, 166, 0.2)',
-    border: '1px solid rgba(20, 184, 166, 0.3)',
+    background: 'rgba(99, 102, 241, 0.2)',
+    border: '1px solid rgba(99, 102, 241, 0.3)',
     borderRadius: '0.5rem',
-    color: '#2dd4bf',
+    color: '#818cf8',
     cursor: 'pointer',
     fontSize: '1rem',
     transition: 'all 0.2s'
@@ -423,16 +369,16 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
     <div style={containerStyle}>
       {/* Header with title and back button */}
       <div style={headerStyle}>
-        <h1 style={titleStyle}>Java 26</h1>
+        <h1 style={titleStyle}>Java 27</h1>
         <button
           style={backButtonStyle}
           onClick={onBack}
           onMouseOver={(e) => {
-            e.currentTarget.style.background = 'rgba(20, 184, 166, 0.3)'
+            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.3)'
             e.currentTarget.style.transform = 'translateY(-2px)'
           }}
           onMouseOut={(e) => {
-            e.currentTarget.style.background = 'rgba(20, 184, 166, 0.2)'
+            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'
             e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
@@ -446,7 +392,7 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
           onMainMenu={breadcrumb?.onMainMenu || onBack}
-          colors={JAVA26_COLORS}
+          colors={JAVA27_COLORS}
         />
       </div>
 
@@ -461,7 +407,7 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
         title="Concepts"
         getItemLabel={(item) => item.name}
         getItemIcon={(item) => item.icon}
-        primaryColor={JAVA26_COLORS.primary}
+        primaryColor={JAVA27_COLORS.primary}
       />
 
 
@@ -539,7 +485,7 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
               onMainMenu={breadcrumb?.onMainMenu || onBack}
-              colors={JAVA26_COLORS}
+              colors={JAVA27_COLORS}
             />
 
             {/* Modal Header with Navigation */}
@@ -699,4 +645,4 @@ PublicKey key = pd.decode(publicPem, PublicKey.class);`
   )
 }
 
-export default Java26
+export default Java27
